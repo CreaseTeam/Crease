@@ -21,7 +21,8 @@ public class FlightController : MonoBehaviour
     private float targetYaw = 0f;
 
     private float roll = 0f;
-    private float targetRoll = 0f;
+    public float Roll => roll;
+    // private float targetRoll = 0f;
 
 
     [Header("Flight Physics")]
