@@ -1,0 +1,32 @@
+Stylized Coins Pack (v1.0)
+
+Thanks for downloading the Stylized Collectible Coins Pack! 
+
+This pack is optimized for great performance and easy setup in any project.
+
+💰 What's Included?
+- 15 Unique Low-Poly Coin Designs (Crown, Skull, Heart, etc.)
+- 4 Material Tiers Ready to Use: Gold, Silver, Bronze, and Wood.
+
+
+⚙️ Technical Snapshot
+Polygon Count: approx 180 tris (single mesh)
+Optimization: No LODs needed.
+Formats: FBX (main mesh file)
+
+🚀 Quick Start
+Import the main folder into your game engine. 
+Go to the Prefabs folder. 
+Drag any of the ready-to-use prefabs (e.g., Coin_Gold_Star) straight into your scene!
+
+🎨 Customizing the Look
+The coins use simple materials, so changing the colors is fast: just open the material files in the Materials folder and adjust the Base Color or Albedo setting to match your game's palette.
+
+📜 Licensing
+Licensing: CC0 1.0 Universal (Public Domain)
+What this means: You can use these assets in any commercial or non-commercial game project without needing to ask permission or give credit to the original creator (though credit is always appreciated!).
+
+❓ Support
+If you have questions or need support, please reach out here: polykebap@gmail.com
+
+Enjoy!
