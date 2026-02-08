@@ -4,6 +4,7 @@ public class CameraController : MonoBehaviour
 {
     [Header("Target")]
     public Transform target;
+    public FlightController flightController;
 
     [Header("Offset")]
     [Tooltip("Offset behind and above the plane (in rig-local space).")]
@@ -138,7 +139,8 @@ public class CameraController : MonoBehaviour
         // =============================================================
         // Rig rotation
         // =============================================================
-        float targetRoll = NormalizeAngle(targetEuler.z);
+        // Use the actual roll from FlightController (which is on the mesh child)
+        float targetRoll = (flightController != null) ? -flightController.Roll : NormalizeAngle(targetEuler.z);
         float rigRoll = Mathf.Lerp(targetRoll, 0f, horizonRollStabilization);
         Quaternion rigRotation = Quaternion.Euler(finalPitch, _currentYaw, rigRoll);
 

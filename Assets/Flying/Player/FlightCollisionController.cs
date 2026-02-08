@@ -98,6 +98,13 @@ public class FlightCollisionController : MonoBehaviour
             if (IsInvulnerable) return;
             ApplyKnockback(other);
         }
+
+        // temporarily treat ground as obstacle
+        if (other.CompareTag(groundTag))
+        {
+            if (IsInvulnerable) return;
+            ApplyKnockback(other);
+        }
     }
 
     // ================================================================== Knockback
