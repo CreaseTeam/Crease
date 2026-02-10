@@ -8,12 +8,14 @@ public class MountController : MonoBehaviour
     [SerializeField] private Transform slotContainer;
     [SerializeField] private float throwForce = 15f;
     private MountModel model;
+    private KinematicBody kinematicBody;
     public Action<IInteractable> OnMountInteractable;
 
     private void Start()
     {
         SlotBase[] slots = slotContainer.GetComponentsInChildren<SlotBase>();
         model = new MountModel(slots);
+        kinematicBody = GetComponentInParent<KinematicBody>();
     }
 
     private void Update()
@@ -36,7 +38,7 @@ public class MountController : MonoBehaviour
                 if (prop != null)
                 {
                     // Throw in the direction the mount is facing
-                    prop.OnThrow(GetComponentInParent<Rigidbody>().linearVelocity);
+                    prop.OnThrow(kinematicBody.Velocity);
                     return; // Drop only one per key press
                 }
             }

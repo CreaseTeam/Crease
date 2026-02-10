@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class BombPropEntry : PropEntity
 {
+    [SerializeField] private Vector3 pickupScale = Vector3.one;
+    
     private Rigidbody rb;
     
     private void Start()
@@ -15,6 +17,7 @@ public class BombPropEntry : PropEntity
         isInAir = true;
         transform.SetParent(mountingSlot);
         transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+        transform.localScale = pickupScale;
         rb.isKinematic = true;
     }
 
