@@ -24,6 +24,13 @@ public class FlightController : MonoBehaviour
     public float Roll => roll;
     // private float targetRoll = 0f;
 
+    private float rollOffset = 0f;
+    public float RollOffset
+    {
+        get => rollOffset;
+        set => rollOffset = value;
+    }
+
 
     [Header("Flight Physics")]
     [SerializeField] private float gravity = 0.08f;
@@ -128,7 +135,7 @@ public class FlightController : MonoBehaviour
 
         if (meshTransform != null)
         {
-            meshTransform.localRotation = Quaternion.Euler(roll + meshRotation.x, meshRotation.y, meshRotation.z);
+            meshTransform.localRotation = Quaternion.Euler(roll + rollOffset + meshRotation.x, meshRotation.y, meshRotation.z);
         }
     }
 

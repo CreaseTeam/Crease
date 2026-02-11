@@ -58,6 +58,12 @@ namespace USCG.Core
         {
             Debug.Log("Reloading scenes...");
 
+            // Disable input actions before reloading to prevent destructor warnings
+            bool playerWasEnabled = InputManager.Instance.Actions.Player.enabled;
+            bool debugWasEnabled = InputManager.Instance.Actions.Debug.enabled;
+            InputManager.Instance.Actions.Player.Disable();
+            InputManager.Instance.Actions.Debug.Disable();
+
             // Only one scene can be the active scene. Remember that scene, and record
             // the other scenes that are open.
             string activeScenePath = SceneManager.GetActiveScene().path;
@@ -91,6 +97,12 @@ namespace USCG.Core
             }
 
             Debug.Log("Finished reloading scenes!");
+
+            // Re-enable input actions if they were enabled before
+            if (playerWasEnabled)
+                InputManager.Instance.Actions.Player.Enable();
+            if (debugWasEnabled)
+                InputManager.Instance.Actions.Debug.Enable();
 
             // Update state to make sure we can reload again.
             bIsReloadingScenes = false;

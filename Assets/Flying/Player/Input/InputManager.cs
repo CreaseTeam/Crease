@@ -12,6 +12,7 @@ public class InputManager : MonoBehaviour
     public bool BoostPressed => Actions.Debug.Boost.IsPressed();
     public bool BoostTriggered => Actions.Debug.Boost.WasPerformedThisFrame();
     public bool ResetTriggered => Actions.Debug.Reset.WasPerformedThisFrame();
+    public bool DashTriggered => Actions.Player.Dash.WasPerformedThisFrame();
 
     void Awake()
     {
