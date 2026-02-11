@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 12be055955ac42b46947cc0721579126
+timeCreated: 1496978766
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 94557
+  packageName: Polylised - Medieval Desert City
+  packageVersion: 1.0
+  assetPath: Assets/Polylised - Medieval Desert City/Prefabs/prefab_civilian_buildings/civilian_house_35_d.prefab
+  uploadId: 723546

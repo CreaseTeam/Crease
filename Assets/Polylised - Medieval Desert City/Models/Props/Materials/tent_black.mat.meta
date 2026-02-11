@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 3a420a8e3cc3c8d47b6b4e98beedf04a
+timeCreated: 1498813073
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 94557
+  packageName: Polylised - Medieval Desert City
+  packageVersion: 1.0
+  assetPath: Assets/Polylised - Medieval Desert City/Models/Props/Materials/tent_black.mat
+  uploadId: 723546

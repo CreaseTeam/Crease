@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: ef8eb86c10d081b4aa36b26585370005
+timeCreated: 1496978627
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 94557
+  packageName: Polylised - Medieval Desert City
+  packageVersion: 1.0
+  assetPath: Assets/Polylised - Medieval Desert City/Prefabs/prefab_unique_buildings/citadel_tower_e.prefab
+  uploadId: 723546

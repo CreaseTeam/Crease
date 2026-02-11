@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 2ef39320f0049664da358bbf1fdfb05b
+timeCreated: 1498708209
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 94557
+  packageName: Polylised - Medieval Desert City
+  packageVersion: 1.0
+  assetPath: Assets/Polylised - Medieval Desert City/Models/Terrain/Materials/sky.mat
+  uploadId: 723546

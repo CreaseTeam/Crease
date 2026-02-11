@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: e55d8ea4cf760ff43a82e45bdcc08317
+timeCreated: 1496978822
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 94557
+  packageName: Polylised - Medieval Desert City
+  packageVersion: 1.0
+  assetPath: Assets/Polylised - Medieval Desert City/Prefabs/prefab_civilian_buildings/wooden_support_1.prefab
+  uploadId: 723546

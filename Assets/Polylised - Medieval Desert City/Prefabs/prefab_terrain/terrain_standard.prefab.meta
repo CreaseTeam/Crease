@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 429b354257073ae40ad51c100a60a6be
+timeCreated: 1498544993
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 94557
+  packageName: Polylised - Medieval Desert City
+  packageVersion: 1.0
+  assetPath: Assets/Polylised - Medieval Desert City/Prefabs/prefab_terrain/terrain_standard.prefab
+  uploadId: 723546

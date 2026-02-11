@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 571a69f902adb9846a5eabd744415ecc
+timeCreated: 1498656956
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 94557
+  packageName: Polylised - Medieval Desert City
+  packageVersion: 1.0
+  assetPath: Assets/Polylised - Medieval Desert City/Prefabs/prefab_props/boat_02.prefab
+  uploadId: 723546

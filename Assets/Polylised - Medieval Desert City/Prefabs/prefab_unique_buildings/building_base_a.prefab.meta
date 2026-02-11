@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 2be032c219a3b6141b44c75798f7b7e9
+timeCreated: 1497413919
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 94557
+  packageName: Polylised - Medieval Desert City
+  packageVersion: 1.0
+  assetPath: Assets/Polylised - Medieval Desert City/Prefabs/prefab_unique_buildings/building_base_a.prefab
+  uploadId: 723546

@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: dc129977b326a4e489f7b296c5c110c5
+timeCreated: 1498544119
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 94557
+  packageName: Polylised - Medieval Desert City
+  packageVersion: 1.0
+  assetPath: Assets/Polylised - Medieval Desert City/Prefabs/prefab_terrain/cliff_big_a.prefab
+  uploadId: 723546

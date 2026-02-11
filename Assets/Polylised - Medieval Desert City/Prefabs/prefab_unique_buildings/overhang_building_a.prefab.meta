@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: ffda005e1e236004cb5ca24c0de5fd13
+timeCreated: 1497326307
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 94557
+  packageName: Polylised - Medieval Desert City
+  packageVersion: 1.0
+  assetPath: Assets/Polylised - Medieval Desert City/Prefabs/prefab_unique_buildings/overhang_building_a.prefab
+  uploadId: 723546

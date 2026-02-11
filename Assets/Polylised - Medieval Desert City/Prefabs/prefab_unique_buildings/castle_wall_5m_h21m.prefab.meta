@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: f0cdf773223c8bd49ad0cb82eb59e3ac
+timeCreated: 1497586024
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 94557
+  packageName: Polylised - Medieval Desert City
+  packageVersion: 1.0
+  assetPath: Assets/Polylised - Medieval Desert City/Prefabs/prefab_unique_buildings/castle_wall_5m_h21m.prefab
+  uploadId: 723546
