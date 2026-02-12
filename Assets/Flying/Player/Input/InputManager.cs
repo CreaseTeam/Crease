@@ -23,7 +23,7 @@ public class InputManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+        // DontDestroyOnLoad(gameObject);
 
         Actions = new GameInput();
         Actions.Player.Enable();

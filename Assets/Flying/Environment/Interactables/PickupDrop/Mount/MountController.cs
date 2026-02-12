@@ -6,7 +6,6 @@ using UnityEngine.InputSystem;
 public class MountController : MonoBehaviour
 {
     [SerializeField] private Transform slotContainer;
-    [SerializeField] private float throwForce = 15f;
     private MountModel model;
     private KinematicBody kinematicBody;
     public Action<IInteractable> OnMountInteractable;
