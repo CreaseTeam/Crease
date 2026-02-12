@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
-using UnityEngine.InputSystem;
 
 public class MountController : MonoBehaviour
 {
@@ -19,7 +18,7 @@ public class MountController : MonoBehaviour
 
     private void Update()
     {
-        if (Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame)
+        if (InputManager.Instance != null && InputManager.Instance.DropTriggered)
         {
             DropOneProp();
         }
