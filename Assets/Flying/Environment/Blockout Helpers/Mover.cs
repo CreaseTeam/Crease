@@ -18,8 +18,10 @@ public class Mover : MonoBehaviour
     [Tooltip("Total duration to complete the entire path")]
     [SerializeField] private float duration = 2f;
     
+    #pragma warning disable 0414 // Field assigned but never used - used for inspector convenience to sync with duration
     [Tooltip("Movement speed in units per second")]
     [SerializeField] private float speed = 2.5f;
+    #pragma warning restore 0414
     
     [Header("DOTween Settings")]
     [Tooltip("Start movement automatically when the scene starts")]
@@ -48,17 +50,22 @@ public class Mover : MonoBehaviour
     [SerializeField] private Color pathColor = new Color(0f, 1f, 1f, 0.8f);
     [SerializeField] private Color waypointColor = new Color(1f, 0.5f, 0f, 0.8f);
     [SerializeField] private float waypointSize = 0.3f;
+    #if UNITY_EDITOR
     [SerializeField] private bool showWaypointNumbers = true;
+    #endif
     
     private Vector3 startPosition;
     private Quaternion startRotation;
     private Vector3[] localWaypoints;
     private Tweener movementTween;
     
+    #if UNITY_EDITOR
     private float previousDuration;
     private float previousSpeed;
     private float cachedPathDistance = -1f;
     private int previousWaypointCount = -1;
+    private bool validationScheduled = false;
+    #endif
     
     private void Awake()
     {
@@ -85,6 +92,9 @@ public class Mover : MonoBehaviour
     {
         List<Vector3> waypointList = new List<Vector3>();
         
+        // DOTween paths need to include the starting position as the first waypoint
+        waypointList.Add(startPosition);
+        
         foreach (Vector3 relativePos in relativeWaypoints)
         {
             // Rotate the relative position by the starting rotation
@@ -102,18 +112,16 @@ public class Mover : MonoBehaviour
         // Calculate distance in edit mode or play mode
         if (Application.isPlaying && localWaypoints != null && localWaypoints.Length > 0)
         {
-            // Use local waypoints in play mode
-            Vector3 currentPos = startPosition;
-            foreach (Vector3 waypoint in localWaypoints)
+            // Use local waypoints in play mode (first waypoint is start position)
+            for (int i = 0; i < localWaypoints.Length - 1; i++)
             {
-                totalDistance += Vector3.Distance(currentPos, waypoint);
-                currentPos = waypoint;
+                totalDistance += Vector3.Distance(localWaypoints[i], localWaypoints[i + 1]);
             }
             
             // Add distance back to start if closed path
-            if (closePath)
+            if (closePath && localWaypoints.Length > 1)
             {
-                totalDistance += Vector3.Distance(currentPos, startPosition);
+                totalDistance += Vector3.Distance(localWaypoints[localWaypoints.Length - 1], localWaypoints[0]);
             }
         }
         else
@@ -143,16 +151,19 @@ public class Mover : MonoBehaviour
     
     public void TriggerMovement()
     {
+        // Initialize DOTween (safe to call multiple times)
+        DOTween.Init();
+        
         // Kill existing tween
         movementTween?.Kill();
         
         // Reset to start position
         transform.localPosition = startPosition;
         
-        // Need at least one waypoint
-        if (localWaypoints == null || localWaypoints.Length == 0)
+        // Need at least two waypoints (start + at least one target)
+        if (localWaypoints == null || localWaypoints.Length < 2)
         {
-            Debug.LogWarning("Mover has no waypoints to move to!", this);
+            Debug.LogWarning($"Mover has insufficient waypoints to move to! Found {localWaypoints?.Length ?? 0} waypoints, need at least 2.", this);
             return;
         }
         
@@ -163,6 +174,8 @@ public class Mover : MonoBehaviour
             .SetDelay(delay)
             .SetOptions(closePath)
             .SetAutoKill(true);
+            
+        Debug.Log($"Mover started with {localWaypoints.Length} waypoints over {duration}s", this);
     }
     
     public void StopMovement()
@@ -202,12 +215,12 @@ public class Mover : MonoBehaviour
         // Calculate waypoint positions
         if (Application.isPlaying && localWaypoints != null)
         {
-            // Use calculated local waypoints in play mode
-            foreach (Vector3 waypoint in localWaypoints)
+            // Use calculated local waypoints in play mode (skip first one as it's the start position)
+            for (int i = 1; i < localWaypoints.Length; i++)
             {
                 Vector3 worldPos = transform.parent != null 
-                    ? transform.parent.TransformPoint(waypoint) 
-                    : waypoint;
+                    ? transform.parent.TransformPoint(localWaypoints[i]) 
+                    : localWaypoints[i];
                 gizmoWaypoints.Add(worldPos);
             }
         }
@@ -299,6 +312,23 @@ public class Mover : MonoBehaviour
             relativeWaypoints.Add(new Vector3(0f, 5f, 0f));
         }
         
+        // Debounce validation to prevent excessive calculations
+        // This prevents lag when adjusting values in inspector
+        if (!validationScheduled)
+        {
+            validationScheduled = true;
+            UnityEditor.EditorApplication.delayCall += PerformValidation;
+        }
+        #endif
+    }
+    
+    #if UNITY_EDITOR
+    private void PerformValidation()
+    {
+        validationScheduled = false;
+        
+        if (this == null) return; // Object was destroyed
+        
         // Only recalculate path distance if waypoints changed or cache is invalid
         bool waypointsChanged = (relativeWaypoints.Count != previousWaypointCount || cachedPathDistance < 0f);
         
@@ -340,6 +370,6 @@ public class Mover : MonoBehaviour
             if (duration <= 0f) duration = 0.01f;
             if (speed <= 0f) speed = 0.01f;
         }
-        #endif
     }
+    #endif
 }

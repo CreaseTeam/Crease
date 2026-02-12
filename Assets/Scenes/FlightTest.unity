@@ -34896,7 +34896,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6777264639536916774, guid: eebb3d32e2fb27d4ba72dbcfb4ac6d27, type: 3}
       propertyPath: m_Name
-      value: MovingBoat (1)
+      value: RunawayShip
       objectReference: {fileID: 0}
     - target: {fileID: 6889036958708826610, guid: eebb3d32e2fb27d4ba72dbcfb4ac6d27, type: 3}
       propertyPath: loops
@@ -34912,7 +34912,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6889036958708826610, guid: eebb3d32e2fb27d4ba72dbcfb4ac6d27, type: 3}
       propertyPath: easeType
-      value: 11
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6889036958708826610, guid: eebb3d32e2fb27d4ba72dbcfb4ac6d27, type: 3}
       propertyPath: loopType
@@ -51487,11 +51487,23 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
+      propertyPath: onTriggerEnter.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
       propertyPath: onTriggerEnter.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1935607331}
     - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
+      propertyPath: onTriggerEnter.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 717718316}
+    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
       propertyPath: onTriggerEnter.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
+      propertyPath: onTriggerEnter.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
@@ -51499,11 +51511,23 @@ PrefabInstance:
       value: TriggerMovement
       objectReference: {fileID: 0}
     - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
+      propertyPath: onTriggerEnter.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: TriggerDash
+      objectReference: {fileID: 0}
+    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
       propertyPath: onTriggerEnter.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: Mover, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
+      propertyPath: onTriggerEnter.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: DashController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
       propertyPath: onTriggerEnter.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
+      propertyPath: onTriggerEnter.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 8121321412320970009, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
