@@ -27,7 +27,7 @@ public class SwingOnPlaneHit : MonoBehaviour
     [SerializeField] private Color endColor = new Color(1f, 0f, 0f, 0.5f);
     [SerializeField] private Color swingPathColor = new Color(1f, 1f, 0f, 0.3f);
     [SerializeField] private int arcSegments = 20;
-    [SerializeField] private float gizmoSize = 1f;
+    [SerializeField] private float gizmoSize = 5f;
 
     private bool triggered = false;
     private Coroutine swingRoutine;
