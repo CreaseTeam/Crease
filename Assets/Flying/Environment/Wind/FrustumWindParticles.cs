@@ -6,6 +6,20 @@ using PhysicsHelpers;
 [ExecuteAlways]
 public class FrustumWindParticles : MonoBehaviour
 {
+    [Tooltip("Optional secondary particle system whose shape is synced with the frustum and has its own speed/duration.")]
+    [SerializeField] private ParticleSystem _secondaryParticleSystem;
+
+    [Tooltip("Start speed for the secondary particle system. Duration is derived from height / speed.")]
+    [SerializeField] private float _secondarySpeed = 5f;
+
+    [Tooltip("Start lifetime for the secondary particle system. Speed is derived from height / duration.")]
+    [SerializeField] private float _secondaryDuration = 2f;
+
+    [Tooltip("Control whether the secondary system is driven by speed or duration.")]
+    [SerializeField] private SecondaryDriveMode _secondaryDriveMode = SecondaryDriveMode.Speed;
+
+    public enum SecondaryDriveMode { Speed, Duration }
+
     private ParticleSystem _particleSystem;
     private FrustumTrigger _frustumTrigger;
     
@@ -53,6 +67,11 @@ public class FrustumWindParticles : MonoBehaviour
         _lastBottomRadius = _frustumTrigger.bottomRadius;
         _lastHeight = _frustumTrigger.height;
 
+        // Ensure local-space simulation and hierarchy scaling for proper parent scaling
+        var main = _particleSystem.main;
+        main.simulationSpace = ParticleSystemSimulationSpace.Local;
+        main.scalingMode = ParticleSystemScalingMode.Hierarchy;
+
         // Configure shape module
         var shape = _particleSystem.shape;
         shape.enabled = true;
@@ -84,11 +103,63 @@ public class FrustumWindParticles : MonoBehaviour
         }
 
         // Configure start speed so particles reach the top exactly at end of lifetime
-        var main = _particleSystem.main;
         float lifetime = main.startLifetime.constant;
         if (lifetime > 0)
         {
             main.startSpeed = _frustumTrigger.height / lifetime;
+        }
+
+        // Sync secondary particle system shape and compute its speed/duration
+        UpdateSecondaryParticleSystem();
+    }
+
+    private void UpdateSecondaryParticleSystem()
+    {
+        if (_secondaryParticleSystem == null) return;
+
+        float height = _frustumTrigger.height;
+
+        // Ensure local-space simulation and hierarchy scaling for proper parent scaling
+        var secondaryMain = _secondaryParticleSystem.main;
+        secondaryMain.simulationSpace = ParticleSystemSimulationSpace.Local;
+        secondaryMain.scalingMode = ParticleSystemScalingMode.Hierarchy;
+
+        // Mirror the same cone/cylinder shape onto the secondary system
+        var shape = _secondaryParticleSystem.shape;
+        shape.enabled = true;
+        shape.shapeType = ParticleSystemShapeType.Cone;
+
+        float radiusDiff = _frustumTrigger.topRadius - _frustumTrigger.bottomRadius;
+
+        if (Mathf.Abs(radiusDiff) < 0.001f)
+        {
+            shape.angle = 0.1f;
+            shape.radius = _frustumTrigger.bottomRadius;
+            shape.length = height;
+            shape.position = Vector3.zero;
+        }
+        else
+        {
+            float halfAngle = Mathf.Atan(radiusDiff / height) * Mathf.Rad2Deg;
+            shape.angle = halfAngle;
+            shape.radius = _frustumTrigger.bottomRadius;
+            shape.length = height;
+            shape.position = Vector3.zero;
+        }
+
+        // Derive speed and duration from each other based on drive mode
+
+        if (_secondaryDriveMode == SecondaryDriveMode.Speed)
+        {
+            float speed = Mathf.Max(_secondarySpeed, 0.001f);
+            secondaryMain.startSpeed = speed;
+            secondaryMain.startLifetime = height / speed;
+        }
+        else // Duration
+        {
+            float duration = Mathf.Max(_secondaryDuration, 0.001f);
+            secondaryMain.startLifetime = duration;
+            secondaryMain.startSpeed = height / duration;
         }
     }
 }
