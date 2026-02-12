@@ -25,9 +25,12 @@ namespace USCG.Core
 
         private void Awake()
         {
-            if (instance == null)
+            // Check if instance is null or points to a destroyed object
+            if (instance == null || instance == this || !instance)
             {
                 instance = this;
+                // Reset the flag in case it was left true from a previous scene reload
+                bIsReloadingScenes = false;
                 // DontDestroyOnLoad(gameObject);
             }
             else if (instance != this)
