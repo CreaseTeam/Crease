@@ -273,7 +273,7 @@ MonoBehaviour:
   planeTag: Player
   pivot: {fileID: 4466403849309436882}
   endLocalEuler: {x: 55.1, y: 0, z: 0}
-  swingTime: 0.2
+  swingTime: 0.5
   oneShot: 1
   onDoorOpened:
     m_PersistentCalls:
