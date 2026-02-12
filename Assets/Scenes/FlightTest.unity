@@ -51926,24 +51926,12 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7717490765758739565, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 7717490765758739565, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 7717490765758739565, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 7717490765758739565, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0.5
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 7717490765758739565, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 90
+      value: 79
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
