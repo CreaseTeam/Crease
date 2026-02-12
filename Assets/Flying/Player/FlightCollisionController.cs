@@ -13,6 +13,12 @@ public class FlightCollisionController : MonoBehaviour
     [Header("References")]
     [SerializeField] private KinematicBody body;
     [SerializeField] private PlayerCrashHandler crashHandler;
+    [SerializeField] private Collider playerCollider;
+
+    // ------------------------------------------------------------------ Depenetration
+    [Header("Depenetration")]
+    [Tooltip("Extra margin to push player out of colliders to ensure no clipping.")]
+    [SerializeField] private float depenetrationMargin = 0.1f;
 
     // ------------------------------------------------------------------ Tags
     [Header("Tags")]
@@ -47,10 +53,17 @@ public class FlightCollisionController : MonoBehaviour
     [Tooltip("Time in seconds after knockback before recovery acceleration begins.")]
     [SerializeField] private float recoveryDelay = 0.3f;
 
+    [Tooltip("Maximum acceleration during recovery to prevent snapping on rapid collisions.")]
+    [SerializeField] private float maxRecoveryAcceleration = 50f;
+
     // ------------------------------------------------------------------ Invulnerability
     [Header("Invulnerability")]
     [Tooltip("Seconds of invulnerability after a knockback hit (prevents rapid repeated hits).")]
     [SerializeField] private float invulnerabilityDuration = 0.5f;
+
+    [Tooltip("Fraction of normal knockback force applied during invulnerability (prevents clipping).")]
+    [Range(0f, 1f)]
+    [SerializeField] private float invulnerableKnockbackMultiplier = 0.5f;
 
     // ------------------------------------------------------------------ Ground crash
     [Header("Ground Crash")]
@@ -77,6 +90,7 @@ public class FlightCollisionController : MonoBehaviour
     private void Awake()
     {
         if (body == null) body = GetComponent<KinematicBody>();
+        if (playerCollider == null) playerCollider = GetComponent<Collider>();
     }
 
     // ================================================================== Collision
@@ -95,30 +109,41 @@ public class FlightCollisionController : MonoBehaviour
         // --- Obstacle knockback ---
         if (other.CompareTag(obstacleTag))
         {
-            if (IsInvulnerable) return;
-            ApplyKnockback(other);
+            ApplyKnockback(other, IsInvulnerable);
         }
 
         // temporarily treat ground as obstacle
         if (other.CompareTag(groundTag))
         {
-            if (IsInvulnerable) return;
-            ApplyKnockback(other);
+            ApplyKnockback(other, IsInvulnerable);
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        // Continuously depenetrate while overlapping obstacles/ground to prevent clipping at high speeds
+        if (other.CompareTag(obstacleTag) || other.CompareTag(groundTag))
+        {
+            DepenetrateFromCollider(other);
         }
     }
 
     // ================================================================== Knockback
-    private void ApplyKnockback(Collider obstacle)
+    private void ApplyKnockback(Collider obstacle, bool isInvulnerable)
     {
         Vector3 velocity = body.Velocity;
-        _preCollisionSpeed = velocity.magnitude;
+        float preCollisionSpeed = velocity.magnitude;
 
-        // Calculate contact normal: opposite of velocity direction (we hit what we were moving towards)
-        Vector3 contactNormal = -velocity.normalized;
+        // CRITICAL: Depenetrate first to guarantee we're outside the collider
+        Vector3 contactNormal = DepenetrateFromCollider(obstacle);
         
-        // Fallback if velocity is near-zero: use direction from obstacle center to player
+        // Fallback if depenetration failed: use velocity-based or bounds-based normal
         if (contactNormal.sqrMagnitude < 0.001f)
-            contactNormal = (transform.position - obstacle.bounds.center).normalized;
+        {
+            contactNormal = velocity.magnitude > 0.1f 
+                ? -velocity.normalized 
+                : (transform.position - obstacle.bounds.center).normalized;
+        }
 
         // Build knockback direction: blend between pure normal and reflected velocity
         Vector3 reflected = Vector3.Reflect(velocity.normalized, contactNormal);
@@ -126,20 +151,54 @@ public class FlightCollisionController : MonoBehaviour
 
         // Compute impulse magnitude, scaled by incoming speed
         float impulseMagnitude = Mathf.Clamp(
-            knockbackForce + _preCollisionSpeed * reflectionBlend,
+            knockbackForce + preCollisionSpeed * reflectionBlend,
             minKnockbackMagnitude,
             maxKnockbackMagnitude);
 
-        // Apply
+        // During invulnerability, apply reduced knockback to prevent clipping but maintain control
+        if (isInvulnerable)
+        {
+            body.SetVelocity(knockbackDir * impulseMagnitude * invulnerableKnockbackMultiplier);
+            // Don't reset invulnerability timer, recovery state, or trigger events
+            return;
+        }
+
+        // Apply full knockback
         body.SetVelocity(knockbackDir * impulseMagnitude);
 
         // Start recovery state
+        _preCollisionSpeed = preCollisionSpeed;
         _targetRecoverySpeed = _preCollisionSpeed * speedRetention;
         _recoveryStartTime = Time.time + recoveryDelay;
         _isRecovering = true;
         _invulnerableUntil = Time.time + invulnerabilityDuration;
 
         OnKnockback?.Invoke();
+    }
+
+    /// <summary>
+    /// Pushes the player out of the given collider using Physics.ComputePenetration.
+    /// Returns the penetration normal (direction player was pushed).
+    /// </summary>
+    private Vector3 DepenetrateFromCollider(Collider obstacle)
+    {
+        if (playerCollider == null) return Vector3.zero;
+
+        // Try to compute penetration between player and obstacle
+        bool isPenetrating = Physics.ComputePenetration(
+            playerCollider, transform.position, transform.rotation,
+            obstacle, obstacle.transform.position, obstacle.transform.rotation,
+            out Vector3 direction, out float distance);
+
+        if (isPenetrating)
+        {
+            // Move player out of the collider plus a small margin
+            Vector3 depenetrationVector = direction * (distance + depenetrationMargin);
+            transform.position += depenetrationVector;
+            return direction;
+        }
+
+        return Vector3.zero;
     }
 
     // ================================================================== Recovery
@@ -184,6 +243,9 @@ public class FlightCollisionController : MonoBehaviour
 
         // Calculate required acceleration to reach target in remaining time
         float requiredAcceleration = speedDelta / remainingTime;
+        
+        // Cap acceleration to prevent huge snaps when remainingTime is very small
+        requiredAcceleration = Mathf.Min(requiredAcceleration, maxRecoveryAcceleration);
 
         // Accelerate along current heading
         Vector3 heading = body.Velocity.normalized;
