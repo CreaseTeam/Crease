@@ -2,10 +2,16 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class SwingOnPlaneHit : MonoBehaviour
+public class SwingOnPlaneHit : MonoBehaviour, IPreventKnockback
 {
     [Header("Detection")]
     [SerializeField] private string planeTag = "Player";
+    
+    [Tooltip("If true, only triggers when the plane is dashing.")]
+    [SerializeField] private bool onlyTriggerOnDash = false;
+    
+    [Tooltip("If true, prevents knockback when the swing is triggered.")]
+    [SerializeField] private bool preventKnockback = true;
 
     [Header("Rotation")]
     [SerializeField] private Transform pivot;
@@ -55,6 +61,14 @@ public class SwingOnPlaneHit : MonoBehaviour
 
         if (!string.IsNullOrEmpty(planeTag) && !other.CompareTag(planeTag))
             return;
+
+        // Check if we need to verify dash state
+        if (onlyTriggerOnDash)
+        {
+            DashController dashController = other.GetComponentInParent<DashController>();
+            if (dashController == null || !dashController.IsDashing)
+                return;
+        }
 
         Trigger();
     }
@@ -177,5 +191,24 @@ public class SwingOnPlaneHit : MonoBehaviour
             
             previousPoint = currentPoint;
         }
+    }
+
+    // ================================================================== IPreventKnockback
+    public bool ShouldPreventKnockback(Collider playerCollider)
+    {
+        if (!preventKnockback) return false;
+        if (oneShot && triggered) return false;
+        if (!string.IsNullOrEmpty(planeTag) && !playerCollider.CompareTag(planeTag)) return false;
+
+        // Check dash requirement - only prevent knockback if swing would actually trigger
+        if (onlyTriggerOnDash)
+        {
+            DashController dashController = playerCollider.GetComponentInParent<DashController>();
+            if (dashController == null || !dashController.IsDashing)
+                return false; // Swing won't trigger, so allow knockback
+        }
+
+        // This collision will trigger the swing, so prevent knockback
+        return true;
     }
 }

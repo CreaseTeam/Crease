@@ -5,9 +5,13 @@ public class DashController : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private float boostStrength = 50f;
     [SerializeField] private float dashCooldown = 2f;
+    [SerializeField] private float dashDuration = 0.5f;
     
     private KinematicBody kinematicBody;
     private float cooldownTimer = 0f;
+    private float dashTimer = 0f;
+
+    public bool IsDashing => dashTimer > 0f;
 
     void Start()
     {
@@ -25,6 +29,11 @@ public class DashController : MonoBehaviour
         {
             cooldownTimer -= Time.deltaTime;
         }
+        
+        if (dashTimer > 0f)
+        {
+            dashTimer -= Time.deltaTime;
+        }
     }
 
     public void TriggerDash()
@@ -32,6 +41,7 @@ public class DashController : MonoBehaviour
         if (cooldownTimer <= 0f)
         {
             cooldownTimer = dashCooldown;
+            dashTimer = dashDuration;
             
             // Trigger dash animation
             if (animator != null)
