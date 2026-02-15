@@ -8,6 +8,11 @@ public class PaperGraphController : MonoBehaviour
     public Vector3 foldPlaneVector = Vector3.forward;
     public float foldDegrees = 180f;
 
+    [Header("Drag Handle")]
+    public Vector3 dragHandlePosition = Vector3.zero;
+    public Vector3 dragPlaneNormal = Vector3.up;
+    public float foldLineHalfLength = 1f;
+
     [Header("Preview")]
     public PaperGraph previewGraph;
 
@@ -117,6 +122,34 @@ public class PaperGraphController : MonoBehaviour
         paperGraph.edges.Clear();
         paperGraph.faces.Clear();
         paperGraph.CreateSheet(paperGraph.width, paperGraph.height);
+    }
+
+    /// <summary>
+    /// Called by the drag handle script to update fold values based on drag movement.
+    /// dragStart is the position where the drag began (on the drag plane).
+    /// dragCurrent is the current drag position (on the drag plane).
+    /// </summary>
+    public void UpdateFoldFromDrag(Vector3 dragStart, Vector3 dragCurrent) {
+        Vector3 dragDelta = dragCurrent - dragStart;
+        if (dragDelta.sqrMagnitude < 0.00001f) return;
+
+        // Midpoint between start and current drag position
+        Vector3 midpoint = (dragStart + dragCurrent) * 0.5f;
+
+        // Fold axis direction: perpendicular to the drag direction, lying on the drag plane
+        Vector3 dragDir = dragDelta.normalized;
+        Vector3 foldAxisDir = Vector3.Cross(dragPlaneNormal, dragDir).normalized;
+
+        if (foldAxisDir.sqrMagnitude < 0.0001f) return;
+
+        // Set fold points along the fold axis, centered at the midpoint
+        foldPoint1 = midpoint + foldAxisDir * foldLineHalfLength;
+        foldPoint2 = midpoint - foldAxisDir * foldLineHalfLength;
+
+        // Fold plane vector is the drag plane normal
+        foldPlaneVector = dragPlaneNormal;
+
+        UpdatePreview();
     }
 
     private void OnDrawGizmos() {
