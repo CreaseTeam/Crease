@@ -77,4 +77,20 @@ public class Collectible : MonoBehaviour
         // Clean up DOTween animation to prevent memory leaks
         _spinTween?.Kill();
     }
+
+    public void IncrementCollectibleCount()
+    {
+        if (HUDCanvas.Instance != null)
+        {
+            HUDCanvas.Instance.Collect();
+        }
+    }
+
+    public void HealPlayer()
+    {
+        if (HUDCanvas.Instance != null)
+        {
+            HUDCanvas.Instance.Heal();
+        }
+    }
 }
