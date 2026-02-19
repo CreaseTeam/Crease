@@ -1058,7 +1058,11 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       objectReference: {fileID: 1288614045}
+=======
+      objectReference: {fileID: 1207052028}
+>>>>>>> Stashed changes
 =======
       objectReference: {fileID: 1207052028}
 >>>>>>> Stashed changes
@@ -1132,6 +1136,7 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     - target: {fileID: 736915153267626596, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1144,6 +1149,8 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
     - target: {fileID: 1398608402334919048, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
@@ -1187,6 +1194,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     - target: {fileID: 2259496123082315057, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1203,6 +1211,8 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
     - target: {fileID: 3283959142390254623, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
@@ -2018,7 +2028,11 @@ MonoBehaviour:
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 --- !u!43 &1288614045
+=======
+--- !u!43 &1207052028
+>>>>>>> Stashed changes
 =======
 --- !u!43 &1207052028
 >>>>>>> Stashed changes
