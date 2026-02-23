@@ -47,7 +47,7 @@ GameObject:
   - component: {fileID: 5275138448760182299}
   m_Layer: 0
   m_Name: Base
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -160,7 +160,7 @@ GameObject:
   - component: {fileID: 3400222611148700421}
   m_Layer: 0
   m_Name: Arm
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -271,6 +271,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SwingOnPlaneHit
   planeTag: Player
+  onlyTriggerOnDash: 1
+  preventKnockback: 1
   pivot: {fileID: 4466403849309436882}
   endLocalEuler: {x: 55.1, y: 0, z: 0}
   swingTime: 0.5

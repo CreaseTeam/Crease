@@ -106,6 +106,18 @@ public class FlightCollisionController : MonoBehaviour
             return;
         }
 
+        // Check if this object or its parent prevents knockback
+        IPreventKnockback preventKnockbackComponent = other.GetComponentInParent<IPreventKnockback>();
+        bool shouldPreventKnockback = preventKnockbackComponent != null 
+            && preventKnockbackComponent.ShouldPreventKnockback(playerCollider);
+
+        if (shouldPreventKnockback)
+        {
+            // Still depenetrate to prevent clipping, but no knockback
+            DepenetrateFromCollider(other);
+            return;
+        }
+
         // --- Obstacle knockback ---
         if (other.CompareTag(obstacleTag))
         {
@@ -131,6 +143,12 @@ public class FlightCollisionController : MonoBehaviour
     // ================================================================== Knockback
     private void ApplyKnockback(Collider obstacle, bool isInvulnerable)
     {
+        if (HUDCanvas.Instance != null)
+        {
+            HUDCanvas.Instance.TakeDamage();
+        }
+
+
         Vector3 velocity = body.Velocity;
         float preCollisionSpeed = velocity.magnitude;
 

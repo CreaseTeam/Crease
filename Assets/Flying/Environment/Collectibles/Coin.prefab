@@ -75,7 +75,7 @@ PrefabInstance:
     - target: {fileID: -5754084199372789682, guid: c94ebda9aaa7655479b6c844b3e9db0f, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 7404872882177757254, guid: 45bbe1d43581ef247bb83101a9b0409c, type: 3}
+      objectReference: {fileID: -1931347974714207590, guid: 7fa93266725d152428ae93262ef20bcf, type: 3}
     - target: {fileID: 919132149155446097, guid: c94ebda9aaa7655479b6c844b3e9db0f, type: 3}
       propertyPath: m_Name
       value: Coin
@@ -118,7 +118,19 @@ MonoBehaviour:
   hideOnCollect: 1
   OnCollected:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1444500207654547952}
+        m_TargetAssemblyTypeName: Collectible, Assembly-CSharp
+        m_MethodName: IncrementCollectibleCount
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   spin: 1
   spinSpeed: 90
   collectEffect: {fileID: 6265882924923028776}
