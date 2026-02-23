@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
@@ -8,6 +9,29 @@ public class PaperGraphControllerEditor : Editor
         DrawDefaultInspector();
 
         PaperGraphController controller = (PaperGraphController)target;
+
+        // Filter-by-tag dropdown
+        PaperGraph graph = controller.GetComponent<PaperGraph>();
+        if (graph != null && graph.tags != null && graph.tags.Count > 0) {
+            EditorGUILayout.Space(5);
+            EditorGUILayout.LabelField("Filter by Tag", EditorStyles.boldLabel);
+
+            List<string> tagKeys = new List<string>(graph.tags.Keys);
+            List<string> options = new List<string> { "(None)" };
+            options.AddRange(tagKeys);
+
+            if (controller.selectedFilterTagIndex >= options.Count)
+                controller.selectedFilterTagIndex = 0;
+
+            int newIndex = EditorGUILayout.Popup("Filter Tag", controller.selectedFilterTagIndex, options.ToArray());
+            if (newIndex != controller.selectedFilterTagIndex) {
+                Undo.RecordObject(controller, "Change Filter Tag");
+                controller.selectedFilterTagIndex = newIndex;
+                EditorUtility.SetDirty(controller);
+            }
+        } else {
+            controller.selectedFilterTagIndex = 0;
+        }
 
         EditorGUILayout.Space(10);
 
@@ -29,3 +53,4 @@ public class PaperGraphControllerEditor : Editor
         }
     }
 }
+

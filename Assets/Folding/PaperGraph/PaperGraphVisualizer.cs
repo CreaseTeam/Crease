@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PaperGraphVisualizer : MonoBehaviour {
@@ -15,6 +16,11 @@ public class PaperGraphVisualizer : MonoBehaviour {
     public bool showFoldAngles = true;
     public bool showMesh = true;
     public Material meshMaterial;
+
+    [Header("Tag Highlight")]
+    [HideInInspector] public int selectedTagIndex = 0;
+    public Color tagHighlightColor = Color.yellow;
+    public float tagHighlightSize = 0.15f;
 
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
@@ -48,6 +54,19 @@ public class PaperGraphVisualizer : MonoBehaviour {
             // Optionally draw vertex index
             if (showVertexLabels) {
                 DrawLabel(v.position + Vector3.up * 0.2f, i.ToString());
+            }
+        }
+
+        // Draw tag-highlighted vertices
+        if (graph.tags != null && graph.tags.Count > 0) {
+            List<string> tagKeys = new List<string>(graph.tags.Keys);
+            if (selectedTagIndex > 0 && selectedTagIndex <= tagKeys.Count) {
+                string selectedTag = tagKeys[selectedTagIndex - 1];
+                List<Vertex> taggedVerts = graph.GetVerticesForTag(selectedTag);
+                Gizmos.color = tagHighlightColor;
+                foreach (Vertex tv in taggedVerts) {
+                    Gizmos.DrawSphere(tv.position, tagHighlightSize);
+                }
             }
         }
     }

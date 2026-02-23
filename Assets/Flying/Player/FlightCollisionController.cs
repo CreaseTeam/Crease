@@ -143,6 +143,12 @@ public class FlightCollisionController : MonoBehaviour
     // ================================================================== Knockback
     private void ApplyKnockback(Collider obstacle, bool isInvulnerable)
     {
+        if (HUDCanvas.Instance != null)
+        {
+            HUDCanvas.Instance.TakeDamage();
+        }
+
+
         Vector3 velocity = body.Velocity;
         float preCollisionSpeed = velocity.magnitude;
 
