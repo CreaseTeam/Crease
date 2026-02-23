@@ -16755,51 +16755,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: f1438b8b1250475409e5a1d2bcfb3e43, type: 3}
---- !u!1 &717718307 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8819344863044188461, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-  m_PrefabInstance: {fileID: 5625211641525616404}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &717718316
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 717718307}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16535e9ae6a49e44ca7f881f79126bc7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DashController
-  animator: {fileID: 1106060786}
-  kinematicBody: {fileID: 717718317}
-  boostStrength: 20
-  dashDuration: 0.5
-  rechargeRate: 80
-  rechargeMax: 100
---- !u!114 &717718317 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5459762998091991994, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-  m_PrefabInstance: {fileID: 5625211641525616404}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 717718307}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8b1ea091b084cfe419d68c8709b9b188, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::KinematicBody
---- !u!114 &717718321 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1538011265178069792, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-  m_PrefabInstance: {fileID: 5625211641525616404}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 717718307}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76040ddd09b08443ea1f0120ef24ab48, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerCrashHandler
 --- !u!1 &724359543 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3799877428355520004, guid: b19acc678881fe44c8ac81dd3d2ad3a0, type: 3}
@@ -23022,11 +22977,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: 4274de0396032714aa84b82c619c95d2, type: 3}
---- !u!95 &1106060786 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 1533262180472474952, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-  m_PrefabInstance: {fileID: 5625211641525616404}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1106636643 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6506756124563220342, guid: b19acc678881fe44c8ac81dd3d2ad3a0, type: 3}
@@ -41264,34 +41214,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 293944676221038128, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_CellSize.x
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 293944676221038128, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_CellSize.y
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 293944676221038128, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_Constraint
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 293944676221038128, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_ConstraintCount
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 736915153267626596, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 736915153267626596, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 736915153267626596, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 1398608402334919048, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
       propertyPath: m_LocalPosition.x
       value: 19.04093
@@ -41332,105 +41254,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2259496123082315057, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2259496123082315057, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2259496123082315057, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2259496123082315057, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2500308362728107537, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: dashController
-      value: 
-      objectReference: {fileID: 717718316}
     - target: {fileID: 3283959142390254623, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
       propertyPath: m_Name
       value: LevelStarter
       objectReference: {fileID: 0}
-    - target: {fileID: 3505874196032396642, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3505874196032396642, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5710041627246736191, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: lift
-      value: 0.09
-      objectReference: {fileID: 0}
-    - target: {fileID: 5710041627246736191, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: gravity
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 5710041627246736191, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: climbRate
-      value: 0.03
-      objectReference: {fileID: 0}
-    - target: {fileID: 5710041627246736191, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: pitchSpeed
-      value: 80
-      objectReference: {fileID: 0}
-    - target: {fileID: 6534629012504130177, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_Radius
-      value: 0.14
-      objectReference: {fileID: 0}
-    - target: {fileID: 6534629012504130177, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_Center.y
-      value: 0.07
-      objectReference: {fileID: 0}
-    - target: {fileID: 6820570995132614513, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: crashHandler
-      value: 
-      objectReference: {fileID: 717718321}
-    - target: {fileID: 6820570995132614513, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: dashController
-      value: 
-      objectReference: {fileID: 717718316}
-    - target: {fileID: 7257504314650865861, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7494862058282521593, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: nudgeStrength
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7494862058282521593, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: nudgeSmoothTime
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7717490765758739565, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 90
-      objectReference: {fileID: 0}
-    - target: {fileID: 7717490765758739565, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 79
-      objectReference: {fileID: 0}
-    - target: {fileID: 9031948887640036511, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: dashController
-      value: 
-      objectReference: {fileID: 717718316}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 7887228688601406342, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-    - {fileID: 8509193232851024759, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-    - {fileID: 3988066353800705453, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-    - {fileID: 6975274696369448268, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8819344863044188461, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 717718316}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

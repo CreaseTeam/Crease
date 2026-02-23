@@ -96,7 +96,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c1362449e1fb1d40a047becd7a3a928, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DashSensor
-  dashController: {fileID: 0}
+  dashController: {fileID: 1147598551027705273}
 --- !u!1 &1680134782907414832
 GameObject:
   m_ObjectHideFlags: 0
@@ -226,7 +226,7 @@ Transform:
   m_Children:
   - {fileID: 7192237007729746643}
   m_Father: {fileID: 1431797563303238190}
-  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 90}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 79}
 --- !u!33 &3185434342395926698
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -300,6 +300,7 @@ GameObject:
   - component: {fileID: 185509089845354311}
   - component: {fileID: 6378557457462834897}
   - component: {fileID: 6633779251846987741}
+  - component: {fileID: 1147598551027705273}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -368,16 +369,16 @@ MonoBehaviour:
   mouseSmoothing: 0.1
   pitch: 0
   meshTransform: {fileID: 8993998958267351050}
-  gravity: 0.2
-  lift: 0.06
+  gravity: 0.3
+  lift: 0.09
   diveRate: 0.05
-  climbRate: 0.02
+  climbRate: 0.03
   climbEfficiency: 3.5
   turnInterpolation: 0.1
   xDrag: 0.995
   yDrag: 0.99
   zDrag: 0.995
-  pitchSpeed: 60
+  pitchSpeed: 80
   maxPitch: 89
   yawSpeed: 60
   rollSpeed: 100
@@ -418,10 +419,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.21088386
+  m_Radius: 0.14
   m_Height: 1.1315231
   m_Direction: 2
-  m_Center: {x: 0, y: 0.09, z: -0.065761566}
+  m_Center: {x: 0, y: 0.07, z: -0.065761566}
 --- !u!114 &185509089845354311
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -492,6 +493,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KinematicBody
   mass: 1
   autoConfigureRigidbody: 1
+--- !u!114 &1147598551027705273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7903687590958615882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16535e9ae6a49e44ca7f881f79126bc7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DashController
+  animator: {fileID: 183573655080417583}
+  kinematicBody: {fileID: 6633779251846987741}
+  boostStrength: 20
+  dashDuration: 0.5
+  rechargeRate: 80
+  rechargeMax: 100
 --- !u!1 &8300377221380386037
 GameObject:
   m_ObjectHideFlags: 0

@@ -261,6 +261,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7499fe23d6e56574c92ead75ee5dd3c6, type: 3}
+--- !u!114 &1740083104869519838 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1147598551027705273, guid: 7499fe23d6e56574c92ead75ee5dd3c6, type: 3}
+  m_PrefabInstance: {fileID: 1714484493293352039}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16535e9ae6a49e44ca7f881f79126bc7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DashController
 --- !u!4 &3457921035169475244 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4050445033718603467, guid: 7499fe23d6e56574c92ead75ee5dd3c6, type: 3}
@@ -407,6 +418,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: HUDCanvas
       objectReference: {fileID: 0}
+    - target: {fileID: 2898456625125675225, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: dashController
+      value: 
+      objectReference: {fileID: 1740083104869519838}
     - target: {fileID: 5409771091180492323, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
       propertyPath: m_Pivot.x
       value: 0
