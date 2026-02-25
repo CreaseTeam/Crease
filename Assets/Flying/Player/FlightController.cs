@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 public class FlightController : MonoBehaviour
 {
     private KinematicBody body;
+    private DashController dashController;
 
     [SerializeField] private float pitch = 0f;
     public float Pitch => pitch;
@@ -54,6 +55,7 @@ public class FlightController : MonoBehaviour
     void Start()
     {
         body = GetComponent<KinematicBody>();
+        dashController = GetComponent<DashController>();
 
         // Initialize pitch and yaw from the current transform rotation
         Vector3 euler = transform.eulerAngles;
@@ -70,7 +72,8 @@ public class FlightController : MonoBehaviour
     void FixedUpdate()
     {
         ProcessInput();
-        UpdateVelocity();
+        if (dashController == null || !dashController.IsDashing)
+            UpdateVelocity();
         UpdateRotation();
     }
 

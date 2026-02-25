@@ -16,6 +16,9 @@ public class DashController : MonoBehaviour
     private float currentRecharge = 0f;
     private bool canDash = true;
 
+    private Vector3 dashDirection;
+    private float dashSpeed;
+
     public bool IsDashing => dashTimer > 0f;
     public float CurrentRecharge => currentRecharge;
     public float MaxRecharge => rechargeMax;
@@ -49,6 +52,14 @@ public class DashController : MonoBehaviour
         }
     }
 
+    void FixedUpdate()
+    {
+        if (IsDashing)
+        {
+            kinematicBody.Velocity = dashDirection * dashSpeed;
+        }
+    }
+
     public void TriggerDash()
     {
         if (canDash)
@@ -56,15 +67,17 @@ public class DashController : MonoBehaviour
             canDash = false;
             currentRecharge = 0f;
             dashTimer = dashDuration;
-            
+
+            // Lock direction to current facing; speed = forward component of current velocity + boost
+            dashDirection = transform.forward;
+            float forwardSpeed = Vector3.Dot(kinematicBody.Velocity, dashDirection);
+            dashSpeed = Mathf.Max(forwardSpeed, 0f) + boostStrength;
+
             // Trigger dash animation
             if (animator != null)
             {
                 animator.SetTrigger("Dash");
             }
-            
-            // Apply forward boost
-            kinematicBody.Velocity += transform.forward * boostStrength;
         }
     }
 
