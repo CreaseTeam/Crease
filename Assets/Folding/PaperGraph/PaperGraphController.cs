@@ -70,6 +70,7 @@ public class PaperGraphController : MonoBehaviour
         previewGraph.ExecuteFold(foldPoint1, foldPoint2, foldPlaneVector, foldDegrees, tag, filter, foldOffset);
 
         CacheFoldValues();
+        RefreshVisualizers();
     }
 
     /// <summary>
@@ -87,6 +88,7 @@ public class PaperGraphController : MonoBehaviour
         string tag = string.IsNullOrEmpty(foldTagName) ? null : foldTagName;
         string filter = GetSelectedFilterTag();
         paperGraph.ExecuteFold(foldPoint1, foldPoint2, foldPlaneVector, foldDegrees, tag, filter, foldOffset);
+        RefreshVisualizers();
     }
 
     /// <summary>
@@ -114,6 +116,7 @@ public class PaperGraphController : MonoBehaviour
         }
 
         paperGraph.Undo();
+        RefreshVisualizers();
     }
 
     public void RedoFold() {
@@ -126,6 +129,7 @@ public class PaperGraphController : MonoBehaviour
         }
 
         paperGraph.Redo();
+        RefreshVisualizers();
     }
 
     /// <summary>
@@ -145,6 +149,7 @@ public class PaperGraphController : MonoBehaviour
         paperGraph.faces.Clear();
         paperGraph.tags.Clear();
         paperGraph.CreateSheet(paperGraph.width, paperGraph.height);
+        RefreshVisualizers();
     }
 
     /// <summary>
@@ -173,6 +178,15 @@ public class PaperGraphController : MonoBehaviour
         foldPlaneVector = dragPlaneNormal;
 
         UpdatePreview();
+    }
+
+    /// <summary>
+    /// Finds all PaperGraphVisualizers that reference this paper and refreshes their meshes.
+    /// </summary>
+    private void RefreshVisualizers() {
+        foreach (PaperGraphVisualizer vis in FindObjectsByType<PaperGraphVisualizer>(FindObjectsSortMode.None)) {
+            vis.UpdateMesh();
+        }
     }
 
     private void OnDrawGizmos() {

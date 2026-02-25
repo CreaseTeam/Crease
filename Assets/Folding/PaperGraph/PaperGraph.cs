@@ -64,6 +64,7 @@ public class PaperGraph : MonoBehaviour
 
         // Partition vertices on the positive side of the plane and rotate them
         Quaternion rotation = Quaternion.AngleAxis(degrees, foldAxis);
+        HashSet<Vertex> splitSet = new HashSet<Vertex>(splitVertices);
         foreach (Vertex v in vertices) {
             // Skip vertices not in the filter set
             if (filterSet != null && !filterSet.Contains(v))
@@ -82,6 +83,10 @@ public class PaperGraph : MonoBehaviour
                 // Tag as moved
                 if (!string.IsNullOrEmpty(tagName))
                     AddVertexToTag(tagName + "_moved", v);
+            } else if (splitSet.Contains(v)) {
+                // Tag as edge (vertex sits on the fold line)
+                if (!string.IsNullOrEmpty(tagName))
+                    AddVertexToTag(tagName + "_edge", v);
             } else {
                 // Tag as static
                 if (!string.IsNullOrEmpty(tagName))

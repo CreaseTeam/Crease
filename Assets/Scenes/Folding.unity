@@ -657,6 +657,7 @@ GameObject:
   - component: {fileID: 2046175385}
   - component: {fileID: 2046175387}
   - component: {fileID: 2046175386}
+  - component: {fileID: 2046175388}
   m_Layer: 0
   m_Name: PaperGraph
   m_TagString: Untagged
@@ -736,7 +737,7 @@ MonoBehaviour:
   foldPoint2: {x: 0.5, y: 0, z: 0}
   foldPlaneVector: {x: 0, y: 1, z: 0}
   foldDegrees: 180
-  foldOffset: 0.001
+  foldOffset: 0.005
   foldTagName: 
   selectedFilterTagIndex: 0
   dragHandlePosition: {x: 0.5, y: 0, z: 0.5}
@@ -803,6 +804,25 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2046175381}
   m_Mesh: {fileID: 0}
+--- !u!114 &2046175388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2046175381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8c38dbfbce59f645a68012694b6b16a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoldInstructionRunner
+  instruction: {fileID: 11400000, guid: f6614e182e3a7a944b0a8ca13b863877, type: 2}
+  controller: {fileID: 2046175385}
+  dragHandle: {fileID: 1755929164}
+  instructionCamera: {fileID: 1712064256}
+  cameraLerpSpeed: 5
+  currentOrbitRotation: {x: 0, y: 0, z: 0}
+  currentOrbitDistance: 3
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
