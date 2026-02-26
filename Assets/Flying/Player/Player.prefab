@@ -206,7 +206,7 @@ GameObject:
   - component: {fileID: 3828333310774951010}
   m_Layer: 0
   m_Name: Mesh
-  m_TagString: Untagged
+  m_TagString: PlayerMesh
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -364,9 +364,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f24c54ae542b90f438e04bf657b00a78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlightController
-  useMouseControl: 0
-  mouseSensitivity: 2
-  mouseSmoothing: 0.1
   pitch: 0
   meshTransform: {fileID: 8993998958267351050}
   gravity: 0.3

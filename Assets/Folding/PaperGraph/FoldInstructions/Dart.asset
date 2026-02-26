@@ -15,7 +15,7 @@ MonoBehaviour:
   steps:
   - dragHandlePosition: {x: 0.5, y: 0, z: 0.5}
     dragPlaneNormal: {x: 0, y: 1, z: 0}
-    foldDegrees: 180
+    foldDegrees: -180
     foldOffset: 0.001
     applyTag: 
     filterTag: 
@@ -24,7 +24,7 @@ MonoBehaviour:
     cameraDistance: 1.5
   - dragHandlePosition: {x: -0.5, y: 0, z: 0.5}
     dragPlaneNormal: {x: 0, y: 1, z: 0}
-    foldDegrees: 180
+    foldDegrees: -180
     foldOffset: 0.001
     applyTag: 
     filterTag: 
@@ -33,7 +33,7 @@ MonoBehaviour:
     cameraDistance: 3
   - dragHandlePosition: {x: -0.5, y: 0, z: 0}
     dragPlaneNormal: {x: 0, y: 1, z: 0}
-    foldDegrees: -180
+    foldDegrees: 180
     foldOffset: 0.001
     applyTag: half
     filterTag: 
@@ -42,8 +42,8 @@ MonoBehaviour:
     cameraDistance: 1.5
   - dragHandlePosition: {x: 0.5, y: 0, z: 0}
     dragPlaneNormal: {x: 0, y: 1, z: 0}
-    foldDegrees: -180
-    foldOffset: 0.001
+    foldDegrees: 180
+    foldOffset: 0.002
     applyTag: none
     filterTag: half_moved
     moveCamera: 1
@@ -51,25 +51,25 @@ MonoBehaviour:
     cameraDistance: 1.25
   - dragHandlePosition: {x: 0.2, y: 0, z: 0}
     dragPlaneNormal: {x: 0, y: 1, z: 0}
-    foldDegrees: -90
+    foldDegrees: 90
     foldOffset: 0.001
     applyTag: none
     filterTag: half_moved
     moveCamera: 0
     cameraOrbitRotation: {x: 0, y: 0, z: 0}
     cameraDistance: 3
-  - dragHandlePosition: {x: 0.5, y: 0, z: 0}
+  - dragHandlePosition: {x: 0.5, y: 0.002, z: 0}
     dragPlaneNormal: {x: 0, y: 1, z: 0}
-    foldDegrees: 180
-    foldOffset: 0.001
+    foldDegrees: -180
+    foldOffset: 0.002
     applyTag: none
     filterTag: half_static
     moveCamera: 1
     cameraOrbitRotation: {x: 89, y: 90, z: 0}
     cameraDistance: 1.25
-  - dragHandlePosition: {x: 0.2, y: 0, z: 0}
+  - dragHandlePosition: {x: 0.2, y: 0.002, z: 0}
     dragPlaneNormal: {x: 0, y: 1, z: 0}
-    foldDegrees: 90
+    foldDegrees: -90
     foldOffset: 0.001
     applyTag: none
     filterTag: half_static

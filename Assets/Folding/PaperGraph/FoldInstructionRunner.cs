@@ -123,6 +123,8 @@ public class FoldInstructionRunner : MonoBehaviour
             ApplyStepToController(instruction.steps[currentStepIndex]);
             Debug.Log($"FoldInstructionRunner: Loaded step {currentStepIndex + 1}/{instruction.steps.Count}. Press Space to execute.");
         } else {
+            // Clear the preview so no ghost fold lingers
+            controller.ClearPreview();
             Debug.Log("FoldInstructionRunner: All steps completed!");
         }
     }
@@ -167,8 +169,8 @@ public class FoldInstructionRunner : MonoBehaviour
             isCameraLerping = true;
         }
 
-        // Refresh the preview
-        controller.UpdatePreview();
+        // Clear the preview — no fold preview until the drag handle is moved
+        controller.ClearPreview();
     }
 
     /// <summary>

@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Obstacle
   - Ground
+  - MainPaper
+  - PlayerMesh
   layers:
   - Default
   - TransparentFX

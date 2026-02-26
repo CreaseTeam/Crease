@@ -14,6 +14,7 @@ public class InputManager : MonoBehaviour
     public bool ResetTriggered => Actions.Debug.Reset.WasPerformedThisFrame();
     public bool DashTriggered => Actions.Player.Dash.WasPerformedThisFrame();
     public bool DropTriggered => Actions.Player.Drop.WasPerformedThisFrame();
+    public bool ReturnTriggered => Actions.Player.Return.WasPerformedThisFrame();
 
     void Awake()
     {
@@ -35,6 +36,8 @@ public class InputManager : MonoBehaviour
     {
         if (Instance == this)
         {
+            Actions?.Player.Disable();
+            Actions?.Debug.Disable();
             Actions?.Dispose();
             Instance = null;
         }

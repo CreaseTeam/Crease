@@ -35,6 +35,10 @@ public class PaperGraph : MonoBehaviour
     }
 
     private void Start() {
+        vertices.Clear();
+        edges.Clear();
+        faces.Clear();
+        tags.Clear();
         CreateSheet(width, height);
     }
     
@@ -52,14 +56,16 @@ public class PaperGraph : MonoBehaviour
         Vector3 foldAxis = (foldPoint2 - foldPoint1).normalized;
         Vector3 planeNormal = Vector3.Cross(foldAxis, planeVector).normalized;
 
-        // Split edges along the fold plane
-        List<Vertex> splitVertices = SplitEdgesCrossingPlane(foldPoint1, planeNormal, degrees, filterSet);
+        // For flat folds the signed offset is stored on crease edges so the graph is self-describing.
+        float signedOffset = foldOffset * -Mathf.Sign(degrees);
 
-        // Flat fold hinge: create hinge geometry before rotation
-        bool isFlatFold = Mathf.Approximately(Mathf.Abs(degrees), 180f) && Mathf.Abs(foldOffset) > 0.00001f;
-        float signedOffset = foldOffset * Mathf.Sign(degrees);
-        if (isFlatFold && splitVertices.Count > 0) {
-            CreateHinge(foldPoint1, planeNormal, planeVector, splitVertices, signedOffset);
+        // Split edges along the fold plane; crease edges produced by SplitFace will carry signedOffset.
+        List<Vertex> splitVertices = SplitEdgesCrossingPlane(foldPoint1, planeNormal, degrees, filterSet, signedOffset);
+
+        // Flat fold hinge: create hinge geometry in the graph before rotation.
+        // CreateHinge reads the stored foldOffset from the crease edges itself.
+        if (Mathf.Approximately(Mathf.Abs(degrees), 180f) && splitVertices.Count > 0) {
+            CreateHinge(foldPoint1, planeNormal, planeVector, splitVertices);
         }
 
         // Partition vertices on the positive side of the plane and rotate them
@@ -75,8 +81,8 @@ public class PaperGraph : MonoBehaviour
                 // Rotate around the fold axis line (not just the direction)
                 v.position = foldPoint1 + rotation * (v.position - foldPoint1);
 
-                // Flat fold: when folding exactly ±180°, offset moved vertices along the plane vector
-                if (Mathf.Approximately(Mathf.Abs(degrees), 180f) && Mathf.Abs(foldOffset) > 0.00001f) {
+                // Flat fold: offset moved vertices along the plane vector by the stored hinge thickness
+                if (Mathf.Approximately(Mathf.Abs(degrees), 180f) && Mathf.Abs(signedOffset) > 0.00001f) {
                     v.position += planeVector.normalized * signedOffset;
                 }
 
@@ -95,7 +101,7 @@ public class PaperGraph : MonoBehaviour
         }
     }
 
-    public List<Vertex> SplitEdgesCrossingPlane(Vector3 planePoint, Vector3 planeNormal, float foldAngle = 180f, HashSet<Vertex> filterSet = null) {
+    public List<Vertex> SplitEdgesCrossingPlane(Vector3 planePoint, Vector3 planeNormal, float foldAngle = 180f, HashSet<Vertex> filterSet = null, float foldOffset = 0f) {
         List<Edge> edgeSnapshot = new List<Edge>(edges);
         Dictionary<Face, List<Vertex>> faceSplitVertices = new Dictionary<Face, List<Vertex>>();
         List<Vertex> newSplitVertices = new List<Vertex>();
@@ -167,7 +173,7 @@ public class PaperGraph : MonoBehaviour
         // Split any face that had exactly two edges cut by the plane
         foreach (var kvp in faceSplitVertices) {
             if (kvp.Value.Count == 2)
-                SplitFace(kvp.Value[0], kvp.Value[1], kvp.Key, foldAngle);
+                SplitFace(kvp.Value[0], kvp.Value[1], kvp.Key, foldAngle, foldOffset);
             else if (kvp.Value.Count > 2)
                 Debug.LogWarning("Face had more than 2 edges cut by plane, this should not happen.");
         }
@@ -175,7 +181,7 @@ public class PaperGraph : MonoBehaviour
         return newSplitVertices;
     }
 
-    public void SplitFace(Vertex vA, Vertex vB, Face face, float foldAngle = 180f) {
+    public void SplitFace(Vertex vA, Vertex vB, Face face, float foldAngle = 180f, float foldOffset = 0f) {
         int idxA = face.vertices.IndexOf(vA);
         int idxB = face.vertices.IndexOf(vB);
 
@@ -188,8 +194,11 @@ public class PaperGraph : MonoBehaviour
         int n = face.vertices.Count;
 
         // Create the splitting edge between the two vertices
+        // Both foldAngle and foldOffset are stored on the crease edge so the
+        // graph is self-describing and CreateHinge() can read them directly.
         Edge splitEdge = new Edge(vA, vB);
         splitEdge.foldAngle = foldAngle;
+        splitEdge.foldOffset = foldOffset;
         edges.Add(splitEdge);
 
         // --- Build face1: vertices[idxA..idxB], closed by splitEdge ---
@@ -283,10 +292,29 @@ public class PaperGraph : MonoBehaviour
 
     /// <summary>
     /// Creates hinge geometry for a flat fold.
-    /// Duplicates each split vertex with an offset, rewires edges/faces on the moved side
-    /// to use the duplicates, and creates quad hinge faces between originals and duplicates.
+    /// Reads the hinge thickness (foldOffset) from the crease edges stored in the graph
+    /// (edges that connect two split vertices). Duplicates each split vertex with that offset,
+    /// rewires edges/faces on the moved side to use the duplicates, and creates quad hinge
+    /// faces between originals and duplicates. Does nothing if no crease edge carries a
+    /// non-zero foldOffset.
     /// </summary>
-    private void CreateHinge(Vector3 planePoint, Vector3 planeNormal, Vector3 planeVector, List<Vertex> splitVertices, float foldOffset) {
+    private void CreateHinge(Vector3 planePoint, Vector3 planeNormal, Vector3 planeVector, List<Vertex> splitVertices) {
+        // Derive foldOffset from the crease edges (edges whose both endpoints are split vertices).
+        HashSet<Vertex> splitSet = new HashSet<Vertex>(splitVertices);
+        float foldOffset = 0f;
+        foreach (Vertex v in splitVertices) {
+            foreach (Edge e in v.edges) {
+                Vertex other = (e.v1 == v) ? e.v2 : e.v1;
+                if (splitSet.Contains(other) && Mathf.Abs(e.foldOffset) > 0.00001f) {
+                    foldOffset = e.foldOffset;
+                    goto foundOffset;
+                }
+            }
+        }
+        foundOffset:
+        // No crease edge has a hinge offset — nothing to create.
+        if (Mathf.Abs(foldOffset) < 0.00001f) return;
+
         Vector3 offset = planeVector.normalized * foldOffset;
 
         // 1. Create duplicate vertices
@@ -304,6 +332,7 @@ public class PaperGraph : MonoBehaviour
         }
 
         // 2. Identify moved vertices (positive side of the plane, excluding split vertices and duplicates)
+        // Re-use the splitSet already built above.
         HashSet<Vertex> movedSet = new HashSet<Vertex>();
         foreach (Vertex v in vertices) {
             if (dupMap.ContainsKey(v) || dupMap.ContainsValue(v)) continue;
@@ -486,6 +515,7 @@ public class PaperGraph : MonoBehaviour
         foreach (Edge e in edges) {
             Edge clone = new Edge(vertexMap[e.v1], vertexMap[e.v2]);
             clone.foldAngle = e.foldAngle;
+            clone.foldOffset = e.foldOffset;
             edgeMap[e] = clone;
             clonedEdges.Add(clone);
         }
@@ -597,6 +627,8 @@ public class Vertex {
 public class Edge {
     public Vertex v1, v2;
     public float foldAngle = 180f;
+    /// <summary>Hinge thickness offset stored on crease edges during flat folds. Zero for non-hinge edges.</summary>
+    public float foldOffset = 0f;
     public Face face1;  // One adjacent face
     public Face face2;  // Other adjacent face (null for boundary)
 

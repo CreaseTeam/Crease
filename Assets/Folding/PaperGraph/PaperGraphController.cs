@@ -92,6 +92,37 @@ public class PaperGraphController : MonoBehaviour
     }
 
     /// <summary>
+    /// Recomputes foldPoint1/foldPoint2 from the current dragHandlePosition.
+    /// Call after changing dragHandlePosition to avoid stale fold axis values.
+    /// </summary>
+    public void RecalculateFoldAxis() {
+        Vector3 dragDelta = dragHandlePosition - transform.position;
+        if (dragDelta.sqrMagnitude < 0.00001f) return;
+
+        Vector3 midpoint = (transform.position + dragHandlePosition) * 0.5f;
+        Vector3 dragDir = dragDelta.normalized;
+        Vector3 foldAxisDir = Vector3.Cross(dragPlaneNormal, dragDir).normalized;
+        if (foldAxisDir.sqrMagnitude < 0.0001f) return;
+
+        foldPoint1 = midpoint + foldAxisDir * foldLineHalfLength;
+        foldPoint2 = midpoint - foldAxisDir * foldLineHalfLength;
+        foldPlaneVector = dragPlaneNormal;
+    }
+
+    /// <summary>
+    /// Clears the preview graph so no ghost fold is displayed.
+    /// </summary>
+    public void ClearPreview() {
+        if (paperGraph == null)
+            paperGraph = GetComponent<PaperGraph>();
+        if (paperGraph == null || previewGraph == null) return;
+
+        PaperGraphSnapshot snapshot = paperGraph.CreateSnapshot();
+        previewGraph.RestoreSnapshot(snapshot);
+        RefreshVisualizers();
+    }
+
+    /// <summary>
     /// Resolves the selected filter tag index into the actual tag name string.
     /// Returns null if "(None)" is selected or the graph has no tags.
     /// </summary>
