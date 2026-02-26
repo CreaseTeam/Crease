@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/FlightTest.unity
     guid: f41754352ffb8dd4283f9ec5af831c1f
+  - enabled: 1
+    path: Assets/Scenes/Folding.unity
+    guid: fb16528ea6ca0f24a93f2e2f039efed0
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 6830e58888f465540b51b9ec6e78860b, type: 3}
   m_UseUCBPForAssetBundles: 0
