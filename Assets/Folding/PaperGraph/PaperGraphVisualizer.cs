@@ -25,6 +25,14 @@ public class PaperGraphVisualizer : MonoBehaviour {
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
 
+    void Start() {
+        UpdateMesh();
+    }
+
+    void LateUpdate() {
+        UpdateMesh();
+    }
+
     void OnDrawGizmos() {
         if (graph == null) return;
 
@@ -78,7 +86,9 @@ public class PaperGraphVisualizer : MonoBehaviour {
         #endif
     }
 
-    void UpdateMesh() {
+    public void UpdateMesh() {
+        if (graph == null) return;
+
         if (meshFilter == null) {
             meshFilter = GetComponent<MeshFilter>();
             if (meshFilter == null)

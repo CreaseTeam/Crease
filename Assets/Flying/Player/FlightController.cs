@@ -5,11 +5,7 @@ using UnityEngine.InputSystem;
 public class FlightController : MonoBehaviour
 {
     private KinematicBody body;
-
-    [Header("Control Mode")]
-    [SerializeField] private bool useMouseControl = false;
-    [SerializeField] private float mouseSensitivity = 2f;
-    [SerializeField] private float mouseSmoothing = 0.1f;
+    private DashController dashController;
 
     [SerializeField] private float pitch = 0f;
     public float Pitch => pitch;
@@ -17,8 +13,6 @@ public class FlightController : MonoBehaviour
     [SerializeField] private Transform meshTransform;
     private Vector3 meshRotation;
     private float yaw = 0f;
-    private float targetPitch = 0f;
-    private float targetYaw = 0f;
 
     private float roll = 0f;
     public float Roll => roll;
@@ -61,21 +55,25 @@ public class FlightController : MonoBehaviour
     void Start()
     {
         body = GetComponent<KinematicBody>();
+        dashController = GetComponent<DashController>();
+
+        // Initialize pitch and yaw from the current transform rotation
+        Vector3 euler = transform.eulerAngles;
+        yaw = euler.y;
+        pitch = euler.x;
+        // Normalize pitch to [-180, 180] range
+        if (pitch > 180f) pitch -= 360f;
+
         body.Velocity = transform.forward * initialSpeed;
         
-        if (useMouseControl)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-
-        meshRotation = meshTransform.eulerAngles;
+        meshRotation = meshTransform.localEulerAngles;
     }
 
     void FixedUpdate()
     {
         ProcessInput();
-        UpdateVelocity();
+        if (dashController == null || !dashController.IsDashing)
+            UpdateVelocity();
         UpdateRotation();
     }
 
@@ -141,10 +139,7 @@ public class FlightController : MonoBehaviour
 
     private void ProcessInput()
     {
-        if (useMouseControl)
-            ProcessMouseInput();
-        else
-            ProcessKeyboardInput();
+        ProcessKeyboardInput();
         
         pitch = Mathf.Clamp(pitch, -maxPitch, maxPitch);
         roll = Mathf.Clamp(roll, -maxRoll, maxRoll);
@@ -177,35 +172,6 @@ public class FlightController : MonoBehaviour
             {
                 roll += rollBackSpeed * Time.fixedDeltaTime;
                 if (roll > 0f) roll = 0f;
-            }
-        }
-    }
-
-    private void ProcessMouseInput()
-    {
-        Vector2 mouseDelta = Mouse.current.delta.ReadValue();
-        
-        targetYaw += mouseDelta.x * mouseSensitivity * Time.fixedDeltaTime;
-        targetPitch -= mouseDelta.y * mouseSensitivity * Time.fixedDeltaTime;
-        targetPitch = Mathf.Clamp(targetPitch, -90f, 90f);
-        
-        pitch = Mathf.Lerp(pitch, targetPitch, mouseSmoothing);
-        yaw = Mathf.Lerp(yaw, targetYaw, mouseSmoothing);
-
-        if (InputManager.Instance.BoostPressed)
-            Boost();
-        
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
-        {
-            if (Cursor.lockState == CursorLockMode.Locked)
-            {
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-            }
-            else
-            {
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
             }
         }
     }
