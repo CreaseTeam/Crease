@@ -37,6 +37,9 @@ public class PaperGraphVisualizer : MonoBehaviour {
         if (graph == null) return;
 
         UpdateMesh();
+
+        // Vertex positions are in local-space; use the graph's transform matrix for gizmos.
+        Gizmos.matrix = graph.transform.localToWorldMatrix;
         
         // Draw edges
         foreach (Edge edge in graph.edges) {
@@ -49,7 +52,7 @@ public class PaperGraphVisualizer : MonoBehaviour {
             // Optionally draw fold angle at midpoint
             if (showFoldAngles && isFolded) {
                 Vector3 midpoint = (edge.v1.position + edge.v2.position) / 2f;
-                DrawLabel(midpoint, $"{edge.foldAngle:F1}°");
+                DrawLabel(graph.transform.TransformPoint(midpoint), $"{edge.foldAngle:F1}°");
             }
         }
         
@@ -61,7 +64,7 @@ public class PaperGraphVisualizer : MonoBehaviour {
             
             // Optionally draw vertex index
             if (showVertexLabels) {
-                DrawLabel(v.position + Vector3.up * 0.2f, i.ToString());
+                DrawLabel(graph.transform.TransformPoint(v.position + Vector3.up * 0.2f), i.ToString());
             }
         }
 
@@ -77,6 +80,8 @@ public class PaperGraphVisualizer : MonoBehaviour {
                 }
             }
         }
+
+        Gizmos.matrix = Matrix4x4.identity;
     }
     
     // Helper to draw text labels in scene view

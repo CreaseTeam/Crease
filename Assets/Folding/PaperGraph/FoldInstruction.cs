@@ -22,15 +22,12 @@ public class FoldStep
     [Tooltip("Tag to filter by — only vertices with this tag are folded (leave empty for none).")]
     public string filterTag = "";
 
-    [Header("Camera (Optional)")]
-    [Tooltip("If true, the camera will lerp to the specified orbit when this step is loaded.")]
-    public bool moveCamera = false;
+    [Header("Paper Rotation (Optional)")]
+    [Tooltip("If true, the paper will lerp to the specified rotation when this step is loaded.")]
+    public bool rotatePaper = false;
 
-    [Tooltip("Euler angles defining the camera's orbital rotation around the paper graph.")]
-    public Vector3 cameraOrbitRotation;
-
-    [Tooltip("Distance from the paper graph origin.")]
-    public float cameraDistance = 3f;
+    [Tooltip("Euler angles defining the paper's target rotation.")]
+    public Vector3 paperRotation;
 }
 
 [CreateAssetMenu(fileName = "NewFoldInstruction", menuName = "Crease/Fold Instruction")]

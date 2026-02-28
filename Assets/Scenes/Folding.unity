@@ -1441,6 +1441,7 @@ GameObject:
   - component: {fileID: 2046175387}
   - component: {fileID: 2046175386}
   - component: {fileID: 2046175388}
+  - component: {fileID: 2046175389}
   m_Layer: 0
   m_Name: PaperGraph
   m_TagString: MainPaper
@@ -1602,10 +1603,22 @@ MonoBehaviour:
   instruction: {fileID: 11400000, guid: f6614e182e3a7a944b0a8ca13b863877, type: 2}
   controller: {fileID: 2046175385}
   dragHandle: {fileID: 1755929164}
-  instructionCamera: {fileID: 1712064256}
-  cameraLerpSpeed: 5
-  currentOrbitRotation: {x: 0, y: 0, z: 0}
-  currentOrbitDistance: 3
+  paperLerpSpeed: 5
+  currentPaperRotation: {x: 0, y: 0, z: 0}
+--- !u!114 &2046175389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2046175381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f81117c465810741b762cd51b3efe9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PaperRotationHandle
+  rotationSpeed: 0.3
+  trackedCamera: {fileID: 1712064256}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

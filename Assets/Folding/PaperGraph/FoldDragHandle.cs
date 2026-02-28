@@ -26,9 +26,9 @@ public class FoldDragHandle : MonoBehaviour
         mainCamera = Camera.main;
         mouse = Mouse.current;
 
-        // Initialize handle position from controller
+        // Initialize handle position from controller (local → world)
         if (controller != null)
-            transform.position = controller.dragHandlePosition;
+            transform.position = controller.transform.TransformPoint(controller.dragHandlePosition);
     }
 
     private void Update() {
@@ -61,23 +61,27 @@ public class FoldDragHandle : MonoBehaviour
     private void UpdateDrag() {
         if (controller == null) return;
 
-        Vector3 planeNormal = controller.dragPlaneNormal.normalized;
-        if (planeNormal.sqrMagnitude < 0.0001f) return;
+        // dragPlaneNormal is in local-space; convert to world for the raycast plane
+        Vector3 localNormal = controller.dragPlaneNormal.normalized;
+        if (localNormal.sqrMagnitude < 0.0001f) return;
+        Vector3 worldNormal = controller.transform.TransformDirection(localNormal);
 
-        // Define the drag plane at the controller's configured handle position
-        Vector3 startPos = controller.dragHandlePosition;
-        Plane dragPlane = new Plane(planeNormal, startPos);
+        // dragHandlePosition is local; convert to world for the plane anchor
+        Vector3 localStartPos = controller.dragHandlePosition;
+        Vector3 worldStartPos = controller.transform.TransformPoint(localStartPos);
+        Plane dragPlane = new Plane(worldNormal, worldStartPos);
 
         Ray ray = mainCamera.ScreenPointToRay(mouse.position.ReadValue());
 
         if (dragPlane.Raycast(ray, out float enter)) {
             Vector3 hitPoint = ray.GetPoint(enter);
 
-            // Move the handle to the hit point
+            // Move the handle to the world-space hit point
             transform.position = hitPoint;
 
-            // Update the controller fold values
-            controller.UpdateFoldFromDrag(startPos, hitPoint);
+            // Convert both start and hit to local-space for the controller
+            Vector3 localHit = controller.transform.InverseTransformPoint(hitPoint);
+            controller.UpdateFoldFromDrag(localStartPos, localHit);
         }
     }
 
@@ -90,7 +94,7 @@ public class FoldDragHandle : MonoBehaviour
     /// </summary>
     public void ResetHandle() {
         if (controller != null) {
-            transform.position = controller.dragHandlePosition;
+            transform.position = controller.transform.TransformPoint(controller.dragHandlePosition);
         }
     }
 
@@ -99,16 +103,16 @@ public class FoldDragHandle : MonoBehaviour
         Gizmos.DrawSphere(transform.position, handleRadius);
 
         if (controller != null) {
-            // Draw line from start position to current handle position
-            Vector3 startPos = controller.dragHandlePosition;
+            // Controller values are local-space — convert to world for gizmos
+            Vector3 worldStartPos = controller.transform.TransformPoint(controller.dragHandlePosition);
             Gizmos.color = Color.white;
-            Gizmos.DrawLine(startPos, transform.position);
+            Gizmos.DrawLine(worldStartPos, transform.position);
 
-            // Draw a small indicator of the drag plane normal
-            Vector3 normal = controller.dragPlaneNormal.normalized;
-            if (normal.sqrMagnitude > 0.0001f) {
+            // Draw a small indicator of the drag plane normal (local → world)
+            Vector3 worldNormal = controller.transform.TransformDirection(controller.dragPlaneNormal.normalized);
+            if (worldNormal.sqrMagnitude > 0.0001f) {
                 Gizmos.color = new Color(handleColor.r, handleColor.g, handleColor.b, 0.3f);
-                Gizmos.DrawRay(startPos, normal * 0.2f);
+                Gizmos.DrawRay(worldStartPos, worldNormal * 0.2f);
             }
         }
     }

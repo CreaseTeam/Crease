@@ -17,29 +17,22 @@ public class FoldInstructionRunner : MonoBehaviour
     [Tooltip("The drag handle whose position reflects the current step.")]
     public FoldDragHandle dragHandle;
 
-    [Tooltip("Camera to reposition during instruction playback. Orbits the PaperGraph transform.")]
-    public Camera instructionCamera;
+    [Header("Paper Rotation Settings")]
+    [Tooltip("How fast the paper lerps to its target rotation.")]
+    public float paperLerpSpeed = 5f;
 
-    [Header("Camera Settings")]
-    [Tooltip("How fast the camera lerps to its target position/rotation.")]
-    public float cameraLerpSpeed = 5f;
-
-    [Tooltip("Current orbit rotation (euler angles). Modify in editor to adjust camera live.")]
-    public Vector3 currentOrbitRotation;
-
-    [Tooltip("Current orbit distance. Modify in editor to adjust camera live.")]
-    public float currentOrbitDistance = 3f;
+    [Tooltip("Current paper rotation (euler angles). Modify in editor to adjust paper live.")]
+    public Vector3 currentPaperRotation;
 
     private int currentStepIndex = -1;
     private Keyboard keyboard;
 
-    // Camera lerp state
-    private bool isCameraLerping = false;
-    private Vector3 cameraTargetPosition;
-    private Quaternion cameraTargetRotation;
+    // Paper rotation lerp state
+    private bool isPaperLerping = false;
+    private Quaternion targetPaperRotation;
 
     private void OnValidate() {
-        RecalculateCameraTarget();
+        RecalculatePaperTarget();
     }
 
     private void Start() {
@@ -61,18 +54,15 @@ public class FoldInstructionRunner : MonoBehaviour
     }
 
     private void LateUpdate() {
-        if (!isCameraLerping || instructionCamera == null) return;
+        if (!isPaperLerping || controller == null) return;
 
-        Transform camTransform = instructionCamera.transform;
-        camTransform.position = Vector3.Lerp(camTransform.position, cameraTargetPosition, cameraLerpSpeed * Time.deltaTime);
-        camTransform.rotation = Quaternion.Slerp(camTransform.rotation, cameraTargetRotation, cameraLerpSpeed * Time.deltaTime);
+        Transform paperTransform = controller.transform;
+        paperTransform.rotation = Quaternion.Slerp(paperTransform.rotation, targetPaperRotation, paperLerpSpeed * Time.deltaTime);
 
         // Stop lerping when close enough
-        if (Vector3.Distance(camTransform.position, cameraTargetPosition) < 0.001f &&
-            Quaternion.Angle(camTransform.rotation, cameraTargetRotation) < 0.1f) {
-            camTransform.position = cameraTargetPosition;
-            camTransform.rotation = cameraTargetRotation;
-            isCameraLerping = false;
+        if (Quaternion.Angle(paperTransform.rotation, targetPaperRotation) < 0.1f) {
+            paperTransform.rotation = targetPaperRotation;
+            isPaperLerping = false;
         }
     }
 
@@ -156,17 +146,16 @@ public class FoldInstructionRunner : MonoBehaviour
             }
         }
 
-        // Position the drag handle if assigned
+        // Position the drag handle if assigned (local → world)
         if (dragHandle != null) {
-            dragHandle.transform.position = step.dragHandlePosition;
+            dragHandle.transform.position = controller.transform.TransformPoint(step.dragHandlePosition);
         }
 
-        // Set up camera orbit lerp if this step specifies it
-        if (step.moveCamera && instructionCamera != null) {
-            currentOrbitRotation = step.cameraOrbitRotation;
-            currentOrbitDistance = step.cameraDistance;
-            RecalculateCameraTarget();
-            isCameraLerping = true;
+        // Set up paper rotation lerp if this step specifies it
+        if (step.rotatePaper && controller != null) {
+            currentPaperRotation = step.paperRotation;
+            RecalculatePaperTarget();
+            isPaperLerping = true;
         }
 
         // Clear the preview — no fold preview until the drag handle is moved
@@ -174,16 +163,13 @@ public class FoldInstructionRunner : MonoBehaviour
     }
 
     /// <summary>
-    /// Recomputes the camera target position and rotation from the exposed orbit values.
-    /// Called from OnValidate so tweaking values in the Inspector updates the camera live.
+    /// Recomputes the paper target rotation from the exposed euler values.
+    /// Called from OnValidate so tweaking values in the Inspector updates the paper live.
     /// </summary>
-    private void RecalculateCameraTarget() {
-        if (instructionCamera == null || controller == null) return;
+    private void RecalculatePaperTarget() {
+        if (controller == null) return;
 
-        Vector3 pivot = controller.transform.position;
-        Quaternion orbitRotation = Quaternion.Euler(currentOrbitRotation);
-        cameraTargetPosition = pivot + orbitRotation * (Vector3.back * currentOrbitDistance);
-        cameraTargetRotation = Quaternion.LookRotation(pivot - cameraTargetPosition);
-        isCameraLerping = true;
+        targetPaperRotation = Quaternion.Euler(currentPaperRotation);
+        isPaperLerping = true;
     }
 }

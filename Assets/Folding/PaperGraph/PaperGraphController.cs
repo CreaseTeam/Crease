@@ -93,13 +93,14 @@ public class PaperGraphController : MonoBehaviour
 
     /// <summary>
     /// Recomputes foldPoint1/foldPoint2 from the current dragHandlePosition.
+    /// All positions are in local-space relative to this transform.
     /// Call after changing dragHandlePosition to avoid stale fold axis values.
     /// </summary>
     public void RecalculateFoldAxis() {
-        Vector3 dragDelta = dragHandlePosition - transform.position;
+        Vector3 dragDelta = dragHandlePosition; // local origin is (0,0,0)
         if (dragDelta.sqrMagnitude < 0.00001f) return;
 
-        Vector3 midpoint = (transform.position + dragHandlePosition) * 0.5f;
+        Vector3 midpoint = dragHandlePosition * 0.5f; // midpoint between origin and handle
         Vector3 dragDir = dragDelta.normalized;
         Vector3 foldAxisDir = Vector3.Cross(dragPlaneNormal, dragDir).normalized;
         if (foldAxisDir.sqrMagnitude < 0.0001f) return;
@@ -185,15 +186,14 @@ public class PaperGraphController : MonoBehaviour
 
     /// <summary>
     /// Called by the drag handle script to update fold values based on drag movement.
-    /// dragStart is the position where the drag began (on the drag plane).
-    /// dragCurrent is the current drag position (on the drag plane).
+    /// Both positions must be in local-space relative to this transform.
     /// </summary>
-    public void UpdateFoldFromDrag(Vector3 dragStart, Vector3 dragCurrent) {
-        Vector3 dragDelta = dragCurrent - dragStart;
+    public void UpdateFoldFromDrag(Vector3 dragStartLocal, Vector3 dragCurrentLocal) {
+        Vector3 dragDelta = dragCurrentLocal - dragStartLocal;
         if (dragDelta.sqrMagnitude < 0.00001f) return;
 
-        // Midpoint between start and current drag position
-        Vector3 midpoint = (dragStart + dragCurrent) * 0.5f;
+        // Midpoint between start and current drag position (local-space)
+        Vector3 midpoint = (dragStartLocal + dragCurrentLocal) * 0.5f;
 
         // Fold axis direction: perpendicular to the drag direction, lying on the drag plane
         Vector3 dragDir = dragDelta.normalized;
@@ -223,12 +223,16 @@ public class PaperGraphController : MonoBehaviour
     private void OnDrawGizmos() {
         if (!showFoldGizmo) return;
 
+        // All fold values are in local-space; use localToWorldMatrix so gizmos render correctly.
+        Matrix4x4 localToWorld = transform.localToWorldMatrix;
+
         Vector3 foldAxis = (foldPoint2 - foldPoint1).normalized;
         Vector3 foldNormal = Vector3.Cross(foldAxis, foldPlaneVector).normalized;
         float gizmoWidth = Vector3.Distance(foldPoint1, foldPoint2);
 
             if (foldNormal != Vector3.zero) {
                 // Draw the fold axis line
+                Gizmos.matrix = localToWorld;
                 Gizmos.color = Color.red;
                 Gizmos.DrawLine(foldPoint1, foldPoint2);
 
@@ -241,16 +245,18 @@ public class PaperGraphController : MonoBehaviour
                 Quaternion foldRotation = Quaternion.LookRotation(foldNormal, foldAxis);
 
                 Gizmos.color = gizmoColor;
-                Gizmos.matrix = Matrix4x4.TRS(foldCenter, foldRotation, Vector3.one);
+                Gizmos.matrix = localToWorld * Matrix4x4.TRS(foldCenter, foldRotation, Vector3.one);
                 Gizmos.DrawCube(Vector3.zero, new Vector3(gizmoHeight, gizmoWidth, 0.001f));
 
                 Gizmos.color = new Color(gizmoColor.r, gizmoColor.g, gizmoColor.b, 1f);
                 Gizmos.DrawWireCube(Vector3.zero, new Vector3(gizmoHeight, gizmoWidth, 0.001f));
 
                 // Draw the fold plane normal
-                Gizmos.matrix = Matrix4x4.identity;
+                Gizmos.matrix = localToWorld;
                 Gizmos.color = Color.magenta;
                 Gizmos.DrawRay(foldCenter, foldNormal * gizmoHeight * 0.5f);
+
+                Gizmos.matrix = Matrix4x4.identity;
             }
     }
 }
