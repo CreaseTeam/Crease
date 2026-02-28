@@ -63,7 +63,6 @@ public class PaperGraph : MonoBehaviour
         List<Vertex> splitVertices = SplitEdgesCrossingPlane(foldPoint1, planeNormal, degrees, filterSet, signedOffset);
 
         // Pre-compute the set of vertices on the positive (moved) side of the plane.
-        // Shared with CreateHinge to avoid redundant classification.
         HashSet<Vertex> movedSet = new HashSet<Vertex>();
         foreach (Vertex v in vertices) {
             if (filterSet != null && !filterSet.Contains(v)) continue;
@@ -71,17 +70,39 @@ public class PaperGraph : MonoBehaviour
             if (s > 0.0001f) movedSet.Add(v);
         }
 
-        // Rotate vertices on the moved side (or on the plane but off the fold axis).
-        // Split vertices define the crease and are never rotated.
+        // Duplicate split vertices: originals stay at crease, duplicates travel with the moved side.
+        // Must run before rotation so duplicates are included in the rotation loop.
+        Dictionary<Vertex, Vertex> foldDupMap = DuplicateSplitVertices(splitVertices, movedSet);
         HashSet<Vertex> splitSet = new HashSet<Vertex>(splitVertices);
+        HashSet<Vertex> foldDupSet = new HashSet<Vertex>(foldDupMap.Values);
+
+        // Tag all crease vertices (originals + fold duplicates) as _edge
+        if (!string.IsNullOrEmpty(tagName)) {
+            foreach (Vertex sv in splitVertices)
+                AddVertexToTag(tagName + "_edge", sv);
+            foreach (Vertex dv in foldDupMap.Values)
+                AddVertexToTag(tagName + "_edge", dv);
+        }
+
+        // Rotate vertices on the moved side (or on the plane but off the fold axis).
+        // Original split vertices are never rotated.
+        // Fold duplicates are ALWAYS rotated+offset — they represent the moved side of the crease.
         Quaternion rotation = Quaternion.AngleAxis(degrees, foldAxis);
         foreach (Vertex v in vertices) {
             if (filterSet != null && !filterSet.Contains(v))
                 continue;
+            if (splitSet.Contains(v))
+                continue;
 
-            if (splitSet.Contains(v)) {
-                if (!string.IsNullOrEmpty(tagName))
-                    AddVertexToTag(tagName + "_edge", v);
+            // Fold duplicates always travel with the moved side, regardless of position
+            bool isFoldDup = foldDupSet.Contains(v);
+
+            if (isFoldDup) {
+                v.position = foldPoint1 + rotation * (v.position - foldPoint1);
+                if (Mathf.Approximately(Mathf.Abs(degrees), 180f) && Mathf.Abs(signedOffset) > 0.00001f) {
+                    v.position += planeVector.normalized * signedOffset;
+                }
+                // Already tagged _edge above
                 continue;
             }
 
@@ -107,11 +128,9 @@ public class PaperGraph : MonoBehaviour
             }
         }
 
-        // Flat fold hinge: create hinge geometry AFTER rotation.
-        // Duplicates are placed at their final position (crease + offset),
-        // so no further transforms are needed.
+        // Flat fold hinge: create hinge face quads between originals and fold duplicates.
         if (Mathf.Approximately(Mathf.Abs(degrees), 180f) && splitVertices.Count > 0) {
-            CreateHinge(planeNormal, planeVector, splitVertices, movedSet);
+            CreateHinge(splitVertices, foldDupMap);
         }
     }
 
@@ -313,71 +332,47 @@ public class PaperGraph : MonoBehaviour
     }
 
     /// <summary>
-    /// Creates hinge geometry for a flat fold.
-    /// Reads the hinge thickness (foldOffset) from the crease edges stored in the graph
-    /// (edges that connect two split vertices). Duplicates each split vertex with that offset,
-    /// rewires edges/faces on the moved side to use the duplicates, and creates quad hinge
-    /// faces between originals and duplicates. Does nothing if no crease edge carries a
-    /// non-zero foldOffset.
-    /// Duplicates are created at their final position (crease + offset) so no
-    /// further transforms are needed. Must be called AFTER the rotation loop.
+    /// Duplicates each split vertex so the original stays at the crease (static side)
+    /// and the duplicate is used by moved-side faces/edges. The duplicate will later
+    /// be rotated by the rotation loop.
     /// </summary>
-    private void CreateHinge(Vector3 planeNormal, Vector3 planeVector, List<Vertex> splitVertices, HashSet<Vertex> movedSet) {
-        // Derive foldOffset from the crease edges (edges whose both endpoints are split vertices).
-        HashSet<Vertex> splitSet = new HashSet<Vertex>(splitVertices);
-        float foldOffset = 0f;
-        foreach (Vertex v in splitVertices) {
-            foreach (Edge e in v.edges) {
-                Vertex other = (e.v1 == v) ? e.v2 : e.v1;
-                if (splitSet.Contains(other) && Mathf.Abs(e.foldOffset) > 0.00001f) {
-                    foldOffset = e.foldOffset;
-                    goto foundOffset;
-                }
-            }
-        }
-        foundOffset:
-        if (Mathf.Abs(foldOffset) < 0.00001f) return;
-
-        Vector3 offset = planeVector.normalized * foldOffset;
-
-        // 1. Create duplicate vertices at their final position (crease + offset)
+    private Dictionary<Vertex, Vertex> DuplicateSplitVertices(List<Vertex> splitVertices, HashSet<Vertex> movedSet) {
         Dictionary<Vertex, Vertex> dupMap = new Dictionary<Vertex, Vertex>();
+        HashSet<Vertex> splitSet = new HashSet<Vertex>(splitVertices);
+
+        // 1. Create duplicates at the same position
         foreach (Vertex v in splitVertices) {
-            Vertex dup = new Vertex(v.position + offset);
+            Vertex dup = new Vertex(v.position);
             vertices.Add(dup);
             dupMap[v] = dup;
 
-            // Propagate tags from original to duplicate
+            // Propagate all tags from original to duplicate
             foreach (var kvp in tags) {
                 if (kvp.Value.Contains(v) && !kvp.Value.Contains(dup))
                     kvp.Value.Add(dup);
             }
         }
 
-        // 2. Rewire non-crease edges: edges from a split vertex to a moved vertex
+        // 2. Rewire non-crease edges from split vertex to duplicate on the moved side
         foreach (Vertex splitV in splitVertices) {
             Vertex dupV = dupMap[splitV];
             List<Edge> snapshot = new List<Edge>(splitV.edges);
             foreach (Edge e in snapshot) {
                 Vertex other = (e.v1 == splitV) ? e.v2 : e.v1;
-                if (dupMap.ContainsKey(other)) continue; // crease edge — handled in step 4
+                if (splitSet.Contains(other)) continue; // crease edge — handled in step 3
                 if (!movedSet.Contains(other)) continue; // static side — keep as-is
 
-                // Update faces that contain both this edge and splitV
                 if (e.face1 != null && e.face1.ContainsVertex(splitV))
                     ReplaceFaceVertex(e.face1, splitV, dupV);
                 if (e.face2 != null && e.face2.ContainsVertex(splitV))
                     ReplaceFaceVertex(e.face2, splitV, dupV);
 
-                // Rewire the edge itself
                 RewireEdgeVertex(e, splitV, dupV);
             }
         }
 
         // 3. Handle crease edges (edges between two split vertices)
         HashSet<Edge> processedCrease = new HashSet<Edge>();
-        Dictionary<Vertex, Edge> connectEdges = new Dictionary<Vertex, Edge>();
-
         foreach (Vertex splitV in splitVertices) {
             List<Edge> snapshot = new List<Edge>(splitV.edges);
             foreach (Edge e in snapshot) {
@@ -394,7 +389,7 @@ public class PaperGraph : MonoBehaviour
                 dupEdge.foldAngle = e.foldAngle;
                 edges.Add(dupEdge);
 
-                // Find the moved-side face and update it
+                // Find the moved-side face and rewire it
                 Face movedFace = null;
                 if (e.face1 != null && FaceHasMovedVertex(e.face1, movedSet)) movedFace = e.face1;
                 else if (e.face2 != null && FaceHasMovedVertex(e.face2, movedSet)) movedFace = e.face2;
@@ -404,34 +399,87 @@ public class PaperGraph : MonoBehaviour
                     ReplaceFaceVertex(movedFace, other, dupOther);
                     ReplaceFaceEdge(movedFace, e, dupEdge);
                 }
+            }
+        }
 
-                // Create connecting edges (once per split vertex)
-                if (!connectEdges.ContainsKey(splitV)) {
-                    Edge ce = new Edge(splitV, dupV);
-                    edges.Add(ce);
-                    connectEdges[splitV] = ce;
+        return dupMap;
+    }
+
+    /// <summary>
+    /// Creates hinge face quads between original split vertices and their fold duplicates.
+    /// The fold duplicates have already been rotated+offset by the rotation loop, so they
+    /// are at their final position. Must be called AFTER DuplicateSplitVertices and rotation.
+    /// Only creates geometry if crease edges carry a non-zero foldOffset.
+    /// </summary>
+    private void CreateHinge(List<Vertex> splitVertices, Dictionary<Vertex, Vertex> foldDupMap) {
+        // Check if any crease edge has a non-zero foldOffset
+        HashSet<Vertex> splitSet = new HashSet<Vertex>(splitVertices);
+        bool hasOffset = false;
+        foreach (Vertex v in splitVertices) {
+            foreach (Edge e in v.edges) {
+                Vertex other = (e.v1 == v) ? e.v2 : e.v1;
+                if (splitSet.Contains(other) && Mathf.Abs(e.foldOffset) > 0.00001f) {
+                    hasOffset = true;
+                    goto checkedOffset;
                 }
+            }
+        }
+        checkedOffset:
+        if (!hasOffset) return;
+
+        // Create connecting edges and hinge faces between originals and fold duplicates
+        HashSet<Edge> processedCrease = new HashSet<Edge>();
+        Dictionary<Vertex, Edge> connectEdges = new Dictionary<Vertex, Edge>();
+
+        foreach (Vertex splitV in splitVertices) {
+            if (!foldDupMap.ContainsKey(splitV)) continue;
+            Vertex dupV = foldDupMap[splitV];
+
+            // Connecting edge (once per vertex)
+            if (!connectEdges.ContainsKey(splitV)) {
+                Edge ce = new Edge(splitV, dupV);
+                edges.Add(ce);
+                connectEdges[splitV] = ce;
+            }
+
+            List<Edge> snapshot = new List<Edge>(splitV.edges);
+            foreach (Edge e in snapshot) {
+                if (processedCrease.Contains(e)) continue;
+                Vertex other = (e.v1 == splitV) ? e.v2 : e.v1;
+                if (!splitSet.Contains(other)) continue;
+                processedCrease.Add(e);
+
+                if (!foldDupMap.ContainsKey(other)) continue;
+                Vertex dupOther = foldDupMap[other];
+
+                // Ensure connecting edge for the other vertex
                 if (!connectEdges.ContainsKey(other)) {
                     Edge ce = new Edge(other, dupOther);
                     edges.Add(ce);
                     connectEdges[other] = ce;
                 }
 
-                Edge connA = connectEdges[splitV];
-                Edge connB = connectEdges[other];
+                // Find the duplicate crease edge (between fold duplicates)
+                Edge dupCreaseEdge = null;
+                foreach (Edge de in dupV.edges) {
+                    if ((de.v1 == dupV && de.v2 == dupOther) || (de.v1 == dupOther && de.v2 == dupV)) {
+                        dupCreaseEdge = de;
+                        break;
+                    }
+                }
+                if (dupCreaseEdge == null) continue;
 
-                // Create hinge face: quad [splitV, other, dupOther, dupV]
+                // Hinge face quad: [original, other, dupOther, dupV]
                 Face hingeFace = new Face(
                     new List<Vertex> { splitV, other, dupOther, dupV },
-                    new List<Edge> { e, connB, dupEdge, connA }
+                    new List<Edge> { e, connectEdges[other], dupCreaseEdge, connectEdges[splitV] }
                 );
                 faces.Add(hingeFace);
 
-                // Assign hinge face to edges
                 AssignFaceToEdge(e, hingeFace);
-                AssignFaceToEdge(dupEdge, hingeFace);
-                AssignFaceToEdge(connA, hingeFace);
-                AssignFaceToEdge(connB, hingeFace);
+                AssignFaceToEdge(dupCreaseEdge, hingeFace);
+                AssignFaceToEdge(connectEdges[splitV], hingeFace);
+                AssignFaceToEdge(connectEdges[other], hingeFace);
             }
         }
     }

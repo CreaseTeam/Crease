@@ -411,7 +411,7 @@ MonoBehaviour:
   vertexColor: {r: 0, g: 1, b: 0.99658966, a: 1}
   edgeColor: {r: 1, g: 1, b: 1, a: 1}
   foldedEdgeColor: {r: 1, g: 0, b: 0, a: 1}
-  vertexSize: 0.02
+  vertexSize: 0.005
   edgeThickness: 2
   showVertexLabels: 1
   showFoldAngles: 1
@@ -1464,7 +1464,7 @@ MonoBehaviour:
   vertexColor: {r: 0, g: 1, b: 0, a: 1}
   edgeColor: {r: 1, g: 1, b: 1, a: 1}
   foldedEdgeColor: {r: 1, g: 0, b: 0, a: 1}
-  vertexSize: 0.02
+  vertexSize: 0.005
   edgeThickness: 2
   showVertexLabels: 1
   showFoldAngles: 1
