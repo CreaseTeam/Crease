@@ -106,7 +106,7 @@ public class FlightController : MonoBehaviour
         // Climbing
         if (pitchRadians < 0)
         {
-            float yAcc = horizontalSpeed * -sinPitch * climbRate;
+            float yAcc = horizontalSpeed * -sinPitch * -sinPitch * climbRate;
             velocity.y += yAcc * climbEfficiency;
             velocity.x -= lookDirection.x * yAcc / cosPitch;
             velocity.z -= lookDirection.z * yAcc / cosPitch;
