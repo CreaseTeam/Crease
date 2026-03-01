@@ -1,9 +1,8 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 /// <summary>
 /// Loads a FoldInstruction asset and runs its steps sequentially.
-/// Press spacebar to execute the current fold step and advance to the next.
+/// Uses InputManager for Folding actions (ExecuteFold, Recenter).
 /// </summary>
 public class FoldInstructionRunner : MonoBehaviour
 {
@@ -16,10 +15,6 @@ public class FoldInstructionRunner : MonoBehaviour
 
     [Tooltip("The drag handle whose position reflects the current step.")]
     public FoldDragHandle dragHandle;
-
-    [Header("Input")]
-    [Tooltip("Reference to the Folding/Recenter action from the GameInput asset.")]
-    public InputActionReference recenterAction;
 
     [Header("Paper Rotation Settings")]
     [Tooltip("How fast the paper lerps to its target rotation.")]
@@ -38,20 +33,6 @@ public class FoldInstructionRunner : MonoBehaviour
         RecalculatePaperTarget();
     }
 
-    private void OnEnable() {
-        if (recenterAction != null && recenterAction.action != null) {
-            recenterAction.action.Enable();
-            recenterAction.action.performed += OnRecenter;
-        }
-    }
-
-    private void OnDisable() {
-        if (recenterAction != null && recenterAction.action != null) {
-            recenterAction.action.performed -= OnRecenter;
-            recenterAction.action.Disable();
-        }
-    }
-
     private void Start() {
         if (controller == null)
             controller = GetComponent<PaperGraphController>();
@@ -60,8 +41,14 @@ public class FoldInstructionRunner : MonoBehaviour
             LoadInstruction(instruction);
     }
 
-    private void OnRecenter(InputAction.CallbackContext ctx) {
-        Recenter();
+    private void Update() {
+        if (InputManager.Instance == null) return;
+
+        if (InputManager.Instance.ExecuteFoldTriggered)
+            ExecuteCurrentStep();
+
+        if (InputManager.Instance.RecenterTriggered)
+            Recenter();
     }
 
     private void LateUpdate() {
@@ -96,7 +83,7 @@ public class FoldInstructionRunner : MonoBehaviour
         currentStepIndex = 0;
         ApplyStepToController(instruction.steps[0]);
 
-        Debug.Log($"FoldInstructionRunner: Loaded instruction with {instruction.steps.Count} step(s). Press Space to execute step 1.");
+        Debug.Log($"FoldInstructionRunner: Loaded instruction with {instruction.steps.Count} step(s). Press ExecuteFold to execute step 1.");
     }
 
     /// <summary>
@@ -122,7 +109,7 @@ public class FoldInstructionRunner : MonoBehaviour
 
         if (currentStepIndex < instruction.steps.Count) {
             ApplyStepToController(instruction.steps[currentStepIndex]);
-            Debug.Log($"FoldInstructionRunner: Loaded step {currentStepIndex + 1}/{instruction.steps.Count}. Press Space to execute.");
+            Debug.Log($"FoldInstructionRunner: Loaded step {currentStepIndex + 1}/{instruction.steps.Count}. Press ExecuteFold to execute.");
         } else {
             // Clear the preview so no ghost fold lingers
             controller.ClearPreview();
@@ -199,3 +186,4 @@ public class FoldInstructionRunner : MonoBehaviour
         isPaperLerping = true;
     }
 }
+

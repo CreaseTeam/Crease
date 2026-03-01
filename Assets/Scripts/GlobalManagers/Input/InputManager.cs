@@ -6,7 +6,7 @@ public class InputManager : MonoBehaviour
     public GameInput Actions { get; private set; }
     public static InputManager Instance { get; private set; }
 
-    // Convenience accessors for input values
+    // ── Player & Debug convenience accessors ────────────────────────
     public Vector2 MoveInput => Actions.Player.Move.ReadValue<Vector2>();
     public Vector2 CameraZoomInput => Actions.Player.CameraZoom.ReadValue<Vector2>();
     public bool BoostPressed => Actions.Debug.Boost.IsPressed();
@@ -15,6 +15,10 @@ public class InputManager : MonoBehaviour
     public bool DashTriggered => Actions.Player.Dash.WasPerformedThisFrame();
     public bool DropTriggered => Actions.Player.Drop.WasPerformedThisFrame();
     public bool ReturnTriggered => Actions.Player.Return.WasPerformedThisFrame();
+
+    // ── Folding convenience accessors ───────────────────────────────
+    public bool RecenterTriggered => Actions.Folding.Recenter.WasPerformedThisFrame();
+    public bool ExecuteFoldTriggered => Actions.Folding.ExecuteFold.WasPerformedThisFrame();
 
     void Awake()
     {
@@ -38,8 +42,33 @@ public class InputManager : MonoBehaviour
         {
             Actions?.Player.Disable();
             Actions?.Debug.Disable();
+            Actions?.Folding.Disable();
             Actions?.Dispose();
             Instance = null;
         }
+    }
+
+    // ── Action-map switching ────────────────────────────────────────
+
+    /// <summary>
+    /// Enables the Folding action map and disables Player + Debug.
+    /// Call when entering the folding scene.
+    /// </summary>
+    public void SwitchToFolding()
+    {
+        Actions.Player.Disable();
+        Actions.Debug.Disable();
+        Actions.Folding.Enable();
+    }
+
+    /// <summary>
+    /// Enables Player + Debug action maps and disables Folding.
+    /// Call when entering the flight / gameplay scene.
+    /// </summary>
+    public void SwitchToPlayerAndDebug()
+    {
+        Actions.Folding.Disable();
+        Actions.Player.Enable();
+        Actions.Debug.Enable();
     }
 }

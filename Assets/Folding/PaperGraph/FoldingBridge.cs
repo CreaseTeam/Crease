@@ -59,7 +59,15 @@ public class FoldingBridge : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
         if (scene.name == foldingSceneName) {
             RelinkPaperGraph();
+
+            // Activate Folding inputs, deactivate Player + Debug
+            if (InputManager.Instance != null)
+                InputManager.Instance.SwitchToFolding();
         } else if (scene.name == flightSceneName) {
+            // Activate Player + Debug inputs, deactivate Folding
+            if (InputManager.Instance != null)
+                InputManager.Instance.SwitchToPlayerAndDebug();
+
             if (applyMeshOnLoad && savedMesh != null) {
                 ApplyMeshToPlayer();
                 applyMeshOnLoad = false;
