@@ -288,7 +288,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""path"": ""<Gamepad>/select"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": "";Gamepad"",
                     ""action"": ""Return"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -364,6 +364,45 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""Folding"",
+            ""id"": ""71f7447e-dfa3-4d54-a5b9-8752247d03a4"",
+            ""actions"": [
+                {
+                    ""name"": ""Recenter"",
+                    ""type"": ""Button"",
+                    ""id"": ""92be2cba-75e0-4877-8eb2-e25122818c3d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""c0a05b30-878a-4ea4-bdbb-4f1fd59e2e88"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Recenter"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""183c1ae1-1d88-44b8-bed2-1b95ead1531d"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""Recenter"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": [
@@ -407,12 +446,16 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         m_Debug = asset.FindActionMap("Debug", throwIfNotFound: true);
         m_Debug_Boost = m_Debug.FindAction("Boost", throwIfNotFound: true);
         m_Debug_Reset = m_Debug.FindAction("Reset", throwIfNotFound: true);
+        // Folding
+        m_Folding = asset.FindActionMap("Folding", throwIfNotFound: true);
+        m_Folding_Recenter = m_Folding.FindAction("Recenter", throwIfNotFound: true);
     }
 
     ~@GameInput()
     {
         UnityEngine.Debug.Assert(!m_Player.enabled, "This will cause a leak and performance issues, GameInput.Player.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_Debug.enabled, "This will cause a leak and performance issues, GameInput.Debug.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_Folding.enabled, "This will cause a leak and performance issues, GameInput.Folding.Disable() has not been called.");
     }
 
     /// <summary>
@@ -731,6 +774,102 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="DebugActions" /> instance referencing this action map.
     /// </summary>
     public DebugActions @Debug => new DebugActions(this);
+
+    // Folding
+    private readonly InputActionMap m_Folding;
+    private List<IFoldingActions> m_FoldingActionsCallbackInterfaces = new List<IFoldingActions>();
+    private readonly InputAction m_Folding_Recenter;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "Folding".
+    /// </summary>
+    public struct FoldingActions
+    {
+        private @GameInput m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public FoldingActions(@GameInput wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "Folding/Recenter".
+        /// </summary>
+        public InputAction @Recenter => m_Wrapper.m_Folding_Recenter;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_Folding; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="FoldingActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(FoldingActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="FoldingActions" />
+        public void AddCallbacks(IFoldingActions instance)
+        {
+            if (instance == null || m_Wrapper.m_FoldingActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_FoldingActionsCallbackInterfaces.Add(instance);
+            @Recenter.started += instance.OnRecenter;
+            @Recenter.performed += instance.OnRecenter;
+            @Recenter.canceled += instance.OnRecenter;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="FoldingActions" />
+        private void UnregisterCallbacks(IFoldingActions instance)
+        {
+            @Recenter.started -= instance.OnRecenter;
+            @Recenter.performed -= instance.OnRecenter;
+            @Recenter.canceled -= instance.OnRecenter;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="FoldingActions.UnregisterCallbacks(IFoldingActions)" />.
+        /// </summary>
+        /// <seealso cref="FoldingActions.UnregisterCallbacks(IFoldingActions)" />
+        public void RemoveCallbacks(IFoldingActions instance)
+        {
+            if (m_Wrapper.m_FoldingActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="FoldingActions.AddCallbacks(IFoldingActions)" />
+        /// <seealso cref="FoldingActions.RemoveCallbacks(IFoldingActions)" />
+        /// <seealso cref="FoldingActions.UnregisterCallbacks(IFoldingActions)" />
+        public void SetCallbacks(IFoldingActions instance)
+        {
+            foreach (var item in m_Wrapper.m_FoldingActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_FoldingActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="FoldingActions" /> instance referencing this action map.
+    /// </summary>
+    public FoldingActions @Folding => new FoldingActions(this);
     private int m_KeyboardMouseSchemeIndex = -1;
     /// <summary>
     /// Provides access to the input control scheme.
@@ -821,5 +960,20 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnReset(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Folding" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="FoldingActions.AddCallbacks(IFoldingActions)" />
+    /// <seealso cref="FoldingActions.RemoveCallbacks(IFoldingActions)" />
+    public interface IFoldingActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "Recenter" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRecenter(InputAction.CallbackContext context);
     }
 }

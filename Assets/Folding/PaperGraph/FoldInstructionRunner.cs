@@ -17,6 +17,10 @@ public class FoldInstructionRunner : MonoBehaviour
     [Tooltip("The drag handle whose position reflects the current step.")]
     public FoldDragHandle dragHandle;
 
+    [Header("Input")]
+    [Tooltip("Reference to the Folding/Recenter action from the GameInput asset.")]
+    public InputActionReference recenterAction;
+
     [Header("Paper Rotation Settings")]
     [Tooltip("How fast the paper lerps to its target rotation.")]
     public float paperLerpSpeed = 5f;
@@ -25,7 +29,6 @@ public class FoldInstructionRunner : MonoBehaviour
     public Vector3 currentPaperRotation;
 
     private int currentStepIndex = -1;
-    private Keyboard keyboard;
 
     // Paper rotation lerp state
     private bool isPaperLerping = false;
@@ -35,9 +38,21 @@ public class FoldInstructionRunner : MonoBehaviour
         RecalculatePaperTarget();
     }
 
-    private void Start() {
-        keyboard = Keyboard.current;
+    private void OnEnable() {
+        if (recenterAction != null && recenterAction.action != null) {
+            recenterAction.action.Enable();
+            recenterAction.action.performed += OnRecenter;
+        }
+    }
 
+    private void OnDisable() {
+        if (recenterAction != null && recenterAction.action != null) {
+            recenterAction.action.performed -= OnRecenter;
+            recenterAction.action.Disable();
+        }
+    }
+
+    private void Start() {
         if (controller == null)
             controller = GetComponent<PaperGraphController>();
 
@@ -45,12 +60,8 @@ public class FoldInstructionRunner : MonoBehaviour
             LoadInstruction(instruction);
     }
 
-    private void Update() {
-        if (keyboard == null) return;
-
-        if (keyboard.spaceKey.wasPressedThisFrame) {
-            ExecuteCurrentStep();
-        }
+    private void OnRecenter(InputAction.CallbackContext ctx) {
+        Recenter();
     }
 
     private void LateUpdate() {
@@ -160,6 +171,21 @@ public class FoldInstructionRunner : MonoBehaviour
 
         // Clear the preview — no fold preview until the drag handle is moved
         controller.ClearPreview();
+    }
+
+    /// <summary>
+    /// Lerps the paper rotation to the current step's paperRotation.
+    /// Works regardless of whether the step has rotatePaper enabled.
+    /// </summary>
+    public void Recenter() {
+        if (instruction == null || instruction.steps.Count == 0 || controller == null) return;
+
+        // Use the current (or last valid) step index, clamped to valid range
+        int idx = Mathf.Clamp(currentStepIndex, 0, instruction.steps.Count - 1);
+        FoldStep step = instruction.steps[idx];
+
+        currentPaperRotation = step.paperRotation;
+        RecalculatePaperTarget();
     }
 
     /// <summary>
