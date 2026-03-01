@@ -11,6 +11,7 @@ public class FlightController : MonoBehaviour
     public float Pitch => pitch;
 
     [SerializeField] private Transform meshTransform;
+    public Transform MeshTransform => meshTransform;
     private Vector3 meshRotation;
     private float yaw = 0f;
 

@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 /// <summary>
 /// A draggable handle that drives PaperGraphController fold values.
 /// Attach this to a visible GameObject (e.g. a sphere) with a Collider.
-/// Requires a Camera tagged "MainCamera" in the scene.
+/// Assign the folding camera in the Inspector via trackedCamera.
 /// </summary>
 [RequireComponent(typeof(Collider))]
 public class FoldDragHandle : MonoBehaviour
@@ -17,13 +17,17 @@ public class FoldDragHandle : MonoBehaviour
     public Color handleColor = Color.cyan;
     public Color draggingColor = Color.yellow;
 
-    private Camera mainCamera;
+    [SerializeField]
+    [Tooltip("Camera used for raycasting. If not set, falls back to Camera.main.")]
+    private Camera trackedCamera;
+
+    private Camera activeCamera;
+
     private bool isDragging = false;
 
     private Mouse mouse;
 
     private void Start() {
-        mainCamera = Camera.main;
         mouse = Mouse.current;
 
         // Initialize handle position from controller (local → world)
@@ -32,7 +36,8 @@ public class FoldDragHandle : MonoBehaviour
     }
 
     private void Update() {
-        if (mouse == null || mainCamera == null) return;
+        activeCamera = trackedCamera != null ? trackedCamera : Camera.main;
+        if (mouse == null || activeCamera == null) return;
 
         if (mouse.leftButton.wasPressedThisFrame) {
             TryBeginDrag();
@@ -48,7 +53,7 @@ public class FoldDragHandle : MonoBehaviour
     }
 
     private void TryBeginDrag() {
-        Ray ray = mainCamera.ScreenPointToRay(mouse.position.ReadValue());
+        Ray ray = activeCamera.ScreenPointToRay(mouse.position.ReadValue());
 
         // Raycast against this object's collider
         if (Physics.Raycast(ray, out RaycastHit hit)) {
@@ -71,7 +76,7 @@ public class FoldDragHandle : MonoBehaviour
         Vector3 worldStartPos = controller.transform.TransformPoint(localStartPos);
         Plane dragPlane = new Plane(worldNormal, worldStartPos);
 
-        Ray ray = mainCamera.ScreenPointToRay(mouse.position.ReadValue());
+        Ray ray = activeCamera.ScreenPointToRay(mouse.position.ReadValue());
 
         if (dragPlane.Raycast(ray, out float enter)) {
             Vector3 hitPoint = ray.GetPoint(enter);

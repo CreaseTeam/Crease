@@ -10,6 +10,10 @@ public class HUDCanvas : MonoBehaviour
     [SerializeField] private TextMeshProUGUI collectibleText;
     [SerializeField] private List<Heart> hearts;
 
+    [SerializeField] private GameObject foldingUI;
+    [SerializeField] private GameObject flyingUI;
+
+
     public static HUDCanvas Instance { get; private set; }
 
     private int collectibleCount = 0;
@@ -49,8 +53,7 @@ public class HUDCanvas : MonoBehaviour
         }
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Awake()
     {
         if (Instance == null)
         {
@@ -60,7 +63,11 @@ public class HUDCanvas : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
 
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
         collectibleText.text = $"{collectibleCount}";
         rechargeBar.fillAmount = dashController.CurrentRecharge / dashController.MaxRecharge;
 
@@ -72,5 +79,17 @@ public class HUDCanvas : MonoBehaviour
     void Update()
     {
         rechargeBar.fillAmount = dashController.CurrentRecharge / dashController.MaxRecharge;
+    }
+
+    public void ShowFoldingUI(bool show)
+    {
+        foldingUI.SetActive(show);
+        flyingUI.SetActive(!show);
+    }
+
+    public void ShowFlyingUI(bool show)
+    {
+        flyingUI.SetActive(show);
+        foldingUI.SetActive(!show);
     }
 }
