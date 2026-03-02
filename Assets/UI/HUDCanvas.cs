@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,6 +13,7 @@ public class HUDCanvas : MonoBehaviour
 
     [SerializeField] private GameObject foldingUI;
     [SerializeField] private GameObject flyingUI;
+    [SerializeField] private GameObject checkpointUI;
 
 
     public static HUDCanvas Instance { get; private set; }
@@ -91,5 +93,10 @@ public class HUDCanvas : MonoBehaviour
     {
         flyingUI.SetActive(show);
         foldingUI.SetActive(!show);
+    }
+
+    public void ShowCheckpointUI(bool show)
+    {
+        checkpointUI.SetActive(show);
     }
 }

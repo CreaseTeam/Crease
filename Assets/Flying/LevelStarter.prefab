@@ -44,10 +44,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70f59b5c7009197428e078ab8694f410, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoldingBridge
-  defaultMode: 0
+  defaultMode: 1
   foldingCamera: {fileID: 4955118115950875819}
   flyingCamera: {fileID: 3936584405265759272}
-  transitionDuration: 1
+  transitionDuration: 2
   paperAlignDuration: 0.6
   defaultPlayerMesh: {fileID: 4300000, guid: 3d07862ae155a79468790d1c9c3e87c5, type: 2}
   meshRotation: {x: -90, y: 0, z: 0}
