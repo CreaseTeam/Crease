@@ -41475,6 +41475,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: LevelStarter
       objectReference: {fileID: 0}
+    - target: {fileID: 5192618207464324711, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: trailTime
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5192618207464324711, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: startWidth
+      value: 0.01
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
