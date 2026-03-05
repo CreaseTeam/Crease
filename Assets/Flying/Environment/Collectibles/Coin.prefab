@@ -96,6 +96,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c94ebda9aaa7655479b6c844b3e9db0f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 607207065494467475}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c94ebda9aaa7655479b6c844b3e9db0f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7140065176321267106}
   m_SourcePrefab: {fileID: 100100000, guid: c94ebda9aaa7655479b6c844b3e9db0f, type: 3}
 --- !u!1 &3749374715168013756 stripped
 GameObject:
@@ -129,6 +132,18 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 7140065176321267106}
+        m_TargetAssemblyTypeName: AudioManagerActions, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: coin
           m_BoolArgument: 0
         m_CallState: 2
   spin: 1
@@ -4958,3 +4973,15 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
+--- !u!114 &7140065176321267106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3749374715168013756}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4fc52f62f22e4a4eab1b48028b8ccbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioManagerActions

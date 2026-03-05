@@ -1,5 +1,6 @@
 using UnityEngine;
-using PhysicsHelpers; // Namespace where FrustumTrigger resides
+using PhysicsHelpers;
+using System.Linq.Expressions; // Namespace where FrustumTrigger resides
 
 [RequireComponent(typeof(FrustumTrigger))]
 public class FrustumWindZone : WindProvider
@@ -26,6 +27,8 @@ public class FrustumWindZone : WindProvider
             _shape.onTriggerEnter.AddListener(OnEnterZone);
             _shape.onTriggerExit.AddListener(OnExitZone);
         }
+
+        AudioManager.Instance.PlayAtPosition("wind", transform.position, new AudioManager.PlaySettings { Loop = true });
     }
 
     private void OnDestroy()

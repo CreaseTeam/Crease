@@ -149,6 +149,7 @@ public class FoldInstructionRunner : MonoBehaviour
 
         // Execute the fold with the values currently loaded in the controller
         controller.ExecuteFoldAction();
+        AudioManager.Instance.Play("fold");
         Debug.Log($"FoldInstructionRunner: Executed step {currentStepIndex + 1}/{instruction.steps.Count}.");
 
         // Advance to the next step
@@ -248,16 +249,19 @@ public class FoldInstructionRunner : MonoBehaviour
             return;
         }
 
-        // --- Clip to paper edges ---
+        // --- Clip to paper edges and find local height ---
         float halfLength = controller != null ? controller.foldLineHalfLength : 1f;
         Vector3 lineP1 = midpoint + foldAxisDir * halfLength;
         Vector3 lineP2 = midpoint - foldAxisDir * halfLength;
+        float localMaxHeight = Vector3.Dot(midpoint, planeNormal); // fallback
 
         if (graph != null && graph.edges.Count > 0) {
             Vector3 clippedP1, clippedP2;
-            if (ClipLineToPaperEdges(lineP1, lineP2, foldAxisDir, midpoint, planeNormal, graph, out clippedP1, out clippedP2)) {
+            float clippedMaxHeight;
+            if (ClipLineToPaperEdges(lineP1, lineP2, foldAxisDir, midpoint, planeNormal, graph, out clippedP1, out clippedP2, out clippedMaxHeight)) {
                 lineP1 = clippedP1;
                 lineP2 = clippedP2;
+                localMaxHeight = clippedMaxHeight;
             } else {
                 // Fold axis doesn't cross the paper — hide the guide
                 foldAxisGuide.enabled = false;
@@ -265,14 +269,8 @@ public class FoldInstructionRunner : MonoBehaviour
             }
         }
 
-        // --- Offset above the topmost layer ---
-        if (graph != null && graph.vertices.Count > 0) {
-            float maxHeight = float.NegativeInfinity;
-            foreach (Vertex v in graph.vertices) {
-                float h = Vector3.Dot(v.position, planeNormal);
-                if (h > maxHeight) maxHeight = h;
-            }
-
+        // --- Offset above the topmost layer at the fold axis ---
+        {
             // Cap so the guide sits below the upcoming fold layer.
             // During flat folds the folded side offsets by foldOffset, so
             // keeping our offset smaller ensures the fold covers the line.
@@ -281,9 +279,9 @@ public class FoldInstructionRunner : MonoBehaviour
                 heightOffset = Mathf.Min(heightOffset, Mathf.Abs(step.foldOffset) * 0.5f);
             }
 
-            // Place the line at the topmost height + offset, along the plane normal
+            // Place the line at the local height (at the fold axis) + offset
             float currentHeight = Vector3.Dot(midpoint, planeNormal);
-            float lift = (maxHeight - currentHeight) + heightOffset;
+            float lift = (localMaxHeight - currentHeight) + heightOffset;
             Vector3 offset = planeNormal * lift;
             lineP1 += offset;
             lineP2 += offset;
@@ -298,16 +296,19 @@ public class FoldInstructionRunner : MonoBehaviour
     /// Clips the fold axis line segment to only the region that overlaps the paper.
     /// Projects everything onto the 2D plane (perpendicular to planeNormal) and
     /// finds intersections between the fold axis and each paper edge.
-    /// Returns the outermost pair of intersection points along the fold axis direction.
+    /// Returns the outermost pair of intersection points along the fold axis direction,
+    /// plus the maximum height (along planeNormal) at the intersection points.
     /// </summary>
     private bool ClipLineToPaperEdges(
         Vector3 lineP1, Vector3 lineP2,
         Vector3 axisDir, Vector3 axisMidpoint,
         Vector3 planeNormal, PaperGraph graph,
-        out Vector3 clippedP1, out Vector3 clippedP2)
+        out Vector3 clippedP1, out Vector3 clippedP2,
+        out float maxHeightAtAxis)
     {
         clippedP1 = lineP1;
         clippedP2 = lineP2;
+        maxHeightAtAxis = 0f;
 
         // Build a 2D basis on the plane perpendicular to planeNormal
         Vector3 basisU = axisDir;
@@ -319,6 +320,7 @@ public class FoldInstructionRunner : MonoBehaviour
 
         float minT = float.PositiveInfinity;
         float maxT = float.NegativeInfinity;
+        float maxH = float.NegativeInfinity;
         bool foundAny = false;
 
         // The fold axis in 2D is: point = (t, 0) for all t
@@ -339,6 +341,11 @@ public class FoldInstructionRunner : MonoBehaviour
 
             float t = aU + s * (bU - aU);
 
+            // Interpolate the actual 3D position along the edge to get the height
+            Vector3 hitPos3D = edge.v1.position + s * (edge.v2.position - edge.v1.position);
+            float h = Vector3.Dot(hitPos3D, planeNormal);
+            if (h > maxH) maxH = h;
+
             if (t < minT) minT = t;
             if (t > maxT) maxT = t;
             foundAny = true;
@@ -346,6 +353,8 @@ public class FoldInstructionRunner : MonoBehaviour
 
         if (!foundAny || (maxT - minT) < 0.0001f)
             return false;
+
+        maxHeightAtAxis = maxH;
 
         // Reconstruct 3D from t values (project back onto the flat plane, height handled separately)
         clippedP1 = axisMidpoint + basisU * minT;

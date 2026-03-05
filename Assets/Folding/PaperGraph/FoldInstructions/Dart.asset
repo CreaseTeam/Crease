@@ -17,7 +17,7 @@ MonoBehaviour:
     idealDragPosition: {x: 0, y: 0, z: 0}
     dragPlaneNormal: {x: 0, y: 1, z: 0}
     foldDegrees: -180
-    foldOffset: 0.0015
+    foldOffset: 0.001
     applyTag: 
     filterTag: 
     rotatePaper: 0
@@ -26,7 +26,7 @@ MonoBehaviour:
     idealDragPosition: {x: 0, y: 0, z: 0}
     dragPlaneNormal: {x: 0, y: 1, z: 0}
     foldDegrees: -180
-    foldOffset: 0.0015
+    foldOffset: 0.001
     applyTag: 
     filterTag: 
     rotatePaper: 0
@@ -44,7 +44,7 @@ MonoBehaviour:
     idealDragPosition: {x: 0, y: 0, z: -0.2}
     dragPlaneNormal: {x: 0, y: -1, z: 0}
     foldDegrees: -180
-    foldOffset: 0.005
+    foldOffset: 0.01
     applyTag: none
     filterTag: half_moved
     rotatePaper: 1
@@ -53,7 +53,7 @@ MonoBehaviour:
     idealDragPosition: {x: -0.075, y: 0, z: -0.025}
     dragPlaneNormal: {x: 0, y: -1, z: 0}
     foldDegrees: -90
-    foldOffset: 0.005
+    foldOffset: 0.01
     applyTag: none
     filterTag: half_moved
     rotatePaper: 0
@@ -62,7 +62,7 @@ MonoBehaviour:
     idealDragPosition: {x: 0, y: 0, z: -0.2}
     dragPlaneNormal: {x: 0, y: 1, z: 0}
     foldDegrees: -180
-    foldOffset: 0.005
+    foldOffset: 0.01
     applyTag: none
     filterTag: half_static
     rotatePaper: 1
@@ -71,7 +71,7 @@ MonoBehaviour:
     idealDragPosition: {x: -0.075, y: 0, z: -0.025}
     dragPlaneNormal: {x: 0, y: 1, z: 0}
     foldDegrees: -90
-    foldOffset: 0.005
+    foldOffset: 0.01
     applyTag: none
     filterTag: half_static
     rotatePaper: 0
