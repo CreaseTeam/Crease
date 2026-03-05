@@ -48,9 +48,13 @@ MonoBehaviour:
   - key: coin
     clip: {fileID: 8300000, guid: 3126dafd9ae7d6549906eab0d0233608, type: 3}
     defaultVolume: 0
+    minDistance: 1
+    maxDistance: 500
   - key: wind
     clip: {fileID: 8300000, guid: f5fb088c852d25c46a2ded789b44efb1, type: 3}
     defaultVolume: 0
+    minDistance: 1
+    maxDistance: 500
 --- !u!1 &1171905940911883453
 GameObject:
   m_ObjectHideFlags: 0
@@ -366,6 +370,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 466de702919c6434ca44056a93354fef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InputManager
+  micVolumeThreshold: 0.05
+  micSampleSize: 128
 --- !u!1 &7302170735119904567
 GameObject:
   m_ObjectHideFlags: 0
@@ -928,6 +934,34 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5409771091180492323, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7621704789633106585, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7621704789633106585, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7621704789633106585, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7621704789633106585, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8981558309502223820, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8981558309502223820, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8981558309502223820, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

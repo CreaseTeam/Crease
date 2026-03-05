@@ -100,7 +100,10 @@ public class FoldingManager : MonoBehaviour
             if (paperGraph != null) paperGraph.gameObject.SetActive(true);
         } else {
             IsFolding = false;
-            if (foldingCamera != null) foldingCamera.enabled = false;
+            if (foldingCamera != null) {
+                foldingCamera.enabled = false;
+                foldingCamera.gameObject.SetActive(false);
+            }
             if (flyingCamera != null) flyingCamera.enabled = true;
 
             if (InputManager.Instance != null)
@@ -199,6 +202,7 @@ public class FoldingManager : MonoBehaviour
             player.SetActive(false);
         }
         if (flyingCamera != null) flyingCamera.gameObject.SetActive(false);
+        if (foldingCamera != null) foldingCamera.gameObject.SetActive(true);
 
         BeginTransition(flyingCamera, foldingCamera);
     }
@@ -384,7 +388,7 @@ public class FoldingManager : MonoBehaviour
         }
 
         mf.mesh = defaultPlayerMesh;
-        Debug.Log($"FoldingManager: Applied default mesh to '{playerObj.name}'.");
+        // Debug.Log($"FoldingManager: Applied default mesh to '{playerObj.name}'.");
     }
 
     private void TeleportPaperToPlayer() {

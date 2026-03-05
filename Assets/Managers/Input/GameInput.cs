@@ -347,6 +347,15 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Secret"",
+                    ""type"": ""Button"",
+                    ""id"": ""e704e7c1-d8b6-4379-9cc9-999fe9b42cda"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -391,6 +400,28 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Gamepad"",
                     ""action"": ""Reset"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a48ff1b8-a049-42ed-97d5-60af377d4d4b"",
+                    ""path"": ""<Keyboard>/semicolon"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Secret"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f5de9574-2918-4132-84d7-0bbb2f98e194"",
+                    ""path"": ""<Gamepad>/rightStickPress"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""Secret"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -509,6 +540,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         m_Debug = asset.FindActionMap("Debug", throwIfNotFound: true);
         m_Debug_Boost = m_Debug.FindAction("Boost", throwIfNotFound: true);
         m_Debug_Reset = m_Debug.FindAction("Reset", throwIfNotFound: true);
+        m_Debug_Secret = m_Debug.FindAction("Secret", throwIfNotFound: true);
         // Folding
         m_Folding = asset.FindActionMap("Folding", throwIfNotFound: true);
         m_Folding_Recenter = m_Folding.FindAction("Recenter", throwIfNotFound: true);
@@ -748,6 +780,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
     private List<IDebugActions> m_DebugActionsCallbackInterfaces = new List<IDebugActions>();
     private readonly InputAction m_Debug_Boost;
     private readonly InputAction m_Debug_Reset;
+    private readonly InputAction m_Debug_Secret;
     /// <summary>
     /// Provides access to input actions defined in input action map "Debug".
     /// </summary>
@@ -767,6 +800,10 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Debug/Reset".
         /// </summary>
         public InputAction @Reset => m_Wrapper.m_Debug_Reset;
+        /// <summary>
+        /// Provides access to the underlying input action "Debug/Secret".
+        /// </summary>
+        public InputAction @Secret => m_Wrapper.m_Debug_Secret;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -799,6 +836,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @Reset.started += instance.OnReset;
             @Reset.performed += instance.OnReset;
             @Reset.canceled += instance.OnReset;
+            @Secret.started += instance.OnSecret;
+            @Secret.performed += instance.OnSecret;
+            @Secret.canceled += instance.OnSecret;
         }
 
         /// <summary>
@@ -816,6 +856,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @Reset.started -= instance.OnReset;
             @Reset.performed -= instance.OnReset;
             @Reset.canceled -= instance.OnReset;
+            @Secret.started -= instance.OnSecret;
+            @Secret.performed -= instance.OnSecret;
+            @Secret.canceled -= instance.OnSecret;
         }
 
         /// <summary>
@@ -1053,6 +1096,13 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnReset(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Secret" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSecret(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Folding" which allows adding and removing callbacks.

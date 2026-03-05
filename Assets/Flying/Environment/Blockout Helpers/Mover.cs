@@ -175,7 +175,7 @@ public class Mover : MonoBehaviour
             .SetOptions(closePath)
             .SetAutoKill(true);
             
-        Debug.Log($"Mover started with {localWaypoints.Length} waypoints over {duration}s", this);
+        // Debug.Log($"Mover started with {localWaypoints.Length} waypoints over {duration}s", this);
     }
     
     public void StopMovement()
