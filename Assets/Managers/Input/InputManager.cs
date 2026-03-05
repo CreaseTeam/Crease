@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
+
 
 public class InputManager : MonoBehaviour
 {
@@ -15,6 +17,8 @@ public class InputManager : MonoBehaviour
     public bool DashTriggered => Actions.Player.Dash.WasPerformedThisFrame();
     public bool DropTriggered => Actions.Player.Drop.WasPerformedThisFrame();
     public bool ReturnTriggered => Actions.Player.Return.WasPerformedThisFrame();
+    public bool MenuTriggered => Actions.Player.Menu.WasPerformedThisFrame();
+
 
     // ── Folding convenience accessors ───────────────────────────────
     public bool RecenterTriggered => Actions.Folding.Recenter.WasPerformedThisFrame();
@@ -32,7 +36,9 @@ public class InputManager : MonoBehaviour
         // DontDestroyOnLoad(gameObject);
 
         Actions = new GameInput();
+        Actions.Player.Menu.performed += OnMenuPerformed;
         Actions.Player.Enable();
+
         Actions.Debug.Enable();
     }
 
@@ -40,8 +46,11 @@ public class InputManager : MonoBehaviour
     {
         if (Instance == this)
         {
+            if (Actions != null)
+                Actions.Player.Menu.performed -= OnMenuPerformed;
             Actions?.Player.Disable();
             Actions?.Debug.Disable();
+
             Actions?.Folding.Disable();
             Actions?.Dispose();
             Instance = null;
@@ -71,4 +80,11 @@ public class InputManager : MonoBehaviour
         Actions.Player.Enable();
         Actions.Debug.Enable();
     }
+
+    // ── Menu callback ────────────────────────────────────────────────
+    private void OnMenuPerformed(InputAction.CallbackContext ctx)
+    {
+        SceneManager.LoadScene("StartScene");
+    }
 }
+
