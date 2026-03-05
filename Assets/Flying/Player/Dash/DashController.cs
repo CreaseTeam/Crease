@@ -6,6 +6,9 @@ public class DashController : MonoBehaviour
     [SerializeField] private KinematicBody kinematicBody;
     [SerializeField] private float boostStrength = 50f;
     [SerializeField] private float dashDuration = 0.5f;
+    [Header("Trail Settings")]
+    [SerializeField] private WingTrailController wingTrailController;
+    [SerializeField] private float trailTime = 0.5f;
     [Header("Recharge Settings")]
     [SerializeField] private float rechargeRate = 20f;
     [SerializeField] private float rechargeMax = 100f;
@@ -13,6 +16,7 @@ public class DashController : MonoBehaviour
     private int objectsInRange = 0;
     
     private float dashTimer = 0f;
+    private float trailTimer = 0f;
     private float currentRecharge = 0f;
     private bool canDash = true;
 
@@ -27,6 +31,11 @@ public class DashController : MonoBehaviour
     void Start()
     {
         currentRecharge = rechargeMax;
+
+        if (wingTrailController != null)
+        {
+            wingTrailController.SetTrailEnabled(false);
+        }
     }
 
     void Update()
@@ -39,6 +48,15 @@ public class DashController : MonoBehaviour
         if (dashTimer > 0f)
         {
             dashTimer -= Time.deltaTime;
+        }
+
+        if (trailTimer > 0f)
+        {
+            trailTimer -= Time.deltaTime;
+            if (trailTimer <= 0f && wingTrailController != null)
+            {
+                wingTrailController.SetTrailEnabled(false);
+            }
         }
 
         if (objectsInRange > 0 && currentRecharge < rechargeMax)
@@ -67,6 +85,12 @@ public class DashController : MonoBehaviour
             canDash = false;
             currentRecharge = 0f;
             dashTimer = dashDuration;
+
+            if (wingTrailController != null)
+            {
+                wingTrailController.SetTrailEnabled(true);
+                trailTimer = trailTime;
+            }
 
             // Lock direction to current facing; speed = forward component of current velocity + boost
             dashDirection = transform.forward;

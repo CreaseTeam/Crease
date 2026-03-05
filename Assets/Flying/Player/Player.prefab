@@ -571,6 +571,8 @@ MonoBehaviour:
   kinematicBody: {fileID: 6633779251846987741}
   boostStrength: 20
   dashDuration: 0.5
+  wingTrailController: {fileID: 6900904615396018688}
+  trailTime: 0.5
   rechargeRate: 80
   rechargeMax: 100
 --- !u!114 &6900904615396018688

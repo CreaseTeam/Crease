@@ -14,46 +14,52 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FoldInstruction
   steps:
   - dragHandlePosition: {x: 0.5, y: 0, z: 0.5}
+    idealDragPosition: {x: 0, y: 0, z: 0}
     dragPlaneNormal: {x: 0, y: 1, z: 0}
     foldDegrees: -180
-    foldOffset: 0.001
+    foldOffset: 0.0015
     applyTag: 
     filterTag: 
     rotatePaper: 0
     paperRotation: {x: 0, y: 0, z: 0}
   - dragHandlePosition: {x: -0.5, y: 0, z: 0.5}
+    idealDragPosition: {x: 0, y: 0, z: 0}
     dragPlaneNormal: {x: 0, y: 1, z: 0}
     foldDegrees: -180
-    foldOffset: 0.001
+    foldOffset: 0.0015
     applyTag: 
     filterTag: 
     rotatePaper: 0
     paperRotation: {x: 0, y: 0, z: 0}
   - dragHandlePosition: {x: -0.5, y: 0, z: 0}
-    dragPlaneNormal: {x: 0, y: 1, z: 0}
-    foldDegrees: 180
+    idealDragPosition: {x: 0.5, y: 0, z: 0}
+    dragPlaneNormal: {x: 0, y: -1, z: 0}
+    foldDegrees: -180
     foldOffset: 0.001
     applyTag: half
     filterTag: 
     rotatePaper: 1
     paperRotation: {x: 0, y: 0, z: -180}
   - dragHandlePosition: {x: 0.5, y: 0, z: 0}
-    dragPlaneNormal: {x: 0, y: 1, z: 0}
-    foldDegrees: 180
+    idealDragPosition: {x: 0, y: 0, z: -0.2}
+    dragPlaneNormal: {x: 0, y: -1, z: 0}
+    foldDegrees: -180
     foldOffset: 0.005
     applyTag: none
     filterTag: half_moved
     rotatePaper: 1
     paperRotation: {x: 0, y: 90, z: -180}
   - dragHandlePosition: {x: 0.2, y: 0, z: 0}
-    dragPlaneNormal: {x: 0, y: 1, z: 0}
-    foldDegrees: 90
+    idealDragPosition: {x: -0.075, y: 0, z: -0.025}
+    dragPlaneNormal: {x: 0, y: -1, z: 0}
+    foldDegrees: -90
     foldOffset: 0.005
     applyTag: none
     filterTag: half_moved
     rotatePaper: 0
     paperRotation: {x: 0, y: 0, z: 0}
   - dragHandlePosition: {x: 0.5, y: 0.002, z: 0}
+    idealDragPosition: {x: 0, y: 0, z: -0.2}
     dragPlaneNormal: {x: 0, y: 1, z: 0}
     foldDegrees: -180
     foldOffset: 0.005
@@ -62,6 +68,7 @@ MonoBehaviour:
     rotatePaper: 1
     paperRotation: {x: 0, y: 270, z: 0}
   - dragHandlePosition: {x: 0.2, y: 0.002, z: 0}
+    idealDragPosition: {x: -0.075, y: 0, z: -0.025}
     dragPlaneNormal: {x: 0, y: 1, z: 0}
     foldDegrees: -90
     foldOffset: 0.005

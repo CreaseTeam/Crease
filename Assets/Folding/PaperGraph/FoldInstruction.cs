@@ -4,8 +4,11 @@ using UnityEngine;
 [System.Serializable]
 public class FoldStep
 {
-    [Tooltip("Position for the drag handle at this step.")]
+    [Tooltip("Position for the drag handle at this step (start of drag).")]
     public Vector3 dragHandlePosition;
+
+    [Tooltip("Ideal end position the player should drag toward. Used to show the guide line.")]
+    public Vector3 idealDragPosition;
 
     [Tooltip("Normal of the plane the drag handle moves on.")]
     public Vector3 dragPlaneNormal = Vector3.up;

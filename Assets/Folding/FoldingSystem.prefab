@@ -66,7 +66,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 4000
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -608,6 +608,10 @@ MonoBehaviour:
   instruction: {fileID: 11400000, guid: f6614e182e3a7a944b0a8ca13b863877, type: 2}
   controller: {fileID: 3367760010211513509}
   dragHandle: {fileID: 8480749504740479558}
+  foldAxisGuide: {fileID: 0}
+  guideLineMaterial: {fileID: 0}
+  guideLineWidth: 0.005
+  guideLineColor: {r: 1, g: 1, b: 1, a: 0.7}
   paperLerpSpeed: 5
   currentPaperRotation: {x: 0, y: 0, z: 0}
 --- !u!114 &1584305669687720572
