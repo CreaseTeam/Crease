@@ -10,6 +10,7 @@ public class InputManager : MonoBehaviour
     // ── Player & Debug convenience accessors ────────────────────────
     public Vector2 MoveInput => Actions.Player.Move.ReadValue<Vector2>();
     public Vector2 CameraZoomInput => Actions.Player.CameraZoom.ReadValue<Vector2>();
+    public Vector2 CameraPanInput => Actions.Player.CameraPan.ReadValue<Vector2>();
     public bool BoostPressed => Actions.Debug.Boost.IsPressed() || _micBoostActive;
     public bool BoostTriggered => Actions.Debug.Boost.WasPerformedThisFrame();
     public bool ResetTriggered => Actions.Debug.Reset.WasPerformedThisFrame();
