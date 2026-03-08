@@ -431,10 +431,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FlightController
   pitch: 0
   meshTransform: {fileID: 8993998958267351050}
-  gravity: 0.3
-  lift: 0.09
-  diveRate: 0.05
-  climbRate: 0.03
+  gravity: 15
+  lift: 4.5
+  diveRate: 2.5
+  climbRate: 1.5
   climbEfficiency: 3.5
   turnInterpolation: 0.1
   xDrag: 0.995
