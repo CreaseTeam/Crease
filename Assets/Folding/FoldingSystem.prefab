@@ -92,7 +92,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 150103359925038288}
-  m_Enabled: 0
+  m_Enabled: 1
 --- !u!114 &7706946377481525046
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -609,9 +609,10 @@ MonoBehaviour:
   controller: {fileID: 3367760010211513509}
   dragHandle: {fileID: 8480749504740479558}
   foldAxisGuide: {fileID: 0}
-  guideLineMaterial: {fileID: 0}
-  guideLineWidth: 0.005
+  guideLineMaterial: {fileID: -1031502912751442999, guid: 5d39f0a98f534ff40b4e83227764dae1, type: 3}
+  guideLineWidth: 0.01
   guideLineColor: {r: 1, g: 1, b: 1, a: 0.7}
+  guideLineHeightOffset: 0.0005
   paperLerpSpeed: 5
   currentPaperRotation: {x: 0, y: 0, z: 0}
 --- !u!114 &1584305669687720572

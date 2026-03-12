@@ -46,13 +46,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   sounds:
   - key: coin
-    clip: {fileID: 8300000, guid: 3126dafd9ae7d6549906eab0d0233608, type: 3}
-    defaultVolume: 0
+    clip: {fileID: 8300000, guid: d635b1a8590aac54d93c57af553899f9, type: 3}
+    defaultVolume: 1
     minDistance: 1
     maxDistance: 500
   - key: wind
     clip: {fileID: 8300000, guid: f5fb088c852d25c46a2ded789b44efb1, type: 3}
-    defaultVolume: 0
+    defaultVolume: 1
+    minDistance: 5
+    maxDistance: 500
+  - key: crash
+    clip: {fileID: 8300000, guid: 23e13a39fc11e1849b05233e86f7f0a8, type: 3}
+    defaultVolume: 1
+    minDistance: 1
+    maxDistance: 500
+  - key: crash
+    clip: {fileID: 8300000, guid: 23e13a39fc11e1849b05233e86f7f0a8, type: 3}
+    defaultVolume: 1
+    minDistance: 1
+    maxDistance: 500
+  - key: fold
+    clip: {fileID: 8300000, guid: 0b55055c6d00ac14983af276c2a9d130, type: 3}
+    defaultVolume: 1
     minDistance: 1
     maxDistance: 500
 --- !u!1 &1171905940911883453
@@ -370,8 +385,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 466de702919c6434ca44056a93354fef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InputManager
-  micVolumeThreshold: 0.05
-  micSampleSize: 128
 --- !u!1 &7302170735119904567
 GameObject:
   m_ObjectHideFlags: 0
@@ -635,14 +648,6 @@ PrefabInstance:
     - target: {fileID: 4050445033718603467, guid: 7499fe23d6e56574c92ead75ee5dd3c6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6900904615396018688, guid: 7499fe23d6e56574c92ead75ee5dd3c6, type: 3}
-      propertyPath: trailTime
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6900904615396018688, guid: 7499fe23d6e56574c92ead75ee5dd3c6, type: 3}
-      propertyPath: startWidth
-      value: 0.02
       objectReference: {fileID: 0}
     - target: {fileID: 7903687590958615882, guid: 7499fe23d6e56574c92ead75ee5dd3c6, type: 3}
       propertyPath: m_Name

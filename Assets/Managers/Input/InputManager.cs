@@ -72,6 +72,9 @@ public class InputManager : MonoBehaviour
         Actions.Player.Disable();
         Actions.Debug.Disable();
         Actions.Folding.Enable();
+
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
     }
 
     /// <summary>
@@ -83,11 +86,16 @@ public class InputManager : MonoBehaviour
         Actions.Folding.Disable();
         Actions.Player.Enable();
         Actions.Debug.Enable();
+
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     // ── Menu callback ────────────────────────────────────────────────
     private void OnMenuPerformed(InputAction.CallbackContext ctx)
     {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
         SceneManager.LoadScene("StartScene");
     }
 

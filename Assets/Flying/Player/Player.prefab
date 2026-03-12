@@ -366,6 +366,7 @@ GameObject:
   - component: {fileID: 6633779251846987741}
   - component: {fileID: 1147598551027705273}
   - component: {fileID: 6900904615396018688}
+  - component: {fileID: 355721681263100046}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -534,7 +535,19 @@ MonoBehaviour:
   landOnGroundAfterCrash: 1
   OnKnockback:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 355721681263100046}
+        m_TargetAssemblyTypeName: AudioManagerActions, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: crash
+          m_BoolArgument: 0
+        m_CallState: 2
   OnRecoveryStarted:
     m_PersistentCalls:
       m_Calls: []
@@ -572,7 +585,7 @@ MonoBehaviour:
   boostStrength: 20
   dashDuration: 0.5
   wingTrailController: {fileID: 6900904615396018688}
-  trailTime: 0.5
+  trailTime: 0.75
   rechargeRate: 80
   rechargeMax: 100
 --- !u!114 &6900904615396018688
@@ -589,12 +602,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WingTrailController
   wingTipLeft: {fileID: 4316217991594100507}
   wingTipRight: {fileID: 8641356679499575524}
-  trailTime: 0.5
-  startWidth: 0.3
+  trailTime: 0.2
+  startWidth: 0.02
   endWidth: 0
   startColor: {r: 1, g: 1, b: 1, a: 0.8}
   endColor: {r: 1, g: 1, b: 1, a: 0}
   trailMaterial: {fileID: 0}
+--- !u!114 &355721681263100046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7903687590958615882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4fc52f62f22e4a4eab1b48028b8ccbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioManagerActions
 --- !u!1 &8300377221380386037
 GameObject:
   m_ObjectHideFlags: 0
