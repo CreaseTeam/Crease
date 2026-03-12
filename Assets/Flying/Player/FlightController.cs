@@ -90,15 +90,18 @@ public class FlightController : MonoBehaviour
         float horizontalSpeed = new Vector3(velocity.x, 0, velocity.z).magnitude;
 
         // Gravity
-        velocity.y -= gravity;
+        // velocity.y -= gravity;
+        velocity.y -= gravity * Time.fixedDeltaTime;
 
         // Lift
-        velocity.y += cosPitch * cosPitch * lift;
+        // velocity.y += cosPitch * cosPitch * lift;
+        velocity.y += cosPitch * cosPitch * lift * Time.fixedDeltaTime;
 
         // Convert dive speed into forward speed
         if (velocity.y < 0 && cosPitch > 0)
         {
-            float yAcc = velocity.y * -diveRate * cosPitch * cosPitch;
+            // float yAcc = velocity.y * -diveRate * cosPitch * cosPitch;
+            float yAcc = velocity.y * -diveRate * cosPitch * cosPitch * Time.fixedDeltaTime;
             velocity.y += yAcc;
             velocity.x += lookDirection.x * yAcc / cosPitch;
             velocity.z += lookDirection.z * yAcc / cosPitch;
@@ -107,7 +110,8 @@ public class FlightController : MonoBehaviour
         // Climbing
         if (pitchRadians < 0)
         {
-            float yAcc = horizontalSpeed * -sinPitch * -sinPitch * climbRate;
+            // float yAcc = horizontalSpeed * -sinPitch * -sinPitch * climbRate;
+            float yAcc = horizontalSpeed * -sinPitch * -sinPitch * climbRate * Time.fixedDeltaTime;
             velocity.y += yAcc * climbEfficiency;
             velocity.x -= lookDirection.x * yAcc / cosPitch;
             velocity.z -= lookDirection.z * yAcc / cosPitch;
