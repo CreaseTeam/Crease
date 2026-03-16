@@ -21283,7 +21283,7 @@ GameObject:
   - component: {fileID: 1000929386}
   - component: {fileID: 1000929385}
   m_Layer: 5
-  m_Name: DashBoarder
+  m_Name: DashBorder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
