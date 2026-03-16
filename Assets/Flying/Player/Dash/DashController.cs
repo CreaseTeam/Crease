@@ -6,6 +6,8 @@ public class DashController : MonoBehaviour
     [SerializeField] private KinematicBody kinematicBody;
     [SerializeField] private float boostStrength = 50f;
     [SerializeField] private float dashDuration = 0.5f;
+    [SerializeField] private GameObject dashBorder;
+
     [Header("Recharge Settings")]
     [SerializeField] private float rechargeRate = 20f;
     [SerializeField] private float rechargeMax = 100f;
@@ -48,7 +50,14 @@ public class DashController : MonoBehaviour
             {
                 currentRecharge = rechargeMax;
                 canDash = true;
+                
             }
+        }
+
+        if (currentRecharge >= rechargeMax)
+        {
+            bool flip = Mathf.PingPong(Time.time * 2f , 1f) > 0.5f;
+            dashBorder.SetActive(flip);
         }
     }
 
@@ -67,6 +76,7 @@ public class DashController : MonoBehaviour
             canDash = false;
             currentRecharge = 0f;
             dashTimer = dashDuration;
+            dashBorder.SetActive(false);
 
             // Lock direction to current facing; speed = forward component of current velocity + boost
             dashDirection = transform.forward;
@@ -85,4 +95,5 @@ public class DashController : MonoBehaviour
     {
         objectsInRange += amount;
     }
+
 }
