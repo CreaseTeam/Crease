@@ -33,6 +33,10 @@ public class FoldInstructionRunner : MonoBehaviour
     [Tooltip("How far above the topmost paper layer the guide line floats.")]
     public float guideLineHeightOffset = 0.002f;
 
+    [Header("Accuracy")]
+    [Tooltip("Controls how steeply accuracy falls off with distance. Higher = sharper dropoff.")]
+    public float accuracyFalloff = 5f;
+
     [Header("Paper Rotation Settings")]
     [Tooltip("How fast the paper lerps to its target rotation.")]
     public float paperLerpSpeed = 5f;
@@ -41,6 +45,10 @@ public class FoldInstructionRunner : MonoBehaviour
     public Vector3 currentPaperRotation;
 
     private int currentStepIndex = -1;
+
+    // Accuracy tracking
+    private float totalAccuracy = 0f;
+    private int foldCount = 0;
 
     // Paper rotation lerp state
     private bool isPaperLerping = false;
@@ -119,6 +127,11 @@ public class FoldInstructionRunner : MonoBehaviour
             return;
         }
 
+        // Reset accuracy tracking
+        totalAccuracy = 0f;
+        foldCount = 0;
+        HUDCanvas.Instance.ResetAccuracyDisplay();
+
         // Reset the paper to a fresh sheet
         controller.ResetSheet();
 
@@ -147,6 +160,21 @@ public class FoldInstructionRunner : MonoBehaviour
             return;
         }
 
+        // --- Calculate accuracy before executing the fold ---
+        FoldStep currentStep = instruction.steps[currentStepIndex];
+        float foldAccuracy = CalculateFoldAccuracy(currentStep);
+
+        // Update cumulative tracking
+        foldCount++;
+        totalAccuracy += foldAccuracy;
+        float overallAccuracy = totalAccuracy / foldCount;
+
+        // Update HUD
+        HUDCanvas.Instance.UpdateFoldAccuracy(foldAccuracy);
+        HUDCanvas.Instance.UpdateOverallAccuracy(overallAccuracy);
+
+        Debug.Log($"FoldInstructionRunner: Fold accuracy = {foldAccuracy:F1}%, overall = {overallAccuracy:F1}%");
+
         // Execute the fold with the values currently loaded in the controller
         controller.ExecuteFoldAction();
         AudioManager.Instance.Play("fold");
@@ -169,6 +197,27 @@ public class FoldInstructionRunner : MonoBehaviour
 
             Debug.Log("FoldInstructionRunner: All steps completed!");
         }
+    }
+
+    /// <summary>
+    /// Compares the actual drag handle position (where the player dragged) against
+    /// the ideal drag position defined in the step. Returns a 0–100 accuracy score.
+    /// </summary>
+    private float CalculateFoldAccuracy(FoldStep step) {
+        // Get the actual drag position: the drag handle's current position in local space
+        Vector3 actualDragPos;
+        if (dragHandle != null && controller != null) {
+            actualDragPos = controller.transform.InverseTransformPoint(dragHandle.transform.position);
+        } else {
+            // Fallback: use the controller's current drag handle position
+            actualDragPos = controller != null ? controller.dragHandlePosition : step.dragHandlePosition;
+        }
+
+        float distance = Vector3.Distance(actualDragPos, step.idealDragPosition);
+        float idealFoldDistance = Vector3.Distance(step.dragHandlePosition, step.idealDragPosition);
+        float normalizedError = idealFoldDistance > 0.0001f ? distance / idealFoldDistance : 0f;
+        float accuracy = Mathf.Exp(-accuracyFalloff * normalizedError) * 100f;
+        return accuracy;
     }
 
     /// <summary>

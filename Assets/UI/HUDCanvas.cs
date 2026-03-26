@@ -16,6 +16,10 @@ public class HUDCanvas : MonoBehaviour
     [SerializeField] private GameObject flyingUI;
     [SerializeField] private GameObject checkpointUI;
 
+    [Header("Fold Accuracy")]
+    [SerializeField] private TextMeshProUGUI foldAccuracyText;
+    [SerializeField] private TextMeshProUGUI overallAccuracyText;
+
 
     public static HUDCanvas Instance { get; private set; }
 
@@ -113,5 +117,34 @@ public class HUDCanvas : MonoBehaviour
     public void ShowCheckpointUI(bool show)
     {
         checkpointUI.SetActive(show);
+    }
+
+    /// <summary>
+    /// Updates the fold accuracy text to show the latest fold's accuracy.
+    /// </summary>
+    public void UpdateFoldAccuracy(float accuracy)
+    {
+        if (foldAccuracyText != null)
+            foldAccuracyText.text = $"Fold: {accuracy:F0}%";
+    }
+
+    /// <summary>
+    /// Updates the overall accuracy text to show the running average.
+    /// </summary>
+    public void UpdateOverallAccuracy(float accuracy)
+    {
+        if (overallAccuracyText != null)
+            overallAccuracyText.text = $"Overall: {accuracy:F0}%";
+    }
+
+    /// <summary>
+    /// Resets both accuracy displays to their default state.
+    /// </summary>
+    public void ResetAccuracyDisplay()
+    {
+        if (foldAccuracyText != null)
+            foldAccuracyText.text = "Fold: --";
+        if (overallAccuracyText != null)
+            overallAccuracyText.text = "Overall: --";
     }
 }
