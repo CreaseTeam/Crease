@@ -8,6 +8,7 @@ public class HUDCanvas : MonoBehaviour
 {
     [SerializeField] private DashController dashController;
     [SerializeField] private Image rechargeBar;
+    [SerializeField] private GameObject dashBarBorder;
     [SerializeField] private TextMeshProUGUI collectibleText;
     [SerializeField] private List<Heart> hearts;
 
@@ -81,6 +82,20 @@ public class HUDCanvas : MonoBehaviour
     void Update()
     {
         rechargeBar.fillAmount = dashController.CurrentRecharge / dashController.MaxRecharge;
+
+        if (dashBarBorder != null)
+        {
+            bool isFullyCharged = dashController.CurrentRecharge >= dashController.MaxRecharge;
+            if (isFullyCharged)
+            {
+                bool flip = Mathf.PingPong(Time.time * 2f, 1f) > 0.5f;
+                dashBarBorder.SetActive(flip);
+            }
+            else
+            {
+                dashBarBorder.SetActive(false);
+            }
+        }
     }
 
     public void ShowFoldingUI(bool show)

@@ -9,11 +9,14 @@ public class DashController : MonoBehaviour
     [Header("Trail Settings")]
     [SerializeField] private WingTrailController wingTrailController;
     [SerializeField] private float trailTime = 0.5f;
+    [SerializeField] private GameObject dashBorder;
+
     [Header("Recharge Settings")]
     [SerializeField] private float rechargeRate = 20f;
     [SerializeField] private float rechargeMax = 100f;
 
     private int objectsInRange = 0;
+    private MeshRenderer dashBorderRenderer;
     
     private float dashTimer = 0f;
     private float trailTimer = 0f;
@@ -35,6 +38,11 @@ public class DashController : MonoBehaviour
         if (wingTrailController != null)
         {
             wingTrailController.SetTrailEnabled(false);
+        }
+        
+        if (dashBorder != null)
+        {
+            dashBorderRenderer = dashBorder.GetComponent<MeshRenderer>();
         }
     }
 
@@ -68,6 +76,9 @@ public class DashController : MonoBehaviour
                 canDash = true;
             }
         }
+
+        bool shouldShowDashBorder = objectsInRange > 0;
+        SetDashBorderVisible(shouldShowDashBorder);
     }
 
     void FixedUpdate()
@@ -109,4 +120,13 @@ public class DashController : MonoBehaviour
     {
         objectsInRange += amount;
     }
+
+    private void SetDashBorderVisible(bool visible)
+    {
+        if (dashBorderRenderer != null)
+        {
+            dashBorderRenderer.enabled = visible;
+        }
+    }
+
 }
