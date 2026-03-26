@@ -13,6 +13,7 @@ public class DashController : MonoBehaviour
     [SerializeField] private float rechargeMax = 100f;
 
     private int objectsInRange = 0;
+    private MeshRenderer dashBorderRenderer;
     
     private float dashTimer = 0f;
     private float currentRecharge = 0f;
@@ -29,6 +30,10 @@ public class DashController : MonoBehaviour
     void Start()
     {
         currentRecharge = rechargeMax;
+        if (dashBorder != null)
+        {
+            dashBorderRenderer = dashBorder.GetComponent<MeshRenderer>();
+        }
     }
 
     void Update()
@@ -50,15 +55,11 @@ public class DashController : MonoBehaviour
             {
                 currentRecharge = rechargeMax;
                 canDash = true;
-                
             }
         }
 
-        if (currentRecharge >= rechargeMax)
-        {
-            bool flip = Mathf.PingPong(Time.time * 2f , 1f) > 0.5f;
-            dashBorder.SetActive(flip);
-        }
+        bool shouldShowDashBorder = objectsInRange > 0;
+        SetDashBorderVisible(shouldShowDashBorder);
     }
 
     void FixedUpdate()
@@ -76,7 +77,6 @@ public class DashController : MonoBehaviour
             canDash = false;
             currentRecharge = 0f;
             dashTimer = dashDuration;
-            dashBorder.SetActive(false);
 
             // Lock direction to current facing; speed = forward component of current velocity + boost
             dashDirection = transform.forward;
@@ -94,6 +94,14 @@ public class DashController : MonoBehaviour
     public void ModifyObjectsInRange(int amount)
     {
         objectsInRange += amount;
+    }
+
+    private void SetDashBorderVisible(bool visible)
+    {
+        if (dashBorderRenderer != null)
+        {
+            dashBorderRenderer.enabled = visible;
+        }
     }
 
 }
