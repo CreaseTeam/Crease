@@ -51,6 +51,7 @@ public class FlightController : MonoBehaviour
 
     [Header("Initial Speed")]
     [SerializeField] private float initialSpeed = 10f;
+    [SerializeField] private float minimumVelocity = 5f;
 
 
     void Start()
@@ -128,6 +129,11 @@ public class FlightController : MonoBehaviour
         velocity.x *= xDrag;
         velocity.y *= yDrag;
         velocity.z *= zDrag;
+
+        if (velocity.magnitude < minimumVelocity)
+        {
+            velocity = velocity.normalized * minimumVelocity;
+        }
 
         body.Velocity = velocity;
     }

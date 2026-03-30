@@ -23520,34 +23520,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: LevelStarter
       objectReference: {fileID: 0}
-    - target: {fileID: 7494862058282521593, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: maxZoomOffset
-      value: -5
-      objectReference: {fileID: 0}
-    - target: {fileID: 7494862058282521593, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: minZoomOffset
-      value: -0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7494862058282521593, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: defaultOffset.y
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7494862058282521593, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: defaultOffset.z
-      value: -1.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 7494862058282521593, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: profileStrength
-      value: -1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7494862058282521593, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: maxProfileOffset
-      value: -20
-      objectReference: {fileID: 0}
-    - target: {fileID: 7494862058282521593, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
-      propertyPath: pitchRateSmoothing
-      value: 1000
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
