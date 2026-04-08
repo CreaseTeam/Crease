@@ -11,6 +11,7 @@ public class HUDCanvas : MonoBehaviour
     [SerializeField] private GameObject dashBarBorder;
     [SerializeField] private TextMeshProUGUI collectibleText;
     [SerializeField] private List<Heart> hearts;
+    [SerializeField] private HealthBar healthBar;
 
     [SerializeField] private GameObject foldingUI;
     [SerializeField] private GameObject flyingUI;
@@ -65,9 +66,11 @@ public class HUDCanvas : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            Debug.Log("HUDCanvas Awake: Instance set");
         }
         else
         {
+            Debug.LogWarning("HUDCanvas Awake: Instance already exists, destroying duplicate");
             Destroy(gameObject);
         }
     }
@@ -80,6 +83,7 @@ public class HUDCanvas : MonoBehaviour
 
         maxHealth = hearts.Count;
         health = maxHealth;
+        Debug.Log($"HUDCanvas Start: collectible={collectibleCount}, maxHealth={maxHealth}, health={health}");
     }
 
     // Update is called once per frame
@@ -117,6 +121,23 @@ public class HUDCanvas : MonoBehaviour
     public void ShowCheckpointUI(bool show)
     {
         checkpointUI.SetActive(show);
+    }
+
+    /// <summary>
+    /// Called by the health system to update the flying health bar segments.
+    /// </summary>
+    public void OnHealthDamaged(DamageType type, float normalizedDamage)
+    {
+        Debug.Log($"HUDCanvas.OnHealthDamaged received: type={type}, normalizedDamage={normalizedDamage}");
+        if (healthBar != null)
+        {
+            Debug.Log("HUDCanvas forwarding damage to HealthBar");
+            healthBar.HandleDamaged(type, normalizedDamage);
+        }
+        else
+        {
+            Debug.LogWarning("HUDCanvas.OnHealthDamaged: healthBar reference is null");
+        }
     }
 
     /// <summary>

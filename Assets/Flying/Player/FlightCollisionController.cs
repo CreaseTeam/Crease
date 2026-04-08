@@ -14,6 +14,7 @@ public class FlightCollisionController : MonoBehaviour
     [SerializeField] private KinematicBody body;
     [SerializeField] private PlayerCrashHandler crashHandler;
     [SerializeField] private Collider playerCollider;
+    [SerializeField] private Health healthComponent;
 
     // ------------------------------------------------------------------ Depenetration
     [Header("Depenetration")]
@@ -147,7 +148,8 @@ public class FlightCollisionController : MonoBehaviour
         {
             HUDCanvas.Instance.TakeDamage();
         }
-
+        
+        healthComponent.TakeDamage(10f, DamageType.Impact);
 
         Vector3 velocity = body.Velocity;
         float preCollisionSpeed = velocity.magnitude;
