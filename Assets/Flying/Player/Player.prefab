@@ -489,7 +489,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FlightController
   pitch: 0
   meshTransform: {fileID: 8993998958267351050}
-  gravity: 30
+  divingGravity: 20
+  climbingGravity: 15
   lift: 9
   diveRate: 2.5
   climbRate: 1.5
@@ -577,6 +578,7 @@ MonoBehaviour:
   body: {fileID: 6633779251846987741}
   crashHandler: {fileID: 185509089845354311}
   playerCollider: {fileID: 0}
+  healthComponent: {fileID: 0}
   depenetrationMargin: 0.1
   obstacleTag: Obstacle
   groundTag: Ground

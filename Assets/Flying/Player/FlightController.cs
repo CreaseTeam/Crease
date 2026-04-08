@@ -28,7 +28,8 @@ public class FlightController : MonoBehaviour
 
 
     [Header("Flight Physics")]
-    [SerializeField] private float gravity = 0.08f;
+    [SerializeField] private float divingGravity = 0.12f;
+    [SerializeField] private float climbingGravity = 0.04f;
     [SerializeField] private float lift = 0.06f;
     [SerializeField] private float diveRate = 0.1f;
     [SerializeField] private float climbRate = 0.04f;
@@ -90,9 +91,10 @@ public class FlightController : MonoBehaviour
         Vector3 lookDirection = transform.forward;
         float horizontalSpeed = new Vector3(velocity.x, 0, velocity.z).magnitude;
 
-        // Gravity
-        // velocity.y -= gravity;
-        velocity.y -= gravity * Time.fixedDeltaTime;
+        // Kind Gravity Lerp (negative pitch = climbing, positive pitch = diving)
+        float gravityT = Mathf.InverseLerp(-maxPitch, maxPitch, pitch);
+        float currentGravity = Mathf.Lerp(climbingGravity, divingGravity, gravityT);
+        velocity.y -= currentGravity * Time.fixedDeltaTime;
 
         // Lift
         // velocity.y += cosPitch * cosPitch * lift;
