@@ -88,7 +88,7 @@ public class InputManager : MonoBehaviour
         Actions.Debug.Enable();
 
         Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState = CursorLockMode.Confined;
     }
 
     // ── Menu callback ────────────────────────────────────────────────

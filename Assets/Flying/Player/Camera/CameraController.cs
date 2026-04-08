@@ -22,14 +22,8 @@ public class CameraController : MonoBehaviour
     public float maxPanAngleX = 30f;
     public float maxPanAngleY = 20f;
 
-    [Tooltip("How fast the camera pans with Mouse input.")]
-    public float mousePanSensitivity = 0.1f;
-
-    [Tooltip("How fast the camera pans with Gamepad input.")]
-    public float gamepadPanSpeed = 100f;
-
-    [Tooltip("How fast the camera snaps back to center (0 = no return).")]
-    public float panReturnSpring = 5f;
+    [Tooltip("Sensitivity multiplier for camera panning (applies to both Mouse and Gamepad).")]
+    public float panSensitivity = 1.0f;
 
     [Tooltip("Smoothing for the panning rotation.")]
     public float panSmoothing = 0.1f;
@@ -62,7 +56,8 @@ public class CameraController : MonoBehaviour
     private float _smoothedPitchRate;
     private float _currentProfileOffset;
     private Vector3 _positionVelocity;
-    private Quaternion _lookRotation;
+    private Quaternion _unpannedBaseRotation;
+    private Vector3 _unpannedBasePosition;
 
     // Panning State
     private float _panYaw;
@@ -78,7 +73,8 @@ public class CameraController : MonoBehaviour
         _currentYaw = euler.y;
         _currentPitch = NormalizeAngle(euler.x);
         _prevTargetPitch = _currentPitch;
-        _lookRotation = transform.rotation;
+        _unpannedBaseRotation = transform.rotation;
+        _unpannedBasePosition = transform.position;
     }
 
     private void LateUpdate()
@@ -104,19 +100,20 @@ public class CameraController : MonoBehaviour
         desiredOffset = Mathf.Clamp(desiredOffset, -maxProfileOffset, maxProfileOffset);
         _currentProfileOffset = Mathf.Lerp(_currentProfileOffset, desiredOffset, dt * profileDecay);
 
-        // Update orbital angles
+        // Update unpanned orbital angles
         _currentYaw = Mathf.LerpAngle(_currentYaw, targetYaw, dt * yawSpeed);
         _currentPitch = Mathf.LerpAngle(_currentPitch, targetPitch, dt * pitchSpeed);
         float finalPitch = _currentPitch + _currentProfileOffset;
 
-        // Rig rotation
+        // Base Rig rotation (pure follow, no panning here!)
         float targetRoll = (flightController != null) ? -flightController.Roll : NormalizeAngle(targetEuler.z);
         float rigRoll = Mathf.Lerp(targetRoll, 0f, horizonRollStabilization);
-        Quaternion rigRotation = Quaternion.Euler(finalPitch, _currentYaw, rigRoll);
+        Quaternion baseRigRotation = Quaternion.Euler(finalPitch, _currentYaw, rigRoll);
 
-        // Position
-        Vector3 desiredPosition = target.position + rigRotation * defaultOffset;
-        transform.position = Vector3.SmoothDamp(transform.position, desiredPosition, ref _positionVelocity, 1f / positionSmoothing);
+        // Smooth damp the strictly unpanned base position
+        Vector3 baseDesiredPosition = target.position + baseRigRotation * defaultOffset;
+        if (_unpannedBasePosition == Vector3.zero) _unpannedBasePosition = transform.position;
+        _unpannedBasePosition = Vector3.SmoothDamp(_unpannedBasePosition, baseDesiredPosition, ref _positionVelocity, 1f / positionSmoothing);
 
         // --- Look-at logic ---
         Vector3 baseLookTarget = Vector3.Lerp(
@@ -124,19 +121,31 @@ public class CameraController : MonoBehaviour
             target.position + target.forward * lookAheadDistance,
             lookAheadBlend);
 
-        Vector3 lookDir = (baseLookTarget - transform.position).normalized;
-        Vector3 upVec = Vector3.Lerp(rigRotation * Vector3.up, Vector3.up, horizonRollStabilization);
+        Vector3 lookDir = (baseLookTarget - _unpannedBasePosition).normalized;
+        Vector3 upVec = Vector3.Lerp(baseRigRotation * Vector3.up, Vector3.up, horizonRollStabilization);
         
-        // Base Rotation from Look-at
-        Quaternion baseRotation = Quaternion.LookRotation(lookDir, upVec);
+        // Find desired unpanned rotation
+        Quaternion baseDesiredRotation = Quaternion.LookRotation(lookDir, upVec);
 
-        // Apply Panning as a LOCAL rotation offset
-        // This makes it feel much more natural as it follows the camera's orientation
-        Quaternion panRotation = Quaternion.Euler(-_panPitch, _panYaw, 0f);
-        Quaternion desiredRotation = baseRotation * panRotation;
+        // Slerp the strictly unpanned base rotation
+        if (_unpannedBaseRotation.w == 0f) _unpannedBaseRotation = transform.rotation;
+        _unpannedBaseRotation = Quaternion.Slerp(_unpannedBaseRotation, baseDesiredRotation, dt * lookSmoothing);
 
-        _lookRotation = Quaternion.Slerp(_lookRotation, desiredRotation, dt * lookSmoothing);
-        transform.rotation = _lookRotation;
+        // --- Apply Rigid Orbital Panning ---
+        // Generates the panning rotation in the camera's local space
+        Quaternion localPan = Quaternion.Euler(-_panPitch, _panYaw, 0f);
+
+        // The final rotation we want the camera to have
+        Quaternion finalRotation = _unpannedBaseRotation * localPan;
+
+        // Apply exactly this global rotational difference to the camera's offset from the target 
+        // to rigidly sweep the camera's position opposite to its look direction,
+        // locking the relative plane position on the screen!
+        Quaternion rOrbit = finalRotation * Quaternion.Inverse(_unpannedBaseRotation);
+        Vector3 offsetFromTarget = _unpannedBasePosition - target.position;
+        
+        transform.position = target.position + rOrbit * offsetFromTarget;
+        transform.rotation = finalRotation;
     }
 
     private void HandleZoom(float dt)
@@ -152,36 +161,46 @@ public class CameraController : MonoBehaviour
     private void HandlePanning(float dt)
     {
         Vector2 input = InputManager.Instance.CameraPanInput;
-        bool isGamepad = false;
-
-        // Detect if input is from Gamepad (Value usually stays between -1 and 1)
-        // Note: In a production environment, you'd check the InputDevice of the action.
-        // For now, we'll use a simple heuristic or stick to cumulative for both but with return spring.
+        var activeControl = InputManager.Instance.Actions.Player.CameraPan.activeControl;
         
-        // --- Improved Logic: Cumulative with high friction/return ---
-        // Mouse uses Delta directly, Gamepad uses Value * speed * dt
-        
-        // Heuristic: Input System Mouse Delta is usually integer-like and large, Gamepad is 0-1.
-        // But the best way is to accumulate and spring-back.
+        bool isMouse = activeControl != null && activeControl.device is Mouse;
 
-        if (input.sqrMagnitude > 0.001f)
+        Vector2 targetPan = Vector2.zero;
+
+        if (isMouse)
         {
-            // Horizontal (Yaw)
-            _panYaw += input.x * mousePanSensitivity;
-            // Vertical (Pitch)
-            _panPitch += input.y * mousePanSensitivity;
+            // Normalize screen coordinates to -1 -> 1 range
+            float hw = Screen.width * 0.5f;
+            float hh = Screen.height * 0.5f;
+            targetPan.x = (input.x - hw) / hw;
+            targetPan.y = (input.y - hh) / hh;
+        }
+        else
+        {
+            // Gamepad stick naturally operates in -1 -> 1 range
+            targetPan = input;
         }
 
-        // Clamp
-        _panYaw = Mathf.Clamp(_panYaw, -maxPanAngleX, maxPanAngleX);
-        _panPitch = Mathf.Clamp(_panPitch, -maxPanAngleY, maxPanAngleY);
+        // For absolute bounded inputs, apply sensitivity as an exponential response curve.
+        // This preserves the exact bounds so pushing the stick fully ALWAYS reaches exactly maxPanAngle.
+        // panSensitivity = 1 -> Linear (1:1 curve)
+        // panSensitivity > 1 -> more sensitive near center (x^(1/sens))
+        // panSensitivity < 1 -> finer control near center (x^sens)
+        float curve = 1f / Mathf.Max(0.01f, panSensitivity);
+        targetPan.x = Mathf.Sign(targetPan.x) * Mathf.Pow(Mathf.Abs(targetPan.x), curve);
+        targetPan.y = Mathf.Sign(targetPan.y) * Mathf.Pow(Mathf.Abs(targetPan.y), curve);
 
-        // Spring back to zero when no input
-        if (input.sqrMagnitude < 0.001f)
-        {
-            _panYaw = Mathf.SmoothDamp(_panYaw, 0f, ref _panYawVel, panSmoothing, 1000f, dt * panReturnSpring);
-            _panPitch = Mathf.SmoothDamp(_panPitch, 0f, ref _panPitchVel, panSmoothing, 1000f, dt * panReturnSpring);
-        }
+        // Clamp the evaluated input to mathematically guarantee strict bounds
+        targetPan.x = Mathf.Clamp(targetPan.x, -1f, 1f);
+        targetPan.y = Mathf.Clamp(targetPan.y, -1f, 1f);
+
+        // Map to exact angle targets
+        float targetYaw = targetPan.x * maxPanAngleX;
+        float targetPitch = targetPan.y * maxPanAngleY;
+
+        // Smoothly interpolate to the target orientation
+        _panYaw = Mathf.SmoothDamp(_panYaw, targetYaw, ref _panYawVel, panSmoothing);
+        _panPitch = Mathf.SmoothDamp(_panPitch, targetPitch, ref _panPitchVel, panSmoothing);
     }
 
     private static float NormalizeAngle(float angle)

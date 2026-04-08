@@ -41653,6 +41653,14 @@ PrefabInstance:
       propertyPath: maxKnockbackMagnitude
       value: 200
       objectReference: {fileID: 0}
+    - target: {fileID: 7494862058282521593, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: panSensitivity
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7494862058282521593, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: mousePanSensitivity
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 7820606316440034406, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
       propertyPath: m_IsActive
       value: 0
