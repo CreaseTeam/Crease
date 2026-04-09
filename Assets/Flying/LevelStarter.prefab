@@ -578,6 +578,26 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1196471631875073643, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1196471631875073643, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 8945394571852309787}
+    - target: {fileID: 1196471631875073643, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: AutoFold
+      objectReference: {fileID: 0}
+    - target: {fileID: 1196471631875073643, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1196471631875073643, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 1355938430154269863, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
       propertyPath: m_Name
       value: HUDCanvas
@@ -682,6 +702,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 8945394571852309787}
+    - target: {fileID: 6923633674497891989, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ResetPaper
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

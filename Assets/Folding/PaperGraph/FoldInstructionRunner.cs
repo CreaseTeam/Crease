@@ -44,6 +44,14 @@ public class FoldInstructionRunner : MonoBehaviour
     [Tooltip("Current paper rotation (euler angles). Modify in editor to adjust paper live.")]
     public Vector3 currentPaperRotation;
 
+    [Header("Unfold Settings")]
+    [Tooltip("How fast the paper unfolds (degrees per second).")]
+    public float unfoldAnimationSpeed = 180f;
+
+    [Header("AutoFold Settings")]
+    [Tooltip("How fast the paper folds automatically (degrees per second).")]
+    public float foldAnimationSpeed = 180f;
+
     private int currentStepIndex = -1;
 
     // Accuracy tracking
@@ -53,6 +61,9 @@ public class FoldInstructionRunner : MonoBehaviour
     // Paper rotation lerp state
     private bool isPaperLerping = false;
     private Quaternion targetPaperRotation;
+
+    private bool isUnfolding = false;
+    private bool isAutoFolding = false;
 
     private void OnValidate() {
         RecalculatePaperTarget();
@@ -94,6 +105,7 @@ public class FoldInstructionRunner : MonoBehaviour
 
     private void Update() {
         if (InputManager.Instance == null) return;
+        if (isUnfolding || isAutoFolding) return;
 
         if (InputManager.Instance.ExecuteFoldTriggered)
             ExecuteCurrentStep();
@@ -443,6 +455,216 @@ public class FoldInstructionRunner : MonoBehaviour
 
         targetPaperRotation = Quaternion.Euler(currentPaperRotation);
         isPaperLerping = true;
+    }
+
+    /// <summary>
+    /// Animates every fold back, one at a time, until reaching the base state again.
+    /// </summary>
+    public void Unfold() {
+        if (isUnfolding || instruction == null || controller == null) return;
+        StartCoroutine(UnfoldAllRoutine());
+    }
+
+    /// <summary>
+    /// Plays the unfold animation, then loads a new instruction.
+    /// </summary>
+    public void ResetPaper(FoldInstruction nextInstruction) {
+        if (isUnfolding || controller == null) return;
+        StartCoroutine(ResetPaperRoutine(nextInstruction));
+    }
+
+    private System.Collections.IEnumerator ResetPaperRoutine(FoldInstruction nextInstruction) {
+        if (instruction != null) {
+            yield return StartCoroutine(UnfoldAllRoutine(true));
+        }
+        LoadInstruction(nextInstruction);
+    }
+
+    private void PrepareForAnimation() {
+        HideGuideLine();
+        if (dragHandle != null) dragHandle.gameObject.SetActive(false);
+        if (controller != null) controller.ClearPreview();
+    }
+
+    private System.Collections.IEnumerator RotatePaperRoutine(Vector3 targetRotation) {
+        currentPaperRotation = targetRotation;
+        RecalculatePaperTarget();
+        while (isPaperLerping) {
+            yield return null;
+        }
+    }
+
+    private System.Collections.IEnumerator AnimateFoldDegreesRoutine(float startDegrees, float targetDegrees, float speed, float delayStart = 0f) {
+        float currentDegrees = startDegrees;
+        controller.foldDegrees = currentDegrees;
+        controller.UpdatePreview();
+
+        if (delayStart > 0f) {
+            yield return new WaitForSeconds(delayStart);
+        }
+
+        while (Mathf.Abs(currentDegrees - targetDegrees) > 0.01f) {
+            currentDegrees = Mathf.MoveTowards(currentDegrees, targetDegrees, speed * Time.deltaTime);
+            controller.foldDegrees = currentDegrees;
+            controller.UpdatePreview();
+            yield return null;
+        }
+
+        controller.foldDegrees = targetDegrees;
+        controller.UpdatePreview(); 
+    }
+
+    private System.Collections.IEnumerator UnfoldAllRoutine(bool skipReload = false) {
+        isUnfolding = true;
+        PrepareForAnimation();
+
+        int executedCount = currentStepIndex >= 0 ? 
+                            Mathf.Min(currentStepIndex, instruction.steps.Count) : 
+                            instruction.steps.Count;
+
+        for (int i = executedCount - 1; i >= 0; i--) {
+            FoldStep step = instruction.steps[i];
+
+            // Revert paper geometry (no visual change yet until we apply preview)
+            controller.UndoFold();
+
+            ConfigureControllerForStep(step);
+
+            // Smoothly rotate the paper if the step (or a previous one) specified an orientation
+            Vector3 targetRotation = Vector3.zero;
+            bool foundRotation = false;
+            for (int r = i; r >= 0; r--) {
+                if (instruction.steps[r].rotatePaper) {
+                    targetRotation = instruction.steps[r].paperRotation;
+                    foundRotation = true;
+                    break;
+                }
+            }
+
+            if (foundRotation || currentPaperRotation != Vector3.zero) {
+                // If we didn't find any rotation, default to Vector3.zero as the base state
+                if (!foundRotation) targetRotation = Vector3.zero;
+                yield return RotatePaperRoutine(targetRotation);
+            }
+            
+            // Animate fold back to 0, start delayed by 0.1s
+            yield return AnimateFoldDegreesRoutine(step.foldDegrees, 0f, unfoldAnimationSpeed, 0.1f);
+            
+            controller.ClearPreview();
+            
+            // Short pause between folds
+            yield return new WaitForSeconds(0.2f);
+        }
+
+        if (!skipReload) {
+            // Clean reset
+            totalAccuracy = 0f;
+            foldCount = 0;
+            if (HUDCanvas.Instance != null) {
+                HUDCanvas.Instance.ResetAccuracyDisplay();
+            }
+            
+            currentStepIndex = 0;
+            if (instruction.steps.Count > 0) {
+                ApplyStepToController(instruction.steps[0]);
+                if (dragHandle != null) dragHandle.gameObject.SetActive(true);
+            }
+        }
+
+        isUnfolding = false;
+    }
+
+    private void ConfigureControllerForStep(FoldStep step) {
+        // Set up fold parameters reflecting the ideal fold for this step
+        controller.dragPlaneNormal = step.dragPlaneNormal;
+        controller.foldTagName = string.IsNullOrEmpty(step.applyTag) ? "" : step.applyTag;
+        controller.foldOffset = step.foldOffset;
+
+        // Infer fold point 1 and 2 from ideal drag positions, like UpdateFoldFromDrag does
+        Vector3 dragStartLocal = step.dragHandlePosition;
+        Vector3 dragEndLocal = step.idealDragPosition;
+        Vector3 dragDelta = dragEndLocal - dragStartLocal;
+
+        if (dragDelta.sqrMagnitude >= 0.00001f) {
+            Vector3 midpoint = (dragStartLocal + dragEndLocal) * 0.5f;
+            // Note: user drags from dragStart to dragEnd. The fold axis is cross(normal, dragDir)
+            Vector3 dragDir = dragDelta.normalized;
+            Vector3 foldAxisDir = Vector3.Cross(step.dragPlaneNormal, dragDir).normalized;
+
+            if (foldAxisDir.sqrMagnitude >= 0.0001f) {
+                controller.foldPoint1 = midpoint + foldAxisDir * controller.foldLineHalfLength;
+                controller.foldPoint2 = midpoint - foldAxisDir * controller.foldLineHalfLength;
+                controller.foldPlaneVector = step.dragPlaneNormal;
+            }
+        }
+
+        // Restore the filter tag to match what it was
+        controller.selectedFilterTagIndex = 0;
+        if (!string.IsNullOrEmpty(step.filterTag)) {
+            PaperGraph graph = controller.GetComponent<PaperGraph>();
+            if (graph != null && graph.tags != null && graph.tags.Count > 0) {
+                var tagKeys = new System.Collections.Generic.List<string>(graph.tags.Keys);
+                int idx = tagKeys.IndexOf(step.filterTag);
+                if (idx >= 0) controller.selectedFilterTagIndex = idx + 1;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Automatically performs the remaining unfold instructions.
+    /// </summary>
+    public void AutoFold() {
+        if (isUnfolding || isAutoFolding || instruction == null || controller == null) return;
+        StartCoroutine(AutoFoldAllRoutine());
+    }
+
+    private System.Collections.IEnumerator AutoFoldAllRoutine() {
+        isAutoFolding = true;
+        PrepareForAnimation();
+
+        int startIdx = Mathf.Max(0, currentStepIndex);
+
+        for (int i = startIdx; i < instruction.steps.Count; i++) {
+            FoldStep step = instruction.steps[i];
+
+            // Smoothly rotate the paper if the step specified an orientation
+            if (step.rotatePaper) {
+                yield return RotatePaperRoutine(step.paperRotation);
+            }
+
+            ConfigureControllerForStep(step);
+            
+            // Mark accuracy for auto fold as 100%
+            float foldAccuracy = 100f;
+            foldCount++;
+            totalAccuracy += foldAccuracy;
+            float overallAccuracy = totalAccuracy / foldCount;
+
+            if (HUDCanvas.Instance != null) {
+                HUDCanvas.Instance.UpdateFoldAccuracy(foldAccuracy);
+                HUDCanvas.Instance.UpdateOverallAccuracy(overallAccuracy);
+            }
+
+            // Animate forward from 0
+            yield return AnimateFoldDegreesRoutine(0f, step.foldDegrees, foldAnimationSpeed);
+            
+            // Execute real fold
+            controller.ExecuteFoldAction();
+            controller.ClearPreview(); 
+
+            if (AudioManager.Instance != null) {
+                AudioManager.Instance.Play("fold");
+            }
+            
+            currentStepIndex = i + 1;
+
+            yield return new WaitForSeconds(0.2f);
+        }
+
+        // All steps done
+        PrepareForAnimation();
+
+        isAutoFolding = false;
     }
 }
 
