@@ -379,6 +379,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6410089066696951640, guid: 7499fe23d6e56574c92ead75ee5dd3c6, type: 3}
+      propertyPath: pitchSpeed
+      value: 120
+      objectReference: {fileID: 0}
+    - target: {fileID: 6410089066696951640, guid: 7499fe23d6e56574c92ead75ee5dd3c6, type: 3}
+      propertyPath: turnInterpolation
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 7903687590958615882, guid: 7499fe23d6e56574c92ead75ee5dd3c6, type: 3}
       propertyPath: m_Name
       value: Player

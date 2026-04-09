@@ -8,6 +8,7 @@ public class HealthBar : MonoBehaviour
     [SerializeField] private RectTransform segmentContainer;
     [SerializeField] private RectTransform barRoot;
     [SerializeField] private GameObject segmentPrefab;
+    [SerializeField] private HealthSegment remainingHealthSegment;
 
     [Header("Settings")]
     private float BarPixelWidth => barRoot != null ? barRoot.rect.width : 0f;
@@ -31,28 +32,25 @@ public class HealthBar : MonoBehaviour
     };
 
     private readonly Dictionary<DamageType, Color> _segmentColors = new();
-
     private readonly Dictionary<DamageType, HealthSegment> _segmentUIs = new();
+    private readonly Dictionary<DamageType, float> _normalizedDamageByType = new();
 
     public void HandleDamage(DamageType type, float normalizedTotal)
     {
-        float barWidth = BarPixelWidth;
-        float targetWidth = normalizedTotal * barWidth;
-        // Debug.Log($"HealthBar.HandleDamaged: type={type}, normalizedTotal={normalizedTotal}, barWidth={barWidth}, targetWidth={targetWidth}");
+        bool isNew = !_segmentUIs.ContainsKey(type);
+        _normalizedDamageByType[type] = normalizedTotal;
 
-        if (_segmentUIs.TryGetValue(type, out HealthSegment existing))
-        {
-            existing.AnimateToWidth(targetWidth);
-        }
-        else
+        if (isNew)
         {
             var go = Instantiate(segmentPrefab, segmentContainer);
             var segUI = go.GetComponent<HealthSegment>();
             segUI.SetColor(GetColorFor(type));
-            segUI.SetWidth(targetWidth);
             segUI.PlaySpawnAnimation();
             _segmentUIs[type] = segUI;
         }
+
+        UpdateRemainingHealthState();
+        UpdateAllSegmentWidths(isNew ? type : null);
 
         StartCoroutine(ShakeBar());
     }
@@ -78,11 +76,14 @@ public class HealthBar : MonoBehaviour
 
     public void HandleHeal(float normalizedTotal, DamageType? type = null)
     {
-        float barWidth = BarPixelWidth;
-        float targetWidth = normalizedTotal * barWidth;
-
         if (type.HasValue)
         {
+            if (normalizedTotal <= 0f) {
+                _normalizedDamageByType.Remove(type.Value);
+            } else {
+                _normalizedDamageByType[type.Value] = normalizedTotal;
+            }
+
             if (_segmentUIs.TryGetValue(type.Value, out HealthSegment existing))
             {
                 if (normalizedTotal <= 0f)
@@ -93,10 +94,6 @@ public class HealthBar : MonoBehaviour
                     _segmentUIs.Remove(type.Value);
                     Debug.Log($"HealthBar removed segment for {type.Value}");
                 }
-                else
-                {
-                    existing.AnimateToWidth(targetWidth);
-                }
             }
         }
         else
@@ -106,26 +103,108 @@ public class HealthBar : MonoBehaviour
                 HealthSegment first = segmentContainer.GetChild(0).GetComponent<HealthSegment>();
                 if (first != null)
                 {
+                    DamageType targetType = DamageType.Impact;
+                    foreach (var kv in _segmentUIs)
+                    {
+                        if (kv.Value == first)
+                        {
+                            targetType = kv.Key;
+                            break;
+                        }
+                    }
+
+                    if (normalizedTotal <= 0f) {
+                        _normalizedDamageByType.Remove(targetType);
+                    } else {
+                        _normalizedDamageByType[targetType] = normalizedTotal;
+                    }
+
                     if (normalizedTotal <= 0f)
                     {
                         first.AnimateToWidth(0f);
                         Destroy(first.gameObject, 0.2f);
                         // Try to remove from dictionary if present
-                        foreach (var kv in new List<DamageType>(_segmentUIs.Keys))
-                        {
-                            if (_segmentUIs[kv] == first)
-                            {
-                                _segmentUIs.Remove(kv);
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        first.AnimateToWidth(targetWidth);
+                        _segmentUIs.Remove(targetType);
                     }
                 }
             }
+        }
+
+        UpdateRemainingHealthState();
+        UpdateAllSegmentWidths();
+    }
+
+    private float Spacing
+    {
+        get
+        {
+            if (segmentContainer != null)
+            {
+                var hlg = segmentContainer.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>();
+                if (hlg != null) return hlg.spacing;
+            }
+            return 0f;
+        }
+    }
+
+    private float PaddingWidth
+    {
+        get
+        {
+            if (segmentContainer != null)
+            {
+                var hlg = segmentContainer.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>();
+                if (hlg != null && hlg.padding != null) return hlg.padding.left + hlg.padding.right;
+            }
+            return 0f;
+        }
+    }
+
+    private void UpdateAllSegmentWidths(DamageType? typeToSetInstantly = null)
+    {
+        int activeSegmentsCount = _segmentUIs.Count;
+        if (remainingHealthSegment != null && remainingHealthSegment.gameObject.activeSelf)
+        {
+            activeSegmentsCount++;
+        }
+
+        float totalSpacing = Mathf.Max(0, activeSegmentsCount - 1) * Spacing;
+        float totalPadding = PaddingWidth;
+        float availableWidth = Mathf.Max(0f, BarPixelWidth - totalSpacing - totalPadding);
+
+        foreach (var kvp in _segmentUIs)
+        {
+            if (!_normalizedDamageByType.TryGetValue(kvp.Key, out float normAmount))
+                continue;
+
+            float target = normAmount * availableWidth;
+            
+            if (typeToSetInstantly.HasValue && typeToSetInstantly.Value == kvp.Key)
+            {
+                kvp.Value.SetWidth(target);
+            }
+            else
+            {
+                kvp.Value.AnimateToWidth(target);
+            }
+        }
+    }
+
+    private void UpdateRemainingHealthState()
+    {
+        if (remainingHealthSegment == null) return;
+
+        float totalDamage = 0f;
+        foreach (var damage in _normalizedDamageByType.Values)
+        {
+            totalDamage += damage;
+        }
+
+        bool hasRemainingHealth = totalDamage <= 0.999f;
+        
+        if (remainingHealthSegment.gameObject.activeSelf != hasRemainingHealth)
+        {
+            remainingHealthSegment.gameObject.SetActive(hasRemainingHealth);
         }
     }
 

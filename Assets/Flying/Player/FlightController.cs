@@ -123,8 +123,9 @@ public class FlightController : MonoBehaviour
         // Redirect horizontal speed toward look direction
         if (cosPitch > 0)
         {
-            velocity.x += (lookDirection.x / cosPitch * horizontalSpeed - velocity.x) * turnInterpolation;
-            velocity.z += (lookDirection.z / cosPitch * horizontalSpeed - velocity.z) * turnInterpolation;
+            velocity.x += (lookDirection.x / cosPitch * horizontalSpeed - velocity.x) * turnInterpolation * Time.fixedDeltaTime;
+            velocity.z += (lookDirection.z / cosPitch * horizontalSpeed - velocity.z) * turnInterpolation * Time.fixedDeltaTime;
+            velocity.y += (lookDirection.y * velocity.magnitude - velocity.y) * turnInterpolation * Time.fixedDeltaTime;
         }
 
         // Drag

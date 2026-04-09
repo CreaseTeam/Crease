@@ -650,7 +650,7 @@ MonoBehaviour:
   trailTime: 0.75
   dashBorder: {fileID: 1189625132337031897}
   rechargeMode: 1
-  rechargeRate: 20
+  rechargeRate: 5
   rechargeMax: 100
 --- !u!114 &6900904615396018688
 MonoBehaviour:

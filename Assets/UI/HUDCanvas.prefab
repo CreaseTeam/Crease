@@ -1114,6 +1114,7 @@ MonoBehaviour:
   segmentContainer: {fileID: 5224709889675613542}
   barRoot: {fileID: 5224709889675613542}
   segmentPrefab: {fileID: 2759608022006629337, guid: f55275840fc1fd7448b9dadf6f828934, type: 3}
+  remainingHealthSegment: {fileID: 2145896346430136815}
   segmentColorEntries:
   - type: 0
     color: {r: 0.85660374, g: 0.8517551, b: 0.8517551, a: 1}
@@ -3201,6 +3202,10 @@ PrefabInstance:
       propertyPath: m_FlexibleWidth
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7936496167032149473, guid: f55275840fc1fd7448b9dadf6f828934, type: 3}
+      propertyPath: m_PreferredWidth
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -3211,6 +3216,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2935603405632511113, guid: f55275840fc1fd7448b9dadf6f828934, type: 3}
   m_PrefabInstance: {fileID: 2679710058857789711}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2145896346430136815 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4105030245420407008, guid: f55275840fc1fd7448b9dadf6f828934, type: 3}
+  m_PrefabInstance: {fileID: 2679710058857789711}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73b97e3b36db1b74f8ae12c6af66a702, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HealthSegment
 --- !u!1001 &4784856150418993639
 PrefabInstance:
   m_ObjectHideFlags: 0
