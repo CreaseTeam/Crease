@@ -53,6 +53,7 @@ public class AudioManager : MonoBehaviour
             return;
         }
         Instance = this;
+        transform.SetParent(null); // detach from any parent to avoid unintended destruction
         DontDestroyOnLoad(gameObject);
 
         // Build the dictionary
