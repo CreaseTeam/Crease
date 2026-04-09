@@ -62,7 +62,6 @@ public class HUDCanvas : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            Debug.Log("HUDCanvas Awake: Instance set");
         }
         else
         {
@@ -79,7 +78,7 @@ public class HUDCanvas : MonoBehaviour
 
         // maxHealth = hearts.Count;
         // health = maxHealth;
-        Debug.Log($"HUDCanvas Start: collectible={collectibleCount}");
+        // Debug.Log($"HUDCanvas Start: collectible={collectibleCount}");
     }
 
     // Update is called once per frame

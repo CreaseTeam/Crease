@@ -143,7 +143,7 @@ public class FoldInstructionRunner : MonoBehaviour
         currentStepIndex = 0;
         ApplyStepToController(instruction.steps[0]);
 
-        Debug.Log($"FoldInstructionRunner: Loaded instruction with {instruction.steps.Count} step(s). Press ExecuteFold to execute step 1.");
+        // Debug.Log($"FoldInstructionRunner: Loaded instruction with {instruction.steps.Count} step(s). Press ExecuteFold to execute step 1.");
     }
 
     /// <summary>

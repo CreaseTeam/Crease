@@ -715,13 +715,8 @@ MonoBehaviour:
   rechargeBar: {fileID: 4434643408426296693}
   dashBarBorder: {fileID: 6136693616890475763}
   collectibleText: {fileID: 5594039762732754378}
-  hearts:
-  - {fileID: 2098287022079791470}
-  - {fileID: 3085103880766790713}
-  - {fileID: 8664901902907458176}
-  - {fileID: 3752880255361871437}
-  - {fileID: 3703910368338617570}
   healthBar: {fileID: 1292078482510752566}
+  playerHealth: {fileID: 0}
   foldingUI: {fileID: 5380673257305531190}
   flyingUI: {fileID: 6100593597435450280}
   checkpointUI: {fileID: 8099138258846445354}
@@ -954,12 +949,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
   m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
+    m_Left: 7
+    m_Right: 7
+    m_Top: 7
+    m_Bottom: 7
   m_ChildAlignment: 5
-  m_Spacing: 2
+  m_Spacing: 7
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
@@ -982,6 +977,17 @@ MonoBehaviour:
   segmentContainer: {fileID: 5224709889675613542}
   barRoot: {fileID: 5224709889675613542}
   segmentPrefab: {fileID: 2759608022006629337, guid: f55275840fc1fd7448b9dadf6f828934, type: 3}
+  segmentColorEntries:
+  - type: 0
+    color: {r: 0.85660374, g: 0.8517551, b: 0.8517551, a: 1}
+  - type: 2
+    color: {r: 1, g: 0.5, b: 0, a: 1}
+  - type: 1
+    color: {r: 0.93207544, g: 0.23741534, b: 0.3268385, a: 1}
+  - type: 4
+    color: {r: 0.7433963, g: 0.47826892, b: 0, a: 1}
+  - type: 3
+    color: {r: 0, g: 0.7463976, b: 0.8, a: 1}
 --- !u!222 &4847530505463599025
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1003,7 +1009,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2578616, g: 0.2578616, b: 0.2578616, a: 1}
+  m_Color: {r: 0.4867924, g: 0.45831963, b: 0.45831963, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2816,17 +2822,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 9180051435016492336, guid: 244d0bf1996d25c47965bb5013f9cf47, type: 3}
   m_PrefabInstance: {fileID: 666037780266309509}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &8664901902907458176 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8143026590371321093, guid: 244d0bf1996d25c47965bb5013f9cf47, type: 3}
-  m_PrefabInstance: {fileID: 666037780266309509}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b5b70a04c2e893342a63346b3aa16ffb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Heart
 --- !u!1001 &2679710058857789711
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2929,6 +2924,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7936496167032149473, guid: f55275840fc1fd7448b9dadf6f828934, type: 3}
       propertyPath: m_IgnoreLayout
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7936496167032149473, guid: f55275840fc1fd7448b9dadf6f828934, type: 3}
+      propertyPath: m_FlexibleWidth
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -3038,17 +3037,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 244d0bf1996d25c47965bb5013f9cf47, type: 3}
---- !u!114 &3703910368338617570 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8143026590371321093, guid: 244d0bf1996d25c47965bb5013f9cf47, type: 3}
-  m_PrefabInstance: {fileID: 4784856150418993639}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b5b70a04c2e893342a63346b3aa16ffb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Heart
 --- !u!224 &4395831498371507415 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 9180051435016492336, guid: 244d0bf1996d25c47965bb5013f9cf47, type: 3}
@@ -3151,17 +3139,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 244d0bf1996d25c47965bb5013f9cf47, type: 3}
---- !u!114 &3752880255361871437 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8143026590371321093, guid: 244d0bf1996d25c47965bb5013f9cf47, type: 3}
-  m_PrefabInstance: {fileID: 4977954503930116936}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b5b70a04c2e893342a63346b3aa16ffb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Heart
 --- !u!224 &4211753074935885432 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 9180051435016492336, guid: 244d0bf1996d25c47965bb5013f9cf47, type: 3}
@@ -3269,17 +3246,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 9180051435016492336, guid: 244d0bf1996d25c47965bb5013f9cf47, type: 3}
   m_PrefabInstance: {fileID: 6616256416894945596}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3085103880766790713 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8143026590371321093, guid: 244d0bf1996d25c47965bb5013f9cf47, type: 3}
-  m_PrefabInstance: {fileID: 6616256416894945596}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b5b70a04c2e893342a63346b3aa16ffb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Heart
 --- !u!1001 &7791028789219443819
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3382,14 +3348,3 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 9180051435016492336, guid: 244d0bf1996d25c47965bb5013f9cf47, type: 3}
   m_PrefabInstance: {fileID: 7791028789219443819}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2098287022079791470 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8143026590371321093, guid: 244d0bf1996d25c47965bb5013f9cf47, type: 3}
-  m_PrefabInstance: {fileID: 7791028789219443819}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b5b70a04c2e893342a63346b3aa16ffb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Heart

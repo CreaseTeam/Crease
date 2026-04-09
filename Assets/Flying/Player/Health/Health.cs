@@ -19,8 +19,6 @@ public class Health : MonoBehaviour
 
     private readonly List<DamageRecord> _damageLog = new();
 
-    public event Action<DamageType, float> OnDamaged;
-
     void Start() => CurrentHealth = MaxHealth;
 
     public void TakeDamage(float amount, DamageType type)
@@ -31,7 +29,21 @@ public class Health : MonoBehaviour
         CurrentHealth -= amount;
 
         // Either append to existing or add to end of list to preserve accrual order
-        DamageRecord record = _damageLog.Find(r => r.type == type);
+        int index = _damageLog.FindIndex(r => r.type == type);
+        DamageRecord record = null;
+        if (index >= 0)
+        {
+            record = _damageLog[index];
+            // If the record existed but was fully healed and remained with zero
+            // amount for some reason, remove it so a new accrual places this
+            // damage at the end of the log (preserve chronological order).
+            if (record.amount <= 0f)
+            {
+                _damageLog.RemoveAt(index);
+                record = null;
+            }
+        }
+
         if (record != null)
         {
             record.amount += amount;

@@ -469,6 +469,7 @@ GameObject:
   - component: {fileID: 3010038082288808186}
   - component: {fileID: 3836312457935086689}
   - component: {fileID: 5877086774595423907}
+  - component: {fileID: 4877509526471363984}
   m_Layer: 0
   m_Name: Fan
   m_TagString: Obstacle
@@ -595,3 +596,17 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300002, guid: b4985f90ce1d8bc46bdeb800679c7363, type: 3}
+--- !u!114 &4877509526471363984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8565811933177090251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a689fff41bd29fe4ebe3d2d3dbc6d978, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Obstacle
+  _impactDamage: 10
+  _damageType: 1

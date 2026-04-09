@@ -20,7 +20,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1051258826302658937
 Transform:
   m_ObjectHideFlags: 0
@@ -583,7 +583,7 @@ MonoBehaviour:
   depenetrationMargin: 0.1
   obstacleTag: Obstacle
   groundTag: Ground
-  knockbackForce: 100
+  knockbackForce: 30
   reflectionBlend: 0.3
   minKnockbackMagnitude: 20
   maxKnockbackMagnitude: 200
@@ -645,7 +645,7 @@ MonoBehaviour:
   kinematicBody: {fileID: 6633779251846987741}
   boostStrength: 20
   dashDuration: 0.5
-  invincibilityDuration: 0.6
+  invincibilityDuration: 1
   wingTrailController: {fileID: 6900904615396018688}
   trailTime: 0.75
   dashBorder: {fileID: 1189625132337031897}

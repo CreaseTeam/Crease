@@ -17,10 +17,14 @@ public class WingTrailController : MonoBehaviour
     private TrailRenderer trailLeft;
     private TrailRenderer trailRight;
 
+    private bool isTrailActive = true;
+
     void Start()
     {
         trailLeft = CreateTrail(wingTipLeft);
         trailRight = CreateTrail(wingTipRight);
+
+        SetTrailEnabled(isTrailActive);
     }
 
     TrailRenderer CreateTrail(Transform wingTip)
@@ -62,6 +66,7 @@ public class WingTrailController : MonoBehaviour
 
     public void SetTrailEnabled(bool enabled)
     {
+        isTrailActive = enabled;
         if (trailLeft) trailLeft.emitting = enabled;
         if (trailRight) trailRight.emitting = enabled;
     }

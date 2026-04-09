@@ -147,7 +147,22 @@ public class FlightCollisionController : MonoBehaviour
     private void ApplyKnockback(Collider obstacle, bool isInvulnerable)
     {
         
-        healthComponent.TakeDamage(10f, DamageType.Impact);
+        // Determine damage and type from obstacle if available, otherwise use defaults
+        float damageAmount = 10f;
+        DamageType damageType = DamageType.Impact;
+        Obstacle obstacleComp = obstacle.GetComponentInParent<Obstacle>();
+        if (obstacleComp != null)
+        {
+            damageAmount = obstacleComp._impactDamage;
+            damageType = obstacleComp._damageType;
+            Debug.Log($"Collision with Obstacle found: damage={damageAmount}, type={damageType}");
+        }
+        else
+        {
+            Debug.Log("Collision with obstacle: no Obstacle component found, using defaults");
+        }
+
+        healthComponent.TakeDamage(damageAmount, damageType);
 
         Vector3 velocity = body.Velocity;
         float preCollisionSpeed = velocity.magnitude;
