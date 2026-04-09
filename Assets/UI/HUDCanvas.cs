@@ -10,8 +10,9 @@ public class HUDCanvas : MonoBehaviour
     [SerializeField] private Image rechargeBar;
     [SerializeField] private GameObject dashBarBorder;
     [SerializeField] private TextMeshProUGUI collectibleText;
-    [SerializeField] private List<Heart> hearts;
+    // [SerializeField] private List<Heart> hearts;
     [SerializeField] private HealthBar healthBar;
+    [SerializeField] private Health playerHealth;
 
     [SerializeField] private GameObject foldingUI;
     [SerializeField] private GameObject flyingUI;
@@ -25,8 +26,6 @@ public class HUDCanvas : MonoBehaviour
     public static HUDCanvas Instance { get; private set; }
 
     private int collectibleCount = 0;
-    private int maxHealth = 5;
-    private int health = 5;
 
     public int Collect()
     {
@@ -35,20 +34,16 @@ public class HUDCanvas : MonoBehaviour
         return collectibleCount;
     }
 
+    /* 
+    Legacy Heart System 
+    private int maxHealth = 5;
+    private int health = 5;
+
     public void TakeDamage()
     {
         if (health > 0)
         {
             health--;
-            UpdateHearts();
-        }
-    }
-
-    public void Heal()
-    {
-        if (health < maxHealth)
-        {
-            health++;
             UpdateHearts();
         }
     }
@@ -60,6 +55,7 @@ public class HUDCanvas : MonoBehaviour
             hearts[i].SetHealth(i < health);
         }
     }
+    */
 
     void Awake()
     {
@@ -81,9 +77,9 @@ public class HUDCanvas : MonoBehaviour
         collectibleText.text = $"{collectibleCount}";
         rechargeBar.fillAmount = dashController.CurrentRecharge / dashController.MaxRecharge;
 
-        maxHealth = hearts.Count;
-        health = maxHealth;
-        Debug.Log($"HUDCanvas Start: collectible={collectibleCount}, maxHealth={maxHealth}, health={health}");
+        // maxHealth = hearts.Count;
+        // health = maxHealth;
+        Debug.Log($"HUDCanvas Start: collectible={collectibleCount}");
     }
 
     // Update is called once per frame
@@ -124,20 +120,57 @@ public class HUDCanvas : MonoBehaviour
     }
 
     /// <summary>
-    /// Called by the health system to update the flying health bar segments.
+    /// Called by the health system to update the flying health bar segments visually.
     /// </summary>
-    public void OnHealthDamaged(DamageType type, float normalizedDamage)
+    public void VisualDamage(DamageType type, float normalizedDamage)
     {
-        Debug.Log($"HUDCanvas.OnHealthDamaged received: type={type}, normalizedDamage={normalizedDamage}");
         if (healthBar != null)
         {
-            Debug.Log("HUDCanvas forwarding damage to HealthBar");
-            healthBar.HandleDamaged(type, normalizedDamage);
+            healthBar.HandleDamage(type, normalizedDamage);
         }
-        else
+    }
+
+    /// <summary>
+    /// Called by the health system to update the flying health bar segments down on heal.
+    /// </summary>
+    public void VisualHeal(float normalizedDamage, DamageType? type = null)
+    {
+        if (healthBar != null)
         {
-            Debug.LogWarning("HUDCanvas.OnHealthDamaged: healthBar reference is null");
+            healthBar.HandleHeal(normalizedDamage, type);
         }
+    }
+
+    /// <summary>
+    /// Called by UI / other systems to request damage on the player health (absolute amount).
+    /// This delegates gameplay logic to the `Health` component.
+    /// </summary>
+    public void Damage(DamageType type, float absoluteDamage)
+    {
+        if (playerHealth == null)
+        {
+            Debug.LogWarning("HUDCanvas.Damage: playerHealth is not assigned");
+            return;
+        }
+
+        Debug.Log($"HUDCanvas.Damage delegating to playerHealth: type={type}, absolute={absoluteDamage}");
+        playerHealth.TakeDamage(absoluteDamage, type);
+    }
+
+    /// <summary>
+    /// Called by UI / other systems to request healing on the player health.
+    /// Delegates to the `Health` component.
+    /// </summary>
+    public void Heal(float absoluteAmount, DamageType? type = null)
+    {
+        if (playerHealth == null)
+        {
+            Debug.LogWarning("HUDCanvas.Heal: playerHealth is not assigned");
+            return;
+        }
+
+        Debug.Log($"HUDCanvas.Heal delegating to playerHealth: absolute={absoluteAmount}, type={type}");
+        playerHealth.Heal(absoluteAmount, type);
     }
 
     /// <summary>

@@ -86,11 +86,11 @@ public class Collectible : MonoBehaviour
         }
     }
 
-    public void HealPlayer()
+    public void HealPlayer(float amount)
     {
         if (HUDCanvas.Instance != null)
         {
-            HUDCanvas.Instance.Heal();
+            HUDCanvas.Instance.Heal(amount);
         }
     }
 }

@@ -156,16 +156,14 @@ MonoBehaviour:
   zoomSpeed: 17
   minZoomOffset: -2
   maxZoomOffset: -10
-  maxPanAngleX: 60
-  maxPanAngleY: 120
-  mousePanSensitivity: 0.2
-  gamepadPanSpeed: 100
-  panReturnSpring: 1
-  panSmoothing: 0.1
+  maxPanAngleX: 120
+  maxPanAngleY: 60
+  mousePanSensitivity: 0.3
+  panSpeed: 90
   yawSpeed: 5
   pitchSpeed: 5
   positionSmoothing: 10
-  profileStrength: 0.25
+  profileStrength: 0.15
   maxProfileOffset: 30
   pitchRateSmoothing: 8
   profileDecay: 3

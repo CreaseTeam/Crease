@@ -424,6 +424,7 @@ GameObject:
   - component: {fileID: 1147598551027705273}
   - component: {fileID: 6900904615396018688}
   - component: {fileID: 355721681263100046}
+  - component: {fileID: 4338409860427139704}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -577,15 +578,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FlightCollisionController
   body: {fileID: 6633779251846987741}
   crashHandler: {fileID: 185509089845354311}
-  playerCollider: {fileID: 0}
-  healthComponent: {fileID: 0}
+  playerCollider: {fileID: 5576785541387470566}
+  healthComponent: {fileID: 4338409860427139704}
   depenetrationMargin: 0.1
   obstacleTag: Obstacle
   groundTag: Ground
-  knockbackForce: 5
+  knockbackForce: 100
   reflectionBlend: 0.3
   minKnockbackMagnitude: 20
-  maxKnockbackMagnitude: 60
+  maxKnockbackMagnitude: 200
   speedRetention: 0.5
   recoveryDuration: 2
   recoveryDelay: 0.3
@@ -644,10 +645,12 @@ MonoBehaviour:
   kinematicBody: {fileID: 6633779251846987741}
   boostStrength: 20
   dashDuration: 0.5
+  invincibilityDuration: 0.6
   wingTrailController: {fileID: 6900904615396018688}
   trailTime: 0.75
   dashBorder: {fileID: 1189625132337031897}
-  rechargeRate: 80
+  rechargeMode: 1
+  rechargeRate: 20
   rechargeMax: 100
 --- !u!114 &6900904615396018688
 MonoBehaviour:
@@ -668,7 +671,7 @@ MonoBehaviour:
   endWidth: 0
   startColor: {r: 1, g: 1, b: 1, a: 0.8}
   endColor: {r: 1, g: 1, b: 1, a: 0}
-  trailMaterial: {fileID: 0}
+  trailMaterial: {fileID: 2100000, guid: c29106e97ecad6f44a544a7e173cb6df, type: 2}
 --- !u!114 &355721681263100046
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -681,6 +684,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4fc52f62f22e4a4eab1b48028b8ccbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManagerActions
+--- !u!114 &4338409860427139704
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7903687590958615882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5743bb04405451b45b4bf309a18115b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HealthComponent
+  MaxHealth: 100
 --- !u!1 &8300377221380386037
 GameObject:
   m_ObjectHideFlags: 0

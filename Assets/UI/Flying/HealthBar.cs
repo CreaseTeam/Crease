@@ -23,7 +23,7 @@ public class HealthBar : MonoBehaviour
 
     private readonly Dictionary<DamageType, HealthSegment> _segmentUIs = new();
 
-    public void HandleDamaged(DamageType type, float normalizedTotal)
+    public void HandleDamage(DamageType type, float normalizedTotal)
     {
         float barWidth = BarPixelWidth;
         float targetWidth = normalizedTotal * barWidth;
@@ -47,6 +47,28 @@ public class HealthBar : MonoBehaviour
         }
 
         StartCoroutine(ShakeBar());
+    }
+
+    public void HandleHeal(float normalizedTotal, DamageType? type = null)
+    {
+        float barWidth = BarPixelWidth;
+        float targetWidth = normalizedTotal * barWidth;
+
+        if (type.HasValue)
+        {
+            if (_segmentUIs.TryGetValue(type.Value, out HealthSegment existing))
+            {
+                existing.AnimateToWidth(targetWidth);
+            }
+        }
+        else
+        {
+            if (segmentContainer.childCount > 0)
+            {
+                HealthSegment first = segmentContainer.GetChild(0).GetComponent<HealthSegment>();
+                if (first != null) first.AnimateToWidth(targetWidth);
+            }
+        }
     }
 
     private IEnumerator ShakeBar()

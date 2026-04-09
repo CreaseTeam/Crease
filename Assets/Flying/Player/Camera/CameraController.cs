@@ -64,9 +64,9 @@ public class CameraController : MonoBehaviour
     private float _panYaw;
     private float _panPitch;
 
-    private void OnEnable()
+    public void RecenterPan()
     {
-        // Instantly snap to center when this component (flight mode) starts
+        // Explicitly called by FoldingManager to reset pan mathematically precisely on flight switch
         _panYaw = 0f;
         _panPitch = 0f;
     }

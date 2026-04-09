@@ -10,7 +10,14 @@ public class Health : MonoBehaviour
     public float CurrentHealth { get; private set; }
     public float NormalizedDamage(float amount) => amount / MaxHealth;
 
-    private readonly Dictionary<DamageType, float> _damageMap = new();
+    [Serializable]
+    private class DamageRecord
+    {
+        public DamageType type;
+        public float amount;
+    }
+
+    private readonly List<DamageRecord> _damageLog = new();
 
     public event Action<DamageType, float> OnDamaged;
 
@@ -19,25 +26,83 @@ public class Health : MonoBehaviour
     public void TakeDamage(float amount, DamageType type)
     {
         amount = Mathf.Min(amount, CurrentHealth);
-        Debug.Log($"Health.TakeDamage called: amount={amount}, type={type}, CurrentHealth={CurrentHealth}");
-
         if (amount <= 0f) return;
 
         CurrentHealth -= amount;
-        _damageMap.TryGetValue(type, out float existing);
-        _damageMap[type] = existing + amount;
 
-        float prevHealth = CurrentHealth;
-        Debug.Log($"Health applied: prev={prevHealth} -> current={CurrentHealth} (damage={amount})");
+        // Either append to existing or add to end of list to preserve accrual order
+        DamageRecord record = _damageLog.Find(r => r.type == type);
+        if (record != null)
+        {
+            record.amount += amount;
+        }
+        else
+        {
+            record = new DamageRecord { type = type, amount = amount };
+            _damageLog.Add(record);
+        }
 
-        Debug.Log("Invoking OnDamaged event");
-        OnDamaged?.Invoke(type, _damageMap[type]);
-
-        float normalizedTotal = _damageMap[type] / MaxHealth;
         if (HUDCanvas.Instance != null)
         {
-            Debug.Log($"Notifying HUDCanvas of damage: type={type}, normalizedTotal={normalizedTotal}");
-            HUDCanvas.Instance.OnHealthDamaged(type, normalizedTotal);
+            HUDCanvas.Instance.VisualDamage(type, record.amount / MaxHealth);
+        }
+    }
+
+    public void Heal(float amount, DamageType? targetType = null)
+    {
+        if (amount <= 0f) return;
+        
+        float remainingHeal = amount;
+
+        if (targetType.HasValue)
+        {
+            DamageType target = targetType.Value;
+            int index = _damageLog.FindIndex(r => r.type == target);
+            if (index >= 0)
+            {
+                DamageRecord record = _damageLog[index];
+                float healAmount = Mathf.Min(record.amount, remainingHeal);
+                record.amount -= healAmount;
+                CurrentHealth += healAmount;
+                
+                if (HUDCanvas.Instance != null)
+                {
+                    HUDCanvas.Instance.VisualHeal(record.amount / MaxHealth, record.type);
+                }
+
+                if (record.amount <= 0f)
+                {
+                    _damageLog.RemoveAt(index);
+                }
+            }
+        }
+        else
+        {
+            // Iterate forwards: "first chunk of damage... oldest first" -> Index 0 forwards
+            for (int i = 0; i < _damageLog.Count && remainingHeal > 0;)
+            {
+                DamageRecord record = _damageLog[i];
+                float healAmount = Mathf.Min(record.amount, remainingHeal);
+
+                record.amount -= healAmount;
+                CurrentHealth += healAmount;
+                remainingHeal -= healAmount;
+
+                if (HUDCanvas.Instance != null)
+                {
+                    HUDCanvas.Instance.VisualHeal(record.amount / MaxHealth, record.type);
+                }
+
+                if (record.amount <= 0f)
+                {
+                    _damageLog.RemoveAt(i);
+                    // Do not increment 'i' because the list just shifted left
+                }
+                else
+                {
+                    i++; // Only move to the next if we didn't destroy this one
+                }
+            }
         }
     }
 }

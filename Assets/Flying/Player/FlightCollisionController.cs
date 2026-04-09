@@ -79,7 +79,7 @@ public class FlightCollisionController : MonoBehaviour
 
     // ------------------------------------------------------------------ State
     public bool IsRecovering => _isRecovering;
-    public bool IsInvulnerable => Time.time < _invulnerableUntil;
+    public bool IsInvulnerable => Time.time < _invulnerableUntil || (_dashController != null && _dashController.IsInvincible);
     public float PreCollisionSpeed => _preCollisionSpeed;
 
     private bool _isRecovering;
@@ -87,11 +87,13 @@ public class FlightCollisionController : MonoBehaviour
     private float _targetRecoverySpeed;
     private float _recoveryStartTime;
     private float _invulnerableUntil;
+    private DashController _dashController;
 
     private void Awake()
     {
         if (body == null) body = GetComponent<KinematicBody>();
         if (playerCollider == null) playerCollider = GetComponent<Collider>();
+        _dashController = GetComponent<DashController>();
     }
 
     // ================================================================== Collision
@@ -144,10 +146,6 @@ public class FlightCollisionController : MonoBehaviour
     // ================================================================== Knockback
     private void ApplyKnockback(Collider obstacle, bool isInvulnerable)
     {
-        if (HUDCanvas.Instance != null)
-        {
-            HUDCanvas.Instance.TakeDamage();
-        }
         
         healthComponent.TakeDamage(10f, DamageType.Impact);
 
