@@ -588,11 +588,11 @@ MonoBehaviour:
   minKnockbackMagnitude: 20
   maxKnockbackMagnitude: 200
   speedRetention: 0.5
-  recoveryDuration: 2
-  recoveryDelay: 0.3
+  recoveryDuration: 3
+  recoveryDelay: 2
   maxRecoveryAcceleration: 50
-  invulnerabilityDuration: 0.5
-  invulnerableKnockbackMultiplier: 0.5
+  invulnerabilityDuration: 2
+  invulnerableKnockbackMultiplier: 1
   landOnGroundAfterCrash: 1
   OnKnockback:
     m_PersistentCalls:

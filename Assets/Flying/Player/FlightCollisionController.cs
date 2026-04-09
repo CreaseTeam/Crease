@@ -146,23 +146,6 @@ public class FlightCollisionController : MonoBehaviour
     // ================================================================== Knockback
     private void ApplyKnockback(Collider obstacle, bool isInvulnerable)
     {
-        
-        // Determine damage and type from obstacle if available, otherwise use defaults
-        float damageAmount = 10f;
-        DamageType damageType = DamageType.Impact;
-        Obstacle obstacleComp = obstacle.GetComponentInParent<Obstacle>();
-        if (obstacleComp != null)
-        {
-            damageAmount = obstacleComp._impactDamage;
-            damageType = obstacleComp._damageType;
-            Debug.Log($"Collision with Obstacle found: damage={damageAmount}, type={damageType}");
-        }
-        else
-        {
-            Debug.Log("Collision with obstacle: no Obstacle component found, using defaults");
-        }
-
-        healthComponent.TakeDamage(damageAmount, damageType);
 
         Vector3 velocity = body.Velocity;
         float preCollisionSpeed = velocity.magnitude;
@@ -196,6 +179,8 @@ public class FlightCollisionController : MonoBehaviour
             return;
         }
 
+        TakeDamage(obstacle.gameObject);
+
         // Apply full knockback
         body.SetVelocity(knockbackDir * impulseMagnitude);
 
@@ -207,6 +192,25 @@ public class FlightCollisionController : MonoBehaviour
         _invulnerableUntil = Time.time + invulnerabilityDuration;
 
         OnKnockback?.Invoke();
+    }
+
+    private void TakeDamage(GameObject obstacle) {
+        // Determine damage and type from obstacle if available, otherwise use defaults
+        float damageAmount = 10f;
+        DamageType damageType = DamageType.Impact;
+        Obstacle obstacleComp = obstacle.GetComponentInParent<Obstacle>();
+        if (obstacleComp != null)
+        {
+            damageAmount = obstacleComp._impactDamage;
+            damageType = obstacleComp._damageType;
+            // Debug.Log($"Collision with Obstacle found: damage={damageAmount}, type={damageType}");
+        }
+        else
+        {
+            // Debug.Log("Collision with obstacle: no Obstacle component found, using defaults");
+        }
+
+        healthComponent.TakeDamage(damageAmount, damageType);
     }
 
     /// <summary>

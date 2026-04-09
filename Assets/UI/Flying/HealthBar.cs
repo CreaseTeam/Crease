@@ -38,23 +38,20 @@ public class HealthBar : MonoBehaviour
     {
         float barWidth = BarPixelWidth;
         float targetWidth = normalizedTotal * barWidth;
-        Debug.Log($"HealthBar.HandleDamaged: type={type}, normalizedTotal={normalizedTotal}, barWidth={barWidth}, targetWidth={targetWidth}");
+        // Debug.Log($"HealthBar.HandleDamaged: type={type}, normalizedTotal={normalizedTotal}, barWidth={barWidth}, targetWidth={targetWidth}");
 
         if (_segmentUIs.TryGetValue(type, out HealthSegment existing))
         {
-            Debug.Log($"HealthBar updating existing segment for {type}");
             existing.AnimateToWidth(targetWidth);
         }
         else
         {
-            Debug.Log($"HealthBar creating new segment for {type}");
             var go = Instantiate(segmentPrefab, segmentContainer);
             var segUI = go.GetComponent<HealthSegment>();
             segUI.SetColor(GetColorFor(type));
             segUI.SetWidth(targetWidth);
             segUI.PlaySpawnAnimation();
             _segmentUIs[type] = segUI;
-            Debug.Log($"HealthBar now has {_segmentUIs.Count} segments");
         }
 
         StartCoroutine(ShakeBar());
@@ -135,7 +132,7 @@ public class HealthBar : MonoBehaviour
     private IEnumerator ShakeBar()
     {
         Vector3 origin = barRoot.anchoredPosition3D;
-        Debug.Log("HealthBar.ShakeBar start");
+        // Debug.Log("HealthBar.ShakeBar start");
         float t = 0f;
 
         while (t < 1f)
@@ -147,6 +144,6 @@ public class HealthBar : MonoBehaviour
         }
 
         barRoot.anchoredPosition3D = origin;
-        Debug.Log("HealthBar.ShakeBar end");
+        // Debug.Log("HealthBar.ShakeBar end");
     }
 }
