@@ -154,8 +154,10 @@ public class PaperGraph : MonoBehaviour
             // Compute intersection point
             float t = d1 / (d1 - d2);
             Vector3 intersectionPoint = oldEdge.v1.position + t * (oldEdge.v2.position - oldEdge.v1.position);
+            Vector2 intersectionUV = oldEdge.v1.uv + t * (oldEdge.v2.uv - oldEdge.v1.uv);
 
             Vertex vNew = new Vertex(intersectionPoint);
+            vNew.uv = intersectionUV;
             vertices.Add(vNew);
             newSplitVertices.Add(vNew);
 
@@ -343,6 +345,7 @@ public class PaperGraph : MonoBehaviour
         // 1. Create duplicates at the same position
         foreach (Vertex v in splitVertices) {
             Vertex dup = new Vertex(v.position);
+            dup.uv = v.uv;
             vertices.Add(dup);
             dupMap[v] = dup;
 
@@ -489,9 +492,13 @@ public class PaperGraph : MonoBehaviour
         // Create 4 corner vertices
         // Centered at origin, lying flat in XZ plane
         Vertex v0 = new Vertex(new Vector3(-width/2, 0, -height/2)); // bottom-left
+        v0.uv = new Vector2(0f, 0f);
         Vertex v1 = new Vertex(new Vector3(width/2, 0, -height/2));  // bottom-right
+        v1.uv = new Vector2(1f, 0f);
         Vertex v2 = new Vertex(new Vector3(width/2, 0, height/2));   // top-right
+        v2.uv = new Vector2(1f, 1f);
         Vertex v3 = new Vertex(new Vector3(-width/2, 0, height/2));  // top-left
+        v3.uv = new Vector2(0f, 1f);
         
         vertices.AddRange(new[] { v0, v1, v2, v3 });
         
@@ -560,6 +567,7 @@ public class PaperGraph : MonoBehaviour
         List<Vertex> clonedVertices = new List<Vertex>();
         foreach (Vertex v in vertices) {
             Vertex clone = new Vertex(v.position);
+            clone.uv = v.uv;
             vertexMap[v] = clone;
             clonedVertices.Add(clone);
         }
@@ -628,9 +636,11 @@ public class PaperGraph : MonoBehaviour
         // Build a mapping from Vertex -> index
         Dictionary<Vertex, int> vertexIndex = new Dictionary<Vertex, int>();
         List<Vector3> positions = new List<Vector3>();
+        List<Vector2> uvs = new List<Vector2>();
         for (int i = 0; i < vertices.Count; i++) {
             vertexIndex[vertices[i]] = i;
             positions.Add(vertices[i].position);
+            uvs.Add(vertices[i].uv);
         }
 
         // Triangulate each face using a fan from vertex 0
@@ -641,9 +651,12 @@ public class PaperGraph : MonoBehaviour
             for (int i = 1; i < face.vertices.Count - 1; i++) {
                 int i1 = vertexIndex[face.vertices[i]];
                 int i2 = vertexIndex[face.vertices[i + 1]];
+                
+                // Native graph is configured Counter-Clockwise. 
+                // We must swap i1 and i2 to generate Clockwise triangles for Unity's front-faces (pointing +Y)
                 frontTriangles.Add(i0);
-                frontTriangles.Add(i1);
                 frontTriangles.Add(i2);
+                frontTriangles.Add(i1);
             }
         }
 
@@ -651,19 +664,26 @@ public class PaperGraph : MonoBehaviour
         int vertCount = positions.Count;
         for (int i = 0; i < vertCount; i++) {
             positions.Add(positions[i]);
+            uvs.Add(new Vector2(1f - uvs[i].x, uvs[i].y)); // Mirror horizontal UVs for the back side
         }
 
-        // Back-face triangles: same triangles with reversed winding
-        List<int> allTriangles = new List<int>(frontTriangles);
+        // Back-face triangles: reversed winding
+        List<int> backTriangles = new List<int>();
         for (int i = 0; i < frontTriangles.Count; i += 3) {
-            allTriangles.Add(frontTriangles[i] + vertCount);
-            allTriangles.Add(frontTriangles[i + 2] + vertCount);
-            allTriangles.Add(frontTriangles[i + 1] + vertCount);
+            backTriangles.Add(frontTriangles[i] + vertCount);
+            backTriangles.Add(frontTriangles[i + 2] + vertCount);
+            backTriangles.Add(frontTriangles[i + 1] + vertCount);
         }
 
         Mesh mesh = new Mesh();
         mesh.SetVertices(positions);
-        mesh.SetTriangles(allTriangles, 0);
+        mesh.SetUVs(0, uvs);
+        
+        // Define submeshes (0 = front, 1 = back)
+        mesh.subMeshCount = 2;
+        mesh.SetTriangles(frontTriangles, 0);
+        mesh.SetTriangles(backTriangles, 1);
+        
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
         return mesh;
@@ -672,6 +692,7 @@ public class PaperGraph : MonoBehaviour
 
 public class Vertex {
     public Vector3 position;
+    public Vector2 uv;
     public List<Edge> edges = new List<Edge>();
     
     public Vertex(Vector3 pos) {

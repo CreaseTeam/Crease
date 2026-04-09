@@ -22,6 +22,8 @@ public class InputManager : MonoBehaviour
     // ── Folding convenience accessors ───────────────────────────────
     public bool RecenterTriggered => Actions.Folding.Recenter.WasPerformedThisFrame();
     public bool ExecuteFoldTriggered => Actions.Folding.ExecuteFold.WasPerformedThisFrame();
+    public bool RotatePaperPressed => Actions.Folding.RotateToggle.IsPressed();
+    public Vector2 RotatePaperDelta => Actions.Folding.RotateDelta.ReadValue<Vector2>();
 
     void Update() {
         DoStuff();

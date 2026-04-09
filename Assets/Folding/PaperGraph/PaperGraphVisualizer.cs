@@ -16,6 +16,8 @@ public class PaperGraphVisualizer : MonoBehaviour {
     public bool showFoldAngles = true;
     public bool showMesh = true;
     public Material meshMaterial;
+    [Tooltip("If populated, materials are applied to submeshes (e.g. Element 0 = Front, Element 1 = Back)")]
+    public Material[] meshMaterials;
 
     [Header("Tag Highlight")]
     [HideInInspector] public int selectedTagIndex = 0;
@@ -106,10 +108,20 @@ public class PaperGraphVisualizer : MonoBehaviour {
         }
 
         if (showMesh && graph.faces.Count > 0) {
-            meshFilter.sharedMesh = graph.GenerateMesh();
+            Mesh generatedMesh = graph.GenerateMesh();
+            meshFilter.sharedMesh = generatedMesh;
             meshRenderer.enabled = true;
-            if (meshMaterial != null)
-                meshRenderer.sharedMaterial = meshMaterial;
+            
+            if (meshMaterials != null && meshMaterials.Length >= generatedMesh.subMeshCount) {
+                meshRenderer.sharedMaterials = meshMaterials;
+            } else if (meshMaterial != null) {
+                // Fallback to avoid Unity hiding the second submesh if material array is missing/short
+                Material[] fallbackMats = new Material[generatedMesh.subMeshCount];
+                for (int i = 0; i < generatedMesh.subMeshCount; i++) {
+                    fallbackMats[i] = meshMaterial;
+                }
+                meshRenderer.sharedMaterials = fallbackMats;
+            }
         } else {
             meshFilter.sharedMesh = null;
             meshRenderer.enabled = false;

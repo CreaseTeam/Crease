@@ -534,6 +534,24 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RotateToggle"",
+                    ""type"": ""Button"",
+                    ""id"": ""a1b2c3d4-e5f6-4a1b-8c2d-3e4f5a6b7c8d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RotateDelta"",
+                    ""type"": ""Value"",
+                    ""id"": ""b2c3d4e5-f6a1-4b2c-9d3e-4f5a6b7c8d9e"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -580,6 +598,149 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""action"": ""ExecuteFold"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c3d4e5f6-a1b2-4c3d-ae4f-5a6b7c8d9e0f"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""RotateToggle"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d4e5f6a1-b2c3-4d4e-bf5a-6b7c8d9e0f1a"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""RotateToggle"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3ee8f031-4022-4359-92ee-4a5df64dc314"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RotateToggle"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4d0f9361-8843-4fbc-940e-896a801b27aa"",
+                    ""path"": ""<Keyboard>/leftArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RotateToggle"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a046740f-45c9-4a6e-b974-8bd32c95f679"",
+                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RotateToggle"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""091df242-cabc-43fe-9ccf-d2975e4e91b5"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RotateToggle"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e5f6a1b2-c3d4-4e5f-c06b-7c8d9e0f1a2b"",
+                    ""path"": ""<Mouse>/delta"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""RotateDelta"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f6a1b2c3-d4e5-4f6a-d17c-8d9e0f1a2b3c"",
+                    ""path"": ""<Gamepad>/rightStick"",
+                    ""interactions"": """",
+                    ""processors"": ""StickDeadzone"",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""RotateDelta"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""2D Vector"",
+                    ""id"": ""53fa418c-6840-4b0f-a55f-ceee6f4ed2be"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RotateDelta"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""60c6ab54-c639-42c2-a1f1-b01e976f65e1"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RotateDelta"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""3f07bcbd-5298-43f9-89ff-e9983634a74f"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RotateDelta"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""9f5ed0bc-4f45-4c8d-ac25-e594ed7a2d92"",
+                    ""path"": ""<Keyboard>/leftArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RotateDelta"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""1a2b292d-72e0-4fe8-9d8b-86642b72bd90"",
+                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RotateDelta"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         }
@@ -632,6 +793,8 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         m_Folding = asset.FindActionMap("Folding", throwIfNotFound: true);
         m_Folding_Recenter = m_Folding.FindAction("Recenter", throwIfNotFound: true);
         m_Folding_ExecuteFold = m_Folding.FindAction("ExecuteFold", throwIfNotFound: true);
+        m_Folding_RotateToggle = m_Folding.FindAction("RotateToggle", throwIfNotFound: true);
+        m_Folding_RotateDelta = m_Folding.FindAction("RotateDelta", throwIfNotFound: true);
     }
 
     ~@GameInput()
@@ -996,6 +1159,8 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
     private List<IFoldingActions> m_FoldingActionsCallbackInterfaces = new List<IFoldingActions>();
     private readonly InputAction m_Folding_Recenter;
     private readonly InputAction m_Folding_ExecuteFold;
+    private readonly InputAction m_Folding_RotateToggle;
+    private readonly InputAction m_Folding_RotateDelta;
     /// <summary>
     /// Provides access to input actions defined in input action map "Folding".
     /// </summary>
@@ -1015,6 +1180,14 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Folding/ExecuteFold".
         /// </summary>
         public InputAction @ExecuteFold => m_Wrapper.m_Folding_ExecuteFold;
+        /// <summary>
+        /// Provides access to the underlying input action "Folding/RotateToggle".
+        /// </summary>
+        public InputAction @RotateToggle => m_Wrapper.m_Folding_RotateToggle;
+        /// <summary>
+        /// Provides access to the underlying input action "Folding/RotateDelta".
+        /// </summary>
+        public InputAction @RotateDelta => m_Wrapper.m_Folding_RotateDelta;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1047,6 +1220,12 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @ExecuteFold.started += instance.OnExecuteFold;
             @ExecuteFold.performed += instance.OnExecuteFold;
             @ExecuteFold.canceled += instance.OnExecuteFold;
+            @RotateToggle.started += instance.OnRotateToggle;
+            @RotateToggle.performed += instance.OnRotateToggle;
+            @RotateToggle.canceled += instance.OnRotateToggle;
+            @RotateDelta.started += instance.OnRotateDelta;
+            @RotateDelta.performed += instance.OnRotateDelta;
+            @RotateDelta.canceled += instance.OnRotateDelta;
         }
 
         /// <summary>
@@ -1064,6 +1243,12 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @ExecuteFold.started -= instance.OnExecuteFold;
             @ExecuteFold.performed -= instance.OnExecuteFold;
             @ExecuteFold.canceled -= instance.OnExecuteFold;
+            @RotateToggle.started -= instance.OnRotateToggle;
+            @RotateToggle.performed -= instance.OnRotateToggle;
+            @RotateToggle.canceled -= instance.OnRotateToggle;
+            @RotateDelta.started -= instance.OnRotateDelta;
+            @RotateDelta.performed -= instance.OnRotateDelta;
+            @RotateDelta.canceled -= instance.OnRotateDelta;
         }
 
         /// <summary>
@@ -1230,5 +1415,19 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnExecuteFold(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "RotateToggle" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRotateToggle(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "RotateDelta" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRotateDelta(InputAction.CallbackContext context);
     }
 }

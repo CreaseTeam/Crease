@@ -307,13 +307,9 @@ public class FoldingManager : MonoBehaviour
         if (HUDCanvas.Instance != null)
             HUDCanvas.Instance.ShowFlyingUI(true);
 
-        // Re-enable flying camera and synchronize pan center
+        // Re-enable flying camera
         if (flyingCamera != null) {
             flyingCamera.gameObject.SetActive(true);
-            CameraController camController = flyingCamera.GetComponent<CameraController>();
-            if (camController != null) {
-                camController.RecenterPan();
-            }
         }
     }
 
