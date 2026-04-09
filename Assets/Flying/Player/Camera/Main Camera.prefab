@@ -158,8 +158,8 @@ MonoBehaviour:
   maxZoomOffset: -10
   maxPanAngleX: 120
   maxPanAngleY: 60
-  mousePanSensitivity: 0.3
-  panSpeed: 90
+  panSpeed: 100
+  mouseSensitivity: 1
   yawSpeed: 5
   pitchSpeed: 5
   positionSmoothing: 10

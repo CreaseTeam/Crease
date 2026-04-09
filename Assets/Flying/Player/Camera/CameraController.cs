@@ -23,11 +23,13 @@ public class CameraController : MonoBehaviour
     [Tooltip("Maximum vertical angle the camera can orbit.")]
     public float maxPanAngleY = 20f;
 
-    [Tooltip("Adjusts the response curve of the mouse (1 = linear, >1 = more sensitive near center).")]
-    public float mousePanSensitivity = 1.0f;
-
     [Tooltip("Speed at which the camera reaches the target pan angle (degrees per second).")]
     public float panSpeed = 90f;
+
+    [Header("Mouse")]
+    [Tooltip("Mouse sensitivity for camera panning. Higher values make small mouse movements produce larger pan. Edges still map to full -1..1.")]
+    [Min(0.01f)]
+    public float mouseSensitivity = 1f;
 
     [Header("Follow Speeds")]
     public float yawSpeed = 5f;
@@ -178,11 +180,10 @@ public class CameraController : MonoBehaviour
             // Normalize screen coordinates perfectly to a [-1, 1] mapped square inherently
             float hw = Screen.width * 0.5f;
             float hh = Screen.height * 0.5f;
-            targetPan.x = (input.x - hw) / hw;
-            targetPan.y = (input.y - hh) / hh;
-
-            // Apply sensitivity linearly BEFORE clamping so hand-velocity maps smoothly into bounds
-            targetPan *= mousePanSensitivity;
+            float rawX = (input.x - hw) / hw;
+            float rawY = (input.y - hh) / hh;
+            targetPan.x = ApplyMouseSensitivity(rawX, mouseSensitivity);
+            targetPan.y = ApplyMouseSensitivity(rawY, mouseSensitivity);
         }
         else
         {
@@ -190,8 +191,9 @@ public class CameraController : MonoBehaviour
             targetPan = input;
         }
 
-        // Restrict to a perfect 1x1 circular input space (magnitude <= 1)
-        targetPan = Vector2.ClampMagnitude(targetPan, 1f);
+        // Restrict symmetrically but orthogonally so horizontal straying doesn't punish the strict vertical inputs mathematically
+        targetPan.x = Mathf.Clamp(targetPan.x, -1f, 1f);
+        targetPan.y = Mathf.Clamp(targetPan.y, -1f, 1f);
 
         // Map perfectly to exact ovular angular targets (oval bounding)
         float targetYaw = targetPan.x * maxPanAngleX;
@@ -206,6 +208,18 @@ public class CameraController : MonoBehaviour
     {
         if (angle > 180f) angle -= 360f;
         return angle;
+    }
+
+    private static float ApplyMouseSensitivity(float normalized, float sensitivity)
+    {
+        // Ensure sensitivity is positive and non-zero to avoid division issues
+        float s = Mathf.Max(0.01f, sensitivity);
+        // Use tanh remapping to preserve full range [-1,1] while allowing a 'curve'
+        // that amplifies or softens input depending on sensitivity.
+        double numerator = System.Math.Tanh(s * normalized);
+        double denom = System.Math.Tanh(s);
+        if (denom == 0.0) return normalized;
+        return (float)(numerator / denom);
     }
 
     private void OnDrawGizmos()
