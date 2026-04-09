@@ -7,8 +7,21 @@ public class InputManager : MonoBehaviour
     public GameInput Actions { get; private set; }
     public static InputManager Instance { get; private set; }
 
+    public bool PilotControlsEnabled { get; set; } = true;
+
     // ── Player & Debug convenience accessors ────────────────────────
-    public Vector2 MoveInput => Actions.Player.Move.ReadValue<Vector2>();
+    public Vector2 MoveInput 
+    { 
+        get 
+        {
+            Vector2 input = Actions.Player.Move.ReadValue<Vector2>();
+            if (!PilotControlsEnabled)
+            {
+                input.y = -input.y;
+            }
+            return input;
+        }
+    }
     public Vector2 CameraZoomInput => Actions.Player.CameraZoom.ReadValue<Vector2>();
     public Vector2 CameraPanInput => Actions.Player.CameraPan.ReadValue<Vector2>();
     public bool BoostPressed => Actions.Debug.Boost.IsPressed() || _micBoostActive;
@@ -17,7 +30,7 @@ public class InputManager : MonoBehaviour
     public bool DashTriggered => Actions.Player.Dash.WasPerformedThisFrame();
     public bool DropTriggered => Actions.Player.Drop.WasPerformedThisFrame();
     public bool ReturnTriggered => Actions.Player.Return.WasPerformedThisFrame();
-    public bool MenuTriggered => Actions.Player.Menu.WasPerformedThisFrame();
+    public bool PauseTriggered => Actions.Player.Pause.WasPerformedThisFrame();
 
     // ── Folding convenience accessors ───────────────────────────────
     public bool RecenterTriggered => Actions.Folding.Recenter.WasPerformedThisFrame();
@@ -43,7 +56,7 @@ public class InputManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         Actions = new GameInput();
-        Actions.Player.Menu.performed += OnMenuPerformed;
+        Actions.Player.Pause.performed += OnPausePerformed;
         Actions.Player.Enable();
 
         Actions.Debug.Enable();
@@ -55,7 +68,7 @@ public class InputManager : MonoBehaviour
         {
             StopMic();
             if (Actions != null)
-                Actions.Player.Menu.performed -= OnMenuPerformed;
+                Actions.Player.Pause.performed -= OnPausePerformed;
             Actions?.Player.Disable();
             Actions?.Debug.Disable();
             Actions?.Folding.Disable();
@@ -100,12 +113,13 @@ public class InputManager : MonoBehaviour
         }
     }
 
-    // ── Menu callback ────────────────────────────────────────────────
-    private void OnMenuPerformed(InputAction.CallbackContext ctx)
+    // ── Pause callback ────────────────────────────────────────────────
+    private void OnPausePerformed(InputAction.CallbackContext ctx)
     {
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
-        SceneManager.LoadScene("StartScene");
+        if (HUDCanvas.Instance != null)
+        {
+            HUDCanvas.Instance.TogglePause();
+        }
     }
 
 

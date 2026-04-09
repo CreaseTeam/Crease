@@ -22,6 +22,10 @@ public class HUDCanvas : MonoBehaviour
     [SerializeField] private TextMeshProUGUI foldAccuracyText;
     [SerializeField] private TextMeshProUGUI overallAccuracyText;
 
+    [Header("Menus")]
+    [SerializeField] private GameObject pauseMenuUI;
+    private bool isPaused = false;
+
 
     public static HUDCanvas Instance { get; private set; }
 
@@ -199,5 +203,60 @@ public class HUDCanvas : MonoBehaviour
             foldAccuracyText.text = "Fold: --";
         if (overallAccuracyText != null)
             overallAccuracyText.text = "Overall: --";
+    }
+
+    /// <summary>
+    /// Toggles the pause state, showing the pause menu and freezing time.
+    /// </summary>
+    public void TogglePause()
+    {
+        isPaused = !isPaused;
+
+        if (pauseMenuUI != null)
+            pauseMenuUI.SetActive(isPaused);
+
+        Time.timeScale = isPaused ? 0f : 1f;
+
+        if (isPaused)
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else
+        {
+            // Restore cursor state based on active UI
+            if (foldingUI != null && foldingUI.activeSelf)
+            {
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
+            }
+            else
+            {
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Confined;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Unpauses the game and returns to the main menu.
+    /// </summary>
+    public void ReturnToMainMenu()
+    {
+        Time.timeScale = 1f;
+        UnityEngine.SceneManagement.SceneManager.LoadScene("StartScene");
+    }
+
+    /// <summary>
+    /// Instructs the InputManager to toggle the pilot controls setting (inverting Y for W/S flight).
+    /// Used by Unity UI Dropdown events (0 = Pilot, 1 = Arcade).
+    /// </summary>
+    public void TogglePilotControls(int controlModeIndex)
+    {
+        if (InputManager.Instance != null)
+        {
+            // 0 is Pilot Controls, 1 is Arcade Controls
+            InputManager.Instance.PilotControlsEnabled = (controlModeIndex == 0);
+        }
     }
 }
