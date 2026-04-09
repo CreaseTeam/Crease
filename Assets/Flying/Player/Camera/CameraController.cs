@@ -17,16 +17,17 @@ public class CameraController : MonoBehaviour
     public float minZoomOffset = -3f;
     public float maxZoomOffset = -20f;
 
-    [Header("Camera Panning (Rotation-Based)")]
-    [Tooltip("Maximum angle in degrees the camera can pan.")]
+    [Header("Camera Panning (Orbital)")]
+    [Tooltip("Maximum horizontal angle the camera can orbit.")]
     public float maxPanAngleX = 30f;
+    [Tooltip("Maximum vertical angle the camera can orbit.")]
     public float maxPanAngleY = 20f;
 
-    [Tooltip("Sensitivity multiplier for camera panning (applies to both Mouse and Gamepad).")]
-    public float panSensitivity = 1.0f;
+    [Tooltip("Adjusts the response curve of the mouse (1 = linear, >1 = more sensitive near center).")]
+    public float mousePanSensitivity = 1.0f;
 
-    [Tooltip("Smoothing for the panning rotation.")]
-    public float panSmoothing = 0.1f;
+    [Tooltip("Speed at which the camera reaches the target pan angle (degrees per second).")]
+    public float panSpeed = 90f;
 
     [Header("Follow Speeds")]
     public float yawSpeed = 5f;
@@ -62,8 +63,13 @@ public class CameraController : MonoBehaviour
     // Panning State
     private float _panYaw;
     private float _panPitch;
-    private float _panYawVel;
-    private float _panPitchVel;
+
+    private void OnEnable()
+    {
+        // Instantly snap to center when this component (flight mode) starts
+        _panYaw = 0f;
+        _panPitch = 0f;
+    }
 
     private void Start()
     {
@@ -169,38 +175,31 @@ public class CameraController : MonoBehaviour
 
         if (isMouse)
         {
-            // Normalize screen coordinates to -1 -> 1 range
+            // Normalize screen coordinates perfectly to a [-1, 1] mapped square inherently
             float hw = Screen.width * 0.5f;
             float hh = Screen.height * 0.5f;
             targetPan.x = (input.x - hw) / hw;
             targetPan.y = (input.y - hh) / hh;
+
+            // Apply sensitivity linearly BEFORE clamping so hand-velocity maps smoothly into bounds
+            targetPan *= mousePanSensitivity;
         }
         else
         {
-            // Gamepad stick naturally operates in -1 -> 1 range
+            // Gamepad stick naturally gives exact circular -1..1 coordinates natively
             targetPan = input;
         }
 
-        // For absolute bounded inputs, apply sensitivity as an exponential response curve.
-        // This preserves the exact bounds so pushing the stick fully ALWAYS reaches exactly maxPanAngle.
-        // panSensitivity = 1 -> Linear (1:1 curve)
-        // panSensitivity > 1 -> more sensitive near center (x^(1/sens))
-        // panSensitivity < 1 -> finer control near center (x^sens)
-        float curve = 1f / Mathf.Max(0.01f, panSensitivity);
-        targetPan.x = Mathf.Sign(targetPan.x) * Mathf.Pow(Mathf.Abs(targetPan.x), curve);
-        targetPan.y = Mathf.Sign(targetPan.y) * Mathf.Pow(Mathf.Abs(targetPan.y), curve);
+        // Restrict to a perfect 1x1 circular input space (magnitude <= 1)
+        targetPan = Vector2.ClampMagnitude(targetPan, 1f);
 
-        // Clamp the evaluated input to mathematically guarantee strict bounds
-        targetPan.x = Mathf.Clamp(targetPan.x, -1f, 1f);
-        targetPan.y = Mathf.Clamp(targetPan.y, -1f, 1f);
-
-        // Map to exact angle targets
+        // Map perfectly to exact ovular angular targets (oval bounding)
         float targetYaw = targetPan.x * maxPanAngleX;
         float targetPitch = targetPan.y * maxPanAngleY;
 
-        // Smoothly interpolate to the target orientation
-        _panYaw = Mathf.SmoothDamp(_panYaw, targetYaw, ref _panYawVel, panSmoothing);
-        _panPitch = Mathf.SmoothDamp(_panPitch, targetPitch, ref _panPitchVel, panSmoothing);
+        // Move towards the target at an explicit constant speed
+        _panYaw = Mathf.MoveTowards(_panYaw, targetYaw, panSpeed * dt);
+        _panPitch = Mathf.MoveTowards(_panPitch, targetPitch, panSpeed * dt);
     }
 
     private static float NormalizeAngle(float angle)

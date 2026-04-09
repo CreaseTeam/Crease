@@ -89,6 +89,12 @@ public class InputManager : MonoBehaviour
 
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Confined;
+        
+        if (Mouse.current != null)
+        {
+            // Instantly snap physical mouse coordinate to center screen (no hardware lag trailing)
+            Mouse.current.WarpCursorPosition(new Vector2(Screen.width / 2f, Screen.height / 2f));
+        }
     }
 
     // ── Menu callback ────────────────────────────────────────────────
