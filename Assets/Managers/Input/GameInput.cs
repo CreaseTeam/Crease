@@ -154,6 +154,15 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""CenterCamera"",
+                    ""type"": ""Button"",
+                    ""id"": ""1b0ec830-c31d-4fd5-8b58-8e5adaeac532"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -409,6 +418,28 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""action"": ""CameraPan"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6b263c04-49ca-426d-b452-626fd2b9892e"",
+                    ""path"": ""<Keyboard>/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""CenterCamera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3836a39a-0729-4546-bd25-abbdb261b2d2"",
+                    ""path"": ""<Gamepad>/rightStickPress"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""CenterCamera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -784,6 +815,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         m_Player_Return = m_Player.FindAction("Return", throwIfNotFound: true);
         m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
         m_Player_CameraPan = m_Player.FindAction("CameraPan", throwIfNotFound: true);
+        m_Player_CenterCamera = m_Player.FindAction("CenterCamera", throwIfNotFound: true);
         // Debug
         m_Debug = asset.FindActionMap("Debug", throwIfNotFound: true);
         m_Debug_Boost = m_Debug.FindAction("Boost", throwIfNotFound: true);
@@ -884,6 +916,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Return;
     private readonly InputAction m_Player_Pause;
     private readonly InputAction m_Player_CameraPan;
+    private readonly InputAction m_Player_CenterCamera;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -923,6 +956,10 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/CameraPan".
         /// </summary>
         public InputAction @CameraPan => m_Wrapper.m_Player_CameraPan;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/CenterCamera".
+        /// </summary>
+        public InputAction @CenterCamera => m_Wrapper.m_Player_CenterCamera;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -970,6 +1007,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @CameraPan.started += instance.OnCameraPan;
             @CameraPan.performed += instance.OnCameraPan;
             @CameraPan.canceled += instance.OnCameraPan;
+            @CenterCamera.started += instance.OnCenterCamera;
+            @CenterCamera.performed += instance.OnCenterCamera;
+            @CenterCamera.canceled += instance.OnCenterCamera;
         }
 
         /// <summary>
@@ -1002,6 +1042,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @CameraPan.started -= instance.OnCameraPan;
             @CameraPan.performed -= instance.OnCameraPan;
             @CameraPan.canceled -= instance.OnCameraPan;
+            @CenterCamera.started -= instance.OnCenterCamera;
+            @CenterCamera.performed -= instance.OnCenterCamera;
+            @CenterCamera.canceled -= instance.OnCenterCamera;
         }
 
         /// <summary>
@@ -1364,6 +1407,13 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnCameraPan(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "CenterCamera" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCenterCamera(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Debug" which allows adding and removing callbacks.

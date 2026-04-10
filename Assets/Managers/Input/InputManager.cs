@@ -37,6 +37,8 @@ public class InputManager : MonoBehaviour
     public bool ExecuteFoldTriggered => Actions.Folding.ExecuteFold.WasPerformedThisFrame();
     public bool RotatePaperPressed => Actions.Folding.RotateToggle.IsPressed();
     public Vector2 RotatePaperDelta => Actions.Folding.RotateDelta.ReadValue<Vector2>();
+    // Center camera (teleport mouse to center + reset camera pan)
+    public bool CenterCameraTriggered => Actions.Player.CenterCamera.WasPerformedThisFrame();
 
     void Update() {
         DoStuff();

@@ -25,6 +25,7 @@ public class CameraController : MonoBehaviour
     // Panning State
     private float _panYaw;
     private float _panPitch;
+    private bool _centerPanRequested;
 
     public void RecenterPan()
     {
@@ -62,6 +63,16 @@ public class CameraController : MonoBehaviour
 
         HandleZoom(dt);
         HandlePanning(dt);
+
+        // Center camera input: move the ideal pan to center (do not snap), and center the mouse
+        if (InputManager.Instance != null && InputManager.Instance.CenterCameraTriggered)
+        {
+            _centerPanRequested = true;
+            if (Mouse.current != null)
+            {
+                Mouse.current.WarpCursorPosition(new Vector2(Screen.width / 2f, Screen.height / 2f));
+            }
+        }
 
         // --- Target angles ---
         Vector3 targetEuler = target.rotation.eulerAngles;
@@ -143,7 +154,13 @@ public class CameraController : MonoBehaviour
 
         Vector2 targetPan = Vector2.zero;
 
-        if (isMouse)
+        // If a center-pan was requested, force the ideal target pan to zero for this frame
+        if (_centerPanRequested)
+        {
+            targetPan = Vector2.zero;
+            _centerPanRequested = false;
+        }
+        else if (isMouse)
         {
             // Normalize screen coordinates perfectly to a [-1, 1] mapped square inherently
             float hw = Screen.width * 0.5f;
