@@ -6,51 +6,11 @@ public class CameraController : MonoBehaviour
     [Header("Target")]
     public Transform target;
     public FlightController flightController;
+    [SerializeField]
+    private CameraSettings settings;
 
-    [Header("Offset")]
-    [Tooltip("Offset behind and above the plane (in rig-local space).")]
-    public Vector3 defaultOffset = new Vector3(0f, 2f, -8f);
-
-    [Header("Camera Zoom")]
-    [Tooltip("How fast the camera zooms in/out per scroll tick.")]
-    public float zoomSpeed = 2f;
-    public float minZoomOffset = -3f;
-    public float maxZoomOffset = -20f;
-
-    [Header("Camera Panning (Orbital)")]
-    [Tooltip("Maximum horizontal angle the camera can orbit.")]
-    public float maxPanAngleX = 30f;
-    [Tooltip("Maximum vertical angle the camera can orbit.")]
-    public float maxPanAngleY = 20f;
-
-    [Tooltip("Speed at which the camera reaches the target pan angle (degrees per second).")]
-    public float panSpeed = 90f;
-
-    [Header("Mouse")]
-    [Tooltip("Mouse sensitivity for camera panning. Higher values make small mouse movements produce larger pan. Edges still map to full -1..1.")]
-    [Min(0.01f)]
-    public float mouseSensitivity = 1f;
-
-    [Header("Follow Speeds")]
-    public float yawSpeed = 5f;
-    public float pitchSpeed = 5f;
-    public float positionSmoothing = 10f;
-
-    [Header("Pitch Profile (Velocity-Driven)")]
-    public float profileStrength = 0.25f;
-    public float maxProfileOffset = 30f;
-    public float pitchRateSmoothing = 8f;
-    public float profileDecay = 3f;
-
-    [Header("Look At")]
-    public float lookAheadDistance = 5f;
-    public float lookSmoothing = 8f;
-    [Range(0f, 1f)]
-    public float lookAheadBlend = 0.5f;
-
-    [Header("Horizon Stabilization")]
-    [Range(0f, 1f)]
-    public float horizonRollStabilization = 0.85f;
+    // Runtime copy of offset so we don't mutate the asset
+    private Vector3 _runtimeOffset;
 
     // ---- Internal State ----
     private float _currentYaw;
@@ -75,6 +35,13 @@ public class CameraController : MonoBehaviour
 
     private void Start()
     {
+        if (settings == null)
+        {
+            Debug.LogError($"CameraController on '{name}' requires a CameraSettings asset assigned.");
+            enabled = false;
+            return;
+        }
+
         if (target == null) return;
 
         Vector3 euler = target.rotation.eulerAngles;
@@ -83,6 +50,7 @@ public class CameraController : MonoBehaviour
         _prevTargetPitch = _currentPitch;
         _unpannedBaseRotation = transform.rotation;
         _unpannedBasePosition = transform.position;
+        _runtimeOffset = settings.defaultOffset;
     }
 
     private void LateUpdate()
@@ -103,41 +71,41 @@ public class CameraController : MonoBehaviour
         // Pitch-rate & Profile logic
         float rawPitchRate = Mathf.DeltaAngle(_prevTargetPitch, targetPitch) / dt;
         _prevTargetPitch = targetPitch;
-        _smoothedPitchRate = Mathf.Lerp(_smoothedPitchRate, rawPitchRate, dt * pitchRateSmoothing);
-        float desiredOffset = -_smoothedPitchRate * profileStrength;
-        desiredOffset = Mathf.Clamp(desiredOffset, -maxProfileOffset, maxProfileOffset);
-        _currentProfileOffset = Mathf.Lerp(_currentProfileOffset, desiredOffset, dt * profileDecay);
+        _smoothedPitchRate = Mathf.Lerp(_smoothedPitchRate, rawPitchRate, dt * settings.pitchRateSmoothing);
+        float desiredOffset = -_smoothedPitchRate * settings.profileStrength;
+        desiredOffset = Mathf.Clamp(desiredOffset, -settings.maxProfileOffset, settings.maxProfileOffset);
+        _currentProfileOffset = Mathf.Lerp(_currentProfileOffset, desiredOffset, dt * settings.profileDecay);
 
         // Update unpanned orbital angles
-        _currentYaw = Mathf.LerpAngle(_currentYaw, targetYaw, dt * yawSpeed);
-        _currentPitch = Mathf.LerpAngle(_currentPitch, targetPitch, dt * pitchSpeed);
+        _currentYaw = Mathf.LerpAngle(_currentYaw, targetYaw, dt * settings.yawSpeed);
+        _currentPitch = Mathf.LerpAngle(_currentPitch, targetPitch, dt * settings.pitchSpeed);
         float finalPitch = _currentPitch + _currentProfileOffset;
 
         // Base Rig rotation (pure follow, no panning here!)
         float targetRoll = (flightController != null) ? -flightController.Roll : NormalizeAngle(targetEuler.z);
-        float rigRoll = Mathf.Lerp(targetRoll, 0f, horizonRollStabilization);
+        float rigRoll = Mathf.Lerp(targetRoll, 0f, settings.horizonRollStabilization);
         Quaternion baseRigRotation = Quaternion.Euler(finalPitch, _currentYaw, rigRoll);
 
         // Smooth damp the strictly unpanned base position
-        Vector3 baseDesiredPosition = target.position + baseRigRotation * defaultOffset;
+        Vector3 baseDesiredPosition = target.position + baseRigRotation * _runtimeOffset;
         if (_unpannedBasePosition == Vector3.zero) _unpannedBasePosition = transform.position;
-        _unpannedBasePosition = Vector3.SmoothDamp(_unpannedBasePosition, baseDesiredPosition, ref _positionVelocity, 1f / positionSmoothing);
+        _unpannedBasePosition = Vector3.SmoothDamp(_unpannedBasePosition, baseDesiredPosition, ref _positionVelocity, 1f / settings.positionSmoothing);
 
         // --- Look-at logic ---
         Vector3 baseLookTarget = Vector3.Lerp(
             target.position,
-            target.position + target.forward * lookAheadDistance,
-            lookAheadBlend);
+            target.position + target.forward * settings.lookAheadDistance,
+            settings.lookAheadBlend);
 
         Vector3 lookDir = (baseLookTarget - _unpannedBasePosition).normalized;
-        Vector3 upVec = Vector3.Lerp(baseRigRotation * Vector3.up, Vector3.up, horizonRollStabilization);
+        Vector3 upVec = Vector3.Lerp(baseRigRotation * Vector3.up, Vector3.up, settings.horizonRollStabilization);
         
         // Find desired unpanned rotation
         Quaternion baseDesiredRotation = Quaternion.LookRotation(lookDir, upVec);
 
         // Slerp the strictly unpanned base rotation
         if (_unpannedBaseRotation.w == 0f) _unpannedBaseRotation = transform.rotation;
-        _unpannedBaseRotation = Quaternion.Slerp(_unpannedBaseRotation, baseDesiredRotation, dt * lookSmoothing);
+        _unpannedBaseRotation = Quaternion.Slerp(_unpannedBaseRotation, baseDesiredRotation, dt * settings.lookSmoothing);
 
         // --- Apply Rigid Orbital Panning ---
         // Generates the panning rotation in the camera's local space
@@ -161,8 +129,8 @@ public class CameraController : MonoBehaviour
         float scrollY = InputManager.Instance.CameraZoomInput.y;
         if (Mathf.Abs(scrollY) > 0.01f)
         {
-            defaultOffset.z += Mathf.Sign(scrollY) * zoomSpeed * dt;
-            defaultOffset.z = Mathf.Clamp(defaultOffset.z, maxZoomOffset, minZoomOffset);
+            _runtimeOffset.z += Mathf.Sign(scrollY) * settings.zoomSpeed * dt;
+            _runtimeOffset.z = Mathf.Clamp(_runtimeOffset.z, settings.maxZoomOffset, settings.minZoomOffset);
         }
     }
 
@@ -182,8 +150,8 @@ public class CameraController : MonoBehaviour
             float hh = Screen.height * 0.5f;
             float rawX = (input.x - hw) / hw;
             float rawY = (input.y - hh) / hh;
-            targetPan.x = ApplyMouseSensitivity(rawX, mouseSensitivity);
-            targetPan.y = ApplyMouseSensitivity(rawY, mouseSensitivity);
+            targetPan.x = ApplyMouseSensitivity(rawX, settings.mouseSensitivity);
+            targetPan.y = ApplyMouseSensitivity(rawY, settings.mouseSensitivity);
         }
         else
         {
@@ -196,12 +164,12 @@ public class CameraController : MonoBehaviour
         targetPan.y = Mathf.Clamp(targetPan.y, -1f, 1f);
 
         // Map perfectly to exact ovular angular targets (oval bounding)
-        float targetYaw = targetPan.x * maxPanAngleX;
-        float targetPitch = targetPan.y * maxPanAngleY;
+        float targetYaw = targetPan.x * settings.maxPanAngleX;
+        float targetPitch = targetPan.y * settings.maxPanAngleY;
 
         // Move towards the target at an explicit constant speed
-        _panYaw = Mathf.MoveTowards(_panYaw, targetYaw, panSpeed * dt);
-        _panPitch = Mathf.MoveTowards(_panPitch, targetPitch, panSpeed * dt);
+        _panYaw = Mathf.MoveTowards(_panYaw, targetYaw, settings.panSpeed * dt);
+        _panPitch = Mathf.MoveTowards(_panPitch, targetPitch, settings.panSpeed * dt);
     }
 
     private static float NormalizeAngle(float angle)
@@ -226,7 +194,7 @@ public class CameraController : MonoBehaviour
     {
         if (target == null) return;
         Quaternion rig = Quaternion.Euler(_currentPitch, _currentYaw, 0f);
-        Vector3 ghostPos = target.position + rig * defaultOffset;
+        Vector3 ghostPos = target.position + rig * _runtimeOffset;
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(ghostPos, 0.5f);
     }

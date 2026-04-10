@@ -152,22 +152,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
   target: {fileID: 0}
   flightController: {fileID: 0}
-  defaultOffset: {x: 0, y: 0, z: -4}
-  zoomSpeed: 17
-  minZoomOffset: -2
-  maxZoomOffset: -10
-  maxPanAngleX: 120
-  maxPanAngleY: 60
-  panSpeed: 100
-  mouseSensitivity: 1
-  yawSpeed: 5
-  pitchSpeed: 5
-  positionSmoothing: 10
-  profileStrength: 0.15
-  maxProfileOffset: 30
-  pitchRateSmoothing: 8
-  profileDecay: 3
-  lookAheadDistance: 5
-  lookSmoothing: 8
-  lookAheadBlend: 0.5
-  horizonRollStabilization: 0.8
+  settings: {fileID: 11400000, guid: 1e43676e13e4a9448bad79f4b3440402, type: 2}
