@@ -89,13 +89,14 @@ public class PaperGraph : MonoBehaviour
         // Fold duplicates are ALWAYS rotated+offset — they represent the moved side of the crease.
         Quaternion rotation = Quaternion.AngleAxis(degrees, foldAxis);
         foreach (Vertex v in vertices) {
-            if (filterSet != null && !filterSet.Contains(v))
-                continue;
-            if (splitSet.Contains(v))
-                continue;
-
             // Fold duplicates always travel with the moved side, regardless of position
             bool isFoldDup = foldDupSet.Contains(v);
+
+            if (filterSet != null && !filterSet.Contains(v) && !isFoldDup)
+                continue;
+
+            if (splitSet.Contains(v))
+                continue;
 
             if (isFoldDup) {
                 v.position = foldPoint1 + rotation * (v.position - foldPoint1);
@@ -112,6 +113,22 @@ public class PaperGraph : MonoBehaviour
 
             bool onPositiveSide = side > 0.0001f;
             bool onPlaneOffAxis = Mathf.Abs(side) <= 0.0001f && distToAxis > 0.0001f;
+
+            if (onPlaneOffAxis) {
+                // Only move an on-plane vertex if it is actually attached to the moved side.
+                // Otherwise this rips apart perfectly static sheets that happen to touch the fold plane.
+                bool attachedToMoved = false;
+                foreach (Edge e in v.edges) {
+                    Vertex other = (e.v1 == v) ? e.v2 : e.v1;
+                    if (Vector3.Dot(other.position - foldPoint1, planeNormal) > 0.0001f) {
+                        attachedToMoved = true;
+                        break;
+                    }
+                }
+                if (!attachedToMoved) {
+                    onPlaneOffAxis = false;
+                }
+            }
 
             if (onPositiveSide || onPlaneOffAxis) {
                 v.position = foldPoint1 + rotation * (v.position - foldPoint1);
@@ -202,6 +219,31 @@ public class PaperGraph : MonoBehaviour
                 if (!faceSplitVertices.ContainsKey(oldEdge.face2))
                     faceSplitVertices[oldEdge.face2] = new List<Vertex>();
                 faceSplitVertices[oldEdge.face2].Add(vNew);
+            }
+        }
+
+        // Ensure any face that straddles the plane also registers its existing vertices that lie exactly on the fold plane
+        foreach (Face face in faces) {
+            int posCount = 0;
+            int negCount = 0;
+            foreach (Vertex v in face.vertices) {
+                float d = Vector3.Dot(v.position - planePoint, planeNormal);
+                if (d > 0.0001f) posCount++;
+                else if (d < -0.0001f) negCount++;
+            }
+
+            if (posCount > 0 && negCount > 0) {
+                foreach (Vertex v in face.vertices) {
+                    float d = Vector3.Dot(v.position - planePoint, planeNormal);
+                    if (Mathf.Abs(d) <= 0.0001f) {
+                        if (!faceSplitVertices.ContainsKey(face))
+                            faceSplitVertices[face] = new List<Vertex>();
+                        if (!faceSplitVertices[face].Contains(v))
+                            faceSplitVertices[face].Add(v);
+                        if (!newSplitVertices.Contains(v))
+                            newSplitVertices.Add(v); // Also add to returned split vertices to ensure it becomes a proper crease
+                    }
+                }
             }
         }
 
@@ -392,15 +434,17 @@ public class PaperGraph : MonoBehaviour
                 dupEdge.foldAngle = e.foldAngle;
                 edges.Add(dupEdge);
 
-                // Find the moved-side face and rewire it
-                Face movedFace = null;
-                if (e.face1 != null && FaceHasMovedVertex(e.face1, movedSet)) movedFace = e.face1;
-                else if (e.face2 != null && FaceHasMovedVertex(e.face2, movedSet)) movedFace = e.face2;
-
-                if (movedFace != null) {
-                    ReplaceFaceVertex(movedFace, splitV, dupV);
-                    ReplaceFaceVertex(movedFace, other, dupOther);
-                    ReplaceFaceEdge(movedFace, e, dupEdge);
+                // Find the moved-side faces and rewire them
+                if (e.face1 != null && FaceHasMovedVertex(e.face1, movedSet)) {
+                    ReplaceFaceVertex(e.face1, splitV, dupV);
+                    ReplaceFaceVertex(e.face1, other, dupOther);
+                    ReplaceFaceEdge(e.face1, e, dupEdge);
+                }
+                
+                if (e.face2 != null && FaceHasMovedVertex(e.face2, movedSet)) {
+                    ReplaceFaceVertex(e.face2, splitV, dupV);
+                    ReplaceFaceVertex(e.face2, other, dupOther);
+                    ReplaceFaceEdge(e.face2, e, dupEdge);
                 }
             }
         }

@@ -111,6 +111,83 @@ public class PaperGraphController : MonoBehaviour
     }
 
     /// <summary>
+    /// Moves the drag handle position to the outermost point on the mesh in the direction of the drag plane normal.
+    /// The drag handle's position along the drag plane remains constant.
+    /// </summary>
+    public void SnapDragHandleToOutside() {
+        if (paperGraph == null)
+            paperGraph = GetComponent<PaperGraph>();
+        if (paperGraph == null || paperGraph.faces == null || paperGraph.faces.Count == 0) return;
+
+        Vector3 N = dragPlaneNormal.normalized;
+        if (N.sqrMagnitude < 0.0001f) return;
+
+        Vector3 H0 = dragHandlePosition;
+        float maxT = float.MinValue;
+        bool found = false;
+
+        foreach (Face face in paperGraph.faces) {
+            if (face.vertices.Count < 3) continue;
+
+            Vector3 faceNormal = Vector3.zero;
+            Vector3 p0 = face.vertices[0].position;
+            for (int i = 1; i < face.vertices.Count - 1; i++) {
+                Vector3 p1 = face.vertices[i].position;
+                Vector3 p2 = face.vertices[i + 1].position;
+                faceNormal = Vector3.Cross(p1 - p0, p2 - p0);
+                if (faceNormal.sqrMagnitude > 0.000001f) {
+                    faceNormal = faceNormal.normalized;
+                    break;
+                }
+            }
+
+            if (faceNormal.sqrMagnitude < 0.000001f) continue;
+
+            float dotDirNormal = Vector3.Dot(N, faceNormal);
+            // If the ray is parallel to the face, it doesn't cleanly intersect at a point
+            if (Mathf.Abs(dotDirNormal) < 0.0001f) continue;
+
+            float t = Vector3.Dot(p0 - H0, faceNormal) / dotDirNormal;
+            Vector3 P = H0 + t * N;
+
+            // Inside test (convex polygon)
+            bool inside = true;
+            for (int i = 0; i < face.vertices.Count; i++) {
+                Vector3 vA = face.vertices[i].position;
+                Vector3 vB = face.vertices[(i + 1) % face.vertices.Count].position;
+                Vector3 edge = vB - vA;
+                Vector3 toP = P - vA;
+                Vector3 cross = Vector3.Cross(edge, toP);
+                float signedArea = Vector3.Dot(cross, faceNormal);
+                // Allow a small tolerance for floating point errors
+                if (signedArea < -0.0001f * edge.magnitude) {
+                    inside = false;
+                    break;
+                }
+            }
+
+            if (inside) {
+                if (t > maxT) {
+                    maxT = t;
+                    found = true;
+                }
+            }
+        }
+
+        if (found) {
+            dragHandlePosition = H0 + maxT * N;
+            RecalculateFoldAxis();
+            UpdatePreview();
+
+            foreach (FoldDragHandle handle in FindObjectsByType<FoldDragHandle>(FindObjectsSortMode.None)) {
+                if (handle.controller == this) {
+                    handle.ResetHandle();
+                }
+            }
+        }
+    }
+
+    /// <summary>
     /// Clears the preview graph so no ghost fold is displayed.
     /// </summary>
     public void ClearPreview() {

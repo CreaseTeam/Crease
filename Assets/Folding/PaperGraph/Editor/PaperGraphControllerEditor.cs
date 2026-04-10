@@ -35,6 +35,12 @@ public class PaperGraphControllerEditor : Editor
 
         EditorGUILayout.Space(10);
 
+        if (GUILayout.Button("Snap to Outside", GUILayout.Height(30))) {
+            Undo.RecordObject(controller, "Snap to Outside");
+            controller.SnapDragHandleToOutside();
+            EditorUtility.SetDirty(controller);
+        }
+
         if (GUILayout.Button("Execute Fold", GUILayout.Height(30))) {
             controller.ExecuteFoldAction();
         }

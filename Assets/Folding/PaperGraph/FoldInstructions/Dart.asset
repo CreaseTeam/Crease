@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FoldInstruction
   steps:
   - dragHandlePosition: {x: 0.5, y: 0, z: 0.5}
-    idealDragPosition: {x: 0, y: 0, z: 0}
+    idealDragPosition: {x: 0.01, y: 0, z: 0}
     dragPlaneNormal: {x: 0, y: 1, z: 0}
     foldDegrees: -180
     foldOffset: 0.001
@@ -23,7 +23,7 @@ MonoBehaviour:
     rotatePaper: 0
     paperRotation: {x: 0, y: 0, z: 0}
   - dragHandlePosition: {x: -0.5, y: 0, z: 0.5}
-    idealDragPosition: {x: 0, y: 0, z: 0}
+    idealDragPosition: {x: -0.01, y: 0, z: 0}
     dragPlaneNormal: {x: 0, y: 1, z: 0}
     foldDegrees: -180
     foldOffset: 0.001
@@ -44,7 +44,7 @@ MonoBehaviour:
     idealDragPosition: {x: 0, y: 0, z: -0.2}
     dragPlaneNormal: {x: 0, y: -1, z: 0}
     foldDegrees: -180
-    foldOffset: 0.01
+    foldOffset: 0.005
     applyTag: none
     filterTag: half_moved
     rotatePaper: 1
@@ -62,7 +62,7 @@ MonoBehaviour:
     idealDragPosition: {x: 0, y: 0, z: -0.2}
     dragPlaneNormal: {x: 0, y: 1, z: 0}
     foldDegrees: -180
-    foldOffset: 0.01
+    foldOffset: 0.005
     applyTag: none
     filterTag: half_static
     rotatePaper: 1
@@ -71,7 +71,7 @@ MonoBehaviour:
     idealDragPosition: {x: -0.075, y: 0, z: -0.025}
     dragPlaneNormal: {x: 0, y: 1, z: 0}
     foldDegrees: -90
-    foldOffset: 0.01
+    foldOffset: 0.005
     applyTag: none
     filterTag: half_static
     rotatePaper: 0

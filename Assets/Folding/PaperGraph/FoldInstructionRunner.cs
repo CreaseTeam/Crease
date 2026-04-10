@@ -52,6 +52,9 @@ public class FoldInstructionRunner : MonoBehaviour
     [Tooltip("How fast the paper folds automatically (degrees per second).")]
     public float foldAnimationSpeed = 180f;
 
+    [Tooltip("If true, automatically snaps the drag handle to the outside of the paper surface when a step begins.")]
+    public bool autoSnapDragHandle = false;
+
     private int currentStepIndex = -1;
 
     // Accuracy tracking
@@ -240,6 +243,10 @@ public class FoldInstructionRunner : MonoBehaviour
         controller.dragPlaneNormal = step.dragPlaneNormal;
         controller.foldDegrees = step.foldDegrees;
         controller.foldOffset = step.foldOffset;
+
+        if (autoSnapDragHandle) {
+            controller.SnapDragHandleToOutside();
+        }
 
         // Apply tag (tag name to stamp on affected vertices)
         controller.foldTagName = string.IsNullOrEmpty(step.applyTag) ? "" : step.applyTag;
