@@ -68,6 +68,13 @@ public class FoldInstructionRunner : MonoBehaviour
     private bool isUnfolding = false;
     private bool isAutoFolding = false;
 
+    // ── Saved fold-axis lock ───────────────────────────────────────────────
+    // Set when a step with lockFoldAxis == true is executed.
+    // Cleared when LoadInstruction is called.
+    private bool hasSavedFoldAxis = false;
+    private Vector3 savedFoldAxisP1;
+    private Vector3 savedFoldAxisP2;
+
     private void OnValidate() {
         RecalculatePaperTarget();
     }
@@ -147,6 +154,10 @@ public class FoldInstructionRunner : MonoBehaviour
         foldCount = 0;
         HUDCanvas.Instance.ResetAccuracyDisplay();
 
+        // Clear any saved fold-axis lock from a previous instruction
+        hasSavedFoldAxis = false;
+        if (controller != null) controller.hasFoldAxisLock = false;
+
         // Reset the paper to a fresh sheet
         controller.ResetSheet();
 
@@ -194,6 +205,16 @@ public class FoldInstructionRunner : MonoBehaviour
         controller.ExecuteFoldAction();
         AudioManager.Instance.Play("fold");
         Debug.Log($"FoldInstructionRunner: Executed step {currentStepIndex + 1}/{instruction.steps.Count}.");
+
+        // After the fold is committed, check if we should save the fold axis.
+        if (currentStep.lockFoldAxis) {
+            // Snap each end of the fold axis to the closest vertex in the graph so the
+            // lock boundary is defined by actual paper geometry, not the raw half-length points.
+            PaperGraph graph = controller.GetComponent<PaperGraph>();
+            hasSavedFoldAxis = true;
+            savedFoldAxisP1 = SnapToNearestVertex(controller.foldPoint1, graph);
+            savedFoldAxisP2 = SnapToNearestVertex(controller.foldPoint2, graph);
+        }
 
         // Advance to the next step
         currentStepIndex++;
@@ -277,6 +298,23 @@ public class FoldInstructionRunner : MonoBehaviour
             RecalculatePaperTarget();
             isPaperLerping = true;
         }
+
+        // Apply the fold-axis lock if one has been saved from a previous step.
+        if (hasSavedFoldAxis) {
+            controller.hasFoldAxisLock = true;
+            controller.foldAxisLockP1 = savedFoldAxisP1;
+            controller.foldAxisLockP2 = savedFoldAxisP2;
+        } else {
+            controller.hasFoldAxisLock = false;
+        }
+
+        // Derive the initial fold axis from the current handle position, THEN seed the
+        // "last valid" fallback cache. This ensures that if the very first drag move
+        // immediately flags an invalid condition, there is a correct, non-broken axis
+        // to restore — not whatever the previous step left behind.
+        controller.RecalculateFoldAxis();
+        controller.lockedFoldPoint1 = controller.foldPoint1;
+        controller.lockedFoldPoint2 = controller.foldPoint2;
 
         // Clear the preview — no fold preview until the drag handle is moved
         controller.ClearPreview();
@@ -672,6 +710,27 @@ public class FoldInstructionRunner : MonoBehaviour
         PrepareForAnimation();
 
         isAutoFolding = false;
+    }
+
+    /// <summary>
+    /// Returns the position of the vertex in <paramref name="graph"/> that is closest
+    /// to <paramref name="point"/> in 3D local space.
+    /// Falls back to <paramref name="point"/> itself if the graph is null or empty.
+    /// </summary>
+    private Vector3 SnapToNearestVertex(Vector3 point, PaperGraph graph) {
+        if (graph == null || graph.vertices == null || graph.vertices.Count == 0)
+            return point;
+
+        Vector3 best = point;
+        float bestDist = float.PositiveInfinity;
+        foreach (Vertex v in graph.vertices) {
+            float d = (v.position - point).sqrMagnitude;
+            if (d < bestDist) {
+                bestDist = d;
+                best = v.position;
+            }
+        }
+        return best;
     }
 }
 

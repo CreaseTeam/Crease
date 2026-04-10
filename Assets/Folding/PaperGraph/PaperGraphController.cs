@@ -26,6 +26,16 @@ public class PaperGraphController : MonoBehaviour
 
     private PaperGraph paperGraph;
 
+    // ── Locked fold axis ──────────────────────────────────────────────────────
+    // When set by FoldInstructionRunner, RecalculateFoldAxis will refuse to move
+    // foldPoint1/foldPoint2 to a position whose axis line crosses this segment.
+    [HideInInspector] public bool hasFoldAxisLock = false;
+    [HideInInspector] public Vector3 foldAxisLockP1;
+    [HideInInspector] public Vector3 foldAxisLockP2;
+    // The last axis that was accepted while the lock is active:
+    [HideInInspector] public Vector3 lockedFoldPoint1;
+    [HideInInspector] public Vector3 lockedFoldPoint2;
+
     // Cache previous values to detect changes
     private Vector3 prevFoldPoint1;
     private Vector3 prevFoldPoint2;
@@ -67,7 +77,17 @@ public class PaperGraphController : MonoBehaviour
         previewGraph.RestoreSnapshot(snapshot);
         string tag = string.IsNullOrEmpty(foldTagName) ? null : foldTagName;
         string filter = GetSelectedFilterTag();
-        previewGraph.ExecuteFold(foldPoint1, foldPoint2, foldPlaneVector, foldDegrees, tag, filter, foldOffset);
+        bool valid = previewGraph.ExecuteFold(foldPoint1, foldPoint2, foldPlaneVector, foldDegrees, tag, filter, foldOffset);
+
+        if (!valid) {
+            // The current fold position produces invalid geometry — freeze the axis
+            // so the next accepted position can restore it naturally.
+            foldPoint1 = lockedFoldPoint1;
+            foldPoint2 = lockedFoldPoint2;
+        } else {
+            lockedFoldPoint1 = foldPoint1;
+            lockedFoldPoint2 = foldPoint2;
+        }
 
         CacheFoldValues();
         RefreshVisualizers();
@@ -97,17 +117,56 @@ public class PaperGraphController : MonoBehaviour
     /// Call after changing dragHandlePosition to avoid stale fold axis values.
     /// </summary>
     public void RecalculateFoldAxis() {
-        Vector3 dragDelta = dragHandlePosition; // local origin is (0,0,0)
+        Vector3 dragDelta = dragHandlePosition;
         if (dragDelta.sqrMagnitude < 0.00001f) return;
 
-        Vector3 midpoint = dragHandlePosition * 0.5f; // midpoint between origin and handle
+        Vector3 midpoint = dragHandlePosition * 0.5f;
         Vector3 dragDir = dragDelta.normalized;
         Vector3 foldAxisDir = Vector3.Cross(dragPlaneNormal, dragDir).normalized;
         if (foldAxisDir.sqrMagnitude < 0.0001f) return;
 
-        foldPoint1 = midpoint + foldAxisDir * foldLineHalfLength;
-        foldPoint2 = midpoint - foldAxisDir * foldLineHalfLength;
+        Vector3 candidateP1 = midpoint + foldAxisDir * foldLineHalfLength;
+        Vector3 candidateP2 = midpoint - foldAxisDir * foldLineHalfLength;
+
+        if (hasFoldAxisLock) {
+            bool crosses = FoldAxisCrossesLockSegment(candidateP1, candidateP2, foldAxisLockP1, foldAxisLockP2, dragPlaneNormal);
+            if (crosses) {
+                foldPoint1 = lockedFoldPoint1;
+                foldPoint2 = lockedFoldPoint2;
+                foldPlaneVector = dragPlaneNormal;
+                return;
+            }
+            lockedFoldPoint1 = candidateP1;
+            lockedFoldPoint2 = candidateP2;
+        }
+
+        foldPoint1 = candidateP1;
+        foldPoint2 = candidateP2;
         foldPlaneVector = dragPlaneNormal;
+    }
+
+    /// <summary>
+    /// Returns true when the lock segment CD straddles (is crossed by) the infinite
+    /// fold-axis line passing through A and B, when projected onto the plane
+    /// perpendicular to <paramref name="normal"/>.
+    /// We intentionally treat the fold axis as an infinite line — only the lock
+    /// segment endpoints (C, D) need to be on opposite sides.
+    /// </summary>
+    private bool FoldAxisCrossesLockSegment(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Vector3 normal) {
+        Vector3 dir = Vector3.ProjectOnPlane(b - a, normal);
+        if (dir.sqrMagnitude < 0.00001f) return false;
+        Vector3 u = dir.normalized;
+        Vector3 v = Vector3.Cross(normal, u).normalized;
+
+        Vector2 A = new Vector2(Vector3.Dot(a, u), Vector3.Dot(a, v));
+        Vector2 B = new Vector2(Vector3.Dot(b, u), Vector3.Dot(b, v));
+        Vector2 C = new Vector2(Vector3.Dot(c, u), Vector3.Dot(c, v));
+        Vector2 D = new Vector2(Vector3.Dot(d, u), Vector3.Dot(d, v));
+
+        float sideC = (B.x - A.x) * (C.y - A.y) - (B.y - A.y) * (C.x - A.x);
+        float sideD = (B.x - A.x) * (D.y - A.y) - (B.y - A.y) * (D.x - A.x);
+
+        return (sideC > 0.0001f && sideD < -0.0001f) || (sideC < -0.0001f && sideD > 0.0001f);
     }
 
     /// <summary>
@@ -269,20 +328,29 @@ public class PaperGraphController : MonoBehaviour
         Vector3 dragDelta = dragCurrentLocal - dragStartLocal;
         if (dragDelta.sqrMagnitude < 0.00001f) return;
 
-        // Midpoint between start and current drag position (local-space)
         Vector3 midpoint = (dragStartLocal + dragCurrentLocal) * 0.5f;
-
-        // Fold axis direction: perpendicular to the drag direction, lying on the drag plane
         Vector3 dragDir = dragDelta.normalized;
         Vector3 foldAxisDir = Vector3.Cross(dragPlaneNormal, dragDir).normalized;
-
         if (foldAxisDir.sqrMagnitude < 0.0001f) return;
 
-        // Set fold points along the fold axis, centered at the midpoint
-        foldPoint1 = midpoint + foldAxisDir * foldLineHalfLength;
-        foldPoint2 = midpoint - foldAxisDir * foldLineHalfLength;
+        Vector3 candidateP1 = midpoint + foldAxisDir * foldLineHalfLength;
+        Vector3 candidateP2 = midpoint - foldAxisDir * foldLineHalfLength;
 
-        // Fold plane vector is the drag plane normal
+        if (hasFoldAxisLock) {
+            bool crosses = FoldAxisCrossesLockSegment(candidateP1, candidateP2, foldAxisLockP1, foldAxisLockP2, dragPlaneNormal);
+            if (crosses) {
+                foldPoint1 = lockedFoldPoint1;
+                foldPoint2 = lockedFoldPoint2;
+                foldPlaneVector = dragPlaneNormal;
+                UpdatePreview();
+                return;
+            }
+            lockedFoldPoint1 = candidateP1;
+            lockedFoldPoint2 = candidateP2;
+        }
+
+        foldPoint1 = candidateP1;
+        foldPoint2 = candidateP2;
         foldPlaneVector = dragPlaneNormal;
 
         UpdatePreview();
@@ -335,5 +403,30 @@ public class PaperGraphController : MonoBehaviour
 
                 Gizmos.matrix = Matrix4x4.identity;
             }
+
+        // ── Locked fold-axis gizmo ────────────────────────────────────────
+        if (hasFoldAxisLock) {
+            Gizmos.matrix = localToWorld;
+
+            // Main lock segment in cyan
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawLine(foldAxisLockP1, foldAxisLockP2);
+
+            // Endpoint spheres
+            Gizmos.DrawSphere(foldAxisLockP1, 0.018f);
+            Gizmos.DrawSphere(foldAxisLockP2, 0.018f);
+
+            // Diamond marker at midpoint to distinguish it from the active fold axis
+            Vector3 lockMid = (foldAxisLockP1 + foldAxisLockP2) * 0.5f;
+            Vector3 lockDir = (foldAxisLockP2 - foldAxisLockP1).normalized;
+            Vector3 perpDir = Vector3.Cross(lockDir, foldPlaneVector).normalized;
+            float diamondSize = 0.03f;
+            Gizmos.DrawLine(lockMid + perpDir * diamondSize, lockMid + lockDir * diamondSize);
+            Gizmos.DrawLine(lockMid + lockDir * diamondSize, lockMid - perpDir * diamondSize);
+            Gizmos.DrawLine(lockMid - perpDir * diamondSize, lockMid - lockDir * diamondSize);
+            Gizmos.DrawLine(lockMid - lockDir * diamondSize, lockMid + perpDir * diamondSize);
+
+            Gizmos.matrix = Matrix4x4.identity;
+        }
     }
 }

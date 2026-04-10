@@ -42,7 +42,7 @@ public class PaperGraph : MonoBehaviour
         CreateSheet(width, height);
     }
     
-    public void ExecuteFold(Vector3 foldPoint1, Vector3 foldPoint2, Vector3 planeVector, float degrees, string tagName = null, string filterTag = null, float foldOffset = 0f) {
+    public bool ExecuteFold(Vector3 foldPoint1, Vector3 foldPoint2, Vector3 planeVector, float degrees, string tagName = null, string filterTag = null, float foldOffset = 0f) {
         // Save state before the fold for undo
         undoStack.Add(CreateSnapshot());
         redoStack.Clear();
@@ -60,7 +60,19 @@ public class PaperGraph : MonoBehaviour
         float signedOffset = foldOffset * -Mathf.Sign(degrees);
 
         // Split edges along the fold plane; crease edges produced by SplitFace will carry signedOffset.
-        List<Vertex> splitVertices = SplitEdgesCrossingPlane(foldPoint1, planeNormal, degrees, filterSet, signedOffset);
+        bool splitValid;
+        List<Vertex> splitVertices = SplitEdgesCrossingPlane(foldPoint1, planeNormal, degrees, filterSet, signedOffset, out splitValid);
+
+        // Also invalid if the fold axis doesn't cleanly cross the paper (< 2 intersection points):
+        // this means the axis missed the mesh entirely, or only grazed a single corner, and the
+        // subsequent rotation would yank all vertices on one side causing unnatural stretching.
+        if (!splitValid || splitVertices.Count < 2) {
+            PaperGraphSnapshot bad = undoStack[undoStack.Count - 1];
+            undoStack.RemoveAt(undoStack.Count - 1);
+            RestoreSnapshot(bad);
+            redoStack.Clear();
+            return false;
+        }
 
         // Pre-compute the set of vertices on the positive (moved) side of the plane.
         HashSet<Vertex> movedSet = new HashSet<Vertex>();
@@ -149,9 +161,11 @@ public class PaperGraph : MonoBehaviour
         if (Mathf.Approximately(Mathf.Abs(degrees), 180f) && splitVertices.Count > 0) {
             CreateHinge(splitVertices, foldDupMap);
         }
+        return true;
     }
 
-    public List<Vertex> SplitEdgesCrossingPlane(Vector3 planePoint, Vector3 planeNormal, float foldAngle = 180f, HashSet<Vertex> filterSet = null, float foldOffset = 0f) {
+    public List<Vertex> SplitEdgesCrossingPlane(Vector3 planePoint, Vector3 planeNormal, float foldAngle, HashSet<Vertex> filterSet, float foldOffset, out bool isValid) {
+        isValid = true;
         List<Edge> edgeSnapshot = new List<Edge>(edges);
         Dictionary<Face, List<Vertex>> faceSplitVertices = new Dictionary<Face, List<Vertex>>();
         List<Vertex> newSplitVertices = new List<Vertex>();
@@ -252,7 +266,7 @@ public class PaperGraph : MonoBehaviour
             if (kvp.Value.Count == 2)
                 SplitFace(kvp.Value[0], kvp.Value[1], kvp.Key, foldAngle, foldOffset);
             else if (kvp.Value.Count > 2)
-                Debug.LogWarning("Face had more than 2 edges cut by plane, this should not happen.");
+                isValid = false;
         }
 
         return newSplitVertices;

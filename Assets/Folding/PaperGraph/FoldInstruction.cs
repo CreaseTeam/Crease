@@ -25,6 +25,9 @@ public class FoldStep
     [Tooltip("Tag to filter by — only vertices with this tag are folded (leave empty for none).")]
     public string filterTag = "";
 
+    [Tooltip("If true, the fold axis produced by this step is locked. Any subsequent fold whose proposed axis would cross this segment will be held at the last valid value until it no longer crosses.")]
+    public bool lockFoldAxis = false;
+
     [Header("Paper Rotation (Optional)")]
     [Tooltip("If true, the paper will lerp to the specified rotation when this step is loaded.")]
     public bool rotatePaper = false;
