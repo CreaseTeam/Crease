@@ -5,6 +5,10 @@ using UnityEngine.Events;
 /// Handles all player collisions. Obstacle hits apply knockback and trigger speed
 /// recovery. Ground hits while crashed delegate to PlayerCrashHandler.Land().
 /// All tuning values are exposed to the Inspector for rapid iteration.
+///
+/// Uses OnCollisionEnter with a dynamic (non-kinematic) Rigidbody. Unity's physics
+/// solver handles depenetration automatically — this script focuses purely on
+/// knockback, damage, and recovery logic.
 /// </summary>
 [RequireComponent(typeof(KinematicBody))]
 public class FlightCollisionController : MonoBehaviour
@@ -15,11 +19,6 @@ public class FlightCollisionController : MonoBehaviour
     [SerializeField] private PlayerCrashHandler crashHandler;
     [SerializeField] private Collider playerCollider;
     [SerializeField] private Health healthComponent;
-
-    // ------------------------------------------------------------------ Depenetration
-    [Header("Depenetration")]
-    [Tooltip("Extra margin to push player out of colliders to ensure no clipping.")]
-    [SerializeField] private float depenetrationMargin = 0.1f;
 
     // ------------------------------------------------------------------ Tags
     [Header("Tags")]
@@ -97,8 +96,11 @@ public class FlightCollisionController : MonoBehaviour
     }
 
     // ================================================================== Collision
-    private void OnTriggerEnter(Collider other)
+
+    private void OnCollisionEnter(Collision collision)
     {
+        Collider other = collision.collider;
+
         // --- Ground landing while crashed ---
         if (landOnGroundAfterCrash
             && crashHandler != null
@@ -116,50 +118,27 @@ public class FlightCollisionController : MonoBehaviour
 
         if (shouldPreventKnockback)
         {
-            // Still depenetrate to prevent clipping, but no knockback
-            DepenetrateFromCollider(other);
+            // Unity's solver already handles depenetration — nothing else needed
             return;
         }
 
-        // --- Obstacle knockback ---
-        if (other.CompareTag(obstacleTag))
-        {
-            ApplyKnockback(other, IsInvulnerable);
-        }
-
-        // temporarily treat ground as obstacle
-        if (other.CompareTag(groundTag))
-        {
-            ApplyKnockback(other, IsInvulnerable);
-        }
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-        // Continuously depenetrate while overlapping obstacles/ground to prevent clipping at high speeds
+        // --- Obstacle / Ground knockback ---
         if (other.CompareTag(obstacleTag) || other.CompareTag(groundTag))
         {
-            DepenetrateFromCollider(other);
+            ApplyKnockback(collision, IsInvulnerable);
         }
     }
 
     // ================================================================== Knockback
-    private void ApplyKnockback(Collider obstacle, bool isInvulnerable)
-    {
 
+    private void ApplyKnockback(Collision collision, bool isInvulnerable)
+    {
         Vector3 velocity = body.Velocity;
         float preCollisionSpeed = velocity.magnitude;
 
-        // CRITICAL: Depenetrate first to guarantee we're outside the collider
-        Vector3 contactNormal = DepenetrateFromCollider(obstacle);
-        
-        // Fallback if depenetration failed: use velocity-based or bounds-based normal
-        if (contactNormal.sqrMagnitude < 0.001f)
-        {
-            contactNormal = velocity.magnitude > 0.1f 
-                ? -velocity.normalized 
-                : (transform.position - obstacle.bounds.center).normalized;
-        }
+        // Get the contact normal from Unity's collision solver — reliable even
+        // for non-convex mesh colliders and complex terrain geometry
+        Vector3 contactNormal = GetContactNormal(collision, velocity);
 
         // Build knockback direction: blend between pure normal and reflected velocity
         Vector3 reflected = Vector3.Reflect(velocity.normalized, contactNormal);
@@ -179,7 +158,7 @@ public class FlightCollisionController : MonoBehaviour
             return;
         }
 
-        TakeDamage(obstacle.gameObject);
+        TakeDamage(collision.gameObject);
 
         // Apply full knockback
         body.SetVelocity(knockbackDir * impulseMagnitude);
@@ -194,6 +173,31 @@ public class FlightCollisionController : MonoBehaviour
         OnKnockback?.Invoke();
     }
 
+    /// <summary>
+    /// Extracts a reliable contact normal from the Collision data.
+    /// Falls back to velocity-based or bounds-based estimation if no contacts exist.
+    /// </summary>
+    private Vector3 GetContactNormal(Collision collision, Vector3 velocity)
+    {
+        if (collision.contactCount > 0)
+        {
+            // Average all contact normals for a more stable result
+            // (multiple contact points occur when hitting edges/corners)
+            Vector3 avgNormal = Vector3.zero;
+            for (int i = 0; i < collision.contactCount; i++)
+            {
+                avgNormal += collision.GetContact(i).normal;
+            }
+            return avgNormal.normalized;
+        }
+
+        // Fallback: use velocity-based or bounds-based normal
+        if (velocity.magnitude > 0.1f)
+            return -velocity.normalized;
+
+        return (transform.position - collision.collider.bounds.center).normalized;
+    }
+
     private void TakeDamage(GameObject obstacle) {
         // Determine damage and type from obstacle if available, otherwise use defaults
         float damageAmount = 10f;
@@ -203,39 +207,9 @@ public class FlightCollisionController : MonoBehaviour
         {
             damageAmount = obstacleComp._impactDamage;
             damageType = obstacleComp._damageType;
-            // Debug.Log($"Collision with Obstacle found: damage={damageAmount}, type={damageType}");
-        }
-        else
-        {
-            // Debug.Log("Collision with obstacle: no Obstacle component found, using defaults");
         }
 
         healthComponent.TakeDamage(damageAmount, damageType);
-    }
-
-    /// <summary>
-    /// Pushes the player out of the given collider using Physics.ComputePenetration.
-    /// Returns the penetration normal (direction player was pushed).
-    /// </summary>
-    private Vector3 DepenetrateFromCollider(Collider obstacle)
-    {
-        if (playerCollider == null) return Vector3.zero;
-
-        // Try to compute penetration between player and obstacle
-        bool isPenetrating = Physics.ComputePenetration(
-            playerCollider, transform.position, transform.rotation,
-            obstacle, obstacle.transform.position, obstacle.transform.rotation,
-            out Vector3 direction, out float distance);
-
-        if (isPenetrating)
-        {
-            // Move player out of the collider plus a small margin
-            Vector3 depenetrationVector = direction * (distance + depenetrationMargin);
-            transform.position += depenetrationVector;
-            return direction;
-        }
-
-        return Vector3.zero;
     }
 
     // ================================================================== Recovery

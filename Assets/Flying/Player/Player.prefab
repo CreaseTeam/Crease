@@ -472,7 +472,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
@@ -520,7 +520,7 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -562,7 +562,6 @@ MonoBehaviour:
   crashHandler: {fileID: 185509089845354311}
   playerCollider: {fileID: 5576785541387470566}
   healthComponent: {fileID: 4338409860427139704}
-  depenetrationMargin: 0.1
   obstacleTag: Obstacle
   groundTag: Ground
   knockbackForce: 30

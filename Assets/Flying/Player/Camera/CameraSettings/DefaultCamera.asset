@@ -20,6 +20,7 @@ MonoBehaviour:
   maxPanAngleY: 60
   panSpeed: 100
   mouseSensitivity: 1
+  mouseDeadzone: 0.1
   yawSpeed: 5
   pitchSpeed: 5
   positionSmoothing: 10
