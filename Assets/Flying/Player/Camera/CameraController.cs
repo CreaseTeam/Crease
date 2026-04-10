@@ -167,8 +167,19 @@ public class CameraController : MonoBehaviour
             float hh = Screen.height * 0.5f;
             float rawX = (input.x - hw) / hw;
             float rawY = (input.y - hh) / hh;
-            targetPan.x = ApplyMouseSensitivity(rawX, settings.mouseSensitivity);
-            targetPan.y = ApplyMouseSensitivity(rawY, settings.mouseSensitivity);
+            Vector2 raw = new Vector2(rawX, rawY);
+            float mag = raw.magnitude;
+            if (mag <= settings.mouseDeadzone)
+            {
+                targetPan = Vector2.zero;
+            }
+            else
+            {
+                float ratio = (mag - settings.mouseDeadzone) / (1f - settings.mouseDeadzone);
+                Vector2 scaled = raw.normalized * ratio;
+                targetPan.x = ApplyMouseSensitivity(scaled.x, settings.mouseSensitivity);
+                targetPan.y = ApplyMouseSensitivity(scaled.y, settings.mouseSensitivity);
+            }
         }
         else
         {

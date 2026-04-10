@@ -25,6 +25,9 @@ public class CameraSettings : ScriptableObject
     [Tooltip("Mouse sensitivity for camera panning. Higher values make small mouse movements produce larger pan. Edges still map to full -1..1.")]
     [Min(0.01f)]
     public float mouseSensitivity = 1f;
+    [Tooltip("Radial deadzone for mouse panning in normalized screen space (0 = no deadzone, 1 = full).")]
+    [Range(0f, 1f)]
+    public float mouseDeadzone = 0.05f;
 
     [Header("Follow Speeds")]
     public float yawSpeed = 5f;
