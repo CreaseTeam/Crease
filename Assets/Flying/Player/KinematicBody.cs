@@ -119,31 +119,7 @@ public class KinematicBody : MonoBehaviour
         _rb.linearVelocity = Velocity;
     }
 
-    /// <summary>
-    /// Called after Unity's physics solver runs. Read back any velocity changes
-    /// caused by collision response so our Velocity property stays in sync.
-    /// </summary>
-    private void OnCollisionEnter(Collision collision)
-    {
-        SyncVelocityFromSolver();
-    }
 
-    private void OnCollisionStay(Collision collision)
-    {
-        SyncVelocityFromSolver();
-    }
-
-    private void SyncVelocityFromSolver()
-    {
-        // Only sync if the solver meaningfully changed velocity
-        // (avoids overwriting during normal flight)
-        Vector3 solverVelocity = _rb.linearVelocity;
-        float delta = (solverVelocity - Velocity).sqrMagnitude;
-        if (delta > 0.01f)
-        {
-            Velocity = solverVelocity;
-        }
-    }
 
     // ================================================================== Public API
 
