@@ -5,9 +5,6 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/Scenes/Test Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
     path: Assets/Scenes/StartScene.unity
     guid: 94d0c30b1a7b1f74db758e37a2bb5e38
@@ -18,8 +15,8 @@ EditorBuildSettings:
     path: Assets/Scenes/Test Scenes/Folding.unity
     guid: fb16528ea6ca0f24a93f2e2f039efed0
   - enabled: 1
-    path: Assets/Scenes/Blockout.unity
-    guid: 03a59aa4e6568421ab4114875de557f1
+    path: Assets/Scenes/Easier Blockout.unity
+    guid: 12dd820098f8443d7a0d31216eae2a54
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 6830e58888f465540b51b9ec6e78860b, type: 3}
   m_UseUCBPForAssetBundles: 0

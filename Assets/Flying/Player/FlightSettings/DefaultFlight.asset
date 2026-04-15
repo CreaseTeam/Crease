@@ -17,7 +17,7 @@ MonoBehaviour:
   lift: 9
   diveRate: 2.5
   climbRate: 1.5
-  climbEfficiency: 3.5
+  climbEfficiency: 3
   turnInterpolation: 2
   xDrag: 0.995
   yDrag: 0.99
