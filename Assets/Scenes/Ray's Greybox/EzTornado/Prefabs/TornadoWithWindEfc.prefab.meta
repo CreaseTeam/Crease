@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8e329fe21c043a1459b57cfea18d3f50
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 203025
+  packageName: Ez Tornado
+  packageVersion: 1.1
+  assetPath: Assets/EzTornado/Prefabs/TornadoWithWindEfc.prefab
+  uploadId: 738181
