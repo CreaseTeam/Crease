@@ -152,7 +152,10 @@ public class FoldInstructionRunner : MonoBehaviour
         // Reset accuracy tracking
         totalAccuracy = 0f;
         foldCount = 0;
-        HUDCanvas.Instance.ResetAccuracyDisplay();
+        if (HUDCanvas.Instance != null) {
+            HUDCanvas.Instance.ResetAccuracyDisplay();
+            HUDCanvas.Instance.StartFoldingTimer();
+        }
 
         // Clear any saved fold-axis lock from a previous instruction
         hasSavedFoldAxis = false;
@@ -230,6 +233,9 @@ public class FoldInstructionRunner : MonoBehaviour
             // Hide the drag handle — no more steps to drag
             if (dragHandle != null)
                 dragHandle.gameObject.SetActive(false);
+
+            if (HUDCanvas.Instance != null)
+                HUDCanvas.Instance.StopFoldingTimer();
 
             Debug.Log("FoldInstructionRunner: All steps completed!");
         }
@@ -708,6 +714,9 @@ public class FoldInstructionRunner : MonoBehaviour
 
         // All steps done
         PrepareForAnimation();
+
+        if (HUDCanvas.Instance != null)
+            HUDCanvas.Instance.StopFoldingTimer();
 
         isAutoFolding = false;
     }
