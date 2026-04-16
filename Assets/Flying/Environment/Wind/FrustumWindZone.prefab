@@ -4954,7 +4954,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f693d849ecd499a45b94702c0124f11c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FrustumWindZone
-  windStrength: 50
+  windStrength: 200
   featherEdges: 1
 --- !u!114 &6171694871377192287
 MonoBehaviour:
