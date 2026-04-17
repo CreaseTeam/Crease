@@ -12,8 +12,14 @@ public class FrustumWindZone : WindProvider
     [Tooltip("If true, wind strength fades out near the edges of the cone.")]
     public bool featherEdges = true;
 
+    public bool useHeightCurve = true;
+    public AnimationCurve heightStrengthCurve = AnimationCurve.Linear(0f, 1f, 1f, 1f);
+    
     private FrustumTrigger _shape;
 
+    [Header("Debug")]
+    public bool debugLog = false;
+    
     private void Awake()
     {
         _shape = GetComponent<FrustumTrigger>();
@@ -109,7 +115,15 @@ public class FrustumWindZone : WindProvider
             // Simple ease-out curve: full strength at center, 0 at edge
             strength *= Mathf.Clamp01(1.0f - normalizedDist);
         }
-
-        return forceDirection * strength;
+        
+        // Height curve
+        if (useHeightCurve && heightStrengthCurve != null)
+        {
+            strength *= Mathf.Clamp01(heightStrengthCurve.Evaluate(t));
+        }
+        
+        Vector3 finalForce = forceDirection * strength;
+        if (debugLog) Debug.Log($"height={t:F2} | wind={finalForce.magnitude:F1}");
+        return finalForce;
     }
 }
