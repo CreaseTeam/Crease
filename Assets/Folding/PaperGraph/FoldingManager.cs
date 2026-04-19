@@ -269,6 +269,11 @@ public class FoldingManager : MonoBehaviour
         pendingFlyingSwitch = true;
         pendingUseSavedMesh = useSavedMesh;
 
+        if (HUDCanvas.Instance != null)
+        {
+            HUDCanvas.Instance.StopFoldingTimer();
+        }
+
         // Start paper rotation lerp
         isAligningPaper = true;
         paperAlignElapsed = 0f;
