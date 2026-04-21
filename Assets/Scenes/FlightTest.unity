@@ -27904,6 +27904,17 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: 80c58763d3b065b48924f320debf9ccc, type: 3}
+--- !u!114 &1372662167 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6770765525342464528, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+  m_PrefabInstance: {fileID: 5625211641525616404}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf6c3317140fb084fa3b99ad2f40e435, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PaperGraph
 --- !u!1 &1376393842 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6887723485125031589, guid: b19acc678881fe44c8ac81dd3d2ad3a0, type: 3}
@@ -41534,6 +41545,46 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 736915153267626596, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 736915153267626596, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 736915153267626596, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 838745965961817572, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 838745965961817572, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1372662167}
+    - target: {fileID: 838745965961817572, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SaveCurrentMeshAsAsset
+      objectReference: {fileID: 0}
+    - target: {fileID: 1291917959122234142, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1291917959122234142, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1291917959122234142, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1291917959122234142, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1398608402334919048, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
       propertyPath: m_LocalPosition.x
       value: 19.04093
@@ -41582,6 +41633,38 @@ PrefabInstance:
       propertyPath: m_Name
       value: LevelStarter
       objectReference: {fileID: 0}
+    - target: {fileID: 6124060854669086299, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: 'meshMaterials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 3defd103d8855054387fffa590d5da57, type: 2}
+    - target: {fileID: 8868588741534249518, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8868588741534249518, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8868588741534249518, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8868588741534249518, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8868588741534249518, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8868588741534249518, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8945394571852309787, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: instruction
+      value: 
+      objectReference: {fileID: 11400000, guid: 64f901c774c6c3347860d85d327fc2f4, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
