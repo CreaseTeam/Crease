@@ -292,4 +292,12 @@ public class HUDCanvas : MonoBehaviour
             InputManager.Instance.PilotControlsEnabled = (controlModeIndex == 0);
         }
     }
+
+    public void RefreshDash()
+    {
+        if (dashController != null)
+        {
+            dashController.RefreshDash();
+        }
+    }
 }

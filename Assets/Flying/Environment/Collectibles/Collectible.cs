@@ -93,4 +93,12 @@ public class Collectible : MonoBehaviour
             HUDCanvas.Instance.Heal(amount);
         }
     }
+
+    public void RefreshDash()
+    {
+        if (HUDCanvas.Instance != null)
+        {
+            HUDCanvas.Instance.RefreshDash();
+        }
+    }
 }
