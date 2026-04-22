@@ -37091,6 +37091,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Obstacle
   _impactDamage: 10
   _damageType: 3
+  knockbackMultiplier: 1
+  applyKnockback: 1
+  OnHit:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!64 &1948138904
 MeshCollider:
   m_ObjectHideFlags: 0
