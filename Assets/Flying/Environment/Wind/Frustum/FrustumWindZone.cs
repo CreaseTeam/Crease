@@ -13,7 +13,7 @@ public class FrustumWindZone : WindProvider
     public bool featherEdges = true;
 
     public bool useHeightCurve = true;
-    public AnimationCurve heightStrengthCurve = AnimationCurve.Linear(0f, 1f, 1f, 1f);
+    public AnimationCurve heightStrengthCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0.3f);
     
     private FrustumTrigger _shape;
 
