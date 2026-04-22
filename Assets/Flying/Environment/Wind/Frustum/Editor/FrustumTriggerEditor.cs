@@ -4,6 +4,7 @@ using UnityEditor;
 namespace PhysicsHelpers
 {
     [CustomEditor(typeof(FrustumTrigger))]
+    [CanEditMultipleObjects] // support multiediting
     public class FrustumTriggerEditor : Editor
     {
         private void OnSceneGUI()
