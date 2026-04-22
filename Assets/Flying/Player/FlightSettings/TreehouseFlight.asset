@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 313fd6e9ff9ebc141b8a99eb215e9863, type: 3}
+  m_Name: TreehouseFlight
+  m_EditorClassIdentifier: Assembly-CSharp::FlightSettings
+  divingGravity: 10
+  climbingGravity: 7.5
+  lift: 9
+  diveRate: 2.5
+  climbRate: 1.5
+  climbEfficiency: 3
+  turnInterpolation: 2
+  xDrag: 0.995
+  yDrag: 0.99
+  zDrag: 0.995
+  pitchSpeed: 120
+  maxPitch: 89
+  yawSpeed: 60
+  rollSpeed: 100
+  rollBackSpeed: 150
+  maxRoll: 45
+  boostSpeed: 3
+  initialSpeed: 10
+  minimumVelocity: 0
