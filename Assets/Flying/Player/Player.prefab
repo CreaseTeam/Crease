@@ -640,7 +640,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DashController
   animator: {fileID: 183573655080417583}
   kinematicBody: {fileID: 6633779251846987741}
-  boostStrength: 20
+  boostStrength: 30
   dashDuration: 0.5
   invincibilityDuration: 1
   wingTrailController: {fileID: 6900904615396018688}

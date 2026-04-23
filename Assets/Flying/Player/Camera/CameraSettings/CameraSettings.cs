@@ -28,6 +28,8 @@ public class CameraSettings : ScriptableObject
     [Tooltip("Radial deadzone for mouse panning in normalized screen space (0 = no deadzone, 1 = full).")]
     [Range(0f, 1f)]
     public float mouseDeadzone = 0.05f;
+    [Tooltip("Time in seconds before the camera auto-centers when mouse is inside the deadzone.")]
+    public float mouseInactivityTimeout = 2f;
 
     [Header("Follow Speeds")]
     public float yawSpeed = 5f;

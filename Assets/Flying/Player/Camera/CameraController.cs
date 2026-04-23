@@ -26,6 +26,8 @@ public class CameraController : MonoBehaviour
     private float _panYaw;
     private float _panPitch;
     private bool _centerPanRequested;
+    private float _mouseInactivityTimer;
+    private Vector2 _lastMouseInput;
 
     public void RecenterPan()
     {
@@ -52,6 +54,11 @@ public class CameraController : MonoBehaviour
         _unpannedBaseRotation = transform.rotation;
         _unpannedBasePosition = transform.position;
         _runtimeOffset = settings.defaultOffset;
+
+        if (Mouse.current != null)
+        {
+            Mouse.current.WarpCursorPosition(new Vector2(Screen.width / 2f, Screen.height / 2f));
+        }
     }
 
     private void LateUpdate()
@@ -162,6 +169,26 @@ public class CameraController : MonoBehaviour
         }
         else if (isMouse)
         {
+            if (Vector2.Distance(input, _lastMouseInput) < 0.1f)
+            {
+                _mouseInactivityTimer += dt;
+                
+                if (_mouseInactivityTimer >= settings.mouseInactivityTimeout)
+                {
+                    _centerPanRequested = true; // Trigger smooth centering next frame
+                    if (Mouse.current != null)
+                    {
+                        Mouse.current.WarpCursorPosition(new Vector2(Screen.width / 2f, Screen.height / 2f));
+                    }
+                    _mouseInactivityTimer = 0f;
+                }
+            }
+            else
+            {
+                _mouseInactivityTimer = 0f;
+            }
+            _lastMouseInput = input;
+
             // Normalize screen coordinates perfectly to a [-1, 1] mapped square inherently
             float hw = Screen.width * 0.5f;
             float hh = Screen.height * 0.5f;
@@ -169,6 +196,7 @@ public class CameraController : MonoBehaviour
             float rawY = (input.y - hh) / hh;
             Vector2 raw = new Vector2(rawX, rawY);
             float mag = raw.magnitude;
+            
             if (mag <= settings.mouseDeadzone)
             {
                 targetPan = Vector2.zero;
