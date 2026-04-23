@@ -10,6 +10,7 @@ public class TriggerHandler : MonoBehaviour
     [Space]
     [Tooltip("Drag and drop objects here to trigger their functions.")]
     public UnityEvent onTriggerEnter;
+    public UnityEvent onTriggerExit;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -18,6 +19,16 @@ public class TriggerHandler : MonoBehaviour
         {
             // Fire all events hooked up in the Inspector
             onTriggerEnter.Invoke();
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        // Check if the object exiting is the Player
+        if (other.CompareTag(targetTag))
+        {
+            // Fire all events hooked up in the Inspector
+            onTriggerExit.Invoke();
         }
     }
 }
