@@ -746,6 +746,29 @@ public class PaperGraph : MonoBehaviour
         mesh.RecalculateBounds();
         return mesh;
     }
+
+#if UNITY_EDITOR
+    /// <summary>
+    /// Saves the current mesh as an asset file in the project natively using a timestamp.
+    /// </summary>
+    public void SaveCurrentMeshAsAsset()
+    {
+        Mesh mesh = GenerateMesh();
+        
+        string timestamp = System.DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        string filename = $"Assets/Folding/SavedAssets/PaperMesh_{timestamp}.asset";
+
+        // Ensure the directory exists
+        if (!System.IO.Directory.Exists("Assets/Folding/SavedAssets"))
+        {
+            System.IO.Directory.CreateDirectory("Assets/Folding/SavedAssets");
+        }
+
+        UnityEditor.AssetDatabase.CreateAsset(mesh, filename);
+        UnityEditor.AssetDatabase.SaveAssets();
+        Debug.Log($"PaperGraph: Saved current mesh to {filename}");
+    }
+#endif
 }
 
 public class Vertex {

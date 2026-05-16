@@ -70,6 +70,22 @@ public class ColliderTagToolsEditor : Editor
             {
                 Undo.RecordObject(child.gameObject, "Apply Tag");
                 child.gameObject.tag = script.tagToApply;
+
+                // Optionally add/configure Obstacle
+                if (script.applyObstacle)
+                {
+                    Obstacle ob = child.GetComponent<Obstacle>();
+                    if (ob == null)
+                    {
+                        ob = Undo.AddComponent<Obstacle>(child.gameObject);
+                    }
+                    Undo.RecordObject(ob, "Configure Obstacle");
+                    ob._impactDamage = script.obstacleImpactDamage;
+                    ob._damageType = script.obstacleDamageType;
+                    ob.knockbackMultiplier = script.obstacleKnockbackMultiplier;
+                    ob.applyKnockback = script.obstacleApplyKnockback;
+                    ob.OnHit = script.obstacleOnHit;
+                }
                 taggedCount++;
             }
         }
@@ -159,6 +175,22 @@ public class ColliderTagToolsEditor : Editor
             {
                 Undo.RecordObject(child.gameObject, "Apply Tag");
                 child.gameObject.tag = script.tagToApply;
+            }
+
+            // Optionally add/configure Obstacle when adding colliders
+            if (script.applyObstacle)
+            {
+                Obstacle ob = child.GetComponent<Obstacle>();
+                if (ob == null)
+                {
+                    ob = Undo.AddComponent<Obstacle>(child.gameObject);
+                }
+                Undo.RecordObject(ob, "Configure Obstacle");
+                ob._impactDamage = script.obstacleImpactDamage;
+                ob._damageType = script.obstacleDamageType;
+                ob.knockbackMultiplier = script.obstacleKnockbackMultiplier;
+                ob.applyKnockback = script.obstacleApplyKnockback;
+                ob.OnHit = script.obstacleOnHit;
             }
             
             addedCount++;

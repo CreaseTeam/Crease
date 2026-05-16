@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 08cb09fd7867fec47988cac4b4cbe8e5
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 203025
+  packageName: Ez Tornado
+  packageVersion: 1.1
+  assetPath: Assets/EzTornado/Materials/tmSmokeTrailMaterial.mat
+  uploadId: 738181

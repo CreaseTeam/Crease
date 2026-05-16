@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 /// <summary>
 /// Helper component to recursively add colliders to children or apply tags.
@@ -48,4 +49,23 @@ public class ColliderTagTools : MonoBehaviour
     
     [Tooltip("Remove this component after execution")]
     public bool removeAfterExecution = true;
+
+    [Header("Obstacle Options")]
+    [Tooltip("When enabled, add/configure an Obstacle component on processed objects.")]
+    public bool applyObstacle = false;
+
+    [Tooltip("Impact damage applied by the Obstacle component")]
+    public float obstacleImpactDamage = 10f;
+
+    [Tooltip("Damage type used by the Obstacle component")]
+    public DamageType obstacleDamageType = DamageType.Impact;
+
+    [Tooltip("Knockback multiplier applied by the Obstacle component")]
+    public float obstacleKnockbackMultiplier = 1f;
+
+    [Tooltip("If false, the Obstacle will not apply knockback to the hitter (damage only)")]
+    public bool obstacleApplyKnockback = true;
+
+    [Tooltip("Optional OnHit event to assign to the Obstacle component")]
+    public UnityEvent<GameObject> obstacleOnHit = new UnityEvent<GameObject>();
 }

@@ -147,4 +147,10 @@ public class DashController : MonoBehaviour
         }
     }
 
+    public void RefreshDash()
+    {
+        canDash = true;
+        currentRecharge = rechargeMax;
+    }
+
 }

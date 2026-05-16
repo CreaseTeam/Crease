@@ -14,9 +14,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Test Scenes/Folding.unity
     guid: fb16528ea6ca0f24a93f2e2f039efed0
-  - enabled: 1
-    path: Assets/Scenes/Easier Blockout.unity
+  - enabled: 0
+    path: Assets/Scenes/Test Scenes/Easier Blockout.unity
     guid: 12dd820098f8443d7a0d31216eae2a54
+  - enabled: 0
+    path: Assets/Scenes/Blockouts/CombinedBlockout.unity
+    guid: 5b8bcc09d377bff42b96d8e9f6131a4f
+  - enabled: 1
+    path: Assets/Scenes/Blockouts/YT_TestSkybox/YT_TestSkybox.unity
+    guid: 634362ff0de1e5440bac32af7e72c133
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 6830e58888f465540b51b9ec6e78860b, type: 3}
   m_UseUCBPForAssetBundles: 0

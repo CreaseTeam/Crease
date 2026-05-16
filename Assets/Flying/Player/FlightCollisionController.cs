@@ -150,18 +150,52 @@ public class FlightCollisionController : MonoBehaviour
             minKnockbackMagnitude,
             maxKnockbackMagnitude);
 
+        // Resolve other collider's Rigidbody (if any) so we can apply an equivalent impulse
+        Rigidbody otherRigidbody = collision.rigidbody ?? collision.collider.attachedRigidbody;
+        bool otherHasRigidbody = otherRigidbody != null && !otherRigidbody.isKinematic;
+
+        // Get obstacle multiplier (defaults to 1)
+        Obstacle obstacleComp = collision.gameObject.GetComponentInParent<Obstacle>();
+        float obstacleKnockbackMultiplier = obstacleComp != null ? obstacleComp.knockbackMultiplier : 1f;
+
+        // Final applied impulse before invulnerability scaling
+        float appliedImpulse = impulseMagnitude * obstacleKnockbackMultiplier;
+
+        // If the obstacle disables knockback, still apply damage and notify, but
+        // do not modify player velocity, recovery state, invulnerability, or the
+        // other object's rigidbody.
+        bool obstacleAppliesKnockback = obstacleComp == null ? true : obstacleComp.applyKnockback;
+        if (!obstacleAppliesKnockback)
+        {
+            TakeDamage(collision.gameObject);
+            return;
+        }
+
         // During invulnerability, apply reduced knockback to prevent clipping but maintain control
         if (isInvulnerable)
         {
-            body.SetVelocity(knockbackDir * impulseMagnitude * invulnerableKnockbackMultiplier);
+            float invApplied = appliedImpulse * invulnerableKnockbackMultiplier;
+            body.SetVelocity(knockbackDir * invApplied);
+
+            if (otherHasRigidbody)
+            {
+                otherRigidbody.AddForce(-knockbackDir * invApplied, ForceMode.Impulse);
+            }
+
             // Don't reset invulnerability timer, recovery state, or trigger events
             return;
         }
 
         TakeDamage(collision.gameObject);
 
-        // Apply full knockback
-        body.SetVelocity(knockbackDir * impulseMagnitude);
+        // Apply full knockback to the player (scaled by obstacle multiplier)
+        body.SetVelocity(knockbackDir * appliedImpulse);
+
+        // Apply equivalent impulse to the other object's Rigidbody (if present)
+        if (otherHasRigidbody)
+        {
+            otherRigidbody.AddForce(-knockbackDir * appliedImpulse, ForceMode.Impulse);
+        }
 
         // Start recovery state
         _preCollisionSpeed = preCollisionSpeed;
@@ -207,6 +241,8 @@ public class FlightCollisionController : MonoBehaviour
         {
             damageAmount = obstacleComp._impactDamage;
             damageType = obstacleComp._damageType;
+            // Notify obstacle that it was hit (passes the hitter GameObject)
+            obstacleComp.TriggerHit(gameObject);
         }
 
         healthComponent.TakeDamage(damageAmount, damageType);

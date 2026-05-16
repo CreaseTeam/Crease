@@ -415,8 +415,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4050445033718603467}
-  - component: {fileID: 6411813560646232638}
+  - component: {fileID: 5517443600840389601}
   - component: {fileID: 6410089066696951640}
+  - component: {fileID: 6411813560646232638}
   - component: {fileID: 6024960051557063255}
   - component: {fileID: 5576785541387470566}
   - component: {fileID: 185509089845354311}
@@ -450,6 +451,35 @@ Transform:
   - {fileID: 1051258826302658937}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5517443600840389601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7903687590958615882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 640f7c232a4f6554faaa26cf2a437e42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlightStats
+  baseSettings: {fileID: 11400000, guid: 204397c0df06b994a97bdd15b29c59df, type: 2}
+  currentStats: {fileID: 0}
+--- !u!114 &6410089066696951640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7903687590958615882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f24c54ae542b90f438e04bf657b00a78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlightController
+  pitch: 0
+  meshTransform: {fileID: 8993998958267351050}
+  stats: {fileID: 5517443600840389601}
 --- !u!54 &6411813560646232638
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -477,21 +507,6 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &6410089066696951640
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7903687590958615882}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f24c54ae542b90f438e04bf657b00a78, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FlightController
-  pitch: 0
-  meshTransform: {fileID: 8993998958267351050}
-  settings: {fileID: 11400000, guid: 204397c0df06b994a97bdd15b29c59df, type: 2}
 --- !u!114 &6024960051557063255
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -625,7 +640,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DashController
   animator: {fileID: 183573655080417583}
   kinematicBody: {fileID: 6633779251846987741}
-  boostStrength: 20
+  boostStrength: 30
   dashDuration: 0.5
   invincibilityDuration: 1
   wingTrailController: {fileID: 6900904615396018688}

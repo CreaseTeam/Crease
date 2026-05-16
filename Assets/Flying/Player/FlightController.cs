@@ -26,7 +26,7 @@ public class FlightController : MonoBehaviour
         set => rollOffset = value;
     }
     [SerializeField]
-    private FlightSettings settings;
+    private FlightStats stats;
 
 
     void Start()
@@ -41,14 +41,14 @@ public class FlightController : MonoBehaviour
         // Normalize pitch to [-180, 180] range
         if (pitch > 180f) pitch -= 360f;
 
-        if (settings == null)
+        if (stats == null)
         {
-            Debug.LogError($"FlightController on '{name}' requires a FlightSettings asset assigned.");
+            Debug.LogError($"FlightController on '{name}' requires a FlightStats component assigned.");
             enabled = false;
             return;
         }
 
-        body.Velocity = transform.forward * settings.initialSpeed;
+        body.Velocity = transform.forward * stats.CurrentStats.initialSpeed;
         
         meshRotation = meshTransform.localEulerAngles;
     }
@@ -73,20 +73,20 @@ public class FlightController : MonoBehaviour
         float horizontalSpeed = new Vector3(velocity.x, 0, velocity.z).magnitude;
 
         // Kind Gravity Lerp (negative pitch = climbing, positive pitch = diving)
-        float mp = settings.maxPitch;
+        float mp = stats.CurrentStats.maxPitch;
         float gravityT = Mathf.InverseLerp(-mp, mp, pitch);
-        float currentGravity = Mathf.Lerp(settings.climbingGravity, settings.divingGravity, gravityT);
+        float currentGravity = Mathf.Lerp(stats.CurrentStats.climbingGravity, stats.CurrentStats.divingGravity, gravityT);
         velocity.y -= currentGravity * Time.fixedDeltaTime;
 
         // Lift
         // velocity.y += cosPitch * cosPitch * lift;
-        velocity.y += cosPitch * cosPitch * settings.lift * Time.fixedDeltaTime;
+        velocity.y += cosPitch * cosPitch * stats.CurrentStats.lift * Time.fixedDeltaTime;
 
         // Convert dive speed into forward speed
         if (velocity.y < 0 && cosPitch > 0)
         {
             // float yAcc = velocity.y * -diveRate * cosPitch * cosPitch;
-            float yAcc = velocity.y * -settings.diveRate * cosPitch * cosPitch * Time.fixedDeltaTime;
+            float yAcc = velocity.y * -stats.CurrentStats.diveRate * cosPitch * cosPitch * Time.fixedDeltaTime;
             velocity.y += yAcc;
             velocity.x += lookDirection.x * yAcc / cosPitch;
             velocity.z += lookDirection.z * yAcc / cosPitch;
@@ -96,8 +96,8 @@ public class FlightController : MonoBehaviour
         if (pitchRadians < 0)
         {
             // float yAcc = horizontalSpeed * -sinPitch * -sinPitch * climbRate;
-            float yAcc = horizontalSpeed * -sinPitch * -sinPitch * settings.climbRate * Time.fixedDeltaTime;
-            velocity.y += yAcc * settings.climbEfficiency;
+            float yAcc = horizontalSpeed * -sinPitch * -sinPitch * stats.CurrentStats.climbRate * Time.fixedDeltaTime;
+            velocity.y += yAcc * stats.CurrentStats.climbEfficiency;
             velocity.x -= lookDirection.x * yAcc / cosPitch;
             velocity.z -= lookDirection.z * yAcc / cosPitch;
         }
@@ -105,18 +105,18 @@ public class FlightController : MonoBehaviour
         // Redirect horizontal speed toward look direction
         if (cosPitch > 0)
         {
-            float tInterp = settings.turnInterpolation;
+            float tInterp = stats.CurrentStats.turnInterpolation;
             velocity.x += (lookDirection.x / cosPitch * horizontalSpeed - velocity.x) * tInterp * Time.fixedDeltaTime;
             velocity.z += (lookDirection.z / cosPitch * horizontalSpeed - velocity.z) * tInterp * Time.fixedDeltaTime;
             velocity.y += (lookDirection.y * velocity.magnitude - velocity.y) * tInterp * Time.fixedDeltaTime;
         }
 
         // Drag
-        velocity.x *= settings.xDrag;
-        velocity.y *= settings.yDrag;
-        velocity.z *= settings.zDrag;
+        velocity.x *= stats.CurrentStats.xDrag;
+        velocity.y *= stats.CurrentStats.yDrag;
+        velocity.z *= stats.CurrentStats.zDrag;
 
-        float minVel = settings.minimumVelocity;
+        float minVel = stats.CurrentStats.minimumVelocity;
         if (velocity.magnitude < minVel)
         {
             velocity = velocity.normalized * minVel;
@@ -139,20 +139,20 @@ public class FlightController : MonoBehaviour
     {
         ProcessKeyboardInput();
         
-        pitch = Mathf.Clamp(pitch, -settings.maxPitch, settings.maxPitch);
-        roll = Mathf.Clamp(roll, -settings.maxRoll, settings.maxRoll);
+        pitch = Mathf.Clamp(pitch, -stats.CurrentStats.maxPitch, stats.CurrentStats.maxPitch);
+        roll = Mathf.Clamp(roll, -stats.CurrentStats.maxRoll, stats.CurrentStats.maxRoll);
     }
 
     private void ProcessKeyboardInput()
     {
         Vector2 move = InputManager.Instance.MoveInput;
 
-        pitch += move.y * settings.pitchSpeed * Time.fixedDeltaTime;
+        pitch += move.y * stats.CurrentStats.pitchSpeed * Time.fixedDeltaTime;
 
         if (move.x != 0f)
         {
-            yaw += move.x * settings.yawSpeed * Time.fixedDeltaTime;
-            roll += move.x * settings.rollSpeed * Time.fixedDeltaTime;
+            yaw += move.x * stats.CurrentStats.yawSpeed * Time.fixedDeltaTime;
+            roll += move.x * stats.CurrentStats.rollSpeed * Time.fixedDeltaTime;
         }
 
         if (InputManager.Instance.BoostPressed)
@@ -163,12 +163,12 @@ public class FlightController : MonoBehaviour
         {
             if (roll > 0f)
             {
-                roll -= settings.rollBackSpeed * Time.fixedDeltaTime;
+                roll -= stats.CurrentStats.rollBackSpeed * Time.fixedDeltaTime;
                 if (roll < 0f) roll = 0f;
             }
             else if (roll < 0f)
             {
-                roll += settings.rollBackSpeed * Time.fixedDeltaTime;
+                roll += stats.CurrentStats.rollBackSpeed * Time.fixedDeltaTime;
                 if (roll > 0f) roll = 0f;
             }
         }
@@ -176,6 +176,6 @@ public class FlightController : MonoBehaviour
 
     private void Boost()
     {
-        body.Velocity += transform.forward * settings.boostSpeed;
+        body.Velocity += transform.forward * stats.CurrentStats.boostSpeed;
     }
 }

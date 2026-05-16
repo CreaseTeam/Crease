@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 03a6155581c0cf44faf94c5ab2900233
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 203025
+  packageName: Ez Tornado
+  packageVersion: 1.1
+  assetPath: Assets/EzTornado/Materials/tmToonSmokeSG.mat
+  uploadId: 738181

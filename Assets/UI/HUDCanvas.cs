@@ -21,6 +21,10 @@ public class HUDCanvas : MonoBehaviour
     [Header("Fold Accuracy")]
     [SerializeField] private TextMeshProUGUI foldAccuracyText;
     [SerializeField] private TextMeshProUGUI overallAccuracyText;
+    [SerializeField] private TextMeshProUGUI timerText;
+
+    private float foldingTimer = 0f;
+    private bool isFoldingTimerRunning = false;
 
     [Header("Menus")]
     [SerializeField] private GameObject pauseMenuUI;
@@ -88,6 +92,12 @@ public class HUDCanvas : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (isFoldingTimerRunning && timerText != null)
+        {
+            foldingTimer += Time.deltaTime;
+            UpdateTimerDisplay();
+        }
+
         rechargeBar.fillAmount = dashController.CurrentRecharge / dashController.MaxRecharge;
 
         if (dashBarBorder != null)
@@ -205,6 +215,29 @@ public class HUDCanvas : MonoBehaviour
             overallAccuracyText.text = "Overall: --";
     }
 
+    private void UpdateTimerDisplay()
+    {
+        if (timerText != null)
+        {
+            int minutes = Mathf.FloorToInt(foldingTimer / 60F);
+            int seconds = Mathf.FloorToInt(foldingTimer % 60F);
+            int milliseconds = Mathf.FloorToInt((foldingTimer * 100F) % 100F);
+            timerText.text = $"{minutes:00}:{seconds:00}.{milliseconds:00}";
+        }
+    }
+
+    public void StartFoldingTimer()
+    {
+        foldingTimer = 0f;
+        isFoldingTimerRunning = true;
+        UpdateTimerDisplay();
+    }
+
+    public void StopFoldingTimer()
+    {
+        isFoldingTimerRunning = false;
+    }
+
     /// <summary>
     /// Toggles the pause state, showing the pause menu and freezing time.
     /// </summary>
@@ -257,6 +290,14 @@ public class HUDCanvas : MonoBehaviour
         {
             // 0 is Pilot Controls, 1 is Arcade Controls
             InputManager.Instance.PilotControlsEnabled = (controlModeIndex == 0);
+        }
+    }
+
+    public void RefreshDash()
+    {
+        if (dashController != null)
+        {
+            dashController.RefreshDash();
         }
     }
 }
