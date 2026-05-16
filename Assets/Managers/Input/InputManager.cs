@@ -127,6 +127,10 @@ public class InputManager : MonoBehaviour
 
     // IMPORTANT: Dont worry about this section its a secret (if it ever causes an issue, just remove it)
     #region Nothing to see here
+    // We guard microphone usage so Web builds (WebGL) which lack the Microphone API
+    // won't attempt to reference the Microphone class. On WebGL we provide safe stubs
+    // so the rest of the InputManager compiles and BoostPressed continues to work.
+#if !UNITY_WEBGL
     private float micVolumeThreshold = 0.05f;
     private int micSampleSize = 128;
 
@@ -138,7 +142,6 @@ public class InputManager : MonoBehaviour
     // ── Update ───────────────────────────────────────────────────────
     void DoStuff()
     {
-
         if (Actions.Debug.Secret.WasPressedThisFrame() && _micDevice == null)
             StartMic();
         // Sample mic volume only while Secret is held
@@ -191,6 +194,40 @@ public class InputManager : MonoBehaviour
 
         return Mathf.Sqrt(sum / micSampleSize);
     }
+#else
+    // WebGL (and other builds that don't provide Microphone) — stubbed mic support
+    private float micVolumeThreshold = 0.05f;
+    private int micSampleSize = 128;
+
+    // Keep the boost flag present so other code can query it safely.
+    private bool _micBoostActive = false;
+    private AudioClip _micClip = null;
+    private string _micDevice = null;
+    private float[] _micSamples = null;
+
+    void DoStuff()
+    {
+        // No microphone on WebGL — never enable mic boost.
+        _micBoostActive = false;
+    }
+
+    private void StartMic()
+    {
+        Debug.Log("InputManager: Microphone disabled on WebGL — StartMic() skipped.");
+    }
+
+    private void StopMic()
+    {
+        _micClip = null;
+        _micDevice = null;
+        _micBoostActive = false;
+    }
+
+    private float GetMicVolume()
+    {
+        return 0f;
+    }
+#endif
     #endregion
 }
 
