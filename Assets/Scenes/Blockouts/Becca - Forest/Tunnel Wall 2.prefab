@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3820797199782913539}
   - component: {fileID: 258791207859682962}
   - component: {fileID: 8893672446884340904}
+  - component: {fileID: 1218466458801664262}
   m_Layer: 0
   m_Name: Tunnel Wall 2
   m_TagString: Obstacle
@@ -1691,4 +1692,26 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2772138382363747400}
+  m_Mesh: {fileID: 0}
+--- !u!64 &1218466458801664262
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2772138382363747400}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
   m_Mesh: {fileID: 0}
