@@ -529,6 +529,13 @@ PlayerSettings:
       m_Height: 720
       m_Kind: 1
       m_SubKind: 
+  - m_BuildTarget: VisionOS
+    m_Icons:
+    - m_Textures: []
+      m_Width: 1024
+      m_Height: 1024
+      m_Kind: 0
+      m_SubKind: 
   m_BuildTargetBatching:
   - m_BuildTarget: Standalone
     m_StaticBatching: 1
@@ -835,7 +842,7 @@ PlayerSettings:
   webWasm2023: 0
   webEnableSubmoduleStrippingCompatibility: 0
   scriptingDefineSymbols:
-    Android: DOTWEEN
+    Android: DOTWEEN;PROBUILDER_EXPERIMENTAL_FEATURES
     EmbeddedLinux: DOTWEEN
     GameCoreScarlett: DOTWEEN
     GameCoreXboxOne: DOTWEEN
@@ -846,13 +853,14 @@ PlayerSettings:
     PS4: DOTWEEN
     PS5: DOTWEEN
     QNX: DOTWEEN
-    Standalone: DOTWEEN
-    VisionOS: DOTWEEN
-    WebGL: DOTWEEN
-    Windows Store Apps: DOTWEEN
+    Server: PROBUILDER_EXPERIMENTAL_FEATURES
+    Standalone: DOTWEEN;PROBUILDER_EXPERIMENTAL_FEATURES
+    VisionOS: DOTWEEN;PROBUILDER_EXPERIMENTAL_FEATURES
+    WebGL: DOTWEEN;PROBUILDER_EXPERIMENTAL_FEATURES
+    Windows Store Apps: DOTWEEN;PROBUILDER_EXPERIMENTAL_FEATURES
     XboxOne: DOTWEEN
-    iPhone: DOTWEEN
-    tvOS: DOTWEEN
+    iPhone: DOTWEEN;PROBUILDER_EXPERIMENTAL_FEATURES
+    tvOS: DOTWEEN;PROBUILDER_EXPERIMENTAL_FEATURES
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
