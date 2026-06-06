@@ -1,73 +1,84 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class WingTrailController : MonoBehaviour
+namespace Crease.Flying.Player
 {
-    [Header("Wing Tip Transforms")]
-    public Transform wingTipLeft;
-    public Transform wingTipRight;
-
-    [Header("Trail Settings")]
-    public float trailTime = 0.5f;
-    public float startWidth = 0.3f;
-    public float endWidth = 0f;
-    public Color startColor = new Color(1f, 1f, 1f, 0.8f);
-    public Color endColor = new Color(1f, 1f, 1f, 0f);
-    public Material trailMaterial;
-
-    private TrailRenderer trailLeft;
-    private TrailRenderer trailRight;
-
-    private bool isTrailActive = true;
-
-    void Start()
+    public class WingTrailController : MonoBehaviour
     {
-        trailLeft = CreateTrail(wingTipLeft);
-        trailRight = CreateTrail(wingTipRight);
+        [Header("Wing Tip Transforms")]
+        [FormerlySerializedAs("wingTipLeft")]
+        public Transform WingTipLeft;
+        [FormerlySerializedAs("wingTipRight")]
+        public Transform WingTipRight;
 
-        SetTrailEnabled(isTrailActive);
-    }
+        [Header("Trail Settings")]
+        [FormerlySerializedAs("trailTime")]
+        public float TrailTime = 0.5f;
+        [FormerlySerializedAs("startWidth")]
+        public float StartWidth = 0.3f;
+        [FormerlySerializedAs("endWidth")]
+        public float EndWidth = 0f;
+        [FormerlySerializedAs("startColor")]
+        public Color StartColor = new Color(1f, 1f, 1f, 0.8f);
+        [FormerlySerializedAs("endColor")]
+        public Color EndColor = new Color(1f, 1f, 1f, 0f);
+        [FormerlySerializedAs("trailMaterial")]
+        public Material TrailMaterial;
 
-    TrailRenderer CreateTrail(Transform wingTip)
-    {
-        GameObject trailObj = new GameObject("WingTrail");
-        trailObj.transform.SetParent(wingTip);
-        trailObj.transform.localPosition = Vector3.zero;
+        private TrailRenderer _trailLeft;
+        private TrailRenderer _trailRight;
 
-        TrailRenderer trail = trailObj.AddComponent<TrailRenderer>();
-        trail.time = trailTime;
-        trail.startWidth = startWidth;
-        trail.endWidth = endWidth;
-        trail.material = trailMaterial != null ? trailMaterial
-            : new Material(Shader.Find("Sprites/Default"));
+        private bool _isTrailActive = true;
 
-        Gradient gradient = new Gradient();
-        gradient.SetKeys(
-            new GradientColorKey[] {
-                new GradientColorKey(startColor, 0f),
-                new GradientColorKey(endColor, 1f)
-            },
-            new GradientAlphaKey[] {
-                new GradientAlphaKey(startColor.a, 0f),
-                new GradientAlphaKey(0f, 1f)
-            }
-        );
-        trail.colorGradient = gradient;
+        void Start()
+        {
+            _trailLeft = CreateTrail(WingTipLeft);
+            _trailRight = CreateTrail(WingTipRight);
 
-        return trail;
-    }
+            SetTrailEnabled(_isTrailActive);
+        }
 
-    // customizable inputs 
-    public void SetTrailTime(float time)
-    {
-        trailTime = time;
-        if (trailLeft) trailLeft.time = time;
-        if (trailRight) trailRight.time = time;
-    }
+        TrailRenderer CreateTrail(Transform wingTip)
+        {
+            GameObject trailObj = new GameObject("WingTrail");
+            trailObj.transform.SetParent(wingTip);
+            trailObj.transform.localPosition = Vector3.zero;
 
-    public void SetTrailEnabled(bool enabled)
-    {
-        isTrailActive = enabled;
-        if (trailLeft) trailLeft.emitting = enabled;
-        if (trailRight) trailRight.emitting = enabled;
+            TrailRenderer trail = trailObj.AddComponent<TrailRenderer>();
+            trail.time = TrailTime;
+            trail.startWidth = StartWidth;
+            trail.endWidth = EndWidth;
+            trail.material = TrailMaterial != null ? TrailMaterial
+                : new Material(Shader.Find("Sprites/Default"));
+
+            Gradient gradient = new Gradient();
+            gradient.SetKeys(
+                new GradientColorKey[] {
+                    new GradientColorKey(StartColor, 0f),
+                    new GradientColorKey(EndColor, 1f)
+                },
+                new GradientAlphaKey[] {
+                    new GradientAlphaKey(StartColor.a, 0f),
+                    new GradientAlphaKey(0f, 1f)
+                }
+            );
+            trail.colorGradient = gradient;
+
+            return trail;
+        }
+
+        public void SetTrailTime(float time)
+        {
+            TrailTime = time;
+            if (_trailLeft) _trailLeft.time = time;
+            if (_trailRight) _trailRight.time = time;
+        }
+
+        public void SetTrailEnabled(bool enabled)
+        {
+            _isTrailActive = enabled;
+            if (_trailLeft) _trailLeft.emitting = enabled;
+            if (_trailRight) _trailRight.emitting = enabled;
+        }
     }
 }

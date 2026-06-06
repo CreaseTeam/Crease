@@ -1,32 +1,33 @@
+using Crease.Managers.Input;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-/// <summary>
-/// Rotates the attached GameObject using the abstract InputManager actions.
-/// Rotation is strictly relative to the Camera's point of view, 
-/// making it consistent regardless of the object's current orientation.
-/// </summary>
-public class PaperRotationHandle : MonoBehaviour
+namespace Crease.Folding.PaperGraph
 {
-    [Tooltip("Degrees of rotation per pixel of input movement.")]
-    public float rotationSpeed = 0.3f;
-    
-    [SerializeField] private Camera trackedCamera; 
-
-    private void Update() 
+    /// <summary>
+    /// Rotates the attached GameObject using the abstract InputManager actions.
+    /// Rotation is strictly relative to the Camera's point of view,
+    /// making it consistent regardless of the object's current orientation.
+    /// </summary>
+    public class PaperRotationHandle : MonoBehaviour
     {
-        if (trackedCamera == null || InputManager.Instance == null) return;
+        [Tooltip("Degrees of rotation per pixel of input movement.")]
+        [FormerlySerializedAs("rotationSpeed")]
+        public float RotationSpeed = 0.3f;
 
-        // Check if the rotation action toggle is currently held
-        if (InputManager.Instance.RotatePaperPressed) 
+        [SerializeField] private Camera _trackedCamera;
+
+        private void Update()
         {
-            // Fetch the continuously evaluating delta (pointer delta / stick value)
-            Vector2 deltaPos = InputManager.Instance.RotatePaperDelta;
+            if (_trackedCamera == null || InputManager.Instance == null) return;
 
-            // Horizontal abstract drag rotates the object around the Camera's Up axis
-            transform.Rotate(trackedCamera.transform.up, -deltaPos.x * rotationSpeed, Space.World);
+            if (InputManager.Instance.RotatePaperPressed)
+            {
+                Vector2 deltaPos = InputManager.Instance.RotatePaperDelta;
 
-            // Vertical abstract drag rotates the object around the Camera's Right axis
-            transform.Rotate(trackedCamera.transform.right, deltaPos.y * rotationSpeed, Space.World);
+                transform.Rotate(_trackedCamera.transform.up, -deltaPos.x * RotationSpeed, Space.World);
+                transform.Rotate(_trackedCamera.transform.right, deltaPos.y * RotationSpeed, Space.World);
+            }
         }
     }
 }

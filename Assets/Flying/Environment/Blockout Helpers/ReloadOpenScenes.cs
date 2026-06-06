@@ -1,58 +1,43 @@
-namespace USCG.Core
+using Crease.Managers.Input;
+using UnityEngine;
+using UnityEngine.Serialization;
+using UnityEngine.SceneManagement;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace Crease.Flying.Environment.BlockoutHelpers
 {
-    using UnityEngine;
-    using UnityEngine.SceneManagement;
-    using UnityEngine.InputSystem;
-
-    using System.Collections;
-    using System.Collections.Generic;
-
     /// <summary>
-    /// This is a utility script that reloads all open scenes. Add this component to a GameObject
-    /// in one of your scenes, and be sure there aren't other components on this GameObject.
+    /// Utility script that reloads all open scenes.
     /// </summary>
     public class ReloadOpenScenes : MonoBehaviour
     {
-        [Tooltip("Pressing the combination of these keys will reload all currently open scenes.")]
-        [SerializeField]
-
-        // This is the Singleton design pattern. Ensure there's only ever one of these components.
-        private static ReloadOpenScenes instance = null;
-
-        // Only one reload operation should happen at a time because the unload/load operatins
-        // are asynchronous.
-        private static bool bIsReloadingScenes = false;
+        private static ReloadOpenScenes _instance;
+        private static bool _isReloadingScenes;
 
         private void Awake()
         {
-            // Check if instance is null or points to a destroyed object
-            if (instance == null || instance == this || !instance)
+            if (_instance == null || _instance == this || !_instance)
             {
-                instance = this;
-                // Reset the flag in case it was left true from a previous scene reload
-                bIsReloadingScenes = false;
-                // DontDestroyOnLoad(gameObject);
+                _instance = this;
+                _isReloadingScenes = false;
             }
-            else if (instance != this)
+            else if (_instance != this)
             {
-                // The reload process may create a new GameObject with this component. If that
-                // happens, just destroy this component.
                 DestroyImmediate(this);
             }
         }
 
         private void Update()
         {
-            if (bIsReloadingScenes)
+            if (_isReloadingScenes)
             {
                 return;
             }
 
-            bool bAreKeyCodesPressed = InputManager.Instance.ResetTriggered;
-
-            if (bAreKeyCodesPressed)
+            if (InputManager.Instance.ResetTriggered)
             {
-                bIsReloadingScenes = true;
+                _isReloadingScenes = true;
                 StartCoroutine(ReloadAllOpenScenes());
             }
         }
@@ -61,14 +46,11 @@ namespace USCG.Core
         {
             Debug.Log("Reloading scenes...");
 
-            // Disable input actions before reloading to prevent destructor warnings
             bool playerWasEnabled = InputManager.Instance.Actions.Player.enabled;
             bool debugWasEnabled = InputManager.Instance.Actions.Debug.enabled;
             InputManager.Instance.Actions.Player.Disable();
             InputManager.Instance.Actions.Debug.Disable();
 
-            // Only one scene can be the active scene. Remember that scene, and record
-            // the other scenes that are open.
             string activeScenePath = SceneManager.GetActiveScene().path;
             List<string> nonActiveScenePaths = new();
             for (int sceneIndex = 0; sceneIndex < SceneManager.sceneCount; ++sceneIndex)
@@ -80,7 +62,6 @@ namespace USCG.Core
                 }
             }
 
-            // Unload all scenes except the active scene.
             Debug.Log("Unloadng scenes...");
             foreach (string scenePath in nonActiveScenePaths)
             {
@@ -88,8 +69,6 @@ namespace USCG.Core
                 yield return SceneManager.UnloadSceneAsync(scenePath);
             }
 
-            // Reload all scenes. Load the active scene with the single mode, and load
-            // all other scenes additively.
             Debug.Log("Loading scenes...");
             Debug.Log($"\tReloading active scene {activeScenePath}...");
             yield return SceneManager.LoadSceneAsync(activeScenePath, LoadSceneMode.Single);
@@ -101,14 +80,12 @@ namespace USCG.Core
 
             Debug.Log("Finished reloading scenes!");
 
-            // Re-enable input actions if they were enabled before
             if (playerWasEnabled)
                 InputManager.Instance.Actions.Player.Enable();
             if (debugWasEnabled)
                 InputManager.Instance.Actions.Debug.Enable();
 
-            // Update state to make sure we can reload again.
-            bIsReloadingScenes = false;
+            _isReloadingScenes = false;
         }
     }
 }

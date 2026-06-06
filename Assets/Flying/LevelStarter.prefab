@@ -44,32 +44,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8edea2a843b5d9b46a1cfc4aab8a6c51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
-  sounds:
-  - key: coin
-    clip: {fileID: 8300000, guid: d635b1a8590aac54d93c57af553899f9, type: 3}
-    defaultVolume: 1
-    minDistance: 1
-    maxDistance: 500
-  - key: wind
-    clip: {fileID: 8300000, guid: f5fb088c852d25c46a2ded789b44efb1, type: 3}
-    defaultVolume: 1
-    minDistance: 5
-    maxDistance: 500
-  - key: crash
-    clip: {fileID: 8300000, guid: 23e13a39fc11e1849b05233e86f7f0a8, type: 3}
-    defaultVolume: 1
-    minDistance: 1
-    maxDistance: 500
-  - key: crash
-    clip: {fileID: 8300000, guid: 23e13a39fc11e1849b05233e86f7f0a8, type: 3}
-    defaultVolume: 1
-    minDistance: 1
-    maxDistance: 500
-  - key: fold
-    clip: {fileID: 8300000, guid: 0b55055c6d00ac14983af276c2a9d130, type: 3}
-    defaultVolume: 1
-    minDistance: 1
-    maxDistance: 500
+  _sounds:
+  - Key: coin
+    Clip: {fileID: 8300000, guid: d635b1a8590aac54d93c57af553899f9, type: 3}
+    DefaultVolume: 1
+    MinDistance: 1
+    MaxDistance: 500
+  - Key: wind
+    Clip: {fileID: 8300000, guid: f5fb088c852d25c46a2ded789b44efb1, type: 3}
+    DefaultVolume: 1
+    MinDistance: 5
+    MaxDistance: 500
+  - Key: crash
+    Clip: {fileID: 8300000, guid: 23e13a39fc11e1849b05233e86f7f0a8, type: 3}
+    DefaultVolume: 1
+    MinDistance: 1
+    MaxDistance: 500
+  - Key: crash
+    Clip: {fileID: 8300000, guid: 23e13a39fc11e1849b05233e86f7f0a8, type: 3}
+    DefaultVolume: 1
+    MinDistance: 1
+    MaxDistance: 500
+  - Key: fold
+    Clip: {fileID: 8300000, guid: 0b55055c6d00ac14983af276c2a9d130, type: 3}
+    DefaultVolume: 1
+    MinDistance: 1
+    MaxDistance: 500
 --- !u!1 &1171905940911883453
 GameObject:
   m_ObjectHideFlags: 0
@@ -114,16 +114,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70f59b5c7009197428e078ab8694f410, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoldingBridge
-  defaultMode: 1
-  foldingCamera: {fileID: 4955118115950875819}
-  flyingCamera: {fileID: 3936584405265759272}
-  transitionDuration: 2
-  paperAlignDuration: 0.6
-  defaultPlayerMesh: {fileID: 4300000, guid: 3d07862ae155a79468790d1c9c3e87c5, type: 2}
-  meshRotation: {x: -90, y: 0, z: 0}
-  paperToPlayerRotationOffset: {x: -90, y: 0, z: 0}
-  paperGraph: {fileID: 6770765525342464528}
-  player: {fileID: 8819344863044188461}
+  DefaultMode: 1
+  FoldingCamera: {fileID: 4955118115950875819}
+  FlyingCamera: {fileID: 3936584405265759272}
+  TransitionDuration: 2
+  PaperAlignDuration: 0.6
+  DefaultPlayerMesh: {fileID: 4300000, guid: 3d07862ae155a79468790d1c9c3e87c5, type: 2}
+  MeshRotation: {x: -90, y: 0, z: 0}
+  PaperToPlayerRotationOffset: {x: -90, y: 0, z: 0}
+  PaperGraph: {fileID: 6770765525342464528}
+  Player: {fileID: 8819344863044188461}
 --- !u!1 &1701402546751780122
 GameObject:
   m_ObjectHideFlags: 0
@@ -326,8 +326,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 529bcd9ece6944c0cb8686a349be38cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  player: {fileID: 8819344863044188461}
-  shadowDistance: 0.75
+  _player: {fileID: 8819344863044188461}
+  _shadowDistance: 0.75
 --- !u!1 &7971211728802920666
 GameObject:
   m_ObjectHideFlags: 0
@@ -459,6 +459,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5517443600840389601, guid: 7499fe23d6e56574c92ead75ee5dd3c6, type: 3}
+      propertyPath: _currentStats
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6378557457462834897, guid: 7499fe23d6e56574c92ead75ee5dd3c6, type: 3}
       propertyPath: knockbackForce
       value: 30
@@ -568,6 +572,10 @@ PrefabInstance:
       value: Main Camera
       objectReference: {fileID: 0}
     - target: {fileID: 5187064691994786596, guid: 4750845658ab67241bd36fd8adaade8f, type: 3}
+      propertyPath: Target
+      value: 
+      objectReference: {fileID: 3457921035169475244}
+    - target: {fileID: 5187064691994786596, guid: 4750845658ab67241bd36fd8adaade8f, type: 3}
       propertyPath: target
       value: 
       objectReference: {fileID: 3457921035169475244}
@@ -591,6 +599,10 @@ PrefabInstance:
       propertyPath: lookAheadAmount
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 5187064691994786596, guid: 4750845658ab67241bd36fd8adaade8f, type: 3}
+      propertyPath: FlightController
+      value: 
+      objectReference: {fileID: 5710041627246736191}
     - target: {fileID: 5187064691994786596, guid: 4750845658ab67241bd36fd8adaade8f, type: 3}
       propertyPath: climbPitchCutoff
       value: 0
@@ -703,7 +715,15 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 3170026541914897951}
     - target: {fileID: 2898456625125675225, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: _playerHealth
+      value: 
+      objectReference: {fileID: 3170026541914897951}
+    - target: {fileID: 2898456625125675225, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
       propertyPath: dashController
+      value: 
+      objectReference: {fileID: 1740083104869519838}
+    - target: {fileID: 2898456625125675225, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: _dashController
       value: 
       objectReference: {fileID: 1740083104869519838}
     - target: {fileID: 4892953631500691399, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
@@ -821,13 +841,29 @@ PrefabInstance:
     m_TransformParent: {fileID: 1398608402334919048}
     m_Modifications:
     - target: {fileID: 6991035767176078, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
+      propertyPath: AutoSnapDragHandle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6991035767176078, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
       propertyPath: autoSnapDragHandle
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1270413128971087771, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
+      propertyPath: MeshMaterials.Array.size
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1270413128971087771, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
       propertyPath: meshMaterials.Array.size
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1270413128971087771, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
+      propertyPath: 'MeshMaterials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: de75e0b141cc47f4ea75467830980a09, type: 2}
+    - target: {fileID: 1270413128971087771, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
+      propertyPath: 'MeshMaterials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 55e8a5b07feb4664e9061676f3ecc8a7, type: 2}
     - target: {fileID: 1270413128971087771, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
       propertyPath: 'meshMaterials.Array.data[0]'
       value: 
@@ -881,9 +917,21 @@ PrefabInstance:
       value: FoldingSystem
       objectReference: {fileID: 0}
     - target: {fileID: 2936824549558735054, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
+      propertyPath: MeshMaterials.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2936824549558735054, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
       propertyPath: meshMaterials.Array.size
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 2936824549558735054, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
+      propertyPath: 'MeshMaterials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: de75e0b141cc47f4ea75467830980a09, type: 2}
+    - target: {fileID: 2936824549558735054, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
+      propertyPath: 'MeshMaterials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 55e8a5b07feb4664e9061676f3ecc8a7, type: 2}
     - target: {fileID: 2936824549558735054, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
       propertyPath: 'meshMaterials.Array.data[0]'
       value: 

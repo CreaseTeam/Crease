@@ -1,234 +1,214 @@
 using UnityEngine;
 using UnityEditor;
+using Crease.Flying.Environment.BlockoutHelpers;
+using ObstacleComponent = Crease.Flying.Environment.Obstacle.Obstacle;
 
-[CustomEditor(typeof(ColliderTagTools))]
-public class ColliderTagToolsEditor : Editor
+namespace Crease.Flying.Environment.BlockoutHelpers.Editor
 {
-    public override void OnInspectorGUI()
+    [CustomEditor(typeof(ColliderTagTools))]
+    public class ColliderTagToolsEditor : UnityEditor.Editor
     {
-        DrawDefaultInspector();
-        
-        EditorGUILayout.Space(10);
-        
-        ColliderTagTools script = (ColliderTagTools)target;
-        
-        string buttonText = script.mode == ColliderTagTools.OperationMode.AddColliders 
-            ? "Add Mesh Colliders to Children" 
-            : "Apply Tags to Children";
-        
-        if (GUILayout.Button(buttonText, GUILayout.Height(30)))
+        public override void OnInspectorGUI()
         {
-            ExecuteOperation(script);
-        }
-    }
-    
-    private void ExecuteOperation(ColliderTagTools script)
-    {
-        if (script.mode == ColliderTagTools.OperationMode.AddColliders)
-        {
-            AddCollidersRecursively(script);
-        }
-        else
-        {
-            ApplyTagsRecursively(script);
-        }
-    }
-    
-    private void ApplyTagsRecursively(ColliderTagTools script)
-    {
-        int taggedCount = 0;
-        
-        // Validate tag
-        if (!IsValidTag(script.tagToApply))
-        {
-            EditorUtility.DisplayDialog("Invalid Tag", 
-                $"The tag '{script.tagToApply}' does not exist. Please add it in Tags and Layers settings.", 
-                "OK");
-            return;
-        }
-        
-        Transform[] allChildren = script.GetComponentsInChildren<Transform>(true);
-        
-        foreach (Transform child in allChildren)
-        {
-            // Skip self
-            if (child == script.transform)
-                continue;
-            
-            bool shouldTag = false;
-            
-            if (script.tagTarget == ColliderTagTools.TagTarget.AllChildren)
-            {
-                shouldTag = true;
-            }
-            else // ObjectsWithColliders
-            {
-                shouldTag = child.GetComponent<Collider>() != null;
-            }
-            
-            if (shouldTag)
-            {
-                Undo.RecordObject(child.gameObject, "Apply Tag");
-                child.gameObject.tag = script.tagToApply;
+            DrawDefaultInspector();
 
-                // Optionally add/configure Obstacle
-                if (script.applyObstacle)
-                {
-                    Obstacle ob = child.GetComponent<Obstacle>();
-                    if (ob == null)
-                    {
-                        ob = Undo.AddComponent<Obstacle>(child.gameObject);
-                    }
-                    Undo.RecordObject(ob, "Configure Obstacle");
-                    ob._impactDamage = script.obstacleImpactDamage;
-                    ob._damageType = script.obstacleDamageType;
-                    ob.knockbackMultiplier = script.obstacleKnockbackMultiplier;
-                    ob.applyKnockback = script.obstacleApplyKnockback;
-                    ob.OnHit = script.obstacleOnHit;
-                }
-                taggedCount++;
+            EditorGUILayout.Space(10);
+
+            ColliderTagTools script = (ColliderTagTools)target;
+
+            string buttonText = script.Mode == ColliderTagTools.OperationMode.AddColliders
+                ? "Add Mesh Colliders to Children"
+                : "Apply Tags to Children";
+
+            if (GUILayout.Button(buttonText, GUILayout.Height(30)))
+            {
+                ExecuteOperation(script);
             }
         }
-        
-        // Show results
-        string message = $"Operation complete!\n\nObjects tagged: {taggedCount}";
-        EditorUtility.DisplayDialog("Apply Tags", message, "OK");
-        
-        Debug.Log($"[ColliderTagTools] Tagged {taggedCount} objects on {script.gameObject.name}");
-        
-        // Remove component if requested
-        if (script.removeAfterExecution)
+
+        private void ExecuteOperation(ColliderTagTools script)
         {
-            EditorApplication.delayCall += () =>
+            if (script.Mode == ColliderTagTools.OperationMode.AddColliders)
             {
-                if (script != null)
-                {
-                    Undo.DestroyObjectImmediate(script);
-                }
-            };
-        }
-    }
-    
-    private void AddCollidersRecursively(ColliderTagTools script)
-    {
-        int addedCount = 0;
-        int skippedCount = 0;
-        
-        // Validate tag if applying
-        if (script.applyTag && !IsValidTag(script.tagToApply))
-        {
-            EditorUtility.DisplayDialog("Invalid Tag", 
-                $"The tag '{script.tagToApply}' does not exist. Please add it in Tags and Layers settings.", 
-                "OK");
-            return;
-        }
-        
-        // Start recursive search
-        Transform[] allChildren = script.GetComponentsInChildren<Transform>(true);
-        
-        foreach (Transform child in allChildren)
-        {
-            // Skip self
-            if (child == script.transform)
-                continue;
-            
-            // Check if requires MeshRenderer
-            if (script.requireMeshRenderer)
+                AddCollidersRecursively(script);
+            }
+            else
             {
-                MeshRenderer meshRenderer = child.GetComponent<MeshRenderer>();
-                if (meshRenderer == null)
+                ApplyTagsRecursively(script);
+            }
+        }
+
+        private void ApplyTagsRecursively(ColliderTagTools script)
+        {
+            int taggedCount = 0;
+
+            if (!IsValidTag(script.TagToApply))
+            {
+                EditorUtility.DisplayDialog("Invalid Tag",
+                    $"The tag '{script.TagToApply}' does not exist. Please add it in Tags and Layers settings.",
+                    "OK");
+                return;
+            }
+
+            Transform[] allChildren = script.GetComponentsInChildren<Transform>(true);
+
+            foreach (Transform child in allChildren)
+            {
+                if (child == script.transform)
                     continue;
-            }
-            
-            bool hasExistingCollider = child.GetComponent<Collider>() != null;
-            
-            // If skipping and has collider, still apply tag if requested
-            if (hasExistingCollider && script.skipExistingColliders)
-            {
-                if (script.applyTag)
+
+                bool shouldTag = script.TagTarget == ColliderTagTools.TagTargetMode.AllChildren
+                    || child.GetComponent<Collider>() != null;
+
+                if (shouldTag)
                 {
                     Undo.RecordObject(child.gameObject, "Apply Tag");
-                    child.gameObject.tag = script.tagToApply;
+                    child.gameObject.tag = script.TagToApply;
+
+                    if (script.ApplyObstacle)
+                    {
+                        ObstacleComponent ob = child.GetComponent<ObstacleComponent>();
+                        if (ob == null)
+                        {
+                            ob = Undo.AddComponent<ObstacleComponent>(child.gameObject);
+                        }
+                        Undo.RecordObject(ob, "Configure Obstacle");
+                        ob.ImpactDamage = script.ObstacleImpactDamage;
+                        ob.DamageType = script.ObstacleDamageType;
+                        ob.KnockbackMultiplier = script.ObstacleKnockbackMultiplier;
+                        ob.ApplyKnockback = script.ObstacleApplyKnockback;
+                        ob.OnHit = script.OnObstacleHit;
+                    }
+                    taggedCount++;
                 }
-                skippedCount++;
-                continue;
-            }
-            
-            // Get or add MeshFilter (needed for MeshCollider)
-            MeshFilter meshFilter = child.GetComponent<MeshFilter>();
-            if (meshFilter == null || meshFilter.sharedMesh == null)
-            {
-                Debug.LogWarning($"Skipping {child.name}: No valid MeshFilter found for MeshCollider", child);
-                skippedCount++;
-                continue;
-            }
-            
-            // Add MeshCollider
-            Undo.RecordObject(child.gameObject, "Add MeshCollider");
-            MeshCollider meshCollider = Undo.AddComponent<MeshCollider>(child.gameObject);
-            meshCollider.sharedMesh = meshFilter.sharedMesh;
-            meshCollider.convex = script.convex;
-            meshCollider.isTrigger = script.isTrigger;
-            
-            // Apply tag if requested
-            if (script.applyTag)
-            {
-                Undo.RecordObject(child.gameObject, "Apply Tag");
-                child.gameObject.tag = script.tagToApply;
             }
 
-            // Optionally add/configure Obstacle when adding colliders
-            if (script.applyObstacle)
+            string message = $"Operation complete!\n\nObjects tagged: {taggedCount}";
+            EditorUtility.DisplayDialog("Apply Tags", message, "OK");
+
+            Debug.Log($"[ColliderTagTools] Tagged {taggedCount} objects on {script.gameObject.name}");
+
+            if (script.RemoveAfterExecution)
             {
-                Obstacle ob = child.GetComponent<Obstacle>();
-                if (ob == null)
+                EditorApplication.delayCall += () =>
                 {
-                    ob = Undo.AddComponent<Obstacle>(child.gameObject);
-                }
-                Undo.RecordObject(ob, "Configure Obstacle");
-                ob._impactDamage = script.obstacleImpactDamage;
-                ob._damageType = script.obstacleDamageType;
-                ob.knockbackMultiplier = script.obstacleKnockbackMultiplier;
-                ob.applyKnockback = script.obstacleApplyKnockback;
-                ob.OnHit = script.obstacleOnHit;
+                    if (script != null)
+                    {
+                        Undo.DestroyObjectImmediate(script);
+                    }
+                };
             }
-            
-            addedCount++;
         }
-        
-        // Show results
-        string colliderTypeName = "MeshCollider" + (addedCount != 1 ? "s" : "");
-        string message = $"Operation complete!\n\n{colliderTypeName} added: {addedCount}\nObjects skipped: {skippedCount}";
-        EditorUtility.DisplayDialog("Add MeshColliders", message, "OK");
-        
-        Debug.Log($"[ColliderTagTools] Added {addedCount} {colliderTypeName}, skipped {skippedCount} objects on {script.gameObject.name}");
-        
-        // Remove component if requested
-        if (script.removeAfterExecution)
+
+        private void AddCollidersRecursively(ColliderTagTools script)
         {
-            EditorApplication.delayCall += () =>
+            int addedCount = 0;
+            int skippedCount = 0;
+
+            if (script.ApplyTag && !IsValidTag(script.TagToApply))
             {
-                if (script != null)
+                EditorUtility.DisplayDialog("Invalid Tag",
+                    $"The tag '{script.TagToApply}' does not exist. Please add it in Tags and Layers settings.",
+                    "OK");
+                return;
+            }
+
+            Transform[] allChildren = script.GetComponentsInChildren<Transform>(true);
+
+            foreach (Transform child in allChildren)
+            {
+                if (child == script.transform)
+                    continue;
+
+                if (script.RequireMeshRenderer)
                 {
-                    Undo.DestroyObjectImmediate(script);
+                    MeshRenderer meshRenderer = child.GetComponent<MeshRenderer>();
+                    if (meshRenderer == null)
+                        continue;
                 }
-            };
+
+                bool hasExistingCollider = child.GetComponent<Collider>() != null;
+
+                if (hasExistingCollider && script.SkipExistingColliders)
+                {
+                    if (script.ApplyTag)
+                    {
+                        Undo.RecordObject(child.gameObject, "Apply Tag");
+                        child.gameObject.tag = script.TagToApply;
+                    }
+                    skippedCount++;
+                    continue;
+                }
+
+                MeshFilter meshFilter = child.GetComponent<MeshFilter>();
+                if (meshFilter == null || meshFilter.sharedMesh == null)
+                {
+                    Debug.LogWarning($"Skipping {child.name}: No valid MeshFilter found for MeshCollider", child);
+                    skippedCount++;
+                    continue;
+                }
+
+                Undo.RecordObject(child.gameObject, "Add MeshCollider");
+                MeshCollider meshCollider = Undo.AddComponent<MeshCollider>(child.gameObject);
+                meshCollider.sharedMesh = meshFilter.sharedMesh;
+                meshCollider.convex = script.Convex;
+                meshCollider.isTrigger = script.IsTrigger;
+
+                if (script.ApplyTag)
+                {
+                    Undo.RecordObject(child.gameObject, "Apply Tag");
+                    child.gameObject.tag = script.TagToApply;
+                }
+
+                if (script.ApplyObstacle)
+                {
+                    ObstacleComponent ob = child.GetComponent<ObstacleComponent>();
+                    if (ob == null)
+                    {
+                        ob = Undo.AddComponent<ObstacleComponent>(child.gameObject);
+                    }
+                    Undo.RecordObject(ob, "Configure Obstacle");
+                    ob.ImpactDamage = script.ObstacleImpactDamage;
+                    ob.DamageType = script.ObstacleDamageType;
+                    ob.KnockbackMultiplier = script.ObstacleKnockbackMultiplier;
+                    ob.ApplyKnockback = script.ObstacleApplyKnockback;
+                    ob.OnHit = script.OnObstacleHit;
+                }
+
+                addedCount++;
+            }
+
+            string colliderTypeName = "MeshCollider" + (addedCount != 1 ? "s" : "");
+            string message = $"Operation complete!\n\n{colliderTypeName} added: {addedCount}\nObjects skipped: {skippedCount}";
+            EditorUtility.DisplayDialog("Add MeshColliders", message, "OK");
+
+            Debug.Log($"[ColliderTagTools] Added {addedCount} {colliderTypeName}, skipped {skippedCount} objects on {script.gameObject.name}");
+
+            if (script.RemoveAfterExecution)
+            {
+                EditorApplication.delayCall += () =>
+                {
+                    if (script != null)
+                    {
+                        Undo.DestroyObjectImmediate(script);
+                    }
+                };
+            }
         }
-    }
-    
-    private bool IsValidTag(string tag)
-    {
-        try
+
+        private bool IsValidTag(string tag)
         {
-            // This will throw an exception if the tag doesn't exist
-            GameObject temp = new GameObject();
-            temp.tag = tag;
-            DestroyImmediate(temp);
-            return true;
-        }
-        catch
-        {
-            return false;
+            try
+            {
+                GameObject temp = new GameObject();
+                temp.tag = tag;
+                DestroyImmediate(temp);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

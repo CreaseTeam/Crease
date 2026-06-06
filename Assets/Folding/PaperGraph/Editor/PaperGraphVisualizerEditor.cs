@@ -2,44 +2,45 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(PaperGraphVisualizer))]
-public class PaperGraphVisualizerEditor : Editor
+namespace Crease.Folding.PaperGraph.Editor
 {
-    public override void OnInspectorGUI() {
-        DrawDefaultInspector();
+    [CustomEditor(typeof(PaperGraphVisualizer))]
+    public class PaperGraphVisualizerEditor : UnityEditor.Editor
+    {
+        public override void OnInspectorGUI() {
+            DrawDefaultInspector();
 
-        PaperGraphVisualizer visualizer = (PaperGraphVisualizer)target;
+            PaperGraphVisualizer visualizer = (PaperGraphVisualizer)target;
 
-        if (visualizer.graph == null || visualizer.graph.tags == null || visualizer.graph.tags.Count == 0) {
-            EditorGUILayout.HelpBox("No tags available. Execute a fold with a tag name to populate tags.", MessageType.Info);
-            visualizer.selectedTagIndex = 0;
-            return;
-        }
+            if (visualizer.Graph == null || visualizer.Graph.Tags == null || visualizer.Graph.Tags.Count == 0) {
+                EditorGUILayout.HelpBox("No tags available. Execute a fold with a tag name to populate tags.", MessageType.Info);
+                visualizer.SelectedTagIndex = 0;
+                return;
+            }
 
-        // Build dropdown options: "None" + all tag keys
-        List<string> tagKeys = new List<string>(visualizer.graph.tags.Keys);
-        List<string> options = new List<string> { "(None)" };
-        options.AddRange(tagKeys);
+            List<string> tagKeys = new List<string>(visualizer.Graph.Tags.Keys);
+            List<string> options = new List<string> { "(None)" };
+            options.AddRange(tagKeys);
 
-        // Clamp index to valid range
-        if (visualizer.selectedTagIndex >= options.Count)
-            visualizer.selectedTagIndex = 0;
+            if (visualizer.SelectedTagIndex >= options.Count)
+                visualizer.SelectedTagIndex = 0;
 
-        EditorGUILayout.Space(5);
-        EditorGUILayout.LabelField("Tag Highlight", EditorStyles.boldLabel);
+            EditorGUILayout.Space(5);
+            EditorGUILayout.LabelField("Tag Highlight", EditorStyles.boldLabel);
 
-        int newIndex = EditorGUILayout.Popup("Highlight Tag", visualizer.selectedTagIndex, options.ToArray());
-        if (newIndex != visualizer.selectedTagIndex) {
-            Undo.RecordObject(visualizer, "Change Highlight Tag");
-            visualizer.selectedTagIndex = newIndex;
-            EditorUtility.SetDirty(visualizer);
-            SceneView.RepaintAll();
-        }
+            int newIndex = EditorGUILayout.Popup("Highlight Tag", visualizer.SelectedTagIndex, options.ToArray());
+            if (newIndex != visualizer.SelectedTagIndex) {
+                Undo.RecordObject(visualizer, "Change Highlight Tag");
+                visualizer.SelectedTagIndex = newIndex;
+                EditorUtility.SetDirty(visualizer);
+                SceneView.RepaintAll();
+            }
 
-        if (visualizer.selectedTagIndex > 0 && visualizer.selectedTagIndex <= tagKeys.Count) {
-            string selectedTag = tagKeys[visualizer.selectedTagIndex - 1];
-            int count = visualizer.graph.tags[selectedTag].Count;
-            EditorGUILayout.HelpBox($"Tag \"{selectedTag}\" has {count} vertices.", MessageType.None);
+            if (visualizer.SelectedTagIndex > 0 && visualizer.SelectedTagIndex <= tagKeys.Count) {
+                string selectedTag = tagKeys[visualizer.SelectedTagIndex - 1];
+                int count = visualizer.Graph.Tags[selectedTag].Count;
+                EditorGUILayout.HelpBox($"Tag \"{selectedTag}\" has {count} vertices.", MessageType.None);
+            }
         }
     }
 }

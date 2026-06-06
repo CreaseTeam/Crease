@@ -75,7 +75,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c1362449e1fb1d40a047becd7a3a928, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DashSensor
-  dashController: {fileID: 1147598551027705273}
+  _dashController: {fileID: 1147598551027705273}
 --- !u!23 &2441858211850976530
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -222,7 +222,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7dae68680a547139a4b2400756c3c18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MountController
-  slotContainer: {fileID: 7192237007729746643}
+  _attachPoint: {fileID: 3402289277651360324}
 --- !u!54 &7095118066071487586
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -463,8 +463,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 640f7c232a4f6554faaa26cf2a437e42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlightStats
-  baseSettings: {fileID: 11400000, guid: 204397c0df06b994a97bdd15b29c59df, type: 2}
-  currentStats: {fileID: 0}
+  _baseSettings: {fileID: 11400000, guid: 204397c0df06b994a97bdd15b29c59df, type: 2}
+  _currentStats: {fileID: 0}
 --- !u!114 &6410089066696951640
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -477,9 +477,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f24c54ae542b90f438e04bf657b00a78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlightController
-  pitch: 0
-  meshTransform: {fileID: 8993998958267351050}
-  stats: {fileID: 5517443600840389601}
+  _pitch: 0
+  _meshTransform: {fileID: 8993998958267351050}
+  _rollOffset: 0
+  _stats: {fileID: 5517443600840389601}
 --- !u!54 &6411813560646232638
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -519,8 +520,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3048884de5f8b384a89f73565847f63e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlightForceReceiver
-  activeWindZones: []
-  windForceMultiplier: 1
+  ActiveWindZones: []
+  WindForceMultiplier: 1
 --- !u!136 &5576785541387470566
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -556,12 +557,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76040ddd09b08443ea1f0120ef24ab48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCrashHandler
-  flightController: {fileID: 6410089066696951640}
-  body: {fileID: 6633779251846987741}
-  zeroVelocityOnCrash: 1
-  stopCompletelyOnLand: 1
-  crashGravity: 20
-  cameraController: {fileID: 0}
+  _flightController: {fileID: 6410089066696951640}
+  _body: {fileID: 6633779251846987741}
+  _zeroVelocityOnCrash: 1
+  _stopCompletelyOnLand: 1
+  _crashGravity: 20
+  _cameraController: {fileID: 0}
 --- !u!114 &6378557457462834897
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -574,23 +575,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52a05aab7a3a87a4ba0208651d453127, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlightCollisionController
-  body: {fileID: 6633779251846987741}
-  crashHandler: {fileID: 185509089845354311}
-  playerCollider: {fileID: 5576785541387470566}
-  healthComponent: {fileID: 4338409860427139704}
-  obstacleTag: Obstacle
-  groundTag: Ground
-  knockbackForce: 30
-  reflectionBlend: 0.3
-  minKnockbackMagnitude: 20
-  maxKnockbackMagnitude: 200
-  speedRetention: 0.5
-  recoveryDuration: 3
-  recoveryDelay: 2
-  maxRecoveryAcceleration: 50
-  invulnerabilityDuration: 2
-  invulnerableKnockbackMultiplier: 1
-  landOnGroundAfterCrash: 1
+  _body: {fileID: 6633779251846987741}
+  _crashHandler: {fileID: 185509089845354311}
+  _playerCollider: {fileID: 5576785541387470566}
+  _healthComponent: {fileID: 4338409860427139704}
+  _obstacleTag: Obstacle
+  _groundTag: Ground
+  _knockbackForce: 30
+  _reflectionBlend: 0.3
+  _minKnockbackMagnitude: 20
+  _maxKnockbackMagnitude: 200
+  _speedRetention: 0.5
+  _recoveryDuration: 3
+  _recoveryDelay: 2
+  _maxRecoveryAcceleration: 50
+  _invulnerabilityDuration: 2
+  _invulnerableKnockbackMultiplier: 1
+  _landOnGroundAfterCrash: 1
   OnKnockback:
     m_PersistentCalls:
       m_Calls:
@@ -638,17 +639,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16535e9ae6a49e44ca7f881f79126bc7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DashController
-  animator: {fileID: 183573655080417583}
-  kinematicBody: {fileID: 6633779251846987741}
-  boostStrength: 30
-  dashDuration: 0.5
-  invincibilityDuration: 1
-  wingTrailController: {fileID: 6900904615396018688}
-  trailTime: 0.75
-  dashBorder: {fileID: 1189625132337031897}
-  rechargeMode: 1
-  rechargeRate: 5
-  rechargeMax: 100
+  _animator: {fileID: 183573655080417583}
+  _kinematicBody: {fileID: 6633779251846987741}
+  _boostStrength: 30
+  _dashDuration: 0.5
+  _invincibilityDuration: 1
+  _wingTrailController: {fileID: 6900904615396018688}
+  _trailTime: 0.75
+  _dashBorder: {fileID: 1189625132337031897}
+  _rechargeMode: 1
+  _rechargeRate: 5
+  _rechargeMax: 100
 --- !u!114 &6900904615396018688
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -661,14 +662,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd093084b42184f04b72d0347d41e7d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WingTrailController
-  wingTipLeft: {fileID: 4316217991594100507}
-  wingTipRight: {fileID: 8641356679499575524}
-  trailTime: 0.2
-  startWidth: 0.02
-  endWidth: 0
-  startColor: {r: 1, g: 1, b: 1, a: 0.8}
-  endColor: {r: 1, g: 1, b: 1, a: 0}
-  trailMaterial: {fileID: 2100000, guid: c29106e97ecad6f44a544a7e173cb6df, type: 2}
+  WingTipLeft: {fileID: 4316217991594100507}
+  WingTipRight: {fileID: 8641356679499575524}
+  TrailTime: 0.2
+  StartWidth: 0.02
+  EndWidth: 0
+  StartColor: {r: 1, g: 1, b: 1, a: 0.8}
+  EndColor: {r: 1, g: 1, b: 1, a: 0}
+  TrailMaterial: {fileID: 2100000, guid: c29106e97ecad6f44a544a7e173cb6df, type: 2}
 --- !u!114 &355721681263100046
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -703,7 +704,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3402289277651360324}
-  - component: {fileID: 2065545199893718414}
   m_Layer: 0
   m_Name: Slot1
   m_TagString: Untagged
@@ -726,22 +726,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7192237007729746643}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2065545199893718414
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8300377221380386037}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb8434d45d2f47efaed25cd01812a07e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SlotBase
-  maxWeight: 10
-  categoryFilter: -1
-  isValid: 1
-  mountingProp: {fileID: 0}
 --- !u!1 &9191342132183545356
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,0 +1,19 @@
+---
+alwaysApply: true
+---
+
+# Naming Conventions
+
+- **`PascalCase`** for public class variables and enums
+- **`_camelCase`** for private class variables
+- **`camelCase`** for local variables and function parameters
+- **Events** & **Actions** should be prefixed with “**On**”
+    - `public static event Action OnJump;`
+
+# Best Practices
+
+- Use **`namespace`** format Crease.`<path under Assets>` (ex. a script in Assets→Flying should be in namespace Crease.Flying, a script in Assets→Flying→Environment should be in namespace Crease.Flying.Environment)
+- **Avoid using GameObject.Find(), GetComponent(), and similar methods outside of initialization methods** (such as Start() and Awake()), since they are slow
+    - Methods to avoid: GameObject.Find(), GameObject.FindWithTag(), GameObject.FindGameObjectsWithTag(), GameObject.FindObject(s)OfType<T>(), GetComponent(), GetComponentInChildren(), GetComponentInParent()
+- **Use `properties`** with a public getter and/or private setter, instead of traditional getters/setters
+    - `public static Vector3 MoveDirection { get; private set; }`.
