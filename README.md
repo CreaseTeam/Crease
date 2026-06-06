@@ -1,8 +1,10 @@
 # Welcome to Crease!
 
-*Crease* is a **3D Flying Puzzle Adventure Game** where the player controls a daughter’s letter to her father, which has been folded into a paper plane and must deliver itself safely. Crease 
+*Crease* is a **3D Flying Puzzle Adventure Game** where the player controls a daughter’s letter to her father, which has been folded into a paper plane and must deliver itself safely.
 
-# Controls:
+Crease is still in-progress, however is planned for release on Steam for Windows, Mac, and Linux in **May 2027**
+
+## Controls:
 Keyboard   Controller
 W          LStick U     - Push nose down
 A/D        LStick L/R   - Turn left/right
@@ -24,4 +26,4 @@ Debug (dev only) controls:
 R          North Btn    - Reset
 Shift      L Trigger    - Dev boost
 
-Built in Unity.
+Built with Unity 6.
