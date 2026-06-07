@@ -4931,15 +4931,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57927ce5669c9034fbe4d4b9b8b1b578, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PhysicsHelpers.FrustumTrigger
-  topRadius: 3.4
-  bottomRadius: 1
-  height: 11.58
-  segments: 8
-  autoConfigureRigidbody: 1
-  onTriggerEnter:
+  TopRadius: 3.4
+  BottomRadius: 1
+  Height: 11.58
+  Segments: 8
+  AutoConfigureRigidbody: 1
+  OnTriggerEntered:
     m_PersistentCalls:
       m_Calls: []
-  onTriggerExit:
+  OnTriggerExited:
     m_PersistentCalls:
       m_Calls: []
 --- !u!114 &8056106912667676434
@@ -4954,10 +4954,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f693d849ecd499a45b94702c0124f11c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FrustumWindZone
-  windStrength: 200
-  featherEdges: 1
-  useHeightCurve: 1
-  heightStrengthCurve:
+  WindStrength: 200
+  FeatherEdges: 1
+  UseHeightCurve: 1
+  HeightStrengthCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -4981,7 +4981,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  debugLog: 0
+  DebugLog: 0
 --- !u!114 &6171694871377192287
 MonoBehaviour:
   m_ObjectHideFlags: 0

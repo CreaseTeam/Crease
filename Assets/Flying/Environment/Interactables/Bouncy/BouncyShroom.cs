@@ -1,32 +1,33 @@
+using Crease.Flying.Player;
 using UnityEngine;
 
-/// <summary>
-/// Bounces the player upward when they collide with this mushroom.
-/// Requires a trigger collider on this GameObject.
-/// </summary>
-public class BouncyShroom : MonoBehaviour
+namespace Crease.Flying.Environment.Interactables.Bouncy
 {
-    [Header("Bounce Settings")]
-    [Tooltip("Upward impulse force applied to the player on collision.")]
-    [SerializeField] private float bounceForce = 30f;
-
-    [Header("Effects")]
-    [Tooltip("Particle system to play when the player bounces on the mushroom.")]
-    [SerializeField] private ParticleSystem bounceEffect;
-
-    private void OnTriggerEnter(Collider other)
+    /// <summary>
+    /// Bounces the player upward when they collide with this mushroom.
+    /// Requires a trigger collider on this GameObject.
+    /// </summary>
+    public class BouncyShroom : MonoBehaviour
     {
-        // Check if the colliding object has a KinematicBody (i.e., is the player)
-        KinematicBody body = other.GetComponent<KinematicBody>();
-        if (body == null) return;
+        [Header("Bounce Settings")]
+        [Tooltip("Upward impulse force applied to the player on collision.")]
+        [SerializeField] private float _bounceForce = 30f;
 
-        // Apply upward bounce impulse
-        body.AddImpulse(Vector3.up * bounceForce);
+        [Header("Effects")]
+        [Tooltip("Particle system to play when the player bounces on the mushroom.")]
+        [SerializeField] private ParticleSystem _bounceEffect;
 
-        // Play bounce effect if assigned
-        if (bounceEffect != null)
+        private void OnTriggerEnter(Collider other)
         {
-            bounceEffect.Play();
+            KinematicBody body = other.GetComponent<KinematicBody>();
+            if (body == null) return;
+
+            body.AddImpulse(Vector3.up * _bounceForce);
+
+            if (_bounceEffect != null)
+            {
+                _bounceEffect.Play();
+            }
         }
     }
 }

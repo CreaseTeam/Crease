@@ -1,181 +1,181 @@
+using Crease.Flying.Player.Dash;
+using Crease.Flying.Player.FlightSettings;
+using Crease.Managers.Input;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
-[RequireComponent(typeof(KinematicBody))]
-public class FlightController : MonoBehaviour
+namespace Crease.Flying.Player
 {
-    private KinematicBody body;
-    private DashController dashController;
-
-    [SerializeField] private float pitch = 0f;
-    public float Pitch => pitch;
-
-    [SerializeField] private Transform meshTransform;
-    public Transform MeshTransform => meshTransform;
-    private Vector3 meshRotation;
-    private float yaw = 0f;
-
-    private float roll = 0f;
-    public float Roll => roll;
-    // private float targetRoll = 0f;
-
-    private float rollOffset = 0f;
-    public float RollOffset
+    [RequireComponent(typeof(KinematicBody))]
+    public class FlightController : MonoBehaviour
     {
-        get => rollOffset;
-        set => rollOffset = value;
-    }
-    [SerializeField]
-    private FlightStats stats;
+        private KinematicBody _body;
+        private DashController _dashController;
 
+        [FormerlySerializedAs("pitch")]
+        [SerializeField] private float _pitch = 0f;
+        public float Pitch => _pitch;
 
-    void Start()
-    {
-        body = GetComponent<KinematicBody>();
-        dashController = GetComponent<DashController>();
+        [FormerlySerializedAs("meshTransform")]
+        [SerializeField] private Transform _meshTransform;
+        public Transform MeshTransform => _meshTransform;
 
-        // Initialize pitch and yaw from the current transform rotation
-        Vector3 euler = transform.eulerAngles;
-        yaw = euler.y;
-        pitch = euler.x;
-        // Normalize pitch to [-180, 180] range
-        if (pitch > 180f) pitch -= 360f;
+        private Vector3 _meshRotation;
+        private float _yaw = 0f;
 
-        if (stats == null)
+        private float _roll = 0f;
+        public float Roll => _roll;
+
+        [FormerlySerializedAs("rollOffset")]
+        [SerializeField] private float _rollOffset = 0f;
+        public float RollOffset
         {
-            Debug.LogError($"FlightController on '{name}' requires a FlightStats component assigned.");
-            enabled = false;
-            return;
+            get => _rollOffset;
+            set => _rollOffset = value;
         }
 
-        body.Velocity = transform.forward * stats.CurrentStats.initialSpeed;
-        
-        meshRotation = meshTransform.localEulerAngles;
-    }
+        [FormerlySerializedAs("stats")]
+        [SerializeField] private FlightStats _stats;
 
-    void FixedUpdate()
-    {
-        ProcessInput();
-        if (dashController == null || !dashController.IsDashing)
-            UpdateVelocity();
-        UpdateRotation();
-    }
-
-    private void UpdateVelocity()
-    {
-        Vector3 velocity = body.Velocity;
-
-        float pitchRadians = pitch * Mathf.Deg2Rad;
-        float cosPitch = Mathf.Cos(pitchRadians);
-        float sinPitch = Mathf.Sin(pitchRadians);
-
-        Vector3 lookDirection = transform.forward;
-        float horizontalSpeed = new Vector3(velocity.x, 0, velocity.z).magnitude;
-
-        // Kind Gravity Lerp (negative pitch = climbing, positive pitch = diving)
-        float mp = stats.CurrentStats.maxPitch;
-        float gravityT = Mathf.InverseLerp(-mp, mp, pitch);
-        float currentGravity = Mathf.Lerp(stats.CurrentStats.climbingGravity, stats.CurrentStats.divingGravity, gravityT);
-        velocity.y -= currentGravity * Time.fixedDeltaTime;
-
-        // Lift
-        // velocity.y += cosPitch * cosPitch * lift;
-        velocity.y += cosPitch * cosPitch * stats.CurrentStats.lift * Time.fixedDeltaTime;
-
-        // Convert dive speed into forward speed
-        if (velocity.y < 0 && cosPitch > 0)
+        private void Awake()
         {
-            // float yAcc = velocity.y * -diveRate * cosPitch * cosPitch;
-            float yAcc = velocity.y * -stats.CurrentStats.diveRate * cosPitch * cosPitch * Time.fixedDeltaTime;
-            velocity.y += yAcc;
-            velocity.x += lookDirection.x * yAcc / cosPitch;
-            velocity.z += lookDirection.z * yAcc / cosPitch;
+            _body = GetComponent<KinematicBody>();
+            _dashController = GetComponent<DashController>();
         }
 
-        // Climbing
-        if (pitchRadians < 0)
+        void Start()
         {
-            // float yAcc = horizontalSpeed * -sinPitch * -sinPitch * climbRate;
-            float yAcc = horizontalSpeed * -sinPitch * -sinPitch * stats.CurrentStats.climbRate * Time.fixedDeltaTime;
-            velocity.y += yAcc * stats.CurrentStats.climbEfficiency;
-            velocity.x -= lookDirection.x * yAcc / cosPitch;
-            velocity.z -= lookDirection.z * yAcc / cosPitch;
-        }
+            Vector3 euler = transform.eulerAngles;
+            _yaw = euler.y;
+            _pitch = euler.x;
+            if (_pitch > 180f) _pitch -= 360f;
 
-        // Redirect horizontal speed toward look direction
-        if (cosPitch > 0)
-        {
-            float tInterp = stats.CurrentStats.turnInterpolation;
-            velocity.x += (lookDirection.x / cosPitch * horizontalSpeed - velocity.x) * tInterp * Time.fixedDeltaTime;
-            velocity.z += (lookDirection.z / cosPitch * horizontalSpeed - velocity.z) * tInterp * Time.fixedDeltaTime;
-            velocity.y += (lookDirection.y * velocity.magnitude - velocity.y) * tInterp * Time.fixedDeltaTime;
-        }
-
-        // Drag
-        velocity.x *= stats.CurrentStats.xDrag;
-        velocity.y *= stats.CurrentStats.yDrag;
-        velocity.z *= stats.CurrentStats.zDrag;
-
-        float minVel = stats.CurrentStats.minimumVelocity;
-        if (velocity.magnitude < minVel)
-        {
-            velocity = velocity.normalized * minVel;
-        }
-
-        body.Velocity = velocity;
-    }
-
-    private void UpdateRotation()
-    {
-        body.MoveRotation(Quaternion.Euler(pitch, yaw, 0f));
-
-        if (meshTransform != null)
-        {
-            meshTransform.localRotation = Quaternion.Euler(roll + rollOffset + meshRotation.x, meshRotation.y, meshRotation.z);
-        }
-    }
-
-    private void ProcessInput()
-    {
-        ProcessKeyboardInput();
-        
-        pitch = Mathf.Clamp(pitch, -stats.CurrentStats.maxPitch, stats.CurrentStats.maxPitch);
-        roll = Mathf.Clamp(roll, -stats.CurrentStats.maxRoll, stats.CurrentStats.maxRoll);
-    }
-
-    private void ProcessKeyboardInput()
-    {
-        Vector2 move = InputManager.Instance.MoveInput;
-
-        pitch += move.y * stats.CurrentStats.pitchSpeed * Time.fixedDeltaTime;
-
-        if (move.x != 0f)
-        {
-            yaw += move.x * stats.CurrentStats.yawSpeed * Time.fixedDeltaTime;
-            roll += move.x * stats.CurrentStats.rollSpeed * Time.fixedDeltaTime;
-        }
-
-        if (InputManager.Instance.BoostPressed)
-            Boost();
-
-        // Roll back to level when no lateral input
-        if (move.x == 0f)
-        {
-            if (roll > 0f)
+            if (_stats == null)
             {
-                roll -= stats.CurrentStats.rollBackSpeed * Time.fixedDeltaTime;
-                if (roll < 0f) roll = 0f;
+                Debug.LogError($"FlightController on '{name}' requires a FlightStats component assigned.");
+                enabled = false;
+                return;
             }
-            else if (roll < 0f)
+
+            _body.Velocity = transform.forward * _stats.CurrentStats.InitialSpeed;
+
+            _meshRotation = _meshTransform.localEulerAngles;
+        }
+
+        void FixedUpdate()
+        {
+            ProcessInput();
+            if (_dashController == null || !_dashController.IsDashing)
+                UpdateVelocity();
+            UpdateRotation();
+        }
+
+        private void UpdateVelocity()
+        {
+            Vector3 velocity = _body.Velocity;
+
+            float pitchRadians = _pitch * Mathf.Deg2Rad;
+            float cosPitch = Mathf.Cos(pitchRadians);
+            float sinPitch = Mathf.Sin(pitchRadians);
+
+            Vector3 lookDirection = transform.forward;
+            float horizontalSpeed = new Vector3(velocity.x, 0, velocity.z).magnitude;
+
+            float mp = _stats.CurrentStats.MaxPitch;
+            float gravityT = Mathf.InverseLerp(-mp, mp, _pitch);
+            float currentGravity = Mathf.Lerp(_stats.CurrentStats.ClimbingGravity, _stats.CurrentStats.DivingGravity, gravityT);
+            velocity.y -= currentGravity * Time.fixedDeltaTime;
+
+            velocity.y += cosPitch * cosPitch * _stats.CurrentStats.Lift * Time.fixedDeltaTime;
+
+            if (velocity.y < 0 && cosPitch > 0)
             {
-                roll += stats.CurrentStats.rollBackSpeed * Time.fixedDeltaTime;
-                if (roll > 0f) roll = 0f;
+                float yAcc = velocity.y * -_stats.CurrentStats.DiveRate * cosPitch * cosPitch * Time.fixedDeltaTime;
+                velocity.y += yAcc;
+                velocity.x += lookDirection.x * yAcc / cosPitch;
+                velocity.z += lookDirection.z * yAcc / cosPitch;
+            }
+
+            if (pitchRadians < 0)
+            {
+                float yAcc = horizontalSpeed * -sinPitch * -sinPitch * _stats.CurrentStats.ClimbRate * Time.fixedDeltaTime;
+                velocity.y += yAcc * _stats.CurrentStats.ClimbEfficiency;
+                velocity.x -= lookDirection.x * yAcc / cosPitch;
+                velocity.z -= lookDirection.z * yAcc / cosPitch;
+            }
+
+            if (cosPitch > 0)
+            {
+                float tInterp = _stats.CurrentStats.TurnInterpolation;
+                velocity.x += (lookDirection.x / cosPitch * horizontalSpeed - velocity.x) * tInterp * Time.fixedDeltaTime;
+                velocity.z += (lookDirection.z / cosPitch * horizontalSpeed - velocity.z) * tInterp * Time.fixedDeltaTime;
+                velocity.y += (lookDirection.y * velocity.magnitude - velocity.y) * tInterp * Time.fixedDeltaTime;
+            }
+
+            velocity.x *= _stats.CurrentStats.XDrag;
+            velocity.y *= _stats.CurrentStats.YDrag;
+            velocity.z *= _stats.CurrentStats.ZDrag;
+
+            float minVel = _stats.CurrentStats.MinimumVelocity;
+            if (velocity.magnitude < minVel)
+            {
+                velocity = velocity.normalized * minVel;
+            }
+
+            _body.Velocity = velocity;
+        }
+
+        private void UpdateRotation()
+        {
+            _body.MoveRotation(Quaternion.Euler(_pitch, _yaw, 0f));
+
+            if (_meshTransform != null)
+            {
+                _meshTransform.localRotation = Quaternion.Euler(_roll + _rollOffset + _meshRotation.x, _meshRotation.y, _meshRotation.z);
             }
         }
-    }
 
-    private void Boost()
-    {
-        body.Velocity += transform.forward * stats.CurrentStats.boostSpeed;
+        private void ProcessInput()
+        {
+            ProcessKeyboardInput();
+
+            _pitch = Mathf.Clamp(_pitch, -_stats.CurrentStats.MaxPitch, _stats.CurrentStats.MaxPitch);
+            _roll = Mathf.Clamp(_roll, -_stats.CurrentStats.MaxRoll, _stats.CurrentStats.MaxRoll);
+        }
+
+        private void ProcessKeyboardInput()
+        {
+            Vector2 move = InputManager.Instance.MoveInput;
+
+            _pitch += move.y * _stats.CurrentStats.PitchSpeed * Time.fixedDeltaTime;
+
+            if (move.x != 0f)
+            {
+                _yaw += move.x * _stats.CurrentStats.YawSpeed * Time.fixedDeltaTime;
+                _roll += move.x * _stats.CurrentStats.RollSpeed * Time.fixedDeltaTime;
+            }
+
+            if (InputManager.Instance.BoostPressed)
+                Boost();
+
+            if (move.x == 0f)
+            {
+                if (_roll > 0f)
+                {
+                    _roll -= _stats.CurrentStats.RollBackSpeed * Time.fixedDeltaTime;
+                    if (_roll < 0f) _roll = 0f;
+                }
+                else if (_roll < 0f)
+                {
+                    _roll += _stats.CurrentStats.RollBackSpeed * Time.fixedDeltaTime;
+                    if (_roll > 0f) _roll = 0f;
+                }
+            }
+        }
+
+        private void Boost()
+        {
+            _body.Velocity += transform.forward * _stats.CurrentStats.BoostSpeed;
+        }
     }
 }

@@ -1,28 +1,34 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class Heart : MonoBehaviour
+namespace Crease.UI.Flying
 {
-    public Sprite heartImage;
-    public Sprite brokenHeartImage;
-
-    private Image heartRenderer;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public class Heart : MonoBehaviour
     {
-        heartRenderer = GetComponent<Image>();
+        [FormerlySerializedAs("heartImage")]
+        public Sprite HeartImage;
+        [FormerlySerializedAs("brokenHeartImage")]
+        public Sprite BrokenHeartImage;
 
-        if (heartImage != null)
+        private Image _heartRenderer;
+
+        private void Awake()
         {
-            heartRenderer.sprite = heartImage;
+            _heartRenderer = GetComponent<Image>();
+
+            if (HeartImage != null)
+            {
+                _heartRenderer.sprite = HeartImage;
+            }
         }
-    }
 
-    public void SetHealth(bool isHealthy)
-    {
-        if (heartRenderer != null)
+        public void SetHealth(bool isHealthy)
         {
-            heartRenderer.sprite = isHealthy ? heartImage : brokenHeartImage;
+            if (_heartRenderer != null)
+            {
+                _heartRenderer.sprite = isHealthy ? HeartImage : BrokenHeartImage;
+            }
         }
     }
 }

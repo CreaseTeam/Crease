@@ -1,304 +1,286 @@
+using Crease.Flying.Environment.Interactables;
+using Crease.Flying.Environment.Obstacle;
+using Crease.Flying.Player.Dash;
+using Crease.Flying.Player.Health;
+using PlayerHealth = Crease.Flying.Player.Health.Health;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 
-/// <summary>
-/// Handles all player collisions. Obstacle hits apply knockback and trigger speed
-/// recovery. Ground hits while crashed delegate to PlayerCrashHandler.Land().
-/// All tuning values are exposed to the Inspector for rapid iteration.
-///
-/// Uses OnCollisionEnter with a dynamic (non-kinematic) Rigidbody. Unity's physics
-/// solver handles depenetration automatically — this script focuses purely on
-/// knockback, damage, and recovery logic.
-/// </summary>
-[RequireComponent(typeof(KinematicBody))]
-public class FlightCollisionController : MonoBehaviour
+namespace Crease.Flying.Player
 {
-    // ------------------------------------------------------------------ Refs
-    [Header("References")]
-    [SerializeField] private KinematicBody body;
-    [SerializeField] private PlayerCrashHandler crashHandler;
-    [SerializeField] private Collider playerCollider;
-    [SerializeField] private Health healthComponent;
-
-    // ------------------------------------------------------------------ Tags
-    [Header("Tags")]
-    [SerializeField] private string obstacleTag = "Obstacle";
-    [SerializeField] private string groundTag = "Ground";
-
-    // ------------------------------------------------------------------ Knockback
-    [Header("Knockback")]
-    [Tooltip("Multiplier applied to the reflected collision normal to produce the knockback impulse.")]
-    [SerializeField] private float knockbackForce = 20f;
-
-    [Tooltip("How much of the pre-collision speed is added on top of the knockback direction. " +
-             "0 = pure normal bounce, 1 = full reflection.")]
-    [Range(0f, 1f)]
-    [SerializeField] private float reflectionBlend = 0.3f;
-
-    [Tooltip("Minimum knockback impulse magnitude (prevents weak glancing blows).")]
-    [SerializeField] private float minKnockbackMagnitude = 5f;
-
-    [Tooltip("Maximum knockback impulse magnitude.")]
-    [SerializeField] private float maxKnockbackMagnitude = 60f;
-
-    // ------------------------------------------------------------------ Recovery
-    [Header("Speed Recovery")]
-    [Tooltip("Fraction of pre-collision speed that the player will recover to (0-1).")]
-    [Range(0f, 1f)]
-    [SerializeField] private float speedRetention = 0.5f;
-
-    [Tooltip("Time in seconds to accelerate from knockback speed to the target recovery speed.")]
-    [SerializeField] private float recoveryDuration = 2f;
-
-    [Tooltip("Time in seconds after knockback before recovery acceleration begins.")]
-    [SerializeField] private float recoveryDelay = 0.3f;
-
-    [Tooltip("Maximum acceleration during recovery to prevent snapping on rapid collisions.")]
-    [SerializeField] private float maxRecoveryAcceleration = 50f;
-
-    // ------------------------------------------------------------------ Invulnerability
-    [Header("Invulnerability")]
-    [Tooltip("Seconds of invulnerability after a knockback hit (prevents rapid repeated hits).")]
-    [SerializeField] private float invulnerabilityDuration = 0.5f;
-
-    [Tooltip("Fraction of normal knockback force applied during invulnerability (prevents clipping).")]
-    [Range(0f, 1f)]
-    [SerializeField] private float invulnerableKnockbackMultiplier = 0.5f;
-
-    // ------------------------------------------------------------------ Ground crash
-    [Header("Ground Crash")]
-    [Tooltip("If true, hitting the ground while in the crashed state triggers PlayerCrashHandler.Land().")]
-    [SerializeField] private bool landOnGroundAfterCrash = true;
-
-    // ------------------------------------------------------------------ Events
-    [Header("Events")]
-    public UnityEvent OnKnockback;
-    public UnityEvent OnRecoveryStarted;
-    public UnityEvent OnRecoveryComplete;
-
-    // ------------------------------------------------------------------ State
-    public bool IsRecovering => _isRecovering;
-    public bool IsInvulnerable => Time.time < _invulnerableUntil || (_dashController != null && _dashController.IsInvincible);
-    public float PreCollisionSpeed => _preCollisionSpeed;
-
-    private bool _isRecovering;
-    private float _preCollisionSpeed;
-    private float _targetRecoverySpeed;
-    private float _recoveryStartTime;
-    private float _invulnerableUntil;
-    private DashController _dashController;
-
-    private void Awake()
+    /// <summary>
+    /// Handles all player collisions. Obstacle hits apply knockback and trigger speed
+    /// recovery. Ground hits while crashed delegate to PlayerCrashHandler.Land().
+    /// All tuning values are exposed to the Inspector for rapid iteration.
+    ///
+    /// Uses OnCollisionEnter with a dynamic (non-kinematic) Rigidbody. Unity's physics
+    /// solver handles depenetration automatically — this script focuses purely on
+    /// knockback, damage, and recovery logic.
+    ///
+    /// Component lookups on the player are cached in Awake. Collision handlers must still
+    /// resolve components on the other collider (IPreventKnockback, Obstacle) via
+    /// GetComponentInParent because those objects are not known until impact.
+    /// </summary>
+    [RequireComponent(typeof(KinematicBody))]
+    public class FlightCollisionController : MonoBehaviour
     {
-        if (body == null) body = GetComponent<KinematicBody>();
-        if (playerCollider == null) playerCollider = GetComponent<Collider>();
-        _dashController = GetComponent<DashController>();
-    }
+        [Header("References")]
+        [FormerlySerializedAs("body")]
+        [SerializeField] private KinematicBody _body;
+        [FormerlySerializedAs("crashHandler")]
+        [SerializeField] private PlayerCrashHandler _crashHandler;
+        [FormerlySerializedAs("playerCollider")]
+        [SerializeField] private Collider _playerCollider;
+        [FormerlySerializedAs("healthComponent")]
+        [SerializeField] private PlayerHealth _healthComponent;
 
-    // ================================================================== Collision
+        [Header("Tags")]
+        [FormerlySerializedAs("obstacleTag")]
+        [SerializeField] private string _obstacleTag = "Obstacle";
+        [FormerlySerializedAs("groundTag")]
+        [SerializeField] private string _groundTag = "Ground";
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        Collider other = collision.collider;
+        [Header("Knockback")]
+        [Tooltip("Multiplier applied to the reflected collision normal to produce the knockback impulse.")]
+        [FormerlySerializedAs("knockbackForce")]
+        [SerializeField] private float _knockbackForce = 20f;
 
-        // --- Ground landing while crashed ---
-        if (landOnGroundAfterCrash
-            && crashHandler != null
-            && crashHandler.IsCrashed
-            && other.CompareTag(groundTag))
+        [Tooltip("How much of the pre-collision speed is added on top of the knockback direction. " +
+                 "0 = pure normal bounce, 1 = full reflection.")]
+        [Range(0f, 1f)]
+        [FormerlySerializedAs("reflectionBlend")]
+        [SerializeField] private float _reflectionBlend = 0.3f;
+
+        [Tooltip("Minimum knockback impulse magnitude (prevents weak glancing blows).")]
+        [FormerlySerializedAs("minKnockbackMagnitude")]
+        [SerializeField] private float _minKnockbackMagnitude = 5f;
+
+        [Tooltip("Maximum knockback impulse magnitude.")]
+        [FormerlySerializedAs("maxKnockbackMagnitude")]
+        [SerializeField] private float _maxKnockbackMagnitude = 60f;
+
+        [Header("Speed Recovery")]
+        [Tooltip("Fraction of pre-collision speed that the player will recover to (0-1).")]
+        [Range(0f, 1f)]
+        [FormerlySerializedAs("speedRetention")]
+        [SerializeField] private float _speedRetention = 0.5f;
+
+        [Tooltip("Time in seconds to accelerate from knockback speed to the target recovery speed.")]
+        [FormerlySerializedAs("recoveryDuration")]
+        [SerializeField] private float _recoveryDuration = 2f;
+
+        [Tooltip("Time in seconds after knockback before recovery acceleration begins.")]
+        [FormerlySerializedAs("recoveryDelay")]
+        [SerializeField] private float _recoveryDelay = 0.3f;
+
+        [Tooltip("Maximum acceleration during recovery to prevent snapping on rapid collisions.")]
+        [FormerlySerializedAs("maxRecoveryAcceleration")]
+        [SerializeField] private float _maxRecoveryAcceleration = 50f;
+
+        [Header("Invulnerability")]
+        [Tooltip("Seconds of invulnerability after a knockback hit (prevents rapid repeated hits).")]
+        [FormerlySerializedAs("invulnerabilityDuration")]
+        [SerializeField] private float _invulnerabilityDuration = 0.5f;
+
+        [Tooltip("Fraction of normal knockback force applied during invulnerability (prevents clipping).")]
+        [Range(0f, 1f)]
+        [FormerlySerializedAs("invulnerableKnockbackMultiplier")]
+        [SerializeField] private float _invulnerableKnockbackMultiplier = 0.5f;
+
+        [Header("Ground Crash")]
+        [Tooltip("If true, hitting the ground while in the crashed state triggers PlayerCrashHandler.Land().")]
+        [FormerlySerializedAs("landOnGroundAfterCrash")]
+        [SerializeField] private bool _landOnGroundAfterCrash = true;
+
+        [Header("Events")]
+        public UnityEvent OnKnockback;
+        public UnityEvent OnRecoveryStarted;
+        public UnityEvent OnRecoveryComplete;
+
+        public bool IsRecovering => _isRecovering;
+        public bool IsInvulnerable => Time.time < _invulnerableUntil || (_dashController != null && _dashController.IsInvincible);
+        public float PreCollisionSpeed => _preCollisionSpeed;
+
+        private bool _isRecovering;
+        private float _preCollisionSpeed;
+        private float _targetRecoverySpeed;
+        private float _recoveryStartTime;
+        private float _invulnerableUntil;
+        private DashController _dashController;
+
+        private void Awake()
         {
-            crashHandler.Land();
-            return;
+            if (_body == null) _body = GetComponent<KinematicBody>();
+            if (_playerCollider == null) _playerCollider = GetComponent<Collider>();
+            if (_healthComponent == null) _healthComponent = GetComponent<PlayerHealth>();
+            _dashController = GetComponent<DashController>();
         }
 
-        // Check if this object or its parent prevents knockback
-        IPreventKnockback preventKnockbackComponent = other.GetComponentInParent<IPreventKnockback>();
-        bool shouldPreventKnockback = preventKnockbackComponent != null 
-            && preventKnockbackComponent.ShouldPreventKnockback(playerCollider);
-
-        if (shouldPreventKnockback)
+        private void OnCollisionEnter(Collision collision)
         {
-            // Unity's solver already handles depenetration — nothing else needed
-            return;
+            Collider other = collision.collider;
+
+            if (_landOnGroundAfterCrash
+                && _crashHandler != null
+                && _crashHandler.IsCrashed
+                && other.CompareTag(_groundTag))
+            {
+                _crashHandler.Land();
+                return;
+            }
+
+            // Other-object lookups: cannot be cached — resolved per collision via GetComponentInParent.
+            IPreventKnockback preventKnockbackComponent = other.GetComponentInParent<IPreventKnockback>();
+            if (preventKnockbackComponent != null
+                && preventKnockbackComponent.ShouldPreventKnockback(_playerCollider))
+            {
+                return;
+            }
+
+            if (other.CompareTag(_obstacleTag) || other.CompareTag(_groundTag))
+            {
+                ApplyKnockback(collision, IsInvulnerable);
+            }
         }
 
-        // --- Obstacle / Ground knockback ---
-        if (other.CompareTag(obstacleTag) || other.CompareTag(groundTag))
+        private void ApplyKnockback(Collision collision, bool isInvulnerable)
         {
-            ApplyKnockback(collision, IsInvulnerable);
-        }
-    }
+            Vector3 velocity = _body.Velocity;
+            float preCollisionSpeed = velocity.magnitude;
 
-    // ================================================================== Knockback
+            Vector3 contactNormal = GetContactNormal(collision, velocity);
 
-    private void ApplyKnockback(Collision collision, bool isInvulnerable)
-    {
-        Vector3 velocity = body.Velocity;
-        float preCollisionSpeed = velocity.magnitude;
+            Vector3 reflected = Vector3.Reflect(velocity.normalized, contactNormal);
+            Vector3 knockbackDir = Vector3.Lerp(contactNormal, reflected, _reflectionBlend).normalized;
 
-        // Get the contact normal from Unity's collision solver — reliable even
-        // for non-convex mesh colliders and complex terrain geometry
-        Vector3 contactNormal = GetContactNormal(collision, velocity);
+            float impulseMagnitude = Mathf.Clamp(
+                _knockbackForce + preCollisionSpeed * _reflectionBlend,
+                _minKnockbackMagnitude,
+                _maxKnockbackMagnitude);
 
-        // Build knockback direction: blend between pure normal and reflected velocity
-        Vector3 reflected = Vector3.Reflect(velocity.normalized, contactNormal);
-        Vector3 knockbackDir = Vector3.Lerp(contactNormal, reflected, reflectionBlend).normalized;
+            Rigidbody otherRigidbody = collision.rigidbody ?? collision.collider.attachedRigidbody;
+            bool otherHasRigidbody = otherRigidbody != null && !otherRigidbody.isKinematic;
 
-        // Compute impulse magnitude, scaled by incoming speed
-        float impulseMagnitude = Mathf.Clamp(
-            knockbackForce + preCollisionSpeed * reflectionBlend,
-            minKnockbackMagnitude,
-            maxKnockbackMagnitude);
+            Obstacle obstacleComp = collision.gameObject.GetComponentInParent<Obstacle>();
+            float obstacleKnockbackMultiplier = obstacleComp != null ? obstacleComp.KnockbackMultiplier : 1f;
 
-        // Resolve other collider's Rigidbody (if any) so we can apply an equivalent impulse
-        Rigidbody otherRigidbody = collision.rigidbody ?? collision.collider.attachedRigidbody;
-        bool otherHasRigidbody = otherRigidbody != null && !otherRigidbody.isKinematic;
+            float appliedImpulse = impulseMagnitude * obstacleKnockbackMultiplier;
 
-        // Get obstacle multiplier (defaults to 1)
-        Obstacle obstacleComp = collision.gameObject.GetComponentInParent<Obstacle>();
-        float obstacleKnockbackMultiplier = obstacleComp != null ? obstacleComp.knockbackMultiplier : 1f;
+            bool obstacleAppliesKnockback = obstacleComp == null ? true : obstacleComp.ApplyKnockback;
+            if (!obstacleAppliesKnockback)
+            {
+                TakeDamage(collision.gameObject);
+                return;
+            }
 
-        // Final applied impulse before invulnerability scaling
-        float appliedImpulse = impulseMagnitude * obstacleKnockbackMultiplier;
+            if (isInvulnerable)
+            {
+                float invApplied = appliedImpulse * _invulnerableKnockbackMultiplier;
+                _body.SetVelocity(knockbackDir * invApplied);
 
-        // If the obstacle disables knockback, still apply damage and notify, but
-        // do not modify player velocity, recovery state, invulnerability, or the
-        // other object's rigidbody.
-        bool obstacleAppliesKnockback = obstacleComp == null ? true : obstacleComp.applyKnockback;
-        if (!obstacleAppliesKnockback)
-        {
+                if (otherHasRigidbody)
+                {
+                    otherRigidbody.AddForce(-knockbackDir * invApplied, ForceMode.Impulse);
+                }
+
+                return;
+            }
+
             TakeDamage(collision.gameObject);
-            return;
-        }
 
-        // During invulnerability, apply reduced knockback to prevent clipping but maintain control
-        if (isInvulnerable)
-        {
-            float invApplied = appliedImpulse * invulnerableKnockbackMultiplier;
-            body.SetVelocity(knockbackDir * invApplied);
+            _body.SetVelocity(knockbackDir * appliedImpulse);
 
             if (otherHasRigidbody)
             {
-                otherRigidbody.AddForce(-knockbackDir * invApplied, ForceMode.Impulse);
+                otherRigidbody.AddForce(-knockbackDir * appliedImpulse, ForceMode.Impulse);
             }
 
-            // Don't reset invulnerability timer, recovery state, or trigger events
-            return;
+            _preCollisionSpeed = preCollisionSpeed;
+            _targetRecoverySpeed = _preCollisionSpeed * _speedRetention;
+            _recoveryStartTime = Time.time + _recoveryDelay;
+            _isRecovering = true;
+            _invulnerableUntil = Time.time + _invulnerabilityDuration;
+
+            OnKnockback?.Invoke();
         }
 
-        TakeDamage(collision.gameObject);
-
-        // Apply full knockback to the player (scaled by obstacle multiplier)
-        body.SetVelocity(knockbackDir * appliedImpulse);
-
-        // Apply equivalent impulse to the other object's Rigidbody (if present)
-        if (otherHasRigidbody)
+        private Vector3 GetContactNormal(Collision collision, Vector3 velocity)
         {
-            otherRigidbody.AddForce(-knockbackDir * appliedImpulse, ForceMode.Impulse);
-        }
-
-        // Start recovery state
-        _preCollisionSpeed = preCollisionSpeed;
-        _targetRecoverySpeed = _preCollisionSpeed * speedRetention;
-        _recoveryStartTime = Time.time + recoveryDelay;
-        _isRecovering = true;
-        _invulnerableUntil = Time.time + invulnerabilityDuration;
-
-        OnKnockback?.Invoke();
-    }
-
-    /// <summary>
-    /// Extracts a reliable contact normal from the Collision data.
-    /// Falls back to velocity-based or bounds-based estimation if no contacts exist.
-    /// </summary>
-    private Vector3 GetContactNormal(Collision collision, Vector3 velocity)
-    {
-        if (collision.contactCount > 0)
-        {
-            // Average all contact normals for a more stable result
-            // (multiple contact points occur when hitting edges/corners)
-            Vector3 avgNormal = Vector3.zero;
-            for (int i = 0; i < collision.contactCount; i++)
+            if (collision.contactCount > 0)
             {
-                avgNormal += collision.GetContact(i).normal;
+                Vector3 avgNormal = Vector3.zero;
+                for (int i = 0; i < collision.contactCount; i++)
+                {
+                    avgNormal += collision.GetContact(i).normal;
+                }
+                return avgNormal.normalized;
             }
-            return avgNormal.normalized;
+
+            if (velocity.magnitude > 0.1f)
+                return -velocity.normalized;
+
+            return (transform.position - collision.collider.bounds.center).normalized;
         }
 
-        // Fallback: use velocity-based or bounds-based normal
-        if (velocity.magnitude > 0.1f)
-            return -velocity.normalized;
-
-        return (transform.position - collision.collider.bounds.center).normalized;
-    }
-
-    private void TakeDamage(GameObject obstacle) {
-        // Determine damage and type from obstacle if available, otherwise use defaults
-        float damageAmount = 10f;
-        DamageType damageType = DamageType.Impact;
-        Obstacle obstacleComp = obstacle.GetComponentInParent<Obstacle>();
-        if (obstacleComp != null)
+        private void TakeDamage(GameObject obstacle)
         {
-            damageAmount = obstacleComp._impactDamage;
-            damageType = obstacleComp._damageType;
-            // Notify obstacle that it was hit (passes the hitter GameObject)
-            obstacleComp.TriggerHit(gameObject);
+            float damageAmount = 10f;
+            DamageType damageType = DamageType.Impact;
+            Obstacle obstacleComp = obstacle.GetComponentInParent<Obstacle>();
+            if (obstacleComp != null)
+            {
+                damageAmount = obstacleComp.ImpactDamage;
+                damageType = obstacleComp.DamageType;
+                obstacleComp.TriggerHit(gameObject);
+            }
+
+            _healthComponent.TakeDamage(damageAmount, damageType);
         }
 
-        healthComponent.TakeDamage(damageAmount, damageType);
-    }
-
-    // ================================================================== Recovery
-    private void FixedUpdate()
-    {
-        if (!_isRecovering) return;
-        if (Time.time < _recoveryStartTime) return; // still in delay window
-
-        // Fire event on the first recovery frame
-        if (Time.time - _recoveryStartTime < Time.fixedDeltaTime * 1.5f)
+        private void FixedUpdate()
         {
-            OnRecoveryStarted?.Invoke();
+            if (!_isRecovering) return;
+            if (Time.time < _recoveryStartTime) return;
+
+            if (Time.time - _recoveryStartTime < Time.fixedDeltaTime * 1.5f)
+            {
+                OnRecoveryStarted?.Invoke();
+            }
+
+            float currentSpeed = _body.Speed;
+            float speedDelta = _targetRecoverySpeed - currentSpeed;
+
+            if (speedDelta <= 0f)
+            {
+                _isRecovering = false;
+                OnRecoveryComplete?.Invoke();
+                return;
+            }
+
+            float elapsedRecoveryTime = Time.time - _recoveryStartTime;
+            float remainingTime = _recoveryDuration - elapsedRecoveryTime;
+
+            if (remainingTime <= 0f)
+            {
+                Vector3 forward = _body.Velocity.normalized;
+                if (forward.sqrMagnitude < 0.001f)
+                    forward = transform.forward;
+
+                _body.SetVelocity(forward * _targetRecoverySpeed);
+                _isRecovering = false;
+                OnRecoveryComplete?.Invoke();
+                return;
+            }
+
+            float requiredAcceleration = speedDelta / remainingTime;
+            requiredAcceleration = Mathf.Min(requiredAcceleration, _maxRecoveryAcceleration);
+
+            Vector3 heading = _body.Velocity.normalized;
+            if (heading.sqrMagnitude < 0.001f)
+                heading = transform.forward;
+
+            _body.Velocity += heading * requiredAcceleration * Time.fixedDeltaTime;
         }
-
-        float currentSpeed = body.Speed;
-        float speedDelta = _targetRecoverySpeed - currentSpeed;
-
-        // Check if we've reached or exceeded target speed
-        if (speedDelta <= 0f)
-        {
-            _isRecovering = false;
-            OnRecoveryComplete?.Invoke();
-            return;
-        }
-
-        // Calculate time remaining in recovery window
-        float elapsedRecoveryTime = Time.time - _recoveryStartTime;
-        float remainingTime = recoveryDuration - elapsedRecoveryTime;
-
-        // If we've exceeded recovery duration, clamp to target and complete
-        if (remainingTime <= 0f)
-        {
-            Vector3 forward = body.Velocity.normalized;
-            if (forward.sqrMagnitude < 0.001f)
-                forward = transform.forward;
-
-            body.SetVelocity(forward * _targetRecoverySpeed);
-            _isRecovering = false;
-            OnRecoveryComplete?.Invoke();
-            return;
-        }
-
-        // Calculate required acceleration to reach target in remaining time
-        float requiredAcceleration = speedDelta / remainingTime;
-        
-        // Cap acceleration to prevent huge snaps when remainingTime is very small
-        requiredAcceleration = Mathf.Min(requiredAcceleration, maxRecoveryAcceleration);
-
-        // Accelerate along current heading
-        Vector3 heading = body.Velocity.normalized;
-        if (heading.sqrMagnitude < 0.001f)
-            heading = transform.forward;
-
-        body.Velocity += heading * requiredAcceleration * Time.fixedDeltaTime;
     }
 }

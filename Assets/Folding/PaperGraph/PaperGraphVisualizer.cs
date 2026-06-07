@@ -1,130 +1,140 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class PaperGraphVisualizer : MonoBehaviour {
-    public PaperGraph graph;
-    
-    [Header("Visualization Settings")]
-    public Color vertexColor = Color.green;
-    public Color edgeColor = Color.white;
-    public Color foldedEdgeColor = Color.red;
-    public float vertexSize = 0.1f;
-    public float edgeThickness = 2f;
-    
-    [Header("Debug Info")]
-    public bool showVertexLabels = true;
-    public bool showFoldAngles = true;
-    public bool showMesh = true;
-    public Material meshMaterial;
-    [Tooltip("If populated, materials are applied to submeshes (e.g. Element 0 = Front, Element 1 = Back)")]
-    public Material[] meshMaterials;
+namespace Crease.Folding.PaperGraph
+{
+    public class PaperGraphVisualizer : MonoBehaviour
+    {
+        [FormerlySerializedAs("graph")]
+        public PaperGraph Graph;
 
-    [Header("Tag Highlight")]
-    [HideInInspector] public int selectedTagIndex = 0;
-    public Color tagHighlightColor = Color.yellow;
-    public float tagHighlightSize = 0.15f;
+        [Header("Visualization Settings")]
+        [FormerlySerializedAs("vertexColor")]
+        public Color VertexColor = Color.green;
+        [FormerlySerializedAs("edgeColor")]
+        public Color EdgeColor = Color.white;
+        [FormerlySerializedAs("foldedEdgeColor")]
+        public Color FoldedEdgeColor = Color.red;
+        [FormerlySerializedAs("vertexSize")]
+        public float VertexSize = 0.1f;
+        [FormerlySerializedAs("edgeThickness")]
+        public float EdgeThickness = 2f;
 
-    private MeshFilter meshFilter;
-    private MeshRenderer meshRenderer;
+        [Header("Debug Info")]
+        [FormerlySerializedAs("showVertexLabels")]
+        public bool ShowVertexLabels = true;
+        [FormerlySerializedAs("showFoldAngles")]
+        public bool ShowFoldAngles = true;
+        [FormerlySerializedAs("showMesh")]
+        public bool ShowMesh = true;
+        [FormerlySerializedAs("meshMaterial")]
+        public Material MeshMaterial;
+        [Tooltip("If populated, materials are applied to submeshes (e.g. Element 0 = Front, Element 1 = Back)")]
+        [FormerlySerializedAs("meshMaterials")]
+        public Material[] MeshMaterials;
 
-    void Start() {
-        UpdateMesh();
-    }
+        [Header("Tag Highlight")]
+        [HideInInspector]
+        [FormerlySerializedAs("selectedTagIndex")]
+        public int SelectedTagIndex = 0;
+        [FormerlySerializedAs("tagHighlightColor")]
+        public Color TagHighlightColor = Color.yellow;
+        [FormerlySerializedAs("tagHighlightSize")]
+        public float TagHighlightSize = 0.15f;
 
-    void LateUpdate() {
-        UpdateMesh();
-    }
+        private MeshFilter _meshFilter;
+        private MeshRenderer _meshRenderer;
 
-    void OnDrawGizmos() {
-        if (graph == null) return;
+        private void Awake() {
+            _meshFilter = GetComponent<MeshFilter>();
+            if (_meshFilter == null)
+                _meshFilter = gameObject.AddComponent<MeshFilter>();
 
-        UpdateMesh();
-
-        // Vertex positions are in local-space; use the graph's transform matrix for gizmos.
-        Gizmos.matrix = graph.transform.localToWorldMatrix;
-        
-        // Draw edges
-        foreach (Edge edge in graph.edges) {
-            // Choose color based on whether edge is folded
-            bool isFolded = Mathf.Abs(edge.foldAngle - 180f) > 0.01f;
-            Gizmos.color = isFolded ? foldedEdgeColor : edgeColor;
-            
-            Gizmos.DrawLine(edge.v1.position, edge.v2.position);
-            
-            // Optionally draw fold angle at midpoint
-            if (showFoldAngles && isFolded) {
-                Vector3 midpoint = (edge.v1.position + edge.v2.position) / 2f;
-                DrawLabel(graph.transform.TransformPoint(midpoint), $"{edge.foldAngle:F1}°");
-            }
-        }
-        
-        // Draw vertices
-        Gizmos.color = vertexColor;
-        for (int i = 0; i < graph.vertices.Count; i++) {
-            Vertex v = graph.vertices[i];
-            Gizmos.DrawSphere(v.position, vertexSize);
-            
-            // Optionally draw vertex index
-            if (showVertexLabels) {
-                DrawLabel(graph.transform.TransformPoint(v.position + Vector3.up * 0.2f), i.ToString());
-            }
+            _meshRenderer = GetComponent<MeshRenderer>();
+            if (_meshRenderer == null)
+                _meshRenderer = gameObject.AddComponent<MeshRenderer>();
         }
 
-        // Draw tag-highlighted vertices
-        if (graph.tags != null && graph.tags.Count > 0) {
-            List<string> tagKeys = new List<string>(graph.tags.Keys);
-            if (selectedTagIndex > 0 && selectedTagIndex <= tagKeys.Count) {
-                string selectedTag = tagKeys[selectedTagIndex - 1];
-                List<Vertex> taggedVerts = graph.GetVerticesForTag(selectedTag);
-                Gizmos.color = tagHighlightColor;
-                foreach (Vertex tv in taggedVerts) {
-                    Gizmos.DrawSphere(tv.position, tagHighlightSize);
+        private void Start() {
+            UpdateMesh();
+        }
+
+        private void LateUpdate() {
+            UpdateMesh();
+        }
+
+        private void OnDrawGizmos() {
+            if (Graph == null) return;
+
+            UpdateMesh();
+
+            Gizmos.matrix = Graph.transform.localToWorldMatrix;
+
+            foreach (Edge edge in Graph.Edges) {
+                bool isFolded = Mathf.Abs(edge.FoldAngle - 180f) > 0.01f;
+                Gizmos.color = isFolded ? FoldedEdgeColor : EdgeColor;
+
+                Gizmos.DrawLine(edge.V1.Position, edge.V2.Position);
+
+                if (ShowFoldAngles && isFolded) {
+                    Vector3 midpoint = (edge.V1.Position + edge.V2.Position) / 2f;
+                    DrawLabel(Graph.transform.TransformPoint(midpoint), $"{edge.FoldAngle:F1}°");
                 }
             }
-        }
 
-        Gizmos.matrix = Matrix4x4.identity;
-    }
-    
-    // Helper to draw text labels in scene view
-    void DrawLabel(Vector3 position, string text) {
-        #if UNITY_EDITOR
-        UnityEditor.Handles.Label(position, text);
-        #endif
-    }
+            Gizmos.color = VertexColor;
+            for (int i = 0; i < Graph.Vertices.Count; i++) {
+                Vertex v = Graph.Vertices[i];
+                Gizmos.DrawSphere(v.Position, VertexSize);
 
-    public void UpdateMesh() {
-        if (graph == null) return;
-
-        if (meshFilter == null) {
-            meshFilter = GetComponent<MeshFilter>();
-            if (meshFilter == null)
-                meshFilter = gameObject.AddComponent<MeshFilter>();
-        }
-        if (meshRenderer == null) {
-            meshRenderer = GetComponent<MeshRenderer>();
-            if (meshRenderer == null)
-                meshRenderer = gameObject.AddComponent<MeshRenderer>();
-        }
-
-        if (showMesh && graph.faces.Count > 0) {
-            Mesh generatedMesh = graph.GenerateMesh();
-            meshFilter.sharedMesh = generatedMesh;
-            meshRenderer.enabled = true;
-            
-            if (meshMaterials != null && meshMaterials.Length >= generatedMesh.subMeshCount) {
-                meshRenderer.sharedMaterials = meshMaterials;
-            } else if (meshMaterial != null) {
-                // Fallback to avoid Unity hiding the second submesh if material array is missing/short
-                Material[] fallbackMats = new Material[generatedMesh.subMeshCount];
-                for (int i = 0; i < generatedMesh.subMeshCount; i++) {
-                    fallbackMats[i] = meshMaterial;
+                if (ShowVertexLabels) {
+                    DrawLabel(Graph.transform.TransformPoint(v.Position + Vector3.up * 0.2f), i.ToString());
                 }
-                meshRenderer.sharedMaterials = fallbackMats;
             }
-        } else {
-            meshFilter.sharedMesh = null;
-            meshRenderer.enabled = false;
+
+            if (Graph.Tags != null && Graph.Tags.Count > 0) {
+                List<string> tagKeys = new List<string>(Graph.Tags.Keys);
+                if (SelectedTagIndex > 0 && SelectedTagIndex <= tagKeys.Count) {
+                    string selectedTag = tagKeys[SelectedTagIndex - 1];
+                    List<Vertex> taggedVerts = Graph.GetVerticesForTag(selectedTag);
+                    Gizmos.color = TagHighlightColor;
+                    foreach (Vertex tv in taggedVerts) {
+                        Gizmos.DrawSphere(tv.Position, TagHighlightSize);
+                    }
+                }
+            }
+
+            Gizmos.matrix = Matrix4x4.identity;
+        }
+
+        private void DrawLabel(Vector3 position, string text) {
+#if UNITY_EDITOR
+            UnityEditor.Handles.Label(position, text);
+#endif
+        }
+
+        public void UpdateMesh() {
+            if (Graph == null || _meshFilter == null || _meshRenderer == null) return;
+
+            if (ShowMesh && Graph.Faces.Count > 0) {
+                Mesh generatedMesh = Graph.GenerateMesh();
+                _meshFilter.sharedMesh = generatedMesh;
+                _meshRenderer.enabled = true;
+
+                if (MeshMaterials != null && MeshMaterials.Length >= generatedMesh.subMeshCount) {
+                    _meshRenderer.sharedMaterials = MeshMaterials;
+                } else if (MeshMaterial != null) {
+                    Material[] fallbackMats = new Material[generatedMesh.subMeshCount];
+                    for (int i = 0; i < generatedMesh.subMeshCount; i++) {
+                        fallbackMats[i] = MeshMaterial;
+                    }
+                    _meshRenderer.sharedMaterials = fallbackMats;
+                }
+            } else {
+                _meshFilter.sharedMesh = null;
+                _meshRenderer.enabled = false;
+            }
         }
     }
 }

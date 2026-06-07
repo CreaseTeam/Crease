@@ -1,23 +1,27 @@
-using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class DashSensor : MonoBehaviour
+namespace Crease.Flying.Player.Dash
 {
-    [SerializeField] private DashController dashController;
+    public class DashSensor : MonoBehaviour
+    {
+        [FormerlySerializedAs("dashController")]
+        [SerializeField] private DashController _dashController;
 
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Obstacle") || other.CompareTag("Ground"))
+        void OnTriggerEnter(Collider other)
         {
-            dashController.ModifyObjectsInRange(1);
+            if (other.CompareTag("Obstacle") || other.CompareTag("Ground"))
+            {
+                _dashController.ModifyObjectsInRange(1);
+            }
         }
-    }
-    
-    void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Obstacle") || other.CompareTag("Ground"))
+
+        void OnTriggerExit(Collider other)
         {
-            dashController.ModifyObjectsInRange(-1);
+            if (other.CompareTag("Obstacle") || other.CompareTag("Ground"))
+            {
+                _dashController.ModifyObjectsInRange(-1);
+            }
         }
     }
 }

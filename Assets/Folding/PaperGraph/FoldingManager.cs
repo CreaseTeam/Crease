@@ -1,89 +1,197 @@
+using System.Collections.Generic;
+using Crease.Flying.Player;
+using Crease.Managers.Input;
+using Crease.UI;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public enum GameMode { Folding, Flying }
-
-/// <summary>
-/// Singleton that manages switching between Folding and Flying modes
-/// within the same scene. Performs smooth camera transitions between
-/// a dedicated folding camera and flying camera, and lerps the paper
-/// to match the player orientation before switching to flying.
-/// </summary>
-public class FoldingManager : MonoBehaviour
+namespace Crease.Folding.PaperGraph
 {
-    public static FoldingManager Instance { get; private set; }
+    public enum GameMode { Folding, Flying }
 
-    [Header("Default State")]
-    [Tooltip("Which mode the game starts in.")]
-    public GameMode defaultMode = GameMode.Folding;
+    /// <summary>
+    /// Singleton that manages switching between Folding and Flying modes
+    /// within the same scene. Performs smooth camera transitions between
+    /// a dedicated folding camera and flying camera, and lerps the paper
+    /// to match the player orientation before switching to flying.
+    /// </summary>
+    public class FoldingManager : MonoBehaviour
+    {
+        public static FoldingManager Instance { get; private set; }
 
-    [Header("Cameras")]
-    [Tooltip("Camera used during folding mode.")]
-    public Camera foldingCamera;
+        [Header("Default State")]
+        [Tooltip("Which mode the game starts in.")]
+        [FormerlySerializedAs("defaultMode")]
+        public GameMode DefaultMode = GameMode.Folding;
 
-    [Tooltip("Camera used during flying mode.")]
-    public Camera flyingCamera;
+        [Header("Cameras")]
+        [Tooltip("Camera used during folding mode.")]
+        [FormerlySerializedAs("foldingCamera")]
+        public Camera FoldingCamera;
 
-    [Header("Transition")]
-    [Tooltip("Duration of the camera transition in seconds.")]
-    public float transitionDuration = 1f;
+        [Tooltip("Camera used during flying mode.")]
+        [FormerlySerializedAs("flyingCamera")]
+        public Camera FlyingCamera;
 
-    [Tooltip("Duration of the paper alignment lerp before switching to flying.")]
-    public float paperAlignDuration = 0.6f;
+        [Header("Transition")]
+        [Tooltip("Duration of the camera transition in seconds.")]
+        [FormerlySerializedAs("transitionDuration")]
+        public float TransitionDuration = 1f;
 
-    [Header("Mesh Settings")]
-    [Tooltip("Preset mesh used when entering flying mode without saving a fold.")]
-    public Mesh defaultPlayerMesh;
+        [Tooltip("Duration of the paper alignment lerp before switching to flying.")]
+        [FormerlySerializedAs("paperAlignDuration")]
+        public float PaperAlignDuration = 0.6f;
 
-    [Tooltip("Rotation (euler angles) applied to mesh vertices on save to correct orientation.")]
-    public Vector3 meshRotation = Vector3.zero;
+        [Header("Mesh Settings")]
+        [Tooltip("Preset mesh used when entering flying mode without saving a fold.")]
+        [FormerlySerializedAs("defaultPlayerMesh")]
+        public Mesh DefaultPlayerMesh;
 
-    [Tooltip("Euler angle offset applied when aligning paper to player rotation.")]
-    public Vector3 paperToPlayerRotationOffset = Vector3.zero;
+        [Tooltip("Rotation (euler angles) applied to mesh vertices on save to correct orientation.")]
+        [FormerlySerializedAs("meshRotation")]
+        public Vector3 MeshRotation = Vector3.zero;
 
-    [Header("References")]
-    [Tooltip("Current PaperGraph reference. Assign in the Inspector.")]
-    public PaperGraph paperGraph;
+        [Tooltip("Euler angle offset applied when aligning paper to player rotation.")]
+        [FormerlySerializedAs("paperToPlayerRotationOffset")]
+        public Vector3 PaperToPlayerRotationOffset = Vector3.zero;
 
-    [Tooltip("The player GameObject. Disabled during folding, re-enabled when flying.")]
-    public GameObject player;
+        [Header("References")]
+        [Tooltip("Current PaperGraph reference. Assign in the Inspector.")]
+        [FormerlySerializedAs("paperGraph")]
+        public PaperGraph PaperGraph;
 
-    /// <summary>True when the game is in folding mode.</summary>
-    public bool IsFolding { get; private set; } = true;
+        [Tooltip("The player GameObject. Disabled during folding, re-enabled when flying.")]
+        [FormerlySerializedAs("player")]
+        public GameObject Player;
 
-    /// <summary>True while a camera transition or paper alignment is in progress.</summary>
-    public bool IsTransitioning { get; private set; } = false;
+        public bool IsFolding { get; private set; } = true;
+        public bool IsTransitioning { get; private set; } = false;
 
-    private Mesh savedMesh;
+        public Mesh SavedMesh { get; private set; }
 
-    // Camera transition state
-    private Camera transitionCamera;
-    private Vector3 transitionStartPos;
-    private Quaternion transitionStartRot;
-    private float transitionStartFOV;
-    private Camera transitionTarget;
-    private float transitionElapsed;
+        private MeshFilter _playerMeshFilter;
 
-    // Paper alignment state
-    private bool isAligningPaper = false;
-    private Quaternion paperAlignStartRot;
-    private Quaternion paperAlignTargetRot;
-    private float paperAlignElapsed;
-    private bool pendingUseSavedMesh; // true = use saved fold mesh, false = use default
-    private bool pendingFlyingSwitch; // true when a flying switch is deferred until both lerps finish
+        private Camera _transitionCamera;
+        private Vector3 _transitionStartPos;
+        private Quaternion _transitionStartRot;
+        private float _transitionStartFOV;
+        private Camera _transitionTarget;
+        private float _transitionElapsed;
 
-    private void Awake() {
-        if (Instance != null && Instance != this) {
-            Destroy(gameObject);
-            return;
+        private bool _isAligningPaper = false;
+        private Quaternion _paperAlignStartRot;
+        private Quaternion _paperAlignTargetRot;
+        private float _paperAlignElapsed;
+        private bool _pendingUseSavedMesh;
+        private bool _pendingFlyingSwitch;
+
+        private void Awake() {
+            if (Instance != null && Instance != this) {
+                Destroy(gameObject);
+                return;
+            }
+            Instance = this;
+
+            GameObject playerMeshObj = GameObject.FindWithTag("PlayerMesh");
+            if (playerMeshObj != null)
+                _playerMeshFilter = playerMeshObj.GetComponent<MeshFilter>();
         }
-        Instance = this;
-    }
 
-    private void Start() {
-        if (defaultMode == GameMode.Folding) {
+        private void Start() {
+            if (DefaultMode == GameMode.Folding) {
+                IsFolding = true;
+                if (FoldingCamera != null) FoldingCamera.enabled = true;
+                if (FlyingCamera != null) FlyingCamera.enabled = false;
+
+                if (InputManager.Instance != null)
+                    InputManager.Instance.SwitchToFolding();
+
+                if (HUDCanvas.Instance != null)
+                    HUDCanvas.Instance.ShowFoldingUI(true);
+
+                if (Player != null) {
+                    TeleportPaperToPlayer();
+                    Player.SetActive(false);
+                }
+                if (FlyingCamera != null) FlyingCamera.gameObject.SetActive(false);
+                if (PaperGraph != null) PaperGraph.gameObject.SetActive(true);
+            } else {
+                IsFolding = false;
+                if (FoldingCamera != null) {
+                    FoldingCamera.enabled = false;
+                    FoldingCamera.gameObject.SetActive(false);
+                }
+                if (FlyingCamera != null) FlyingCamera.enabled = true;
+
+                if (InputManager.Instance != null)
+                    InputManager.Instance.SwitchToPlayerAndDebug();
+
+                if (HUDCanvas.Instance != null)
+                    HUDCanvas.Instance.ShowFlyingUI(true);
+
+                if (Player != null) Player.SetActive(true);
+                if (PaperGraph != null) PaperGraph.gameObject.SetActive(false);
+                ApplyDefaultMeshToPlayer();
+            }
+        }
+
+        private void Update() {
+            if (!IsFolding && !IsTransitioning && !_isAligningPaper
+                && InputManager.Instance != null
+                && InputManager.Instance.ReturnTriggered) {
+                EnterFoldingMode();
+            }
+
+            if (_isAligningPaper) {
+                _paperAlignElapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(_paperAlignElapsed / PaperAlignDuration);
+                float s = t * t * (3f - 2f * t);
+
+                PaperGraph.transform.rotation = Quaternion.Slerp(
+                    _paperAlignStartRot, _paperAlignTargetRot, s);
+
+                if (t >= 1f) {
+                    _isAligningPaper = false;
+                    PaperGraph.transform.rotation = _paperAlignTargetRot;
+
+                    if (!IsTransitioning)
+                        ExecuteFlyingSwitch(_pendingUseSavedMesh);
+                }
+            }
+
+            if (IsTransitioning) {
+                _transitionElapsed += Time.deltaTime;
+                float ct = Mathf.Clamp01(_transitionElapsed / TransitionDuration);
+                float cs = ct * ct * (3f - 2f * ct);
+
+                _transitionCamera.transform.position = Vector3.Lerp(
+                    _transitionStartPos, _transitionTarget.transform.position, cs);
+                _transitionCamera.transform.rotation = Quaternion.Slerp(
+                    _transitionStartRot, _transitionTarget.transform.rotation, cs);
+                _transitionCamera.fieldOfView = Mathf.Lerp(
+                    _transitionStartFOV, _transitionTarget.fieldOfView, cs);
+
+                if (ct >= 1f) {
+                    FinishTransition();
+
+                    if (!_isAligningPaper && _pendingFlyingSwitch)
+                        ExecuteFlyingSwitch(_pendingUseSavedMesh);
+                }
+            }
+        }
+
+        private void OnDestroy() {
+            if (Instance == this)
+                Instance = null;
+
+            if (_transitionCamera != null)
+                Destroy(_transitionCamera.gameObject);
+        }
+
+        public void EnterFoldingMode() {
+            if (IsFolding || IsTransitioning || _isAligningPaper) return;
+
             IsFolding = true;
-            if (foldingCamera != null) foldingCamera.enabled = true;
-            if (flyingCamera != null) flyingCamera.enabled = false;
 
             if (InputManager.Instance != null)
                 InputManager.Instance.SwitchToFolding();
@@ -91,20 +199,86 @@ public class FoldingManager : MonoBehaviour
             if (HUDCanvas.Instance != null)
                 HUDCanvas.Instance.ShowFoldingUI(true);
 
-            // Disable player and flying camera, teleport paper + camera, enable paperGraph
-            if (player != null) {
+            if (PaperGraph != null) PaperGraph.gameObject.SetActive(true);
+
+            if (Player != null) {
                 TeleportPaperToPlayer();
-                player.SetActive(false);
+                Player.SetActive(false);
             }
-            if (flyingCamera != null) flyingCamera.gameObject.SetActive(false);
-            if (paperGraph != null) paperGraph.gameObject.SetActive(true);
-        } else {
+            if (FlyingCamera != null) FlyingCamera.gameObject.SetActive(false);
+            if (FoldingCamera != null) FoldingCamera.gameObject.SetActive(true);
+
+            BeginTransition(FlyingCamera, FoldingCamera);
+        }
+
+        public void EnterFlyingMode() {
+            if (!IsFolding || IsTransitioning || _isAligningPaper) return;
+            BeginPaperAlignment(useSavedMesh: true);
+        }
+
+        public void EnterFlyingModeNoMesh() {
+            if (!IsFolding || IsTransitioning || _isAligningPaper) return;
+            BeginPaperAlignment(useSavedMesh: false);
+        }
+
+        public void SaveMesh() {
+            if (PaperGraph == null) {
+                Debug.LogError("FoldingManager: No PaperGraph assigned. Cannot save mesh.");
+                return;
+            }
+
+            SavedMesh = PaperGraph.GenerateMesh();
+            SavedMesh.name = "FoldingManager_SavedMesh";
+
+            if (MeshRotation != Vector3.zero) {
+                Quaternion rot = Quaternion.Euler(MeshRotation);
+                Vector3[] verts = SavedMesh.vertices;
+                for (int i = 0; i < verts.Length; i++) {
+                    verts[i] = rot * verts[i];
+                }
+                SavedMesh.vertices = verts;
+                SavedMesh.RecalculateNormals();
+                SavedMesh.RecalculateBounds();
+            }
+
+            Debug.Log("FoldingManager: Mesh saved.");
+        }
+
+        private void BeginPaperAlignment(bool useSavedMesh) {
+            if (PaperGraph == null || Player == null) {
+                ExecuteFlyingSwitch(useSavedMesh);
+                return;
+            }
+
+            _pendingFlyingSwitch = true;
+            _pendingUseSavedMesh = useSavedMesh;
+
+            if (HUDCanvas.Instance != null)
+                HUDCanvas.Instance.StopFoldingTimer();
+
+            _isAligningPaper = true;
+            _paperAlignElapsed = 0f;
+            _paperAlignStartRot = PaperGraph.transform.rotation;
+            _paperAlignTargetRot = GetPlayerMeshRotation() * Quaternion.Euler(PaperToPlayerRotationOffset);
+
+            BeginTransition(FoldingCamera, FlyingCamera);
+        }
+
+        private void ExecuteFlyingSwitch(bool useSavedMesh) {
+            _pendingFlyingSwitch = false;
+            if (useSavedMesh)
+                SaveMesh();
+
+            if (Player != null) Player.SetActive(true);
+
+            if (useSavedMesh)
+                ApplyMeshToPlayer();
+            else
+                ApplyDefaultMeshToPlayer();
+
+            if (PaperGraph != null) PaperGraph.gameObject.SetActive(false);
+
             IsFolding = false;
-            if (foldingCamera != null) {
-                foldingCamera.enabled = false;
-                foldingCamera.gameObject.SetActive(false);
-            }
-            if (flyingCamera != null) flyingCamera.enabled = true;
 
             if (InputManager.Instance != null)
                 InputManager.Instance.SwitchToPlayerAndDebug();
@@ -112,317 +286,88 @@ public class FoldingManager : MonoBehaviour
             if (HUDCanvas.Instance != null)
                 HUDCanvas.Instance.ShowFlyingUI(true);
 
-            if (player != null) player.SetActive(true);
-            if (paperGraph != null) paperGraph.gameObject.SetActive(false);
-            ApplyDefaultMeshToPlayer();
-        }
-    }
-
-    private void Update() {
-        // While flying, check for Return input to go back to folding
-        if (!IsFolding && !IsTransitioning && !isAligningPaper
-            && InputManager.Instance != null
-            && InputManager.Instance.ReturnTriggered) {
-            EnterFoldingMode();
+            if (FlyingCamera != null)
+                FlyingCamera.gameObject.SetActive(true);
         }
 
-        // Paper alignment lerp (runs in parallel with camera transition)
-        if (isAligningPaper) {
-            paperAlignElapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(paperAlignElapsed / paperAlignDuration);
-            float s = t * t * (3f - 2f * t); // smoothstep
+        private void BeginTransition(Camera from, Camera to) {
+            IsTransitioning = true;
+            _transitionElapsed = 0f;
+            _transitionTarget = to;
 
-            paperGraph.transform.rotation = Quaternion.Slerp(
-                paperAlignStartRot, paperAlignTargetRot, s);
+            _transitionStartPos = from.transform.position;
+            _transitionStartRot = from.transform.rotation;
+            _transitionStartFOV = from.fieldOfView;
 
-            if (t >= 1f) {
-                isAligningPaper = false;
-                paperGraph.transform.rotation = paperAlignTargetRot;
+            var go = new GameObject("FoldingManager_TransitionCamera");
+            _transitionCamera = go.AddComponent<Camera>();
+            _transitionCamera.CopyFrom(from);
+            _transitionCamera.transform.position = _transitionStartPos;
+            _transitionCamera.transform.rotation = _transitionStartRot;
+            _transitionCamera.fieldOfView = _transitionStartFOV;
 
-                // If camera transition already done, finalize the switch
-                if (!IsTransitioning)
-                    ExecuteFlyingSwitch(pendingUseSavedMesh);
+            from.enabled = false;
+            to.enabled = false;
+        }
+
+        private void FinishTransition() {
+            IsTransitioning = false;
+
+            _transitionTarget.enabled = true;
+
+            if (_transitionCamera != null) {
+                Destroy(_transitionCamera.gameObject);
+                _transitionCamera = null;
             }
+
+            _transitionTarget = null;
         }
 
-        // Camera transition lerp (runs in parallel with paper alignment)
-        if (IsTransitioning) {
-            transitionElapsed += Time.deltaTime;
-            float ct = Mathf.Clamp01(transitionElapsed / transitionDuration);
-            float cs = ct * ct * (3f - 2f * ct);
+        private void ApplyMeshToPlayer() {
+            if (SavedMesh == null) return;
 
-            transitionCamera.transform.position = Vector3.Lerp(
-                transitionStartPos, transitionTarget.transform.position, cs);
-            transitionCamera.transform.rotation = Quaternion.Slerp(
-                transitionStartRot, transitionTarget.transform.rotation, cs);
-            transitionCamera.fieldOfView = Mathf.Lerp(
-                transitionStartFOV, transitionTarget.fieldOfView, cs);
-
-            if (ct >= 1f) {
-                FinishTransition();
-
-                // If paper alignment already done, finalize the switch
-                if (!isAligningPaper && pendingFlyingSwitch)
-                    ExecuteFlyingSwitch(pendingUseSavedMesh);
+            if (_playerMeshFilter == null) {
+                Debug.LogWarning("FoldingManager: No GameObject tagged 'PlayerMesh' found.");
+                return;
             }
-        }
-    }
 
-    private void OnDestroy() {
-        if (Instance == this)
-            Instance = null;
-
-        if (transitionCamera != null)
-            Destroy(transitionCamera.gameObject);
-    }
-
-    // ─── Public API ──────────────────────────────────────────────────
-
-    /// <summary>
-    /// Switches to folding mode with a smooth camera transition.
-    /// Instantly sets paper rotation to match the player (with offset).
-    /// </summary>
-    public void EnterFoldingMode() {
-        if (IsFolding || IsTransitioning || isAligningPaper) return;
-
-        IsFolding = true;
-
-        // Switch inputs immediately
-        if (InputManager.Instance != null)
-            InputManager.Instance.SwitchToFolding();
-
-        if (HUDCanvas.Instance != null)
-            HUDCanvas.Instance.ShowFoldingUI(true);
-
-        // Re-enable paperGraph, teleport + rotate to match player, disable player
-        if (paperGraph != null) paperGraph.gameObject.SetActive(true);
-
-        if (player != null) {
-            TeleportPaperToPlayer();
-            player.SetActive(false);
-        }
-        if (flyingCamera != null) flyingCamera.gameObject.SetActive(false);
-        if (foldingCamera != null) foldingCamera.gameObject.SetActive(true);
-
-        BeginTransition(flyingCamera, foldingCamera);
-    }
-
-    /// <summary>
-    /// Lerps paper to match player rotation, saves mesh, then transitions to flying.
-    /// </summary>
-    public void EnterFlyingMode() {
-        if (!IsFolding || IsTransitioning || isAligningPaper) return;
-        BeginPaperAlignment(useSavedMesh: true);
-    }
-
-    /// <summary>
-    /// Lerps paper to match player rotation, then transitions to flying with the default mesh.
-    /// </summary>
-    public void EnterFlyingModeNoMesh() {
-        if (!IsFolding || IsTransitioning || isAligningPaper) return;
-        BeginPaperAlignment(useSavedMesh: false);
-    }
-
-    /// <summary>
-    /// Generates a mesh from the current PaperGraph and saves it internally.
-    /// </summary>
-    public void SaveMesh() {
-        if (paperGraph == null) {
-            Debug.LogError("FoldingManager: No PaperGraph assigned. Cannot save mesh.");
-            return;
+            _playerMeshFilter.mesh = SavedMesh;
+            Debug.Log($"FoldingManager: Applied saved mesh to '{_playerMeshFilter.gameObject.name}'.");
         }
 
-        savedMesh = paperGraph.GenerateMesh();
-        savedMesh.name = "FoldingManager_SavedMesh";
+        private void ApplyDefaultMeshToPlayer() {
+            if (DefaultPlayerMesh == null) return;
 
-        // Rotate mesh vertices to correct orientation
-        if (meshRotation != Vector3.zero) {
-            Quaternion rot = Quaternion.Euler(meshRotation);
-            Vector3[] verts = savedMesh.vertices;
-            for (int i = 0; i < verts.Length; i++) {
-                verts[i] = rot * verts[i];
+            if (_playerMeshFilter == null) {
+                Debug.LogWarning("FoldingManager: No GameObject tagged 'PlayerMesh' found.");
+                return;
             }
-            savedMesh.vertices = verts;
-            savedMesh.RecalculateNormals();
-            savedMesh.RecalculateBounds();
+
+            _playerMeshFilter.mesh = DefaultPlayerMesh;
         }
 
-        Debug.Log("FoldingManager: Mesh saved.");
-    }
+        private void TeleportPaperToPlayer() {
+            if (Player == null || PaperGraph == null) return;
 
-    /// <summary>
-    /// Returns the previously saved mesh, or null if none has been saved.
-    /// </summary>
-    public Mesh GetSavedMesh() {
-        return savedMesh;
-    }
+            Transform meshTarget = GetPlayerMeshTransform();
+            Vector3 delta = meshTarget.position - PaperGraph.transform.position;
+            PaperGraph.transform.position += delta;
 
-    // ─── Paper Alignment ─────────────────────────────────────────────
+            if (FoldingCamera != null)
+                FoldingCamera.transform.position += delta;
 
-    private void BeginPaperAlignment(bool useSavedMesh) {
-        if (paperGraph == null || player == null) {
-            // Skip alignment if references are missing, go straight to flying
-            ExecuteFlyingSwitch(useSavedMesh);
-            return;
+            PaperGraph.transform.rotation = meshTarget.rotation * Quaternion.Euler(PaperToPlayerRotationOffset);
         }
 
-        pendingFlyingSwitch = true;
-        pendingUseSavedMesh = useSavedMesh;
-
-        if (HUDCanvas.Instance != null)
-        {
-            HUDCanvas.Instance.StopFoldingTimer();
+        private Transform GetPlayerMeshTransform() {
+            FlightController fc = Player.GetComponent<FlightController>();
+            if (fc != null && fc.MeshTransform != null)
+                return fc.MeshTransform;
+            return Player.transform;
         }
 
-        // Start paper rotation lerp
-        isAligningPaper = true;
-        paperAlignElapsed = 0f;
-        paperAlignStartRot = paperGraph.transform.rotation;
-        paperAlignTargetRot = GetPlayerMeshRotation() * Quaternion.Euler(paperToPlayerRotationOffset);
-
-        // Start camera transition at the same time
-        BeginTransition(foldingCamera, flyingCamera);
-    }
-
-    /// <summary>
-    /// Common logic for switching to flying after both alignment and transition are done.
-    /// </summary>
-    private void ExecuteFlyingSwitch(bool useSavedMesh) {
-        pendingFlyingSwitch = false;
-        if (useSavedMesh)
-            SaveMesh();
-
-        // Re-enable player before applying mesh (FindWithTag needs active objects)
-        if (player != null) player.SetActive(true);
-
-        if (useSavedMesh)
-            ApplyMeshToPlayer();
-        else
-            ApplyDefaultMeshToPlayer();
-
-        // Disable the paper graph
-        if (paperGraph != null) paperGraph.gameObject.SetActive(false);
-
-        IsFolding = false;
-
-        // Switch inputs
-        if (InputManager.Instance != null)
-            InputManager.Instance.SwitchToPlayerAndDebug();
-
-        if (HUDCanvas.Instance != null)
-            HUDCanvas.Instance.ShowFlyingUI(true);
-
-        // Re-enable flying camera
-        if (flyingCamera != null) {
-            flyingCamera.gameObject.SetActive(true);
+        private Quaternion GetPlayerMeshRotation() {
+            return GetPlayerMeshTransform().rotation;
         }
-    }
-
-    // ─── Camera Transition ───────────────────────────────────────────
-
-    private void BeginTransition(Camera from, Camera to) {
-        IsTransitioning = true;
-        transitionElapsed = 0f;
-        transitionTarget = to;
-
-        // Snapshot the source camera's state
-        transitionStartPos = from.transform.position;
-        transitionStartRot = from.transform.rotation;
-        transitionStartFOV = from.fieldOfView;
-
-        // Create a temporary camera to render during the transition
-        var go = new GameObject("FoldingManager_TransitionCamera");
-        transitionCamera = go.AddComponent<Camera>();
-        transitionCamera.CopyFrom(from);
-        transitionCamera.transform.position = transitionStartPos;
-        transitionCamera.transform.rotation = transitionStartRot;
-        transitionCamera.fieldOfView = transitionStartFOV;
-
-        // Disable both real cameras while the transition camera is active
-        from.enabled = false;
-        to.enabled = false;
-    }
-
-    private void FinishTransition() {
-        IsTransitioning = false;
-
-        // Enable the destination camera
-        transitionTarget.enabled = true;
-
-        // Clean up the transition camera
-        if (transitionCamera != null) {
-            Destroy(transitionCamera.gameObject);
-            transitionCamera = null;
-        }
-
-        transitionTarget = null;
-    }
-
-    // ─── Internal Helpers ────────────────────────────────────────────
-
-    private void ApplyMeshToPlayer() {
-        if (savedMesh == null) return;
-
-        GameObject playerObj = GameObject.FindWithTag("PlayerMesh");
-        if (playerObj == null) {
-            Debug.LogWarning("FoldingManager: No GameObject tagged 'PlayerMesh' found.");
-            return;
-        }
-
-        MeshFilter mf = playerObj.GetComponent<MeshFilter>();
-        if (mf == null) {
-            Debug.LogWarning($"FoldingManager: '{playerObj.name}' has no MeshFilter component.");
-            return;
-        }
-
-        mf.mesh = savedMesh;
-        Debug.Log($"FoldingManager: Applied saved mesh to '{playerObj.name}'.");
-    }
-
-    private void ApplyDefaultMeshToPlayer() {
-        if (defaultPlayerMesh == null) return;
-
-        GameObject playerObj = GameObject.FindWithTag("PlayerMesh");
-        if (playerObj == null) {
-            Debug.LogWarning("FoldingManager: No GameObject tagged 'PlayerMesh' found.");
-            return;
-        }
-
-        MeshFilter mf = playerObj.GetComponent<MeshFilter>();
-        if (mf == null) {
-            Debug.LogWarning($"FoldingManager: '{playerObj.name}' has no MeshFilter component.");
-            return;
-        }
-
-        mf.mesh = defaultPlayerMesh;
-        // Debug.Log($"FoldingManager: Applied default mesh to '{playerObj.name}'.");
-    }
-
-    private void TeleportPaperToPlayer() {
-        if (player == null || paperGraph == null) return;
-
-        // Match position and rotation to the player's mesh child
-        Transform meshTarget = GetPlayerMeshTransform();
-        Vector3 delta = meshTarget.position - paperGraph.transform.position;
-        paperGraph.transform.position += delta;
-
-        if (foldingCamera != null)
-            foldingCamera.transform.position += delta;
-
-        paperGraph.transform.rotation = meshTarget.rotation * Quaternion.Euler(paperToPlayerRotationOffset);
-    }
-
-    /// <summary>
-    /// Returns the FlightController's exposed MeshTransform, or falls back to the player transform.
-    /// </summary>
-    private Transform GetPlayerMeshTransform() {
-        FlightController fc = player.GetComponent<FlightController>();
-        if (fc != null && fc.MeshTransform != null)
-            return fc.MeshTransform;
-        return player.transform;
-    }
-
-    private Quaternion GetPlayerMeshRotation() {
-        return GetPlayerMeshTransform().rotation;
     }
 }

@@ -1,19 +1,23 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class ShadowPosition : MonoBehaviour
+namespace Crease.Flying.Player
 {
-    [SerializeField] private GameObject player;
-    [SerializeField] private float shadowDistance = 1f;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public class ShadowPosition : MonoBehaviour
     {
-        this.transform.position = new Vector3(player.transform.position.x, player.transform.position.y - shadowDistance, player.transform.position.z);
-    }
+        [FormerlySerializedAs("player")]
+        [SerializeField] private GameObject _player;
+        [FormerlySerializedAs("shadowDistance")]
+        [SerializeField] private float _shadowDistance = 1f;
 
-    // Update is called once per frame
-    void Update()
-    {
-         this.transform.position = new Vector3(player.transform.position.x, player.transform.position.y - shadowDistance, player.transform.position.z);
+        void Start()
+        {
+            transform.position = new Vector3(_player.transform.position.x, _player.transform.position.y - _shadowDistance, _player.transform.position.z);
+        }
+
+        void Update()
+        {
+            transform.position = new Vector3(_player.transform.position.x, _player.transform.position.y - _shadowDistance, _player.transform.position.z);
+        }
     }
 }

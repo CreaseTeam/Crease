@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 7503706912354770143}
   - component: {fileID: 1863380397211783292}
   - component: {fileID: 4454027050028694274}
+  - component: {fileID: 6077507150792548617}
   - component: {fileID: 1234417595029902827}
   - component: {fileID: 8224397616069555107}
-  - component: {fileID: 43861566705487529}
   - component: {fileID: 1262306024077785724}
   - component: {fileID: 7581761816819280822}
   m_Layer: 0
@@ -95,6 +95,19 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &6077507150792548617
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7879245577808473579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 834fa6686ea18114d8bb8cbd5ed1ebac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Environment.Interactables.PickupDrop.PickupItem
+  _attachedLocalScale: {x: 0.3, y: 0.3, z: 0.3}
 --- !u!54 &1234417595029902827
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -143,23 +156,6 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &43861566705487529
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7879245577808473579}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 19377cda267a471ab27e4001ac86d391, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BombPropEntry
-  id: 21518f27-5ba9-4d61-a7b8-ef35bece232f
-  category: 4
-  weight: 0
-  isValid: 1
-  pickupScale: {x: 0.3, y: 0.3, z: 0.3}
 --- !u!198 &1262306024077785724
 ParticleSystem:
   m_ObjectHideFlags: 0

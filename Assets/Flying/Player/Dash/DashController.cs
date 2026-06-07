@@ -1,156 +1,170 @@
+using Crease.Flying.Player;
+using Crease.Managers.Input;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public enum DashRechargeMode
+namespace Crease.Flying.Player.Dash
 {
-    Slipstream,
-    SimpleTimer
-}
-
-public class DashController : MonoBehaviour
-{
-    [SerializeField] private Animator animator;
-    [SerializeField] private KinematicBody kinematicBody;
-    [SerializeField] private float boostStrength = 50f;
-    [SerializeField] private float dashDuration = 0.5f;
-    [SerializeField] private float invincibilityDuration = 0.6f;
-    [Header("Trail Settings")]
-    [SerializeField] private WingTrailController wingTrailController;
-    [SerializeField] private float trailTime = 0.5f;
-    [SerializeField] private GameObject dashBorder;
-
-    [Header("Recharge Settings")]
-    [SerializeField] private DashRechargeMode rechargeMode = DashRechargeMode.Slipstream;
-    [SerializeField] private float rechargeRate = 20f;
-    [SerializeField] private float rechargeMax = 100f;
-
-    private int objectsInRange = 0;
-    private MeshRenderer dashBorderRenderer;
-    
-    private float dashTimer = 0f;
-    private float invincibilityTimer = 0f;
-    private float trailTimer = 0f;
-    private float currentRecharge = 0f;
-    private bool canDash = true;
-
-    private Vector3 dashDirection;
-    private float dashSpeed;
-
-    public bool IsDashing => dashTimer > 0f;
-    public bool IsInvincible => invincibilityTimer > 0f;
-    public float CurrentRecharge => currentRecharge;
-    public float MaxRecharge => rechargeMax;
-    public bool CanDash => canDash;
-
-    void Start()
+    public enum DashRechargeMode
     {
-        currentRecharge = rechargeMax;
-
-        if (wingTrailController != null)
-        {
-            wingTrailController.SetTrailEnabled(false);
-        }
-        
-        if (dashBorder != null)
-        {
-            dashBorderRenderer = dashBorder.GetComponent<MeshRenderer>();
-        }
+        Slipstream,
+        SimpleTimer
     }
 
-    void Update()
+    public class DashController : MonoBehaviour
     {
-        if (InputManager.Instance.DashTriggered)
-        {
-            TriggerDash();
-        }
+        [FormerlySerializedAs("animator")]
+        [SerializeField] private Animator _animator;
+        [FormerlySerializedAs("kinematicBody")]
+        [SerializeField] private KinematicBody _kinematicBody;
+        [FormerlySerializedAs("boostStrength")]
+        [SerializeField] private float _boostStrength = 50f;
+        [FormerlySerializedAs("dashDuration")]
+        [SerializeField] private float _dashDuration = 0.5f;
+        [FormerlySerializedAs("invincibilityDuration")]
+        [SerializeField] private float _invincibilityDuration = 0.6f;
+        [Header("Trail Settings")]
+        [FormerlySerializedAs("wingTrailController")]
+        [SerializeField] private WingTrailController _wingTrailController;
+        [FormerlySerializedAs("trailTime")]
+        [SerializeField] private float _trailTime = 0.5f;
+        [FormerlySerializedAs("dashBorder")]
+        [SerializeField] private GameObject _dashBorder;
 
-        if (dashTimer > 0f)
-        {
-            dashTimer -= Time.deltaTime;
-        }
+        [Header("Recharge Settings")]
+        [FormerlySerializedAs("rechargeMode")]
+        [SerializeField] private DashRechargeMode _rechargeMode = DashRechargeMode.Slipstream;
+        [FormerlySerializedAs("rechargeRate")]
+        [SerializeField] private float _rechargeRate = 20f;
+        [FormerlySerializedAs("rechargeMax")]
+        [SerializeField] private float _rechargeMax = 100f;
 
-        if (invincibilityTimer > 0f)
-        {
-            invincibilityTimer -= Time.deltaTime;
-        }
+        private int _objectsInRange = 0;
+        private MeshRenderer _dashBorderRenderer;
 
-        if (trailTimer > 0f)
+        private float _dashTimer = 0f;
+        private float _invincibilityTimer = 0f;
+        private float _trailTimer = 0f;
+        private float _currentRecharge = 0f;
+        private bool _canDash = true;
+
+        private Vector3 _dashDirection;
+        private float _dashSpeed;
+
+        public bool IsDashing => _dashTimer > 0f;
+        public bool IsInvincible => _invincibilityTimer > 0f;
+        public float CurrentRecharge => _currentRecharge;
+        public float MaxRecharge => _rechargeMax;
+        public bool CanDash => _canDash;
+
+        void Start()
         {
-            trailTimer -= Time.deltaTime;
-            if (trailTimer <= 0f && wingTrailController != null)
+            _currentRecharge = _rechargeMax;
+
+            if (_wingTrailController != null)
             {
-                wingTrailController.SetTrailEnabled(false);
+                _wingTrailController.SetTrailEnabled(false);
+            }
+
+            if (_dashBorder != null)
+            {
+                _dashBorderRenderer = _dashBorder.GetComponent<MeshRenderer>();
             }
         }
 
-        bool isRecharging = (rechargeMode == DashRechargeMode.SimpleTimer) || (objectsInRange > 0);
-
-        if (isRecharging && currentRecharge < rechargeMax)
+        void Update()
         {
-            currentRecharge += rechargeRate * Time.deltaTime;
-            if (currentRecharge >= rechargeMax)
+            if (InputManager.Instance.DashTriggered)
             {
-                currentRecharge = rechargeMax;
-                canDash = true;
+                TriggerDash();
+            }
+
+            if (_dashTimer > 0f)
+            {
+                _dashTimer -= Time.deltaTime;
+            }
+
+            if (_invincibilityTimer > 0f)
+            {
+                _invincibilityTimer -= Time.deltaTime;
+            }
+
+            if (_trailTimer > 0f)
+            {
+                _trailTimer -= Time.deltaTime;
+                if (_trailTimer <= 0f && _wingTrailController != null)
+                {
+                    _wingTrailController.SetTrailEnabled(false);
+                }
+            }
+
+            bool isRecharging = (_rechargeMode == DashRechargeMode.SimpleTimer) || (_objectsInRange > 0);
+
+            if (isRecharging && _currentRecharge < _rechargeMax)
+            {
+                _currentRecharge += _rechargeRate * Time.deltaTime;
+                if (_currentRecharge >= _rechargeMax)
+                {
+                    _currentRecharge = _rechargeMax;
+                    _canDash = true;
+                }
+            }
+
+            bool shouldShowDashBorder = (_rechargeMode == DashRechargeMode.Slipstream) && _objectsInRange > 0;
+            SetDashBorderVisible(shouldShowDashBorder);
+        }
+
+        void FixedUpdate()
+        {
+            if (IsDashing)
+            {
+                _kinematicBody.Velocity = _dashDirection * _dashSpeed;
             }
         }
 
-        bool shouldShowDashBorder = (rechargeMode == DashRechargeMode.Slipstream) && objectsInRange > 0;
-        SetDashBorderVisible(shouldShowDashBorder);
-    }
-
-    void FixedUpdate()
-    {
-        if (IsDashing)
+        public void TriggerDash()
         {
-            kinematicBody.Velocity = dashDirection * dashSpeed;
-        }
-    }
-
-    public void TriggerDash()
-    {
-        if (canDash)
-        {
-            canDash = false;
-            currentRecharge = 0f;
-            dashTimer = dashDuration;
-            invincibilityTimer = invincibilityDuration;
-
-            if (wingTrailController != null)
+            if (_canDash)
             {
-                wingTrailController.SetTrailEnabled(true);
-                trailTimer = trailTime;
-            }
+                _canDash = false;
+                _currentRecharge = 0f;
+                _dashTimer = _dashDuration;
+                _invincibilityTimer = _invincibilityDuration;
 
-            // Lock direction to current facing; speed = forward component of current velocity + boost
-            dashDirection = transform.forward;
-            float forwardSpeed = Vector3.Dot(kinematicBody.Velocity, dashDirection);
-            dashSpeed = Mathf.Max(forwardSpeed, 0f) + boostStrength;
+                if (_wingTrailController != null)
+                {
+                    _wingTrailController.SetTrailEnabled(true);
+                    _trailTimer = _trailTime;
+                }
 
-            // Trigger dash animation
-            if (animator != null)
-            {
-                animator.SetTrigger("Dash");
+                _dashDirection = transform.forward;
+                float forwardSpeed = Vector3.Dot(_kinematicBody.Velocity, _dashDirection);
+                _dashSpeed = Mathf.Max(forwardSpeed, 0f) + _boostStrength;
+
+                if (_animator != null)
+                {
+                    _animator.SetTrigger("Dash");
+                }
             }
         }
-    }
 
-    public void ModifyObjectsInRange(int amount)
-    {
-        objectsInRange += amount;
-    }
-
-    private void SetDashBorderVisible(bool visible)
-    {
-        if (dashBorderRenderer != null)
+        public void ModifyObjectsInRange(int amount)
         {
-            dashBorderRenderer.enabled = visible;
+            _objectsInRange += amount;
+        }
+
+        private void SetDashBorderVisible(bool visible)
+        {
+            if (_dashBorderRenderer != null)
+            {
+                _dashBorderRenderer.enabled = visible;
+            }
+        }
+
+        public void RefreshDash()
+        {
+            _canDash = true;
+            _currentRecharge = _rechargeMax;
         }
     }
-
-    public void RefreshDash()
-    {
-        canDash = true;
-        currentRecharge = rechargeMax;
-    }
-
 }

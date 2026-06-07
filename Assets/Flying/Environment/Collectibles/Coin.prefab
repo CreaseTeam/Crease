@@ -117,8 +117,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20c6c77905486094dbbe6e796a4f1f55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Collectible
-  destroyOnCollect: 0
-  hideOnCollect: 1
+  _destroyOnCollect: 0
+  _hideOnCollect: 1
   OnCollected:
     m_PersistentCalls:
       m_Calls:
@@ -146,9 +146,9 @@ MonoBehaviour:
           m_StringArgument: coin
           m_BoolArgument: 0
         m_CallState: 2
-  spin: 1
-  spinSpeed: 90
-  collectEffect: {fileID: 6265882924923028776}
+  _spin: 1
+  _spinSpeed: 90
+  _collectEffect: {fileID: 6265882924923028776}
 --- !u!135 &7484429131230231912
 SphereCollider:
   m_ObjectHideFlags: 0

@@ -1192,19 +1192,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 229d76640ead903439b3237e335a01b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HUDCanvas
-  dashController: {fileID: 0}
-  rechargeBar: {fileID: 4434643408426296693}
-  dashBarBorder: {fileID: 6136693616890475763}
-  collectibleText: {fileID: 5594039762732754378}
-  healthBar: {fileID: 1292078482510752566}
-  playerHealth: {fileID: 0}
-  foldingUI: {fileID: 5380673257305531190}
-  flyingUI: {fileID: 6100593597435450280}
-  checkpointUI: {fileID: 8099138258846445354}
-  foldAccuracyText: {fileID: 1715312132065539424}
-  overallAccuracyText: {fileID: 4441194571608214102}
-  timerText: {fileID: 7071465742784683190}
-  pauseMenuUI: {fileID: 357967908704961714}
+  _dashController: {fileID: 0}
+  _rechargeBar: {fileID: 4434643408426296693}
+  _dashBarBorder: {fileID: 6136693616890475763}
+  _collectibleText: {fileID: 5594039762732754378}
+  _healthBar: {fileID: 1292078482510752566}
+  _playerHealth: {fileID: 0}
+  _foldingUI: {fileID: 5380673257305531190}
+  _flyingUI: {fileID: 6100593597435450280}
+  _checkpointUI: {fileID: 8099138258846445354}
+  _foldAccuracyText: {fileID: 1715312132065539424}
+  _overallAccuracyText: {fileID: 4441194571608214102}
+  _timerText: {fileID: 7071465742784683190}
+  _pauseMenuUI: {fileID: 357967908704961714}
 --- !u!1 &1425510533676349599
 GameObject:
   m_ObjectHideFlags: 0
@@ -1802,21 +1802,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4437bd354378024097aa68aa2a97a33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthBar
-  segmentContainer: {fileID: 5224709889675613542}
-  barRoot: {fileID: 5224709889675613542}
-  segmentPrefab: {fileID: 2759608022006629337, guid: f55275840fc1fd7448b9dadf6f828934, type: 3}
-  remainingHealthSegment: {fileID: 2145896346430136815}
-  segmentColorEntries:
-  - type: 0
-    color: {r: 0.85660374, g: 0.8517551, b: 0.8517551, a: 1}
-  - type: 2
-    color: {r: 1, g: 0.5, b: 0, a: 1}
-  - type: 1
-    color: {r: 0.93207544, g: 0.23741534, b: 0.3268385, a: 1}
-  - type: 4
-    color: {r: 0.7433963, g: 0.47826892, b: 0, a: 1}
-  - type: 3
-    color: {r: 0, g: 0.7463976, b: 0.8, a: 1}
+  _segmentContainer: {fileID: 5224709889675613542}
+  _barRoot: {fileID: 5224709889675613542}
+  _segmentPrefab: {fileID: 2759608022006629337, guid: f55275840fc1fd7448b9dadf6f828934, type: 3}
+  _remainingHealthSegment: {fileID: 2145896346430136815}
+  _segmentColorEntries:
+  - Type: 0
+    Color: {r: 0.85660374, g: 0.8517551, b: 0.8517551, a: 1}
+  - Type: 2
+    Color: {r: 1, g: 0.5, b: 0, a: 1}
+  - Type: 1
+    Color: {r: 0.93207544, g: 0.23741534, b: 0.3268385, a: 1}
+  - Type: 4
+    Color: {r: 0.7433963, g: 0.47826892, b: 0, a: 1}
+  - Type: 3
+    Color: {r: 0, g: 0.7463976, b: 0.8, a: 1}
 --- !u!222 &4847530505463599025
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3486,12 +3486,14 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: FoldInstructionRunner, Assembly-CSharp
+        m_TargetAssemblyTypeName: Crease.Folding.PaperGraph.FoldInstructionRunner,
+          Assembly-CSharp
         m_MethodName: LoadInstruction
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 11400000, guid: f6614e182e3a7a944b0a8ca13b863877, type: 2}
-          m_ObjectArgumentAssemblyTypeName: FoldInstruction, Assembly-CSharp
+          m_ObjectArgumentAssemblyTypeName: Crease.Folding.PaperGraph.FoldInstruction,
+            Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
