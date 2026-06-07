@@ -13,6 +13,9 @@ namespace Crease.Flying.Player.FlightSettings
         ClimbRate,
         ClimbEfficiency,
         TurnInterpolation,
+        StabilityStrength,
+        StabilityReferenceSpeed,
+        StabilityInputSuppression,
         XDrag,
         YDrag,
         ZDrag,
@@ -167,6 +170,9 @@ namespace Crease.Flying.Player.FlightSettings
             mod.ClimbRate = targetSettings.ClimbRate - _currentStats.ClimbRate;
             mod.ClimbEfficiency = targetSettings.ClimbEfficiency - _currentStats.ClimbEfficiency;
             mod.TurnInterpolation = targetSettings.TurnInterpolation - _currentStats.TurnInterpolation;
+            mod.StabilityStrength = targetSettings.StabilityStrength - _currentStats.StabilityStrength;
+            mod.StabilityReferenceSpeed = targetSettings.StabilityReferenceSpeed - _currentStats.StabilityReferenceSpeed;
+            mod.StabilityInputSuppression = targetSettings.StabilityInputSuppression - _currentStats.StabilityInputSuppression;
             mod.XDrag = targetSettings.XDrag - _currentStats.XDrag;
             mod.YDrag = targetSettings.YDrag - _currentStats.YDrag;
             mod.ZDrag = targetSettings.ZDrag - _currentStats.ZDrag;
@@ -200,6 +206,9 @@ namespace Crease.Flying.Player.FlightSettings
                 case FlightStatType.ClimbRate: mod.ClimbRate = modifierValue; break;
                 case FlightStatType.ClimbEfficiency: mod.ClimbEfficiency = modifierValue; break;
                 case FlightStatType.TurnInterpolation: mod.TurnInterpolation = modifierValue; break;
+                case FlightStatType.StabilityStrength: mod.StabilityStrength = modifierValue; break;
+                case FlightStatType.StabilityReferenceSpeed: mod.StabilityReferenceSpeed = modifierValue; break;
+                case FlightStatType.StabilityInputSuppression: mod.StabilityInputSuppression = modifierValue; break;
                 case FlightStatType.XDrag: mod.XDrag = modifierValue; break;
                 case FlightStatType.YDrag: mod.YDrag = modifierValue; break;
                 case FlightStatType.ZDrag: mod.ZDrag = modifierValue; break;
@@ -234,6 +243,9 @@ namespace Crease.Flying.Player.FlightSettings
             mod.ClimbRate = 0f;
             mod.ClimbEfficiency = 0f;
             mod.TurnInterpolation = 0f;
+            mod.StabilityStrength = 0f;
+            mod.StabilityReferenceSpeed = 0f;
+            mod.StabilityInputSuppression = 0f;
             mod.XDrag = 0f;
             mod.YDrag = 0f;
             mod.ZDrag = 0f;
@@ -261,6 +273,9 @@ namespace Crease.Flying.Player.FlightSettings
                 case FlightStatType.ClimbRate: return _currentStats.ClimbRate;
                 case FlightStatType.ClimbEfficiency: return _currentStats.ClimbEfficiency;
                 case FlightStatType.TurnInterpolation: return _currentStats.TurnInterpolation;
+                case FlightStatType.StabilityStrength: return _currentStats.StabilityStrength;
+                case FlightStatType.StabilityReferenceSpeed: return _currentStats.StabilityReferenceSpeed;
+                case FlightStatType.StabilityInputSuppression: return _currentStats.StabilityInputSuppression;
                 case FlightStatType.XDrag: return _currentStats.XDrag;
                 case FlightStatType.YDrag: return _currentStats.YDrag;
                 case FlightStatType.ZDrag: return _currentStats.ZDrag;
@@ -288,6 +303,9 @@ namespace Crease.Flying.Player.FlightSettings
             _currentStats.ClimbRate = _baseSettings.ClimbRate;
             _currentStats.ClimbEfficiency = _baseSettings.ClimbEfficiency;
             _currentStats.TurnInterpolation = _baseSettings.TurnInterpolation;
+            _currentStats.StabilityStrength = _baseSettings.StabilityStrength;
+            _currentStats.StabilityReferenceSpeed = _baseSettings.StabilityReferenceSpeed;
+            _currentStats.StabilityInputSuppression = _baseSettings.StabilityInputSuppression;
             _currentStats.XDrag = _baseSettings.XDrag;
             _currentStats.YDrag = _baseSettings.YDrag;
             _currentStats.ZDrag = _baseSettings.ZDrag;
@@ -312,6 +330,9 @@ namespace Crease.Flying.Player.FlightSettings
                 _currentStats.ClimbRate += mod.ClimbRate;
                 _currentStats.ClimbEfficiency += mod.ClimbEfficiency;
                 _currentStats.TurnInterpolation += mod.TurnInterpolation;
+                _currentStats.StabilityStrength += mod.StabilityStrength;
+                _currentStats.StabilityReferenceSpeed += mod.StabilityReferenceSpeed;
+                _currentStats.StabilityInputSuppression += mod.StabilityInputSuppression;
                 _currentStats.XDrag += mod.XDrag;
                 _currentStats.YDrag += mod.YDrag;
                 _currentStats.ZDrag += mod.ZDrag;
