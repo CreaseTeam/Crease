@@ -25,6 +25,8 @@ namespace Crease.Folding.PaperGraph
         [Header("Drag Handle")]
         [FormerlySerializedAs("dragHandlePosition")]
         public Vector3 DragHandlePosition = Vector3.zero;
+        [HideInInspector]
+        public Vector3 IdealDragPosition = Vector3.zero;
         [FormerlySerializedAs("dragPlaneNormal")]
         public Vector3 DragPlaneNormal = Vector3.up;
         [FormerlySerializedAs("foldLineHalfLength")]
@@ -105,6 +107,8 @@ namespace Crease.Folding.PaperGraph
             if (!valid) {
                 FoldPoint1 = LockedFoldPoint1;
                 FoldPoint2 = LockedFoldPoint2;
+                PreviewGraph.RestoreSnapshot(snapshot);
+                PreviewGraph.ExecuteFold(LockedFoldPoint1, LockedFoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTag, FoldOffset);
             } else {
                 LockedFoldPoint1 = FoldPoint1;
                 LockedFoldPoint2 = FoldPoint2;
@@ -112,6 +116,38 @@ namespace Crease.Folding.PaperGraph
 
             CacheFoldValues();
             RefreshVisualizers();
+        }
+
+        private void FreezeAtLastValidFold() {
+            FoldPoint1 = LockedFoldPoint1;
+            FoldPoint2 = LockedFoldPoint2;
+            FoldPlaneVector = DragPlaneNormal;
+            UpdatePreview();
+        }
+
+        /// <summary>
+        /// Invalid when the drag handle and the instruction's ideal fold axis lie on opposite
+        /// sides of the start boundary (the ideal fold axis duplicated through drag start).
+        /// </summary>
+        private bool IsPastStartBoundary(Vector3 dragStart, Vector3 dragCurrent) {
+            Vector3 idealDrag = IdealDragPosition - dragStart;
+            if (idealDrag.sqrMagnitude < 0.00001f) return false;
+
+            Vector3 idealDir = idealDrag.normalized;
+            Vector3 idealFoldCenter = dragStart + idealDrag * 0.5f;
+            float handleT = Vector3.Dot(dragCurrent - dragStart, idealDir);
+            float idealFoldT = Vector3.Dot(idealFoldCenter - dragStart, idealDir);
+            return handleT * idealFoldT < -0.0001f;
+        }
+
+        private bool IsFoldCandidateInvalid(Vector3 dragStart, Vector3 dragCurrent, Vector3 candidateP1, Vector3 candidateP2) {
+            if (IsPastStartBoundary(dragStart, dragCurrent)) return true;
+
+            if (HasFoldAxisLock) {
+                return FoldAxisCrossesLockSegment(candidateP1, candidateP2, FoldAxisLockP1, FoldAxisLockP2, DragPlaneNormal);
+            }
+
+            return false;
         }
 
         public void ExecuteFoldAction() {
@@ -137,16 +173,11 @@ namespace Crease.Folding.PaperGraph
             Vector3 candidateP1 = midpoint + foldAxisDir * FoldLineHalfLength;
             Vector3 candidateP2 = midpoint - foldAxisDir * FoldLineHalfLength;
 
-            if (HasFoldAxisLock) {
-                bool crosses = FoldAxisCrossesLockSegment(candidateP1, candidateP2, FoldAxisLockP1, FoldAxisLockP2, DragPlaneNormal);
-                if (crosses) {
-                    FoldPoint1 = LockedFoldPoint1;
-                    FoldPoint2 = LockedFoldPoint2;
-                    FoldPlaneVector = DragPlaneNormal;
-                    return;
-                }
-                LockedFoldPoint1 = candidateP1;
-                LockedFoldPoint2 = candidateP2;
+            if (HasFoldAxisLock && FoldAxisCrossesLockSegment(candidateP1, candidateP2, FoldAxisLockP1, FoldAxisLockP2, DragPlaneNormal)) {
+                FoldPoint1 = LockedFoldPoint1;
+                FoldPoint2 = LockedFoldPoint2;
+                FoldPlaneVector = DragPlaneNormal;
+                return;
             }
 
             FoldPoint1 = candidateP1;
@@ -293,23 +324,14 @@ namespace Crease.Folding.PaperGraph
             Vector3 candidateP1 = midpoint + foldAxisDir * FoldLineHalfLength;
             Vector3 candidateP2 = midpoint - foldAxisDir * FoldLineHalfLength;
 
-            if (HasFoldAxisLock) {
-                bool crosses = FoldAxisCrossesLockSegment(candidateP1, candidateP2, FoldAxisLockP1, FoldAxisLockP2, DragPlaneNormal);
-                if (crosses) {
-                    FoldPoint1 = LockedFoldPoint1;
-                    FoldPoint2 = LockedFoldPoint2;
-                    FoldPlaneVector = DragPlaneNormal;
-                    UpdatePreview();
-                    return;
-                }
-                LockedFoldPoint1 = candidateP1;
-                LockedFoldPoint2 = candidateP2;
+            if (IsFoldCandidateInvalid(dragStartLocal, dragCurrentLocal, candidateP1, candidateP2)) {
+                FreezeAtLastValidFold();
+                return;
             }
 
             FoldPoint1 = candidateP1;
             FoldPoint2 = candidateP2;
             FoldPlaneVector = DragPlaneNormal;
-
             UpdatePreview();
         }
 
@@ -351,6 +373,20 @@ namespace Crease.Folding.PaperGraph
                 Gizmos.DrawRay(foldCenter, foldNormal * GizmoHeight * 0.5f);
 
                 Gizmos.matrix = Matrix4x4.identity;
+            }
+
+            Vector3 idealDrag = IdealDragPosition - DragHandlePosition;
+            if (idealDrag.sqrMagnitude > 0.00001f) {
+                Vector3 idealFoldAxisDir = Vector3.Cross(DragPlaneNormal, idealDrag.normalized).normalized;
+                if (idealFoldAxisDir.sqrMagnitude > 0.0001f) {
+                    Gizmos.matrix = localToWorld;
+                    Gizmos.color = Color.yellow;
+                    Vector3 startP1 = DragHandlePosition + idealFoldAxisDir * FoldLineHalfLength;
+                    Vector3 startP2 = DragHandlePosition - idealFoldAxisDir * FoldLineHalfLength;
+                    Gizmos.DrawLine(startP1, startP2);
+                    Gizmos.DrawSphere(startP1, 0.015f);
+                    Gizmos.DrawSphere(startP2, 0.015f);
+                }
             }
 
             if (HasFoldAxisLock) {

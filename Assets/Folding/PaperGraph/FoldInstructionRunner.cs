@@ -115,9 +115,6 @@ public class FoldInstructionRunner : MonoBehaviour
             LoadInstruction(Instruction);
     }
 
-    /// <summary>
-    /// Creates or configures the LineRenderer for the fold axis guide.
-    /// </summary>
     private void EnsureGuideLineRenderer() {
         if (FoldAxisGuide == null) {
             GameObject guideObj = new GameObject("FoldAxisGuide");
@@ -125,7 +122,7 @@ public class FoldInstructionRunner : MonoBehaviour
             FoldAxisGuide = guideObj.AddComponent<LineRenderer>();
         }
 
-        FoldAxisGuide.useWorldSpace = false; // positions are local to the paper
+        FoldAxisGuide.useWorldSpace = false;
         FoldAxisGuide.positionCount = 2;
         FoldAxisGuide.startWidth = GuideLineWidth;
         FoldAxisGuide.endWidth = GuideLineWidth;
@@ -292,6 +289,7 @@ public class FoldInstructionRunner : MonoBehaviour
     /// </summary>
     private void ApplyStepToController(FoldStep step) {
         Controller.DragHandlePosition = step.DragHandlePosition;
+        Controller.IdealDragPosition = step.IdealDragPosition;
         Controller.DragPlaneNormal = step.DragPlaneNormal;
         Controller.FoldDegrees = step.FoldDegrees;
         Controller.FoldOffset = step.FoldOffset;
@@ -349,82 +347,57 @@ public class FoldInstructionRunner : MonoBehaviour
         // Clear the preview — no fold preview until the drag handle is moved
         Controller.ClearPreview();
 
-        // Show the ideal fold axis guide line
         UpdateGuideLine(step);
     }
 
-    /// <summary>
-    /// Computes the ideal fold axis from dragHandlePosition → idealDragPosition
-    /// (same math as PaperGraphController.UpdateFoldFromDrag), clips it to
-    /// the paper's edge geometry, and floats it above the topmost layer.
-    /// </summary>
     private void UpdateGuideLine(FoldStep step) {
         if (FoldAxisGuide == null) return;
-
-        
 
         Vector3 dragStart = step.DragHandlePosition;
         Vector3 dragEnd = step.IdealDragPosition;
         Vector3 dragDelta = dragEnd - dragStart;
 
-        // If ideal position is not set (same as start), hide the guide
         if (dragDelta.sqrMagnitude < 0.00001f) {
-            FoldAxisGuide.enabled = false;
+            HideGuideLine();
             return;
         }
 
         Vector3 planeNormal = step.DragPlaneNormal.normalized;
-
-        // Same math as PaperGraphController.UpdateFoldFromDrag
-        Vector3 midpoint = (dragStart + dragEnd) * 0.5f;
         Vector3 dragDir = dragDelta.normalized;
         Vector3 foldAxisDir = Vector3.Cross(planeNormal, dragDir).normalized;
-
         if (foldAxisDir.sqrMagnitude < 0.0001f) {
-            FoldAxisGuide.enabled = false;
+            HideGuideLine();
             return;
         }
 
-        // --- Clip to paper edges and find local height ---
+        Vector3 idealMidpoint = (dragStart + dragEnd) * 0.5f;
+
         float halfLength = Controller != null ? Controller.FoldLineHalfLength : 1f;
-        Vector3 lineP1 = midpoint + foldAxisDir * halfLength;
-        Vector3 lineP2 = midpoint - foldAxisDir * halfLength;
-        float localMaxHeight = Vector3.Dot(midpoint, planeNormal); // fallback
+        Vector3 lineP1 = idealMidpoint + foldAxisDir * halfLength;
+        Vector3 lineP2 = idealMidpoint - foldAxisDir * halfLength;
+        float localMaxHeight = Vector3.Dot(idealMidpoint, planeNormal);
 
         if (_paperGraph != null && _paperGraph.Edges.Count > 0) {
             Vector3 clippedP1, clippedP2;
             float clippedMaxHeight;
-            if (ClipLineToPaperEdges(lineP1, lineP2, foldAxisDir, midpoint, planeNormal, _paperGraph, out clippedP1, out clippedP2, out clippedMaxHeight)) {
+            if (ClipLineToPaperEdges(lineP1, lineP2, foldAxisDir, idealMidpoint, planeNormal, _paperGraph, out clippedP1, out clippedP2, out clippedMaxHeight)) {
                 lineP1 = clippedP1;
                 lineP2 = clippedP2;
                 localMaxHeight = clippedMaxHeight;
             } else {
-                // Fold axis doesn't cross the paper — hide the guide
                 FoldAxisGuide.enabled = false;
                 return;
             }
         }
 
-        // --- Offset above the topmost layer at the fold axis ---
-        {
-            // Cap so the guide sits below the upcoming fold layer.
-            // During flat folds the folded side offsets by foldOffset, so
-            // keeping our offset smaller ensures the fold covers the line.
-            float heightOffset = GuideLineHeightOffset;
-            if (Mathf.Abs(step.FoldOffset) > 0.00001f) {
-                heightOffset = Mathf.Min(heightOffset, Mathf.Abs(step.FoldOffset) * 0.5f);
-            }
+        float heightOffset = GuideLineHeightOffset;
+        if (Mathf.Abs(step.FoldOffset) > 0.00001f)
+            heightOffset = Mathf.Min(heightOffset, Mathf.Abs(step.FoldOffset) * 0.5f);
 
-            // Place the line at the local height (at the fold axis) + offset
-            float currentHeight = Vector3.Dot(midpoint, planeNormal);
-            float lift = (localMaxHeight - currentHeight) + heightOffset;
-            Vector3 offset = planeNormal * lift;
-            lineP1 += offset;
-            lineP2 += offset;
-        }
-
-        FoldAxisGuide.SetPosition(0, lineP1);
-        FoldAxisGuide.SetPosition(1, lineP2);
+        float lift = (localMaxHeight - Vector3.Dot(idealMidpoint, planeNormal)) + heightOffset;
+        Vector3 offset = planeNormal * lift;
+        FoldAxisGuide.SetPosition(0, lineP1 + offset);
+        FoldAxisGuide.SetPosition(1, lineP2 + offset);
         FoldAxisGuide.enabled = true;
     }
 
@@ -498,12 +471,8 @@ public class FoldInstructionRunner : MonoBehaviour
         return true;
     }
 
-    /// <summary>
-    /// Hides the fold axis guide line.
-    /// </summary>
     private void HideGuideLine() {
-        if (FoldAxisGuide != null)
-            FoldAxisGuide.enabled = false;
+        if (FoldAxisGuide != null) FoldAxisGuide.enabled = false;
     }
 
     /// <summary>
@@ -651,6 +620,8 @@ public class FoldInstructionRunner : MonoBehaviour
 
     private void ConfigureControllerForStep(FoldStep step) {
         // Set up fold parameters reflecting the ideal fold for this step
+        Controller.DragHandlePosition = step.DragHandlePosition;
+        Controller.IdealDragPosition = step.IdealDragPosition;
         Controller.DragPlaneNormal = step.DragPlaneNormal;
         Controller.FoldTagName = string.IsNullOrEmpty(step.ApplyTag) ? "" : step.ApplyTag;
         Controller.FoldOffset = step.FoldOffset;
