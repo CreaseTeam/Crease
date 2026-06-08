@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Crease.Audio;
+using Crease.Folding.Stickers;
 using Crease.Managers.Input;
 using Crease.UI;
 using UnityEngine;
@@ -7,6 +8,12 @@ using UnityEngine.Serialization;
 
 namespace Crease.Folding.PaperGraph
 {
+
+public enum FoldingRunPhase
+{
+    Folding,
+    Stickers
+}
 
 /// <summary>
 /// Loads a FoldInstruction asset and runs its steps sequentially.
@@ -90,6 +97,14 @@ public class FoldInstructionRunner : MonoBehaviour
 
     private bool _isUnfolding = false;
     private bool _isAutoFolding = false;
+    private FoldingRunPhase _phase = FoldingRunPhase.Folding;
+
+    public bool IsInStickerPhase => _phase == FoldingRunPhase.Stickers;
+
+    public bool IsFoldingComplete =>
+        Instruction != null
+        && Instruction.Steps.Count > 0
+        && _currentStepIndex >= Instruction.Steps.Count;
 
     // Set when a step with LockFoldAxis == true is executed.
     // Cleared when LoadInstruction is called.
@@ -140,7 +155,7 @@ public class FoldInstructionRunner : MonoBehaviour
         if (InputManager.Instance == null) return;
         if (_isUnfolding || _isAutoFolding) return;
 
-        if (InputManager.Instance.ExecuteFoldTriggered)
+        if (_phase == FoldingRunPhase.Folding && InputManager.Instance.ExecuteFoldTriggered)
             ExecuteCurrentStep();
 
         if (InputManager.Instance.RecenterTriggered)
@@ -165,6 +180,7 @@ public class FoldInstructionRunner : MonoBehaviour
     /// </summary>
     public void LoadInstruction(FoldInstruction newInstruction) {
         Instruction = newInstruction;
+        ExitStickerPhase(clearStickers: true);
 
         if (Instruction == null || Instruction.Steps.Count == 0) {
             Debug.LogWarning("FoldInstructionRunner: Instruction is null or has no steps.");
@@ -259,8 +275,78 @@ public class FoldInstructionRunner : MonoBehaviour
             if (HUDCanvas.Instance != null)
                 HUDCanvas.Instance.StopFoldingTimer();
 
+            EnterStickerPhase();
             Debug.Log("FoldInstructionRunner: All steps completed!");
         }
+    }
+
+    /// <summary>
+    /// Restores folding-mode UI when returning from flight. Re-enters sticker phase if all folds are done.
+    /// </summary>
+    public void OnEnterFoldingMode() {
+        if (IsFoldingComplete)
+            ReenterStickerPhaseFromFlight();
+        else if (_phase == FoldingRunPhase.Stickers)
+            ExitStickerPhase(clearStickers: false);
+    }
+
+    private void EnterStickerPhase() {
+        _phase = FoldingRunPhase.Stickers;
+        if (HUDCanvas.Instance != null)
+            HUDCanvas.Instance.ShowStickerUI(true);
+
+        if (Controller != null) {
+            Controller.ClearPreview();
+            Controller.DecalManager?.PreparePlacement();
+        }
+
+        if (DragHandle != null)
+            DragHandle.gameObject.SetActive(false);
+
+        HideGuideLine();
+
+        StickerUIController stickerUi = FindFirstObjectByType<StickerUIController>();
+        if (stickerUi != null)
+            stickerUi.PopulateDropdown();
+    }
+
+    private void ReenterStickerPhaseFromFlight() {
+        _phase = FoldingRunPhase.Stickers;
+        if (HUDCanvas.Instance != null)
+            HUDCanvas.Instance.ShowStickerUI(true);
+
+        if (Controller != null)
+            Controller.DecalManager?.PreparePlacement(syncPreviewFromAuthoring: false);
+
+        if (DragHandle != null)
+            DragHandle.gameObject.SetActive(false);
+
+        HideGuideLine();
+
+        StickerUIController stickerUi = FindFirstObjectByType<StickerUIController>();
+        if (stickerUi != null)
+            stickerUi.PopulateDropdown();
+    }
+
+    private void ExitStickerPhase(bool clearStickers) {
+        _phase = FoldingRunPhase.Folding;
+        if (clearStickers)
+            ClearStickersOnPaper();
+        if (HUDCanvas.Instance != null)
+            HUDCanvas.Instance.ShowStickerUI(false);
+    }
+
+    private void ClearStickersOnPaper() {
+        if (Controller == null || Controller.DecalManager == null) return;
+        Controller.DecalManager.ClearDecals();
+    }
+
+    /// <summary>
+    /// Instantly resets paper, stickers, and fold progress to step 0.
+    /// </summary>
+    public void InstantResetPaper() {
+        if (_isUnfolding || Instruction == null) return;
+        LoadInstruction(Instruction);
     }
 
     /// <summary>
@@ -506,22 +592,8 @@ public class FoldInstructionRunner : MonoBehaviour
     /// </summary>
     public void Unfold() {
         if (_isUnfolding || Instruction == null || Controller == null) return;
-        StartCoroutine(UnfoldAllRoutine());
-    }
-
-    /// <summary>
-    /// Plays the unfold animation, then loads a new instruction.
-    /// </summary>
-    public void ResetPaper(FoldInstruction nextInstruction) {
-        if (_isUnfolding || Controller == null) return;
-        StartCoroutine(ResetPaperRoutine(nextInstruction));
-    }
-
-    private System.Collections.IEnumerator ResetPaperRoutine(FoldInstruction nextInstruction) {
-        if (Instruction != null) {
-            yield return StartCoroutine(UnfoldAllRoutine(true));
-        }
-        LoadInstruction(nextInstruction);
+        bool skipReload = _phase == FoldingRunPhase.Stickers;
+        StartCoroutine(UnfoldAllRoutine(skipReload));
     }
 
     private void PrepareForAnimation() {
@@ -613,6 +685,10 @@ public class FoldInstructionRunner : MonoBehaviour
                 ApplyStepToController(Instruction.Steps[0]);
                 if (DragHandle != null) DragHandle.gameObject.SetActive(true);
             }
+        } else if (_phase == FoldingRunPhase.Stickers) {
+            Controller.ClearPreview();
+            Controller.DecalManager?.PreparePlacement();
+            if (DragHandle != null) DragHandle.gameObject.SetActive(false);
         }
 
         _isUnfolding = false;
@@ -712,6 +788,7 @@ public class FoldInstructionRunner : MonoBehaviour
         if (HUDCanvas.Instance != null)
             HUDCanvas.Instance.StopFoldingTimer();
 
+        EnterStickerPhase();
         _isAutoFolding = false;
     }
 

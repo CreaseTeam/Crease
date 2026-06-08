@@ -12,22 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 313fd6e9ff9ebc141b8a99eb215e9863, type: 3}
   m_Name: DefaultFlight
   m_EditorClassIdentifier: Assembly-CSharp::FlightSettings
-  divingGravity: 20
-  climbingGravity: 15
-  lift: 9
-  diveRate: 2.5
-  climbRate: 1.5
-  climbEfficiency: 3
-  turnInterpolation: 2
-  xDrag: 0.995
-  yDrag: 0.99
-  zDrag: 0.995
-  pitchSpeed: 120
-  maxPitch: 89
-  yawSpeed: 60
-  rollSpeed: 100
-  rollBackSpeed: 150
-  maxRoll: 45
-  boostSpeed: 3
-  initialSpeed: 10
-  minimumVelocity: 0
+  DivingGravity: 20
+  ClimbingGravity: 15
+  Lift: 9
+  DiveRate: 2.5
+  ClimbRate: 1.5
+  ClimbEfficiency: 3
+  TurnInterpolation: 2
+  StabilityStrength: 2
+  StabilityReferenceSpeed: 15
+  StabilityInputSuppression: 0.85
+  XDrag: 0.995
+  YDrag: 0.99
+  ZDrag: 0.995
+  PitchSpeed: 120
+  MaxPitch: 89
+  YawSpeed: 60
+  RollSpeed: 100
+  RollBackSpeed: 150
+  MaxRoll: 45
+  BoostSpeed: 3
+  InitialSpeed: 10
+  MinimumVelocity: 10

@@ -1,3 +1,4 @@
+using Crease.Folding.Decals;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -36,6 +37,10 @@ namespace Crease.Folding.PaperGraph
         [FormerlySerializedAs("previewGraph")]
         public PaperGraph PreviewGraph;
 
+        [Header("Decals")]
+        [FormerlySerializedAs("stickerManager")]
+        public PaperDecalManager DecalManager;
+
         [Header("Gizmo")]
         [FormerlySerializedAs("showFoldGizmo")]
         public bool ShowFoldGizmo = true;
@@ -45,6 +50,8 @@ namespace Crease.Folding.PaperGraph
         public Color GizmoColor = new Color(1f, 0.5f, 0f, 0.25f);
 
         private PaperGraph _paperGraph;
+        private PaperGraphVisualizer _authoringVisualizer;
+        private PaperGraphVisualizer _previewVisualizer;
 
         // When set by FoldInstructionRunner, RecalculateFoldAxis will refuse to move
         // FoldPoint1/FoldPoint2 to a position whose axis line crosses this segment.
@@ -82,6 +89,11 @@ namespace Crease.Folding.PaperGraph
 
         private void Awake() {
             _paperGraph = GetComponent<PaperGraph>();
+            _authoringVisualizer = GetComponent<PaperGraphVisualizer>();
+            if (PreviewGraph != null)
+                _previewVisualizer = PreviewGraph.GetComponent<PaperGraphVisualizer>();
+            if (DecalManager == null)
+                DecalManager = GetComponent<PaperDecalManager>();
             CacheFoldValues();
         }
 
@@ -275,7 +287,7 @@ namespace Crease.Folding.PaperGraph
 
             PaperGraphSnapshot snapshot = _paperGraph.CreateSnapshot();
             PreviewGraph.RestoreSnapshot(snapshot);
-            RefreshVisualizers();
+            RefreshVisualizers(reanchorDecals: false);
         }
 
         public void UndoFold() {
@@ -335,10 +347,12 @@ namespace Crease.Folding.PaperGraph
             UpdatePreview();
         }
 
-        private void RefreshVisualizers() {
-            foreach (PaperGraphVisualizer vis in FindObjectsByType<PaperGraphVisualizer>(FindObjectsSortMode.None)) {
-                vis.UpdateMesh();
-            }
+        private void RefreshVisualizers(bool reanchorDecals = true) {
+            _authoringVisualizer?.UpdateMesh();
+            _previewVisualizer?.UpdateMesh();
+
+            if (DecalManager != null)
+                DecalManager.RefreshAfterMeshUpdate(reanchorDecals);
         }
 
         private void OnDrawGizmos() {

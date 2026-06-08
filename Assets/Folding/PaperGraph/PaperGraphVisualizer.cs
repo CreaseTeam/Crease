@@ -45,6 +45,8 @@ namespace Crease.Folding.PaperGraph
 
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
+        private MeshCollider _meshCollider;
+        private Mesh _colliderMesh;
 
         private void Awake() {
             _meshFilter = GetComponent<MeshFilter>();
@@ -54,6 +56,12 @@ namespace Crease.Folding.PaperGraph
             _meshRenderer = GetComponent<MeshRenderer>();
             if (_meshRenderer == null)
                 _meshRenderer = gameObject.AddComponent<MeshRenderer>();
+
+            _meshCollider = GetComponent<MeshCollider>();
+            if (_meshCollider == null)
+                _meshCollider = gameObject.AddComponent<MeshCollider>();
+
+            _colliderMesh = new Mesh { name = $"{name}_ColliderMesh" };
         }
 
         private void Start() {
@@ -131,10 +139,31 @@ namespace Crease.Folding.PaperGraph
                     }
                     _meshRenderer.sharedMaterials = fallbackMats;
                 }
+
+                if (_meshCollider != null)
+                {
+                    CopyMeshToCollider(generatedMesh);
+                    _meshCollider.convex = false;
+                }
             } else {
                 _meshFilter.sharedMesh = null;
                 _meshRenderer.enabled = false;
+                if (_meshCollider != null)
+                    _meshCollider.sharedMesh = null;
             }
+        }
+
+        private void CopyMeshToCollider(Mesh source)
+        {
+            _colliderMesh.Clear();
+            _colliderMesh.vertices = source.vertices;
+            _colliderMesh.normals = source.normals;
+            _colliderMesh.uv = source.uv;
+            _colliderMesh.subMeshCount = source.subMeshCount;
+            for (int subMesh = 0; subMesh < source.subMeshCount; subMesh++)
+                _colliderMesh.SetTriangles(source.GetTriangles(subMesh), subMesh, true);
+            _colliderMesh.RecalculateBounds();
+            _meshCollider.sharedMesh = _colliderMesh;
         }
     }
 }

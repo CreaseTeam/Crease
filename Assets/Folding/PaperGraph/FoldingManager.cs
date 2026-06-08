@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Crease.Flying.Player;
+using Crease.Folding.Decals;
 using Crease.Managers.Input;
 using Crease.UI;
 using UnityEngine;
@@ -70,6 +71,7 @@ namespace Crease.Folding.PaperGraph
         public Mesh SavedMesh { get; private set; }
 
         private MeshFilter _playerMeshFilter;
+        private MeshRenderer _playerMeshRenderer;
 
         private Camera _transitionCamera;
         private Vector3 _transitionStartPos;
@@ -92,9 +94,27 @@ namespace Crease.Folding.PaperGraph
             }
             Instance = this;
 
+            CachePlayerMeshReferences();
+        }
+
+        private void CachePlayerMeshReferences() {
+            if (_playerMeshRenderer != null && _playerMeshFilter != null) return;
+
+            if (Player != null) {
+                Transform[] children = Player.GetComponentsInChildren<Transform>(true);
+                for (int i = 0; i < children.Length; i++) {
+                    if (!children[i].CompareTag("PlayerMesh")) continue;
+                    _playerMeshFilter = children[i].GetComponent<MeshFilter>();
+                    _playerMeshRenderer = children[i].GetComponent<MeshRenderer>();
+                    return;
+                }
+            }
+
             GameObject playerMeshObj = GameObject.FindWithTag("PlayerMesh");
-            if (playerMeshObj != null)
+            if (playerMeshObj != null) {
                 _playerMeshFilter = playerMeshObj.GetComponent<MeshFilter>();
+                _playerMeshRenderer = playerMeshObj.GetComponent<MeshRenderer>();
+            }
         }
 
         private void Start() {
@@ -205,6 +225,9 @@ namespace Crease.Folding.PaperGraph
                 TeleportPaperToPlayer();
                 Player.SetActive(false);
             }
+
+            RestoreDecalsToFoldingPaper();
+            RestoreFoldingPhaseUi();
             if (FlyingCamera != null) FlyingCamera.gameObject.SetActive(false);
             if (FoldingCamera != null) FoldingCamera.gameObject.SetActive(true);
 
@@ -266,15 +289,18 @@ namespace Crease.Folding.PaperGraph
 
         private void ExecuteFlyingSwitch(bool useSavedMesh) {
             _pendingFlyingSwitch = false;
+            if (Player != null) Player.SetActive(true);
+
             if (useSavedMesh)
                 SaveMesh();
-
-            if (Player != null) Player.SetActive(true);
 
             if (useSavedMesh)
                 ApplyMeshToPlayer();
             else
                 ApplyDefaultMeshToPlayer();
+
+            if (useSavedMesh)
+                AttachDecalsToPlayerMesh();
 
             if (PaperGraph != null) PaperGraph.gameObject.SetActive(false);
 
@@ -283,8 +309,10 @@ namespace Crease.Folding.PaperGraph
             if (InputManager.Instance != null)
                 InputManager.Instance.SwitchToPlayerAndDebug();
 
-            if (HUDCanvas.Instance != null)
+            if (HUDCanvas.Instance != null) {
+                HUDCanvas.Instance.ShowStickerUI(false);
                 HUDCanvas.Instance.ShowFlyingUI(true);
+            }
 
             if (FlyingCamera != null)
                 FlyingCamera.gameObject.SetActive(true);
@@ -326,13 +354,70 @@ namespace Crease.Folding.PaperGraph
         private void ApplyMeshToPlayer() {
             if (SavedMesh == null) return;
 
+            CachePlayerMeshReferences();
             if (_playerMeshFilter == null) {
                 Debug.LogWarning("FoldingManager: No GameObject tagged 'PlayerMesh' found.");
                 return;
             }
 
-            _playerMeshFilter.mesh = SavedMesh;
+            _playerMeshFilter.sharedMesh = SavedMesh;
+            ApplyPreviewMaterialsToPlayer(SavedMesh);
             Debug.Log($"FoldingManager: Applied saved mesh to '{_playerMeshFilter.gameObject.name}'.");
+        }
+
+        private void ApplyPreviewMaterialsToPlayer(Mesh mesh) {
+            if (_playerMeshRenderer == null || mesh == null || PaperGraph == null) return;
+
+            PaperGraphController controller = PaperGraph.GetComponent<PaperGraphController>();
+            if (controller == null || controller.PreviewGraph == null) return;
+
+            PaperGraphVisualizer previewVisualizer = controller.PreviewGraph.GetComponent<PaperGraphVisualizer>();
+            if (previewVisualizer == null) return;
+
+            if (previewVisualizer.MeshMaterials != null && previewVisualizer.MeshMaterials.Length >= mesh.subMeshCount) {
+                _playerMeshRenderer.sharedMaterials = previewVisualizer.MeshMaterials;
+                return;
+            }
+
+            if (previewVisualizer.MeshMaterial == null) return;
+
+            Material[] materials = new Material[mesh.subMeshCount];
+            for (int i = 0; i < materials.Length; i++)
+                materials[i] = previewVisualizer.MeshMaterial;
+            _playerMeshRenderer.sharedMaterials = materials;
+        }
+
+        private void AttachDecalsToPlayerMesh() {
+            PaperDecalManager decalManager = GetDecalManager();
+            if (decalManager == null || decalManager.Placements.Count == 0) return;
+
+            CachePlayerMeshReferences();
+            Transform flightMeshRoot = GetPlayerMeshTransform();
+            if (flightMeshRoot == null) return;
+
+            if (PaperGraph != null)
+                flightMeshRoot.SetPositionAndRotation(PaperGraph.transform.position, flightMeshRoot.rotation);
+
+            decalManager.AttachToFlight(flightMeshRoot, Quaternion.Euler(MeshRotation));
+        }
+
+        private void RestoreDecalsToFoldingPaper() {
+            PaperDecalManager decalManager = GetDecalManager();
+            decalManager?.RestoreToFolding();
+        }
+
+        private void RestoreFoldingPhaseUi() {
+            if (PaperGraph == null) return;
+            FoldInstructionRunner runner = PaperGraph.GetComponent<FoldInstructionRunner>();
+            runner?.OnEnterFoldingMode();
+        }
+
+        private PaperDecalManager GetDecalManager() {
+            if (PaperGraph == null) return null;
+            PaperGraphController controller = PaperGraph.GetComponent<PaperGraphController>();
+            if (controller != null && controller.DecalManager != null)
+                return controller.DecalManager;
+            return PaperGraph.GetComponent<PaperDecalManager>();
         }
 
         private void ApplyDefaultMeshToPlayer() {

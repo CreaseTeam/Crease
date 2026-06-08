@@ -44,6 +44,10 @@ namespace Crease.UI
         [FormerlySerializedAs("checkpointUI")]
         private GameObject _checkpointUI;
 
+        [SerializeField]
+        [FormerlySerializedAs("stickerUI")]
+        private GameObject _stickerUI;
+
         [Header("Fold Accuracy")]
         [SerializeField]
         [FormerlySerializedAs("foldAccuracyText")]
@@ -164,6 +168,12 @@ namespace Crease.UI
         public void ShowCheckpointUI(bool show)
         {
             _checkpointUI.SetActive(show);
+        }
+
+        public void ShowStickerUI(bool show)
+        {
+            if (_stickerUI != null)
+                _stickerUI.SetActive(show);
         }
 
         /// <summary>

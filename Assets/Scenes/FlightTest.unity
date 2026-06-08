@@ -5448,6 +5448,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: LevelStarter
       objectReference: {fileID: 0}
+    - target: {fileID: 4776035585895015338, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: BasePaperTexture
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6124060854669086299, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
       propertyPath: 'MeshMaterials.Array.data[0]'
       value: 
