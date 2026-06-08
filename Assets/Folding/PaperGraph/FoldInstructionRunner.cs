@@ -592,14 +592,17 @@ public class FoldInstructionRunner : MonoBehaviour
     /// </summary>
     public void Unfold() {
         if (_isUnfolding || Instruction == null || Controller == null) return;
-        bool skipReload = _phase == FoldingRunPhase.Stickers;
-        StartCoroutine(UnfoldAllRoutine(skipReload));
+        bool preserveStickers = _phase == FoldingRunPhase.Stickers;
+        StartCoroutine(UnfoldAllRoutine(preserveStickers));
     }
 
     private void PrepareForAnimation() {
         HideGuideLine();
         if (DragHandle != null) DragHandle.gameObject.SetActive(false);
-        if (Controller != null) Controller.ClearPreview();
+        if (Controller != null) {
+            Controller.ClearPreview();
+            Controller.DecalManager?.InvalidatePreviewCaches();
+        }
     }
 
     private System.Collections.IEnumerator RotatePaperRoutine(Vector3 targetRotation) {
@@ -630,7 +633,7 @@ public class FoldInstructionRunner : MonoBehaviour
         Controller.UpdatePreview(); 
     }
 
-    private System.Collections.IEnumerator UnfoldAllRoutine(bool skipReload = false) {
+    private System.Collections.IEnumerator UnfoldAllRoutine(bool preserveStickers = false) {
         _isUnfolding = true;
         PrepareForAnimation();
 
@@ -641,8 +644,9 @@ public class FoldInstructionRunner : MonoBehaviour
         for (int i = executedCount - 1; i >= 0; i--) {
             FoldStep step = Instruction.Steps[i];
 
-            // Revert paper geometry (no visual change yet until we apply preview)
-            Controller.UndoFold();
+            // Revert authoring topology without snapping decals to the flat mesh.
+            Controller.UndoAuthoringFold();
+            Controller.DecalManager?.ReanchorPlacementDataOnly();
 
             ConfigureControllerForStep(step);
 
@@ -667,31 +671,44 @@ public class FoldInstructionRunner : MonoBehaviour
             yield return AnimateFoldDegreesRoutine(step.FoldDegrees, 0f, UnfoldAnimationSpeed, 0.1f);
             
             Controller.ClearPreview();
-            
+            Controller.DecalManager?.InvalidatePreviewCaches();
+
             // Short pause between folds
             yield return new WaitForSeconds(0.2f);
         }
 
-        if (!skipReload) {
-            // Clean reset
-            _totalAccuracy = 0f;
-            _foldCount = 0;
-            if (HUDCanvas.Instance != null) {
-                HUDCanvas.Instance.ResetAccuracyDisplay();
-            }
-            
-            _currentStepIndex = 0;
-            if (Instruction.Steps.Count > 0) {
-                ApplyStepToController(Instruction.Steps[0]);
-                if (DragHandle != null) DragHandle.gameObject.SetActive(true);
-            }
-        } else if (_phase == FoldingRunPhase.Stickers) {
-            Controller.ClearPreview();
-            Controller.DecalManager?.PreparePlacement();
-            if (DragHandle != null) DragHandle.gameObject.SetActive(false);
+        RestartFoldInstructionsAfterUnfold(preserveStickers);
+        _isUnfolding = false;
+    }
+
+    private void RestartFoldInstructionsAfterUnfold(bool preserveStickers) {
+        if (preserveStickers)
+            ExitStickerPhase(clearStickers: false);
+
+        _totalAccuracy = 0f;
+        _foldCount = 0;
+        if (HUDCanvas.Instance != null) {
+            HUDCanvas.Instance.ResetAccuracyDisplay();
+            HUDCanvas.Instance.StartFoldingTimer();
         }
 
-        _isUnfolding = false;
+        _hasSavedFoldAxis = false;
+        if (Controller != null)
+            Controller.HasFoldAxisLock = false;
+
+        Controller?.ClearPreview();
+
+        _currentStepIndex = 0;
+        if (Instruction != null && Instruction.Steps.Count > 0) {
+            ApplyStepToController(Instruction.Steps[0]);
+            if (DragHandle != null)
+                DragHandle.gameObject.SetActive(true);
+        }
+
+        if (preserveStickers && Controller?.DecalManager != null) {
+            Controller.DecalManager.InvalidatePreviewCaches();
+            Controller.DecalManager.RefreshAfterMeshUpdate(reanchorAuthoring: true, trackPreviewSurface: false);
+        }
     }
 
     private void ConfigureControllerForStep(FoldStep step) {

@@ -127,7 +127,7 @@ namespace Crease.Folding.PaperGraph
             }
 
             CacheFoldValues();
-            RefreshVisualizers();
+            RefreshVisualizers(reanchorDecals: false, trackPreviewDecals: true);
         }
 
         private void FreezeAtLastValidFold() {
@@ -287,7 +287,7 @@ namespace Crease.Folding.PaperGraph
 
             PaperGraphSnapshot snapshot = _paperGraph.CreateSnapshot();
             PreviewGraph.RestoreSnapshot(snapshot);
-            RefreshVisualizers(reanchorDecals: false);
+            RefreshVisualizers(reanchorDecals: false, trackPreviewDecals: false);
         }
 
         public void UndoFold() {
@@ -298,6 +298,25 @@ namespace Crease.Folding.PaperGraph
 
             _paperGraph.Undo();
             RefreshVisualizers();
+        }
+
+        /// <summary>
+        /// Reverts one committed fold on the authoring graph without moving decals.
+        /// Use before unfold preview animation so stickers can track the preview mesh.
+        /// </summary>
+        public void UndoAuthoringFold() {
+            if (_paperGraph == null) {
+                Debug.LogError("No PaperGraph component found on this GameObject.");
+                return;
+            }
+
+            _paperGraph.Undo();
+            RefreshMeshesOnly();
+        }
+
+        private void RefreshMeshesOnly() {
+            _authoringVisualizer?.UpdateMesh();
+            _previewVisualizer?.UpdateMesh();
         }
 
         public void RedoFold() {
@@ -347,12 +366,12 @@ namespace Crease.Folding.PaperGraph
             UpdatePreview();
         }
 
-        private void RefreshVisualizers(bool reanchorDecals = true) {
+        private void RefreshVisualizers(bool reanchorDecals = true, bool trackPreviewDecals = false) {
             _authoringVisualizer?.UpdateMesh();
             _previewVisualizer?.UpdateMesh();
 
             if (DecalManager != null)
-                DecalManager.RefreshAfterMeshUpdate(reanchorDecals);
+                DecalManager.RefreshAfterMeshUpdate(reanchorDecals, trackPreviewDecals);
         }
 
         private void OnDrawGizmos() {

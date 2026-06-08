@@ -9,8 +9,8 @@ namespace Crease.Folding.Decals
     }
 
     /// <summary>
-    /// ViewRayOrigin/Dir record the camera sight line at placement so re-anchoring always picks
-    /// the same visible (outermost) layer among folded UV overlaps.
+    /// SheetUv and Side are the stable sticker identity. ViewRayOrigin/Dir pick the correct layer
+    /// among folded UV overlaps when topology changes.
     /// </summary>
     public class DecalPlacement
     {

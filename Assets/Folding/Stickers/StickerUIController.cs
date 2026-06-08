@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Crease.Folding.Decals;
 using Crease.Folding.PaperGraph;
+using Crease.Managers.Input;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -33,9 +34,25 @@ namespace Crease.Folding.Stickers
         [Tooltip("Screen size of the cursor follower image.")]
         public float CursorFollowerSize = 64f;
 
+        [Tooltip("Sticker scale change per second at full W/S input.")]
+        public float ScaleSpeed = 0.5f;
+
+        [Tooltip("Sticker rotation in degrees per second at full A/D input.")]
+        public float RotateSpeed = 120f;
+
+        [Tooltip("Minimum sticker scale relative to paper width.")]
+        public float MinScale = 0.05f;
+
+        [Tooltip("Maximum sticker scale relative to paper width.")]
+        public float MaxScale = 1f;
+
         private int _selectedIndex;
         private bool _isHoldingSticker;
+        private bool _holdingPickedUpSticker;
         private StickerEntry _heldEntry;
+        private readonly StickerEntry _pickedUpEntry = new StickerEntry();
+        private float _heldScale;
+        private float _heldRotationUv;
         private Sprite _previewSprite;
         private Sprite _cursorFollowerSprite;
         private Canvas _rootCanvas;
@@ -67,24 +84,24 @@ namespace Crease.Folding.Stickers
         {
             if (_mouse == null)
                 _mouse = Mouse.current;
-            if (_mouse == null)
-                return;
-
-            if (!_isHoldingSticker || DecalManager == null || _heldEntry?.Texture == null)
+            if (_mouse == null || !IsStickerPhaseActive() || DecalManager == null)
                 return;
 
             Vector2 screenPosition = _mouse.position.ReadValue();
+
+            if (_mouse.leftButton.wasPressedThisFrame && !IsPointerOverUi(_mouse))
+            {
+                if (_isHoldingSticker && _heldEntry?.Texture != null)
+                    TryPlaceHeldSticker(screenPosition);
+                else if (!_isHoldingSticker)
+                    TryPickUpPlacedSticker(screenPosition);
+            }
+
+            if (!_isHoldingSticker || _heldEntry?.Texture == null)
+                return;
+
+            ApplyHeldStickerAdjustments(Time.deltaTime);
             UpdateHoldVisuals(screenPosition);
-
-            if (!_mouse.leftButton.wasPressedThisFrame || IsPointerOverUi(_mouse))
-                return;
-
-            DecalSurfaceQuery.SurfaceHit hit = DecalManager.RaycastScreen(screenPosition);
-            if (!hit.Hit)
-                return;
-
-            DecalManager.PlaceDecal(_heldEntry.Texture, hit, _heldEntry.DefaultScale);
-            ClearHeldSticker();
         }
 
         public void PopulateDropdown()
@@ -106,13 +123,16 @@ namespace Crease.Folding.Stickers
         {
             _selectedIndex = index;
             RefreshPreview();
-            if (_isHoldingSticker)
+            if (_isHoldingSticker && !_holdingPickedUpSticker)
             {
                 StickerEntry entry = GetSelectedEntry();
                 if (entry?.Texture == null)
                     ClearHeldSticker();
                 else
+                {
                     _heldEntry = entry;
+                    ResetHeldTransform();
+                }
             }
         }
 
@@ -154,6 +174,8 @@ namespace Crease.Folding.Stickers
 
             _heldEntry = entry;
             _isHoldingSticker = true;
+            _holdingPickedUpSticker = false;
+            ResetHeldTransform();
             UpdateHoldVisuals(eventData.position);
         }
 
@@ -163,6 +185,7 @@ namespace Crease.Folding.Stickers
         public void ClearHeldSticker()
         {
             _isHoldingSticker = false;
+            _holdingPickedUpSticker = false;
             _heldEntry = null;
             DecalManager?.HideGhost();
             HideCursorFollower();
@@ -174,12 +197,61 @@ namespace Crease.Folding.Stickers
             DecalManager?.ClearDecals();
         }
 
+        private void ApplyHeldStickerAdjustments(float deltaTime)
+        {
+            if (InputManager.Instance == null)
+                return;
+
+            float scaleAxis = InputManager.Instance.ScaleStickerInput;
+            if (Mathf.Abs(scaleAxis) > 0.01f)
+                _heldScale = Mathf.Clamp(_heldScale + scaleAxis * ScaleSpeed * deltaTime, MinScale, MaxScale);
+
+            float rotateAxis = InputManager.Instance.RotateStickerInput;
+            if (Mathf.Abs(rotateAxis) > 0.01f)
+                _heldRotationUv += rotateAxis * RotateSpeed * deltaTime;
+        }
+
+        private void TryPlaceHeldSticker(Vector2 screenPosition)
+        {
+            DecalSurfaceQuery.SurfaceHit hit = DecalManager.RaycastScreen(screenPosition);
+            if (!hit.Hit)
+                return;
+
+            DecalManager.PlaceDecal(_heldEntry.Texture, hit, _heldScale, _heldRotationUv);
+            ClearHeldSticker();
+        }
+
+        private void TryPickUpPlacedSticker(Vector2 screenPosition)
+        {
+            if (!DecalManager.TryLiftDecalAtScreen(screenPosition, out DecalPlacement placement)
+                || placement.Texture == null)
+                return;
+
+            _pickedUpEntry.Texture = placement.Texture;
+            _pickedUpEntry.DefaultScale = placement.Scale;
+            _heldEntry = _pickedUpEntry;
+            _heldScale = placement.Scale;
+            _heldRotationUv = placement.RotationUv;
+            _isHoldingSticker = true;
+            _holdingPickedUpSticker = true;
+            UpdateHoldVisuals(screenPosition);
+        }
+
+        private void ResetHeldTransform()
+        {
+            if (_heldEntry == null)
+                return;
+
+            _heldScale = _heldEntry.DefaultScale;
+            _heldRotationUv = 0f;
+        }
+
         private void UpdateHoldVisuals(Vector2 screenPosition)
         {
             DecalSurfaceQuery.SurfaceHit hit = DecalManager.RaycastScreen(screenPosition);
             if (hit.Hit)
             {
-                DecalManager.ShowGhost(_heldEntry.Texture, hit, _heldEntry.DefaultScale);
+                DecalManager.ShowGhost(_heldEntry.Texture, hit, _heldScale, _heldRotationUv);
                 HideCursorFollower();
             }
             else
@@ -212,6 +284,11 @@ namespace Crease.Folding.Stickers
             CursorFollowerImage.enabled = true;
             CursorFollowerImage.rectTransform.SetAsLastSibling();
             CursorFollowerImage.rectTransform.position = screenPosition;
+
+            float scaleFactor = _heldEntry.DefaultScale > 0f ? _heldScale / _heldEntry.DefaultScale : 1f;
+            float size = CursorFollowerSize * scaleFactor;
+            CursorFollowerImage.rectTransform.sizeDelta = new Vector2(size, size);
+            CursorFollowerImage.rectTransform.localEulerAngles = new Vector3(0f, 0f, _heldRotationUv);
         }
 
         private void HideCursorFollower()

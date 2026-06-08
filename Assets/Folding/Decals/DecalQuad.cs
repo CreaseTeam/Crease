@@ -10,9 +10,14 @@ namespace Crease.Folding.Decals
         private static Mesh _sharedQuadMesh;
         private static Shader _urpLitShader;
 
+        private const float BaseSurfaceOffset = 0.0005f;
+        private const float LayerOffsetStep = 0.0001f;
+
         private MeshRenderer _renderer;
         private Material _materialInstance;
+        private MeshCollider _pickCollider;
         private bool _isGhost;
+        private int _layerOrder;
 
         public void Initialize(Texture2D texture = null, bool isGhost = false)
         {
@@ -29,18 +34,42 @@ namespace Crease.Folding.Decals
             _materialInstance.SetTexture("_BaseMap", texture);
         }
 
+        public void SetLayerOrder(int order)
+        {
+            _layerOrder = order;
+            if (_materialInstance != null)
+                _materialInstance.renderQueue = (int)RenderQueue.Transparent + order;
+        }
+
         public void UpdateFromPlacement(
             DecalPlacement placement,
             Transform meshRoot,
             GraphMesh authoringGraph,
-            Quaternion meshVertexRotation = default)
+            Quaternion meshVertexRotation = default,
+            GraphMesh surfaceGraph = null,
+            PreviewAnchorCache previewCache = null)
         {
             if (meshVertexRotation == default)
                 meshVertexRotation = Quaternion.identity;
 
-            Vector3 localPos = DecalSurfaceQuery.InterpolatePosition(authoringGraph, placement);
-            Vector3 localNormal = DecalSurfaceQuery.InterpolateNormal(authoringGraph, placement);
-            Vector3 localTangent = DecalSurfaceQuery.InterpolateTangent(authoringGraph, placement, localNormal);
+            EnsurePickCollider();
+
+            GraphMesh displayGraph = previewCache != null && surfaceGraph != null ? surfaceGraph : authoringGraph;
+            if (!DecalSurfaceQuery.TryGetDisplayFrame(
+                    displayGraph,
+                    placement,
+                    out Vector3 localPos,
+                    out Vector3 localNormal,
+                    out Vector3 localTangent,
+                    previewCache))
+            {
+                if (previewCache != null)
+                    return;
+
+                localPos = DecalSurfaceQuery.InterpolatePosition(authoringGraph, placement);
+                localNormal = DecalSurfaceQuery.InterpolateNormal(authoringGraph, placement);
+                localTangent = DecalSurfaceQuery.InterpolateTangent(authoringGraph, placement, localNormal);
+            }
 
             if (meshVertexRotation != Quaternion.identity)
             {
@@ -48,7 +77,7 @@ namespace Crease.Folding.Decals
                 localNormal = meshVertexRotation * localNormal;
                 localTangent = meshVertexRotation * localTangent;
             }
-            localPos += localNormal * 0.0005f;
+            localPos += localNormal * (BaseSurfaceOffset + _layerOrder * LayerOffsetStep);
 
             transform.SetParent(meshRoot, false);
             transform.localPosition = localPos;
@@ -59,22 +88,25 @@ namespace Crease.Folding.Decals
 
         private void EnsureQuadMesh()
         {
-            if (_sharedQuadMesh != null) return;
-
-            _sharedQuadMesh = new Mesh { name = "DecalQuad" };
-            _sharedQuadMesh.vertices = new[]
+            if (_sharedQuadMesh == null)
             {
-                new Vector3(-0.5f, -0.5f, 0f),
-                new Vector3(0.5f, -0.5f, 0f),
-                new Vector3(0.5f, 0.5f, 0f),
-                new Vector3(-0.5f, 0.5f, 0f)
-            };
+                _sharedQuadMesh = new Mesh { name = "DecalQuad" };
+                _sharedQuadMesh.vertices = new[]
+                {
+                    new Vector3(-0.5f, -0.5f, 0f),
+                    new Vector3(0.5f, -0.5f, 0f),
+                    new Vector3(0.5f, 0.5f, 0f),
+                    new Vector3(-0.5f, 0.5f, 0f)
+                };
+            }
+
+            // U flipped to compensate for negative Z scale (needed for correct Lit shading).
             _sharedQuadMesh.uv = new[]
             {
-                new Vector2(0f, 0f),
                 new Vector2(1f, 0f),
-                new Vector2(1f, 1f),
-                new Vector2(0f, 1f)
+                new Vector2(0f, 0f),
+                new Vector2(0f, 1f),
+                new Vector2(1f, 1f)
             };
             _sharedQuadMesh.triangles = new[] { 0, 2, 1, 0, 3, 2 };
             _sharedQuadMesh.RecalculateNormals();
@@ -126,6 +158,17 @@ namespace Crease.Folding.Decals
             material.SetOverrideTag("RenderType", "Transparent");
             material.renderQueue = (int)RenderQueue.Transparent;
             return material;
+        }
+
+        private void EnsurePickCollider()
+        {
+            if (_isGhost || _pickCollider != null)
+                return;
+
+            _pickCollider = GetComponent<MeshCollider>();
+            if (_pickCollider == null)
+                _pickCollider = gameObject.AddComponent<MeshCollider>();
+            _pickCollider.sharedMesh = _sharedQuadMesh;
         }
 
         private void OnDestroy()

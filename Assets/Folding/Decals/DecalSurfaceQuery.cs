@@ -25,6 +25,17 @@ namespace Crease.Folding.Decals
             public Vector3 ViewRayDirLocal;
         }
 
+        public struct ResolvedSurfaceFrame
+        {
+            public bool Found;
+            public int Anchor0Index;
+            public int Anchor1Index;
+            public int Anchor2Index;
+            public Vector3 Barycentric;
+            public Vector3 Position;
+            public Vector3 Normal;
+        }
+
         private readonly GraphMesh _authoringGraph;
         private readonly GraphMesh _surfaceGraph;
         private readonly Transform _meshSurfaceRoot;
@@ -233,8 +244,9 @@ namespace Crease.Folding.Decals
             return side == PaperSide.Front ? frontNormal : -frontNormal;
         }
 
-        public static bool RefreshPlacementAnchors(GraphMesh graph, DecalPlacement placement)
+        public static bool TryResolveSurfaceFrame(GraphMesh graph, DecalPlacement placement, out ResolvedSurfaceFrame frame)
         {
+            frame = default;
             if (graph == null) return false;
             if (placement.ViewRayDirLocal.sqrMagnitude < 0.0001f) return false;
 
@@ -242,18 +254,14 @@ namespace Crease.Folding.Decals
             BuildTriangleList(graph, triangles);
 
             Vector2 targetUv = placement.SheetUv;
+            PaperSide lockedSide = placement.Side;
             Vector3 rayOrigin = placement.ViewRayOriginLocal;
             Vector3 rayDir = placement.ViewRayDirLocal.normalized;
 
             bool found = false;
+            float bestLineDistSq = float.MaxValue;
             float bestDepth = float.MaxValue;
-            int bestI0 = -1;
-            int bestI1 = -1;
-            int bestI2 = -1;
-            Vector3 bestBary = Vector3.zero;
-            Vector3 bestPos = Vector3.zero;
-            Vector3 bestNormal = placement.LocalNormal;
-            PaperSide bestSide = placement.Side;
+            ResolvedSurfaceFrame best = default;
 
             for (int t = 0; t < triangles.Count; t++)
             {
@@ -265,50 +273,186 @@ namespace Crease.Folding.Decals
                 Vertex v1 = graph.Vertices[tri.V1Index];
                 Vertex v2 = graph.Vertices[tri.V2Index];
 
-                PaperSide side = placement.Side;
-                Vector3 outwardNormal = OutwardNormalForSide(v0.Position, v1.Position, v2.Position, side);
-
-                if (Vector3.Dot(outwardNormal, rayDir) >= -FacingEpsilon)
+                if (!TryMatchTriangleSurface(
+                        v0, v1, v2, tri.V0Index, tri.V1Index, tri.V2Index,
+                        targetUv, lockedSide,
+                        out ResolvedSurfaceFrame candidate))
                     continue;
 
-                Vector2 uv0 = VertexSheetUv(v0, side);
-                Vector2 uv1 = VertexSheetUv(v1, side);
-                Vector2 uv2 = VertexSheetUv(v2, side);
-                Vector3 uvBary = ComputeBarycentric2D(uv0, uv1, uv2, targetUv);
-                if (uvBary.x < -0.02f || uvBary.y < -0.02f || uvBary.z < -0.02f)
+                float depth = Vector3.Dot(candidate.Position - rayOrigin, rayDir);
+                if (depth < DepthEpsilon)
                     continue;
 
-                Vector3 pos = uvBary.x * v0.Position + uvBary.y * v1.Position + uvBary.z * v2.Position;
-                float depth = Vector3.Dot(pos - rayOrigin, rayDir);
-                if (depth < DepthEpsilon || depth >= bestDepth - DepthEpsilon)
+                float lineDistSq = Vector3.Cross(candidate.Position - rayOrigin, rayDir).sqrMagnitude;
+                if (lineDistSq > bestLineDistSq + 1e-8f)
+                    continue;
+                if (Mathf.Abs(lineDistSq - bestLineDistSq) <= 1e-6f && depth >= bestDepth - DepthEpsilon)
                     continue;
 
+                bestLineDistSq = lineDistSq;
                 bestDepth = depth;
-                bestI0 = tri.V0Index;
-                bestI1 = tri.V1Index;
-                bestI2 = tri.V2Index;
-                bestBary = ComputeBarycentric(v0.Position, v1.Position, v2.Position, pos);
-                bestPos = pos;
-                bestNormal = outwardNormal;
-                bestSide = side;
+                best = candidate;
                 found = true;
             }
 
             if (!found) return false;
 
-            placement.Anchor0Index = bestI0;
-            placement.Anchor1Index = bestI1;
-            placement.Anchor2Index = bestI2;
-            placement.Barycentric = bestBary;
-            placement.LocalPoint = bestPos;
-            placement.LocalNormal = bestNormal;
-            placement.Side = bestSide;
-            placement.SheetUv = BarycentricInterpolateSheetUv(
-                graph.Vertices[bestI0],
-                graph.Vertices[bestI1],
-                graph.Vertices[bestI2],
-                bestSide,
-                bestBary);
+            frame = best;
+            frame.Found = true;
+            return true;
+        }
+
+        public static bool RefreshPlacementAnchors(GraphMesh graph, DecalPlacement placement)
+        {
+            if (!TryResolveSurfaceFrame(graph, placement, out ResolvedSurfaceFrame frame))
+                return false;
+
+            placement.Anchor0Index = frame.Anchor0Index;
+            placement.Anchor1Index = frame.Anchor1Index;
+            placement.Anchor2Index = frame.Anchor2Index;
+            placement.Barycentric = frame.Barycentric;
+            placement.LocalPoint = frame.Position;
+            placement.LocalNormal = frame.Normal;
+            return true;
+        }
+
+        public static bool TryGetDisplayFrame(
+            GraphMesh graph,
+            DecalPlacement placement,
+            out Vector3 position,
+            out Vector3 normal,
+            out Vector3 tangent,
+            PreviewAnchorCache previewCache = null)
+        {
+            position = placement.LocalPoint;
+            normal = placement.LocalNormal.sqrMagnitude > 0.01f ? placement.LocalNormal : Vector3.up;
+            tangent = Vector3.right;
+
+            if (graph == null) return false;
+
+            if (previewCache != null)
+            {
+                if (previewCache.IsValid
+                    && TryInterpolateFromCache(graph, placement, previewCache, out position, out normal, out tangent))
+                    return true;
+
+                if (TryResolveSurfaceFrame(graph, placement, out ResolvedSurfaceFrame frame))
+                {
+                    previewCache.SeedFrom(frame);
+                    return TryInterpolateFromCache(graph, placement, previewCache, out position, out normal, out tangent);
+                }
+
+                if (IsValidIndex(graph, placement.Anchor0Index)
+                    && IsValidIndex(graph, placement.Anchor1Index)
+                    && IsValidIndex(graph, placement.Anchor2Index))
+                {
+                    previewCache.Anchor0Index = placement.Anchor0Index;
+                    previewCache.Anchor1Index = placement.Anchor1Index;
+                    previewCache.Anchor2Index = placement.Anchor2Index;
+                    previewCache.Barycentric = placement.Barycentric;
+                    previewCache.IsValid = true;
+                    return TryInterpolateFromCache(graph, placement, previewCache, out position, out normal, out tangent);
+                }
+
+                return false;
+            }
+
+            if (TryGetAnchorVertices(graph, placement, out Vertex v0, out Vertex v1, out Vertex v2))
+            {
+                position = placement.Barycentric.x * v0.Position
+                         + placement.Barycentric.y * v1.Position
+                         + placement.Barycentric.z * v2.Position;
+                normal = OutwardNormalForSide(v0.Position, v1.Position, v2.Position, placement.Side);
+                tangent = InterpolateTangent(graph, placement, normal);
+                return true;
+            }
+
+            if (!TryResolveSurfaceFrame(graph, placement, out ResolvedSurfaceFrame resolved))
+                return false;
+
+            position = resolved.Position;
+            Vertex rv0 = graph.Vertices[resolved.Anchor0Index];
+            Vertex rv1 = graph.Vertices[resolved.Anchor1Index];
+            Vertex rv2 = graph.Vertices[resolved.Anchor2Index];
+            normal = OutwardNormalForSide(rv0.Position, rv1.Position, rv2.Position, placement.Side);
+            var tempPlacement = new DecalPlacement
+            {
+                Anchor0Index = resolved.Anchor0Index,
+                Anchor1Index = resolved.Anchor1Index,
+                Anchor2Index = resolved.Anchor2Index,
+                Barycentric = resolved.Barycentric,
+                Side = placement.Side
+            };
+            tangent = InterpolateTangent(graph, tempPlacement, normal);
+            return true;
+        }
+
+        public static bool TryInterpolateFromCache(
+            GraphMesh graph,
+            DecalPlacement placement,
+            PreviewAnchorCache cache,
+            out Vector3 position,
+            out Vector3 normal,
+            out Vector3 tangent)
+        {
+            position = placement.LocalPoint;
+            normal = placement.LocalNormal.sqrMagnitude > 0.01f ? placement.LocalNormal : Vector3.up;
+            tangent = Vector3.right;
+
+            if (graph == null || cache == null || !cache.IsValid)
+                return false;
+
+            if (!IsValidIndex(graph, cache.Anchor0Index)
+                || !IsValidIndex(graph, cache.Anchor1Index)
+                || !IsValidIndex(graph, cache.Anchor2Index))
+                return false;
+
+            Vertex v0 = graph.Vertices[cache.Anchor0Index];
+            Vertex v1 = graph.Vertices[cache.Anchor1Index];
+            Vertex v2 = graph.Vertices[cache.Anchor2Index];
+
+            position = cache.Barycentric.x * v0.Position
+                     + cache.Barycentric.y * v1.Position
+                     + cache.Barycentric.z * v2.Position;
+            normal = OutwardNormalForSide(v0.Position, v1.Position, v2.Position, placement.Side);
+
+            var cachedPlacement = new DecalPlacement
+            {
+                Anchor0Index = cache.Anchor0Index,
+                Anchor1Index = cache.Anchor1Index,
+                Anchor2Index = cache.Anchor2Index,
+                Barycentric = cache.Barycentric,
+                Side = placement.Side
+            };
+            tangent = InterpolateTangent(graph, cachedPlacement, normal);
+            return true;
+        }
+
+        private static bool TryMatchTriangleSurface(
+            Vertex v0, Vertex v1, Vertex v2,
+            int i0, int i1, int i2,
+            Vector2 targetUv,
+            PaperSide side,
+            out ResolvedSurfaceFrame frame)
+        {
+            frame = default;
+
+            Vector2 uv0 = VertexSheetUv(v0, side);
+            Vector2 uv1 = VertexSheetUv(v1, side);
+            Vector2 uv2 = VertexSheetUv(v2, side);
+            if (!TryComputeBarycentric2D(uv0, uv1, uv2, targetUv, out Vector3 uvBary))
+                return false;
+
+            Vector3 pos = uvBary.x * v0.Position + uvBary.y * v1.Position + uvBary.z * v2.Position;
+            frame = new ResolvedSurfaceFrame
+            {
+                Anchor0Index = i0,
+                Anchor1Index = i1,
+                Anchor2Index = i2,
+                Barycentric = ComputeBarycentric(v0.Position, v1.Position, v2.Position, pos),
+                Position = pos,
+                Normal = OutwardNormalForSide(v0.Position, v1.Position, v2.Position, side)
+            };
             return true;
         }
 
@@ -329,7 +473,7 @@ namespace Crease.Folding.Decals
             return new Vector3(1f - v - w, v, w);
         }
 
-        private static Vector3 ComputeBarycentric2D(Vector2 a, Vector2 b, Vector2 c, Vector2 p)
+        private static bool TryComputeBarycentric2D(Vector2 a, Vector2 b, Vector2 c, Vector2 p, out Vector3 bary)
         {
             Vector2 v0 = b - a;
             Vector2 v1 = c - a;
@@ -340,10 +484,19 @@ namespace Crease.Folding.Decals
             float d20 = Vector2.Dot(v2, v0);
             float d21 = Vector2.Dot(v2, v1);
             float denom = d00 * d11 - d01 * d01;
-            if (Mathf.Abs(denom) < 0.000001f) return new Vector3(1f, 0f, 0f);
+            if (Mathf.Abs(denom) < 0.000001f)
+            {
+                bary = default;
+                return false;
+            }
+
             float v = (d11 * d20 - d01 * d21) / denom;
             float w = (d00 * d21 - d01 * d20) / denom;
-            return new Vector3(1f - v - w, v, w);
+            bary = new Vector3(1f - v - w, v, w);
+            if (bary.x < -0.02f || bary.y < -0.02f || bary.z < -0.02f)
+                return false;
+
+            return true;
         }
 
         private static Vector2 VertexSheetUv(Vertex vertex, PaperSide side)
