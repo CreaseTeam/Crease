@@ -41,6 +41,23 @@ namespace Crease.Folding.Decals
                 _materialInstance.renderQueue = (int)RenderQueue.Transparent + order;
         }
 
+        public void SetPickColliderEnabled(bool enabled)
+        {
+            if (_isGhost)
+                return;
+
+            if (!enabled)
+            {
+                if (_pickCollider != null)
+                    _pickCollider.enabled = false;
+                return;
+            }
+
+            EnsurePickCollider();
+            if (_pickCollider != null)
+                _pickCollider.enabled = true;
+        }
+
         public void UpdateFromPlacement(
             DecalPlacement placement,
             Transform meshRoot,
@@ -83,7 +100,20 @@ namespace Crease.Folding.Decals
             transform.localPosition = localPos;
             transform.localRotation = Quaternion.LookRotation(localNormal, localTangent)
                 * Quaternion.Euler(0f, 0f, placement.RotationUv);
-            transform.localScale = new Vector3(placement.Scale, placement.Scale, -1f);
+            Vector2 aspectScale = GetAspectPreservingScale(placement.Texture, placement.Scale);
+            transform.localScale = new Vector3(aspectScale.x, aspectScale.y, -1f);
+        }
+
+        /// <summary>
+        /// Scale is the sticker width on the paper; height follows the texture aspect ratio.
+        /// </summary>
+        private static Vector2 GetAspectPreservingScale(Texture2D texture, float widthScale)
+        {
+            if (texture == null || texture.width <= 0)
+                return new Vector2(widthScale, widthScale);
+
+            float aspect = (float)texture.height / texture.width;
+            return new Vector2(widthScale, widthScale * aspect);
         }
 
         private void EnsureQuadMesh()
@@ -169,6 +199,7 @@ namespace Crease.Folding.Decals
             if (_pickCollider == null)
                 _pickCollider = gameObject.AddComponent<MeshCollider>();
             _pickCollider.sharedMesh = _sharedQuadMesh;
+            _pickCollider.convex = true;
         }
 
         private void OnDestroy()

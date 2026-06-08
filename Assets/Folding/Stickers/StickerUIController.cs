@@ -63,10 +63,19 @@ namespace Crease.Folding.Stickers
 
         private void Start()
         {
+            ConfigurePreviewImage();
             PopulateDropdown();
             if (Dropdown != null)
                 Dropdown.onValueChanged.AddListener(OnDropdownChanged);
             RefreshPreview();
+        }
+
+        private void ConfigurePreviewImage()
+        {
+            if (PreviewImage == null)
+                return;
+
+            PreviewImage.preserveAspect = true;
         }
 
         private void OnEnable()
@@ -286,8 +295,8 @@ namespace Crease.Folding.Stickers
             CursorFollowerImage.rectTransform.position = screenPosition;
 
             float scaleFactor = _heldEntry.DefaultScale > 0f ? _heldScale / _heldEntry.DefaultScale : 1f;
-            float size = CursorFollowerSize * scaleFactor;
-            CursorFollowerImage.rectTransform.sizeDelta = new Vector2(size, size);
+            float width = CursorFollowerSize * scaleFactor;
+            CursorFollowerImage.rectTransform.sizeDelta = GetAspectPreservingUiSize(_heldEntry.Texture, width);
             CursorFollowerImage.rectTransform.localEulerAngles = new Vector3(0f, 0f, _heldRotationUv);
         }
 
@@ -313,9 +322,22 @@ namespace Crease.Folding.Stickers
             rectTransform.sizeDelta = new Vector2(CursorFollowerSize, CursorFollowerSize);
 
             CursorFollowerImage = followerObject.AddComponent<Image>();
+            CursorFollowerImage.preserveAspect = true;
             CursorFollowerImage.raycastTarget = false;
             CursorFollowerImage.enabled = false;
             _createdCursorFollower = true;
+        }
+
+        /// <summary>
+        /// width is the displayed width; height follows the texture aspect ratio.
+        /// </summary>
+        private static Vector2 GetAspectPreservingUiSize(Texture2D texture, float width)
+        {
+            if (texture == null || texture.width <= 0)
+                return new Vector2(width, width);
+
+            float aspect = (float)texture.height / texture.width;
+            return new Vector2(width, width * aspect);
         }
 
         private static bool IsPointerOverUi(Mouse mouse)

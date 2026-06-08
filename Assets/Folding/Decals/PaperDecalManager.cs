@@ -128,6 +128,7 @@ namespace Crease.Folding.Decals
             _flightMeshRoot = flightMeshRoot;
             _flightVertexRotation = meshVertexRotation;
             _attachedToFlight = true;
+            SetQuadsPickColliderEnabled(false);
             ApplyAllPlacementsToQuads();
         }
 
@@ -141,6 +142,7 @@ namespace Crease.Folding.Decals
             _attachedToFlight = false;
             _flightMeshRoot = null;
             _flightVertexRotation = Quaternion.identity;
+            SetQuadsPickColliderEnabled(true);
             ApplyAllPlacementsToQuads();
         }
 
@@ -167,7 +169,7 @@ namespace Crease.Folding.Decals
             EnsureGhost();
             _ghostQuad.SetTexture(texture);
             _ghostQuad.gameObject.SetActive(true);
-            ApplyGhost(hit, scale, rotationUv);
+            ApplyGhost(texture, hit, scale, rotationUv);
         }
 
         public void HideGhost()
@@ -305,6 +307,15 @@ namespace Crease.Folding.Decals
             _ghostQuad?.SetLayerOrder(_quads.Count);
         }
 
+        private void SetQuadsPickColliderEnabled(bool enabled)
+        {
+            foreach (DecalQuad quad in _quads)
+            {
+                if (quad != null)
+                    quad.SetPickColliderEnabled(enabled);
+            }
+        }
+
         private void ApplyDecalLayerOrder(bool refreshTransforms = false)
         {
             Transform meshRoot = GetActiveMeshRoot();
@@ -385,10 +396,11 @@ namespace Crease.Folding.Decals
             _ghostQuad.Initialize(isGhost: true);
         }
 
-        private void ApplyGhost(DecalSurfaceQuery.SurfaceHit hit, float scale, float rotationUv)
+        private void ApplyGhost(Texture2D texture, DecalSurfaceQuery.SurfaceHit hit, float scale, float rotationUv)
         {
             var temp = new DecalPlacement
             {
+                Texture = texture,
                 Anchor0Index = hit.Anchor0Index,
                 Anchor1Index = hit.Anchor1Index,
                 Anchor2Index = hit.Anchor2Index,

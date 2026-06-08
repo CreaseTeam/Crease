@@ -81,9 +81,9 @@ namespace Crease.Flying.Player
             float pitchRadians = _pitch * Mathf.Deg2Rad;
             float cosPitch = Mathf.Cos(pitchRadians);
             float sinPitch = Mathf.Sin(pitchRadians);
-            float safeCosPitch = Mathf.Max(Mathf.Abs(cosPitch), 0.05f);
+            float safeCosPitch = Mathf.Max(Mathf.Abs(cosPitch), 0.2f);
 
-            Vector3 lookDirection = transform.forward;
+            Vector3 lookDirection = GetLookDirection();
             float horizontalSpeed = new Vector3(velocity.x, 0, velocity.z).magnitude;
 
             float mp = _stats.CurrentStats.MaxPitch;
@@ -97,24 +97,21 @@ namespace Crease.Flying.Player
             {
                 float yAcc = velocity.y * -_stats.CurrentStats.DiveRate * cosPitch * cosPitch * Time.fixedDeltaTime;
                 velocity.y += yAcc;
-                velocity.x += lookDirection.x * yAcc / safeCosPitch;
-                velocity.z += lookDirection.z * yAcc / safeCosPitch;
+                RedirectVerticalAcceleration(ref velocity, lookDirection, yAcc, safeCosPitch);
             }
 
             if (pitchRadians < 0)
             {
                 float yAcc = horizontalSpeed * -sinPitch * -sinPitch * _stats.CurrentStats.ClimbRate * Time.fixedDeltaTime;
                 velocity.y += yAcc * _stats.CurrentStats.ClimbEfficiency;
-                velocity.x -= lookDirection.x * yAcc / safeCosPitch;
-                velocity.z -= lookDirection.z * yAcc / safeCosPitch;
+                RedirectVerticalAcceleration(ref velocity, lookDirection, -yAcc, safeCosPitch);
             }
 
-            if (cosPitch > 0.05f)
+            float speed = velocity.magnitude;
+            if (speed > 0.001f)
             {
-                float tInterp = _stats.CurrentStats.TurnInterpolation;
-                velocity.x += (lookDirection.x / safeCosPitch * horizontalSpeed - velocity.x) * tInterp * Time.fixedDeltaTime;
-                velocity.z += (lookDirection.z / safeCosPitch * horizontalSpeed - velocity.z) * tInterp * Time.fixedDeltaTime;
-                velocity.y += (lookDirection.y / safeCosPitch * horizontalSpeed - velocity.y) * tInterp * Time.fixedDeltaTime;
+                float tInterp = _stats.CurrentStats.TurnInterpolation * Time.fixedDeltaTime;
+                velocity = Vector3.Lerp(velocity, lookDirection * speed, tInterp);
             }
 
             velocity.x *= _stats.CurrentStats.XDrag;
@@ -130,6 +127,17 @@ namespace Crease.Flying.Player
             _body.Velocity = velocity;
         }
 
+        private Vector3 GetLookDirection()
+        {
+            return Quaternion.Euler(_pitch, _yaw, 0f) * Vector3.forward;
+        }
+
+        private static void RedirectVerticalAcceleration(ref Vector3 velocity, Vector3 lookDirection, float yAcc, float safeCosPitch)
+        {
+            velocity.x += lookDirection.x * yAcc / safeCosPitch;
+            velocity.z += lookDirection.z * yAcc / safeCosPitch;
+        }
+
         private void ApplyStabilityTorque()
         {
             Vector3 velocity = _body.Velocity;
@@ -140,7 +148,7 @@ namespace Crease.Flying.Player
             if (speedFactor <= 0f) return;
 
             Vector3 velocityDirection = velocity / speed;
-            Vector3 forward = transform.forward;
+            Vector3 forward = GetLookDirection();
 
             Vector3 misalignmentAxis = Vector3.Cross(forward, velocityDirection);
             float sinAngle = misalignmentAxis.magnitude;
