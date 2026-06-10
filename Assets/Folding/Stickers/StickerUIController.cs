@@ -98,11 +98,11 @@ namespace Crease.Folding.Stickers
 
             Vector2 screenPosition = _mouse.position.ReadValue();
 
-            if (_mouse.leftButton.wasPressedThisFrame && !IsPointerOverUi(_mouse))
+            if (_mouse.leftButton.wasPressedThisFrame)
             {
                 if (_isHoldingSticker && _heldEntry?.Texture != null)
                     TryPlaceHeldSticker(screenPosition);
-                else if (!_isHoldingSticker)
+                else if (!_isHoldingSticker && !IsPointerOverUi(_mouse))
                     TryPickUpPlacedSticker(screenPosition);
             }
 
@@ -222,6 +222,9 @@ namespace Crease.Folding.Stickers
 
         private void TryPlaceHeldSticker(Vector2 screenPosition)
         {
+            if (DecalManager == null || _heldEntry?.Texture == null)
+                return;
+
             DecalSurfaceQuery.SurfaceHit hit = DecalManager.RaycastScreen(screenPosition);
             if (!hit.Hit)
                 return;

@@ -19,6 +19,18 @@ MonoBehaviour:
   - DisplayName: Heart
     Texture: {fileID: 2800000, guid: fc05250e87c19dd4dbeb7d800d5830a6, type: 3}
     DefaultScale: 0.1
-  - DisplayName: Butterfly
+  - DisplayName: Blue Butterfly
     Texture: {fileID: 2800000, guid: bb2b8d2467330984dabc9c06e33f3465, type: 3}
     DefaultScale: 0.1
+  - DisplayName: Orange Butterfly
+    Texture: {fileID: 2800000, guid: 06d4043b306bfcf46807224b8b36a93a, type: 3}
+    DefaultScale: 0.1
+  - DisplayName: Pink Butterfly
+    Texture: {fileID: 2800000, guid: fefa1375c0a2a4344922d30137ccc59f, type: 3}
+    DefaultScale: 0.1
+  - DisplayName: Crease (bad)
+    Texture: {fileID: 2800000, guid: 00761fbf5835dd048a4d145c98c6591b, type: 3}
+    DefaultScale: 0.25
+  - DisplayName: Crease (good)
+    Texture: {fileID: 2800000, guid: 1008507014c23234cb4e3f343ab03900, type: 3}
+    DefaultScale: 0.25

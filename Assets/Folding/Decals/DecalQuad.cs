@@ -15,7 +15,6 @@ namespace Crease.Folding.Decals
 
         private MeshRenderer _renderer;
         private Material _materialInstance;
-        private MeshCollider _pickCollider;
         private bool _isGhost;
         private int _layerOrder;
 
@@ -41,23 +40,6 @@ namespace Crease.Folding.Decals
                 _materialInstance.renderQueue = (int)RenderQueue.Transparent + order;
         }
 
-        public void SetPickColliderEnabled(bool enabled)
-        {
-            if (_isGhost)
-                return;
-
-            if (!enabled)
-            {
-                if (_pickCollider != null)
-                    _pickCollider.enabled = false;
-                return;
-            }
-
-            EnsurePickCollider();
-            if (_pickCollider != null)
-                _pickCollider.enabled = true;
-        }
-
         public void UpdateFromPlacement(
             DecalPlacement placement,
             Transform meshRoot,
@@ -68,8 +50,6 @@ namespace Crease.Folding.Decals
         {
             if (meshVertexRotation == default)
                 meshVertexRotation = Quaternion.identity;
-
-            EnsurePickCollider();
 
             GraphMesh displayGraph = previewCache != null && surfaceGraph != null ? surfaceGraph : authoringGraph;
             if (!DecalSurfaceQuery.TryGetDisplayFrame(
@@ -188,18 +168,6 @@ namespace Crease.Folding.Decals
             material.SetOverrideTag("RenderType", "Transparent");
             material.renderQueue = (int)RenderQueue.Transparent;
             return material;
-        }
-
-        private void EnsurePickCollider()
-        {
-            if (_isGhost || _pickCollider != null)
-                return;
-
-            _pickCollider = GetComponent<MeshCollider>();
-            if (_pickCollider == null)
-                _pickCollider = gameObject.AddComponent<MeshCollider>();
-            _pickCollider.sharedMesh = _sharedQuadMesh;
-            _pickCollider.convex = true;
         }
 
         private void OnDestroy()

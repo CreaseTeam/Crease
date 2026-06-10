@@ -128,7 +128,6 @@ namespace Crease.Folding.Decals
             _flightMeshRoot = flightMeshRoot;
             _flightVertexRotation = meshVertexRotation;
             _attachedToFlight = true;
-            SetQuadsPickColliderEnabled(false);
             ApplyAllPlacementsToQuads();
         }
 
@@ -142,7 +141,6 @@ namespace Crease.Folding.Decals
             _attachedToFlight = false;
             _flightMeshRoot = null;
             _flightVertexRotation = Quaternion.identity;
-            SetQuadsPickColliderEnabled(true);
             ApplyAllPlacementsToQuads();
         }
 
@@ -210,35 +208,23 @@ namespace Crease.Folding.Decals
         private bool TryPickDecalAtScreen(Vector2 screenPosition, out int index)
         {
             index = -1;
-            if (FoldingCamera == null || _quads.Count == 0)
+            if (_quads.Count == 0 || _authoringGraph == null)
                 return false;
 
-            Ray worldRay = FoldingCamera.ScreenPointToRay(screenPosition);
-            RaycastHit[] hits = Physics.RaycastAll(worldRay, 100f);
-            float bestDistance = float.MaxValue;
-            const float pickDepthEpsilon = 0.0001f;
+            DecalSurfaceQuery.SurfaceHit surfaceHit = RaycastScreen(screenPosition);
+            if (!surfaceHit.Hit)
+                return false;
 
-            for (int i = 0; i < hits.Length; i++)
+            for (int i = _placements.Count - 1; i >= 0; i--)
             {
-                RaycastHit hit = hits[i];
-                DecalQuad quad = hit.collider != null ? hit.collider.GetComponent<DecalQuad>() : null;
-                if (quad == null || quad == _ghostQuad)
-                    continue;
-
-                int quadIndex = _quads.IndexOf(quad);
-                if (quadIndex < 0)
-                    continue;
-
-                bool isCloser = hit.distance < bestDistance - pickDepthEpsilon;
-                bool isSameDepthButLater = Mathf.Abs(hit.distance - bestDistance) <= pickDepthEpsilon && quadIndex > index;
-                if (!isCloser && !isSameDepthButLater)
-                    continue;
-
-                bestDistance = hit.distance;
-                index = quadIndex;
+                if (DecalSurfaceQuery.TrySurfaceHitOverlapsPlacement(_authoringGraph, _placements[i], surfaceHit))
+                {
+                    index = i;
+                    return true;
+                }
             }
 
-            return index >= 0;
+            return false;
         }
 
         public bool PlaceDecal(Texture2D texture, DecalSurfaceQuery.SurfaceHit hit, float scale, float rotationUv = 0f)
@@ -305,15 +291,6 @@ namespace Crease.Folding.Decals
             }
 
             _ghostQuad?.SetLayerOrder(_quads.Count);
-        }
-
-        private void SetQuadsPickColliderEnabled(bool enabled)
-        {
-            foreach (DecalQuad quad in _quads)
-            {
-                if (quad != null)
-                    quad.SetPickColliderEnabled(enabled);
-            }
         }
 
         private void ApplyDecalLayerOrder(bool refreshTransforms = false)

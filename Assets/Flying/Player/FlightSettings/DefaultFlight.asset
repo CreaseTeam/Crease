@@ -33,4 +33,4 @@ MonoBehaviour:
   MaxRoll: 45
   BoostSpeed: 3
   InitialSpeed: 10
-  MinimumVelocity: 10
+  MinimumVelocity: 0
