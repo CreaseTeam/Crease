@@ -354,28 +354,42 @@ public class FoldInstructionRunner : MonoBehaviour
     /// the ideal drag position defined in the step. Returns a 0–100 accuracy score.
     /// </summary>
     private float CalculateFoldAccuracy(FoldStep step) {
+        Vector3 dragHandlePosition = GetStepDragHandlePosition(step);
+        Vector3 idealDragPosition = GetStepIdealDragPosition(step);
+
         // Get the actual drag position: the drag handle's current position in local space
         Vector3 actualDragPos;
         if (DragHandle != null && Controller != null) {
             actualDragPos = Controller.transform.InverseTransformPoint(DragHandle.transform.position);
         } else {
             // Fallback: use the controller's current drag handle position
-            actualDragPos = Controller != null ? Controller.DragHandlePosition : step.DragHandlePosition;
+            actualDragPos = Controller != null ? Controller.DragHandlePosition : dragHandlePosition;
         }
 
-        float distance = Vector3.Distance(actualDragPos, step.IdealDragPosition);
-        float idealFoldDistance = Vector3.Distance(step.DragHandlePosition, step.IdealDragPosition);
+        float distance = Vector3.Distance(actualDragPos, idealDragPosition);
+        float idealFoldDistance = Vector3.Distance(dragHandlePosition, idealDragPosition);
         float normalizedError = idealFoldDistance > 0.0001f ? distance / idealFoldDistance : 0f;
         float accuracy = Mathf.Exp(-AccuracyFalloff * normalizedError) * 100f;
         return accuracy;
+    }
+
+    private Vector3 GetStepDragHandlePosition(FoldStep step) {
+        return Instruction != null ? Instruction.ApplyOffset(step.DragHandlePosition) : step.DragHandlePosition;
+    }
+
+    private Vector3 GetStepIdealDragPosition(FoldStep step) {
+        return Instruction != null ? Instruction.ApplyOffset(step.IdealDragPosition) : step.IdealDragPosition;
     }
 
     /// <summary>
     /// Writes a FoldStep's values into the PaperGraphController and positions the drag handle.
     /// </summary>
     private void ApplyStepToController(FoldStep step) {
-        Controller.DragHandlePosition = step.DragHandlePosition;
-        Controller.IdealDragPosition = step.IdealDragPosition;
+        Vector3 dragHandlePosition = GetStepDragHandlePosition(step);
+        Vector3 idealDragPosition = GetStepIdealDragPosition(step);
+
+        Controller.DragHandlePosition = dragHandlePosition;
+        Controller.IdealDragPosition = idealDragPosition;
         Controller.DragPlaneNormal = step.DragPlaneNormal;
         Controller.FoldDegrees = step.FoldDegrees;
         Controller.FoldOffset = step.FoldOffset;
@@ -403,7 +417,7 @@ public class FoldInstructionRunner : MonoBehaviour
 
         // Position the drag handle if assigned (local → world)
         if (DragHandle != null) {
-            DragHandle.transform.position = Controller.transform.TransformPoint(step.DragHandlePosition);
+            DragHandle.transform.position = Controller.transform.TransformPoint(dragHandlePosition);
         }
 
         // Set up paper rotation lerp if this step specifies it
@@ -439,8 +453,8 @@ public class FoldInstructionRunner : MonoBehaviour
     private void UpdateGuideLine(FoldStep step) {
         if (FoldAxisGuide == null) return;
 
-        Vector3 dragStart = step.DragHandlePosition;
-        Vector3 dragEnd = step.IdealDragPosition;
+        Vector3 dragStart = GetStepDragHandlePosition(step);
+        Vector3 dragEnd = GetStepIdealDragPosition(step);
         Vector3 dragDelta = dragEnd - dragStart;
 
         if (dragDelta.sqrMagnitude < 0.00001f) {
@@ -712,20 +726,21 @@ public class FoldInstructionRunner : MonoBehaviour
     }
 
     private void ConfigureControllerForStep(FoldStep step) {
+        Vector3 dragHandlePosition = GetStepDragHandlePosition(step);
+        Vector3 idealDragPosition = GetStepIdealDragPosition(step);
+
         // Set up fold parameters reflecting the ideal fold for this step
-        Controller.DragHandlePosition = step.DragHandlePosition;
-        Controller.IdealDragPosition = step.IdealDragPosition;
+        Controller.DragHandlePosition = dragHandlePosition;
+        Controller.IdealDragPosition = idealDragPosition;
         Controller.DragPlaneNormal = step.DragPlaneNormal;
         Controller.FoldTagName = string.IsNullOrEmpty(step.ApplyTag) ? "" : step.ApplyTag;
         Controller.FoldOffset = step.FoldOffset;
 
         // Infer fold point 1 and 2 from ideal drag positions, like UpdateFoldFromDrag does
-        Vector3 dragStartLocal = step.DragHandlePosition;
-        Vector3 dragEndLocal = step.IdealDragPosition;
-        Vector3 dragDelta = dragEndLocal - dragStartLocal;
+        Vector3 dragDelta = idealDragPosition - dragHandlePosition;
 
         if (dragDelta.sqrMagnitude >= 0.00001f) {
-            Vector3 midpoint = (dragStartLocal + dragEndLocal) * 0.5f;
+            Vector3 midpoint = (dragHandlePosition + idealDragPosition) * 0.5f;
             // Note: user drags from dragStart to dragEnd. The fold axis is cross(normal, dragDir)
             Vector3 dragDir = dragDelta.normalized;
             Vector3 foldAxisDir = Vector3.Cross(step.DragPlaneNormal, dragDir).normalized;
@@ -741,7 +756,7 @@ public class FoldInstructionRunner : MonoBehaviour
         Controller.SelectedFilterTagIndex = 0;
         if (!string.IsNullOrEmpty(step.FilterTag)) {
             if (_paperGraph != null && _paperGraph.Tags != null && _paperGraph.Tags.Count > 0) {
-                var tagKeys = new System.Collections.Generic.List<string>(_paperGraph.Tags.Keys);
+                var tagKeys = new List<string>(_paperGraph.Tags.Keys);
                 int idx = tagKeys.IndexOf(step.FilterTag);
                 if (idx >= 0) Controller.SelectedFilterTagIndex = idx + 1;
             }

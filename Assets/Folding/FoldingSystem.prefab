@@ -218,7 +218,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PaperGraph
   Width: 1
-  Height: 1
+  Height: 1.3
 --- !u!114 &2936824549558735054
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -486,7 +486,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PaperGraph
   Width: 1
-  Height: 1
+  Height: 1.3
 --- !u!114 &1270413128971087771
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -52,7 +52,14 @@ namespace Crease.Folding.PaperGraph
     [CreateAssetMenu(fileName = "NewFoldInstruction", menuName = "Crease/Fold Instruction")]
     public class FoldInstruction : ScriptableObject
     {
+        [Tooltip("Offset applied to every step position when this instruction is run (x → local X, y → local Z).")]
+        public Vector2 Offset;
+
         [FormerlySerializedAs("steps")]
         public List<FoldStep> Steps = new List<FoldStep>();
+
+        public Vector3 ApplyOffset(Vector3 position) {
+            return new Vector3(position.x + Offset.x, position.y, position.z + Offset.y);
+        }
     }
 }
