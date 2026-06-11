@@ -43,6 +43,9 @@ namespace Crease.Folding.PaperGraph
         [FormerlySerializedAs("tagHighlightSize")]
         public float TagHighlightSize = 0.15f;
 
+        /// <summary>When true, mesh collider is not updated (avoids PhysX errors during animated preview).</summary>
+        public bool SkipColliderUpdate = false;
+
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
         private MeshCollider _meshCollider;
@@ -140,8 +143,7 @@ namespace Crease.Folding.PaperGraph
                     _meshRenderer.sharedMaterials = fallbackMats;
                 }
 
-                if (_meshCollider != null)
-                {
+                if (_meshCollider != null && !SkipColliderUpdate) {
                     CopyMeshToCollider(generatedMesh);
                     _meshCollider.convex = false;
                 }

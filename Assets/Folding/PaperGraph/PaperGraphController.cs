@@ -71,6 +71,15 @@ namespace Crease.Folding.PaperGraph
         [FormerlySerializedAs("lockedFoldPoint2")]
         public Vector3 LockedFoldPoint2;
 
+        public bool IsAccordionDragStep { get; private set; }
+        public Vector3 AccordionDragStart { get; private set; }
+        public Vector3 AccordionDragEnd { get; private set; }
+        public float AccordionCollapseT { get; private set; }
+
+        public bool IsAccordionDragComplete(float minProgress = 0.99f) {
+            return IsAccordionDragStep && AccordionCollapseT >= minProgress;
+        }
+
         private Vector3 _prevFoldPoint1;
         private Vector3 _prevFoldPoint2;
         private Vector3 _prevFoldPlaneVector;
@@ -171,6 +180,109 @@ namespace Crease.Folding.PaperGraph
             string tag = string.IsNullOrEmpty(FoldTagName) ? null : FoldTagName;
             _paperGraph.ExecuteFold(FoldPoint1, FoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTag, FoldOffset);
             RefreshVisualizers();
+        }
+
+        public bool ExecuteCreaseAction() {
+            if (_paperGraph == null) {
+                Debug.LogError("No PaperGraph component found on this GameObject.");
+                return false;
+            }
+
+            string tag = string.IsNullOrEmpty(FoldTagName) ? null : FoldTagName;
+            bool valid = _paperGraph.ExecuteCrease(FoldPoint1, FoldPoint2, FoldPlaneVector, tag, SelectedFilterTag, FoldDegrees);
+            if (valid)
+                RefreshVisualizers();
+            return valid;
+        }
+
+        public bool PrepareAccordionAction(
+            string creaseTagA,
+            string creaseTagB,
+            Vector3 creaseAxisA1,
+            Vector3 creaseAxisA2,
+            Vector3 creaseAxisB1,
+            Vector3 creaseAxisB2,
+            float foldDegrees,
+            Vector3 planeVector,
+            float foldOffset) {
+            if (_paperGraph == null) {
+                Debug.LogError("No PaperGraph component found on this GameObject.");
+                return false;
+            }
+
+            string tag = string.IsNullOrEmpty(FoldTagName) ? null : FoldTagName;
+            bool valid = _paperGraph.PrepareAccordionCollapse(
+                creaseTagA, creaseTagB, tag,
+                creaseAxisA1, creaseAxisA2, creaseAxisB1, creaseAxisB2,
+                foldDegrees, planeVector, foldOffset);
+            if (valid)
+                RefreshVisualizers();
+            return valid;
+        }
+
+        public void UpdateAccordionPreview(float collapseT) {
+            if (_paperGraph == null || PreviewGraph == null || !_paperGraph.HasAccordionData) return;
+
+            if (_previewVisualizer != null)
+                _previewVisualizer.SkipColliderUpdate = true;
+
+            AccordionCollapseData data = _paperGraph.GetAccordionData();
+            PaperGraphSnapshot snapshot = _paperGraph.CreateSnapshot();
+            PreviewGraph.RestoreSnapshot(snapshot);
+            AccordionCollapse.ApplyPose(PreviewGraph, data, collapseT, FoldOffset);
+            RefreshVisualizers(reanchorDecals: false, trackPreviewDecals: true);
+        }
+
+        public bool CommitAccordionAction() {
+            if (_paperGraph == null) {
+                Debug.LogError("No PaperGraph component found on this GameObject.");
+                return false;
+            }
+
+            float t = IsAccordionDragStep ? AccordionCollapseT : 1f;
+            bool valid = _paperGraph.CommitAccordionCollapse(FoldOffset, t);
+            if (valid)
+                RefreshVisualizers();
+            return valid;
+        }
+
+        public void BeginAccordionDragStep(Vector3 dragStart, Vector3 dragEnd) {
+            IsAccordionDragStep = true;
+            AccordionDragStart = dragStart;
+            AccordionDragEnd = dragEnd;
+            AccordionCollapseT = 0f;
+            DragHandlePosition = dragStart;
+            IdealDragPosition = dragEnd;
+            UpdateAccordionPreview(0f);
+        }
+
+        public void EndAccordionDragStep() {
+            IsAccordionDragStep = false;
+            AccordionCollapseT = 0f;
+        }
+
+        public void UpdateAccordionFromDrag(Vector3 dragCurrentLocal) {
+            if (!IsAccordionDragStep) return;
+
+            Vector3 line = AccordionDragEnd - AccordionDragStart;
+            float lineLengthSq = line.sqrMagnitude;
+            if (lineLengthSq < 0.00001f) return;
+
+            float t = Vector3.Dot(dragCurrentLocal - AccordionDragStart, line) / lineLengthSq;
+            t = Mathf.Clamp01(t);
+
+            DragHandlePosition = AccordionDragStart + line * t;
+            AccordionCollapseT = t;
+            UpdateAccordionPreview(t);
+        }
+
+        public void SetAccordionPreviewProgress(float t) {
+            if (!IsAccordionDragStep) return;
+
+            t = Mathf.Clamp01(t);
+            AccordionCollapseT = t;
+            DragHandlePosition = Vector3.Lerp(AccordionDragStart, AccordionDragEnd, t);
+            UpdateAccordionPreview(t);
         }
 
         public void RecalculateFoldAxis() {
@@ -285,9 +397,16 @@ namespace Crease.Folding.PaperGraph
         public void ClearPreview() {
             if (_paperGraph == null || PreviewGraph == null) return;
 
+            if (_previewVisualizer != null)
+                _previewVisualizer.SkipColliderUpdate = false;
+
             PaperGraphSnapshot snapshot = _paperGraph.CreateSnapshot();
             PreviewGraph.RestoreSnapshot(snapshot);
-            RefreshVisualizers(reanchorDecals: false, trackPreviewDecals: false);
+
+            if (IsAccordionDragStep && _paperGraph.HasAccordionData)
+                AccordionCollapse.ApplyPose(PreviewGraph, _paperGraph.GetAccordionData(), AccordionCollapseT, FoldOffset);
+
+            RefreshVisualizers(reanchorDecals: false, trackPreviewDecals: IsAccordionDragStep);
         }
 
         public void UndoFold() {

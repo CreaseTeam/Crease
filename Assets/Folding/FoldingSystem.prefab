@@ -245,6 +245,7 @@ MonoBehaviour:
   SelectedTagIndex: 0
   TagHighlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   TagHighlightSize: 0.15
+  SkipColliderUpdate: 0
 --- !u!33 &1008834195140893063
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -513,6 +514,7 @@ MonoBehaviour:
   SelectedTagIndex: 0
   TagHighlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   TagHighlightSize: 0.15
+  SkipColliderUpdate: 0
 --- !u!114 &3367760010211513509
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -619,15 +621,29 @@ MonoBehaviour:
   Controller: {fileID: 3367760010211513509}
   DragHandle: {fileID: 8480749504740479558}
   FoldAxisGuide: {fileID: 0}
-  GuideLineMaterial: {fileID: -1031502912751442999, guid: 5d39f0a98f534ff40b4e83227764dae1, type: 3}
-  GuideLineWidth: 0.01
-  GuideLineColor: {r: 1, g: 1, b: 1, a: 0.7}
-  GuideLineHeightOffset: 0.0005
+  FoldAxisGuideStyle:
+    Material: {fileID: -1031502912751442999, guid: 5d39f0a98f534ff40b4e83227764dae1, type: 3}
+    Width: 0.01
+    Color: {r: 1, g: 1, b: 1, a: 0.7}
+    HeightOffset: 0.0005
+  CreaseLineStyle:
+    Material: {fileID: -7139968578570027309, guid: 3e8780d8324937346be90315c6db76a7, type: 3}
+    Width: 0.006
+    Color: {r: 0.37106913, g: 0.37106913, b: 0.37106913, a: 0.9}
+    HeightOffset: 0.0005
+  _legacyGuideLineMaterial: {fileID: -1031502912751442999, guid: 5d39f0a98f534ff40b4e83227764dae1, type: 3}
+  _legacyGuideLineWidth: 0.01
+  _legacyGuideLineColor: {r: 1, g: 1, b: 1, a: 0.7}
+  _legacyGuideLineHeightOffset: 0.0005
+  _legacyCreaseLineColor: {r: 1, g: 0.85, b: 0.2, a: 0.9}
+  _legacyLineStylesMigrated: 1
   AccuracyFalloff: 5
   PaperLerpSpeed: 5
   CurrentPaperRotation: {x: 0, y: 0, z: 0}
   UnfoldAnimationSpeed: 360
   FoldAnimationSpeed: 360
+  AccordionCollapseDuration: 0.75
+  AccordionExecuteMinProgress: 0.99
   AutoSnapDragHandle: 0
 --- !u!114 &1584305669687720572
 MonoBehaviour:

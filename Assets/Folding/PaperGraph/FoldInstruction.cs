@@ -39,6 +39,20 @@ namespace Crease.Folding.PaperGraph
         [FormerlySerializedAs("lockFoldAxis")]
         public bool LockFoldAxis = false;
 
+        [Tooltip("If true, only cut topology along the fold axis (crease) without rotating geometry. ApplyTag labels the crease for later accordion folds.")]
+        [FormerlySerializedAs("isCrease")]
+        public bool IsCrease = false;
+
+        [Tooltip("If true, performs a water-bomb style accordion collapse using two existing creases. Drag progress along the computed path drives the collapse.")]
+        [FormerlySerializedAs("isAccordionFold")]
+        public bool IsAccordionFold = false;
+
+        [Tooltip("Tag of the first crease used by this accordion fold.")]
+        public string AccordionCreaseTagA = "";
+
+        [Tooltip("Tag of the second crease used by this accordion fold.")]
+        public string AccordionCreaseTagB = "";
+
         [Header("Paper Rotation (Optional)")]
         [Tooltip("If true, the paper will lerp to the specified rotation when this step is loaded.")]
         [FormerlySerializedAs("rotatePaper")]

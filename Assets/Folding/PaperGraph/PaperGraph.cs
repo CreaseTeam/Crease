@@ -24,6 +24,9 @@ public class PaperGraph : MonoBehaviour
 
     private List<PaperGraphSnapshot> _undoStack = new List<PaperGraphSnapshot>();
     private List<PaperGraphSnapshot> _redoStack = new List<PaperGraphSnapshot>();
+    private AccordionCollapseData _accordionData;
+
+    public bool HasAccordionData => _accordionData != null;
 
     /// <summary>
     /// Adds a vertex to the given tag list, creating the list if needed.
@@ -172,6 +175,213 @@ public class PaperGraph : MonoBehaviour
             CreateHinge(splitVertices, foldDupMap);
         }
         return true;
+    }
+
+    /// <summary>
+    /// Splits edges and faces along the fold plane without rotating geometry.
+    /// Crease vertices are tagged; crease edges store <paramref name="foldAngle"/>.
+    /// </summary>
+    public bool ExecuteCrease(Vector3 foldPoint1, Vector3 foldPoint2, Vector3 planeVector, string tagName = null, string filterTag = null, float foldAngle = 180f) {
+        _undoStack.Add(CreateSnapshot());
+        _redoStack.Clear();
+
+        HashSet<Vertex> filterSet = null;
+        if (!string.IsNullOrEmpty(filterTag) && Tags.ContainsKey(filterTag)) {
+            filterSet = new HashSet<Vertex>(Tags[filterTag]);
+        }
+
+        Vector3 foldAxis = (foldPoint2 - foldPoint1).normalized;
+        Vector3 planeNormal = Vector3.Cross(foldAxis, planeVector).normalized;
+
+        bool splitValid;
+        List<Vertex> splitVertices = SplitEdgesCrossingPlane(foldPoint1, planeNormal, foldAngle, filterSet, 0f, out splitValid);
+
+        if (!splitValid || splitVertices.Count < 2) {
+            PaperGraphSnapshot bad = _undoStack[_undoStack.Count - 1];
+            _undoStack.RemoveAt(_undoStack.Count - 1);
+            RestoreSnapshot(bad);
+            _redoStack.Clear();
+            return false;
+        }
+
+        if (!string.IsNullOrEmpty(tagName)) {
+            HashSet<Vertex> splitSet = new HashSet<Vertex>(splitVertices);
+            foreach (Vertex sv in splitVertices) {
+                AddVertexToTag(tagName, sv);
+                AddVertexToTag(tagName + "_edge", sv);
+            }
+
+            foreach (Vertex v in splitVertices) {
+                foreach (Edge e in v.Edges) {
+                    Vertex other = (e.V1 == v) ? e.V2 : e.V1;
+                    if (!splitSet.Contains(other)) continue;
+                    AddVertexToTag(tagName, other);
+                    AddVertexToTag(tagName + "_edge", other);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Splits topology for an accordion collapse (horizontal face splits) and records flat pose data.
+    /// Does not move vertices. Adds an undo snapshot.
+    /// </summary>
+    public bool PrepareAccordionCollapse(
+        string creaseTagA,
+        string creaseTagB,
+        string tagName,
+        Vector3 creaseAxisA1,
+        Vector3 creaseAxisA2,
+        Vector3 creaseAxisB1,
+        Vector3 creaseAxisB2,
+        float foldDegrees,
+        Vector3 planeVector,
+        float foldOffset) {
+        _undoStack.Add(CreateSnapshot());
+        _redoStack.Clear();
+
+        AccordionCollapseData data;
+        if (!AccordionCollapse.TryPrepare(
+            this, creaseTagA, creaseTagB, tagName,
+            creaseAxisA1, creaseAxisA2, creaseAxisB1, creaseAxisB2,
+            foldDegrees, planeVector, foldOffset,
+            out data, out string error)) {
+            PaperGraphSnapshot bad = _undoStack[_undoStack.Count - 1];
+            _undoStack.RemoveAt(_undoStack.Count - 1);
+            RestoreSnapshot(bad);
+            _redoStack.Clear();
+            Debug.LogWarning($"PaperGraph: Accordion prepare failed — {error}");
+            return false;
+        }
+
+        _accordionData = data;
+        return true;
+    }
+
+    /// <summary>
+    /// Applies accordion collapse pose for preview or commit. Requires <see cref="PrepareAccordionCollapse"/> first.
+    /// </summary>
+    public bool ApplyAccordionCollapsePose(float t, float foldOffset = 0f) {
+        if (_accordionData == null) return false;
+        AccordionCollapse.ApplyPose(this, _accordionData, t, foldOffset);
+        return true;
+    }
+
+    public AccordionCollapseData GetAccordionData() => _accordionData;
+
+    /// <summary>
+    /// Restores vertices to the flat pose recorded during accordion prepare.
+    /// </summary>
+    public void RestoreAccordionFlatPose() {
+        if (_accordionData == null) return;
+        AccordionCollapse.RestoreFlatPose(this, _accordionData);
+    }
+
+    public bool CommitAccordionCollapse(float foldOffset = 0f, float t = 1f) {
+        if (_accordionData == null) return false;
+        AccordionCollapse.ApplyPose(this, _accordionData, t, foldOffset);
+        _accordionData = null;
+        return true;
+    }
+
+    public void ClearAccordionData() {
+        _accordionData = null;
+    }
+
+    /// <summary>
+    /// Inserts a vertex at the midpoint of an edge and updates adjacent faces.
+    /// </summary>
+    public Vertex SplitEdgeAtMidpoint(Edge edge) {
+        if (edge == null) return null;
+
+        Vector3 midPos = (edge.V1.Position + edge.V2.Position) * 0.5f;
+        Vector2 midUv = (edge.V1.Uv + edge.V2.Uv) * 0.5f;
+
+        Vertex mid = new Vertex(midPos);
+        mid.Uv = midUv;
+        Vertices.Add(mid);
+
+        foreach (var kvp in Tags) {
+            bool v1InTag = kvp.Value.Contains(edge.V1);
+            bool v2InTag = kvp.Value.Contains(edge.V2);
+            if ((v1InTag || v2InTag) && !kvp.Value.Contains(mid))
+                kvp.Value.Add(mid);
+        }
+
+        Edge edgeA = new Edge(edge.V1, mid);
+        Edge edgeB = new Edge(mid, edge.V2);
+        edgeA.FoldAngle = edge.FoldAngle;
+        edgeB.FoldAngle = edge.FoldAngle;
+        edgeA.FoldOffset = edge.FoldOffset;
+        edgeB.FoldOffset = edge.FoldOffset;
+        edgeA.Face1 = edge.Face1;
+        edgeA.Face2 = edge.Face2;
+        edgeB.Face1 = edge.Face1;
+        edgeB.Face2 = edge.Face2;
+
+        edge.V1.Edges.Remove(edge);
+        edge.V2.Edges.Remove(edge);
+        Edges.Remove(edge);
+        Edges.Add(edgeA);
+        Edges.Add(edgeB);
+
+        if (edge.Face1 != null)
+            edge.Face1.ReplaceSplitEdge(edge, edgeA, edgeB, mid);
+        if (edge.Face2 != null)
+            edge.Face2.ReplaceSplitEdge(edge, edgeA, edgeB, mid);
+
+        return mid;
+    }
+
+    /// <summary>
+    /// Splits an edge at parameter <paramref name="t"/> along v1→v2 and updates adjacent faces.
+    /// </summary>
+    public Vertex SplitEdgeAtPoint(Edge edge, float t) {
+        if (edge == null) return null;
+
+        t = Mathf.Clamp01(t);
+        if (t <= 0.00001f || t >= 0.99999f)
+            return t < 0.5f ? edge.V1 : edge.V2;
+
+        Vector3 pos = edge.V1.Position + t * (edge.V2.Position - edge.V1.Position);
+        Vector2 uv = edge.V1.Uv + t * (edge.V2.Uv - edge.V1.Uv);
+
+        Vertex split = new Vertex(pos);
+        split.Uv = uv;
+        Vertices.Add(split);
+
+        foreach (var kvp in Tags) {
+            bool v1InTag = kvp.Value.Contains(edge.V1);
+            bool v2InTag = kvp.Value.Contains(edge.V2);
+            if ((v1InTag || v2InTag) && !kvp.Value.Contains(split))
+                kvp.Value.Add(split);
+        }
+
+        Edge edgeA = new Edge(edge.V1, split);
+        Edge edgeB = new Edge(split, edge.V2);
+        edgeA.FoldAngle = edge.FoldAngle;
+        edgeB.FoldAngle = edge.FoldAngle;
+        edgeA.FoldOffset = edge.FoldOffset;
+        edgeB.FoldOffset = edge.FoldOffset;
+        edgeA.Face1 = edge.Face1;
+        edgeA.Face2 = edge.Face2;
+        edgeB.Face1 = edge.Face1;
+        edgeB.Face2 = edge.Face2;
+
+        edge.V1.Edges.Remove(edge);
+        edge.V2.Edges.Remove(edge);
+        Edges.Remove(edge);
+        Edges.Add(edgeA);
+        Edges.Add(edgeB);
+
+        if (edge.Face1 != null)
+            edge.Face1.ReplaceSplitEdge(edge, edgeA, edgeB, split);
+        if (edge.Face2 != null)
+            edge.Face2.ReplaceSplitEdge(edge, edgeA, edgeB, split);
+
+        return split;
     }
 
     public List<Vertex> SplitEdgesCrossingPlane(Vector3 planePoint, Vector3 planeNormal, float foldAngle, HashSet<Vertex> filterSet, float foldOffset, out bool isValid) {
@@ -693,6 +903,7 @@ public class PaperGraph : MonoBehaviour
         Edges = snapshot.Edges;
         Faces = snapshot.Faces;
         Tags = snapshot.Tags;
+        _accordionData = null;
     }
 
     /// <summary>
