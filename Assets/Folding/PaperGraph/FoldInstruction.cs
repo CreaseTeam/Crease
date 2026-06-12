@@ -31,15 +31,27 @@ namespace Crease.Folding.PaperGraph
         [FormerlySerializedAs("applyTag")]
         public string ApplyTag = "";
 
-        [Tooltip("Tag to filter by — only vertices with this tag are folded (leave empty for none).")]
-        [FormerlySerializedAs("filterTag")]
-        public string FilterTag = "";
+        [Tooltip("Only vertices with at least one of these tags are folded. Empty means everything.")]
+        [FilterTags]
+        public FilterTagSet FilterTags = new FilterTagSet();
+
+        [SerializeField, HideInInspector, FormerlySerializedAs("filterTag"), FormerlySerializedAs("FilterTag")]
+        private string _legacyFilterTag = "";
+
+        public void MigrateLegacyFilterTag() {
+            List<string> tags = FilterTags.GetMutableTags();
+
+            if (string.IsNullOrEmpty(_legacyFilterTag)) return;
+            if (!tags.Contains(_legacyFilterTag))
+                tags.Add(_legacyFilterTag);
+            _legacyFilterTag = "";
+        }
 
         [Tooltip("If true, the fold axis produced by this step is locked. Any subsequent fold whose proposed axis would cross this segment will be held at the last valid value until it no longer crosses.")]
         [FormerlySerializedAs("lockFoldAxis")]
         public bool LockFoldAxis = false;
 
-        [Tooltip("If true, only cut topology along the fold axis (crease) without rotating geometry. ApplyTag labels the crease for later accordion folds.")]
+        [Tooltip("If true, only cut topology along the fold axis (crease) without rotating geometry. ApplyTag writes _edge, _moved, and _static tags as if the fold had been committed.")]
         [FormerlySerializedAs("isCrease")]
         public bool IsCrease = false;
 
@@ -74,6 +86,12 @@ namespace Crease.Folding.PaperGraph
 
         public Vector3 ApplyOffset(Vector3 position) {
             return new Vector3(position.x + Offset.x, position.y, position.z + Offset.y);
+        }
+
+        private void OnValidate() {
+            if (Steps == null) return;
+            foreach (FoldStep step in Steps)
+                step.MigrateLegacyFilterTag();
         }
     }
 }

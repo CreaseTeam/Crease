@@ -401,17 +401,6 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             return false;
         }
 
-        if (!AccordionCollapse.TryComputeDragPath(
-                _paperGraph,
-                creaseA.P1, creaseA.P2,
-                creaseB.P1, creaseB.P2,
-                step.DragPlaneNormal,
-                out AccordionDragPath dragPath,
-                out string pathError)) {
-            Debug.LogWarning($"FoldInstructionRunner: Accordion drag path failed — {pathError}");
-            return false;
-        }
-
         bool prepared = Controller.PrepareAccordionAction(
             tagA, tagB,
             creaseA.P1, creaseA.P2,
@@ -419,6 +408,20 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             step.FoldDegrees, step.DragPlaneNormal, step.FoldOffset);
         if (!prepared) {
             Debug.LogWarning("FoldInstructionRunner: Accordion prepare failed.");
+            return false;
+        }
+
+        if (!_paperGraph.HasAccordionData) {
+            Debug.LogWarning("FoldInstructionRunner: Accordion step is not prepared.");
+            return false;
+        }
+
+        if (!AccordionCollapse.TryComputeDragPath(
+                _paperGraph,
+                _paperGraph.GetAccordionData(),
+                out AccordionDragPath dragPath,
+                out string pathError)) {
+            Debug.LogWarning($"FoldInstructionRunner: Accordion drag path failed — {pathError}");
             return false;
         }
 
@@ -733,18 +736,7 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         Controller.FoldOffset = step.FoldOffset;
         Controller.FoldTagName = string.IsNullOrEmpty(step.ApplyTag) ? "" : step.ApplyTag;
 
-        Controller.SelectedFilterTagIndex = 0;
-        if (!string.IsNullOrEmpty(step.FilterTag)) {
-            if (_paperGraph != null && _paperGraph.Tags != null && _paperGraph.Tags.Count > 0) {
-                var tagKeys = new List<string>(_paperGraph.Tags.Keys);
-                int idx = tagKeys.IndexOf(step.FilterTag);
-                if (idx >= 0) {
-                    Controller.SelectedFilterTagIndex = idx + 1;
-                } else {
-                    Debug.LogWarning($"FoldInstructionRunner: Filter tag \"{step.FilterTag}\" not found on graph. Ignoring filter.");
-                }
-            }
-        }
+        Controller.SelectedFilterTags = ResolveFilterTagsForStep(step);
 
         if (_hasSavedFoldAxis) {
             Controller.HasFoldAxisLock = true;
@@ -816,11 +808,11 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         }
 
         Vector3 planeNormal = step.DragPlaneNormal.normalized;
-        Vector3 midpoint = (dragStart + dragEnd) * 0.5f;
-        Vector3 offset = ComputeSurfaceLiftOffset(planeNormal, midpoint, FoldAxisGuideStyle.HeightOffset);
+        Vector3 startOffset = ComputeSurfaceLiftOffset(planeNormal, dragStart, FoldAxisGuideStyle.HeightOffset);
+        Vector3 endOffset = ComputeSurfaceLiftOffset(planeNormal, dragEnd, FoldAxisGuideStyle.HeightOffset);
 
-        FoldAxisGuide.SetPosition(0, dragStart + offset);
-        FoldAxisGuide.SetPosition(1, dragEnd + offset);
+        FoldAxisGuide.SetPosition(0, dragStart + startOffset);
+        FoldAxisGuide.SetPosition(1, dragEnd + endOffset);
         FoldAxisGuide.enabled = true;
     }
 
@@ -1124,15 +1116,25 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             }
         }
 
-        // Restore the filter tag to match what it was
-        Controller.SelectedFilterTagIndex = 0;
-        if (!string.IsNullOrEmpty(step.FilterTag)) {
-            if (_paperGraph != null && _paperGraph.Tags != null && _paperGraph.Tags.Count > 0) {
-                var tagKeys = new List<string>(_paperGraph.Tags.Keys);
-                int idx = tagKeys.IndexOf(step.FilterTag);
-                if (idx >= 0) Controller.SelectedFilterTagIndex = idx + 1;
+        Controller.SelectedFilterTags = ResolveFilterTagsForStep(step);
+    }
+
+        private List<string> ResolveFilterTagsForStep(FoldStep step) {
+            IReadOnlyList<string> filterTags = step.FilterTags?.Tags;
+            if (filterTags == null || filterTags.Count == 0)
+                return new List<string>();
+
+            List<string> resolved = new List<string>();
+            foreach (string tag in filterTags) {
+            if (string.IsNullOrEmpty(tag)) continue;
+            if (_paperGraph != null && _paperGraph.Tags != null && _paperGraph.Tags.ContainsKey(tag)) {
+                resolved.Add(tag);
+            } else {
+                Debug.LogWarning($"FoldInstructionRunner: Filter tag \"{tag}\" not found on graph. Ignoring filter.");
             }
         }
+
+        return resolved;
     }
 
     /// <summary>

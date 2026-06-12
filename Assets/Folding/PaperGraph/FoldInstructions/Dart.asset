@@ -20,7 +20,8 @@ MonoBehaviour:
     FoldDegrees: -180
     FoldOffset: 0.001
     ApplyTag: 
-    FilterTag: 
+    FilterTags:
+      _tags: []
     LockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
@@ -34,7 +35,8 @@ MonoBehaviour:
     FoldDegrees: -180
     FoldOffset: 0.001
     ApplyTag: 
-    FilterTag: 
+    FilterTags:
+      _tags: []
     LockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
@@ -48,7 +50,8 @@ MonoBehaviour:
     FoldDegrees: -180
     FoldOffset: 0.001
     ApplyTag: half
-    FilterTag: 
+    FilterTags:
+      _tags: []
     LockFoldAxis: 1
     IsCrease: 0
     IsAccordionFold: 0
@@ -62,7 +65,9 @@ MonoBehaviour:
     FoldDegrees: -180
     FoldOffset: 0.005
     ApplyTag: none
-    FilterTag: half_moved
+    FilterTags:
+      _tags:
+      - half_moved
     LockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
@@ -76,7 +81,9 @@ MonoBehaviour:
     FoldDegrees: -90
     FoldOffset: 0.01
     ApplyTag: none
-    FilterTag: half_moved
+    FilterTags:
+      _tags:
+      - half_moved
     LockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
@@ -90,7 +97,9 @@ MonoBehaviour:
     FoldDegrees: -180
     FoldOffset: 0.005
     ApplyTag: none
-    FilterTag: half_static
+    FilterTags:
+      _tags:
+      - half_static
     LockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
@@ -104,7 +113,9 @@ MonoBehaviour:
     FoldDegrees: -90
     FoldOffset: 0.005
     ApplyTag: none
-    FilterTag: half_static
+    FilterTags:
+      _tags:
+      - half_static
     LockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0

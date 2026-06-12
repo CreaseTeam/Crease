@@ -1,6 +1,7 @@
 using Crease.Folding.Decals;
 using UnityEngine;
 using UnityEngine.Serialization;
+using System.Collections.Generic;
 
 namespace Crease.Folding.PaperGraph
 {
@@ -20,8 +21,7 @@ namespace Crease.Folding.PaperGraph
         [FormerlySerializedAs("foldTagName")]
         public string FoldTagName = "";
         [HideInInspector]
-        [FormerlySerializedAs("selectedFilterTagIndex")]
-        public int SelectedFilterTagIndex = 0;
+        public List<string> SelectedFilterTags = new List<string>();
 
         [Header("Drag Handle")]
         [FormerlySerializedAs("dragHandlePosition")]
@@ -85,17 +85,6 @@ namespace Crease.Folding.PaperGraph
         private Vector3 _prevFoldPlaneVector;
         private float _prevFoldDegrees;
 
-        public string SelectedFilterTag {
-            get {
-                if (_paperGraph == null || _paperGraph.Tags == null || _paperGraph.Tags.Count == 0)
-                    return null;
-                var tagKeys = new System.Collections.Generic.List<string>(_paperGraph.Tags.Keys);
-                if (SelectedFilterTagIndex <= 0 || SelectedFilterTagIndex > tagKeys.Count)
-                    return null;
-                return tagKeys[SelectedFilterTagIndex - 1];
-            }
-        }
-
         private void Awake() {
             _paperGraph = GetComponent<PaperGraph>();
             _authoringVisualizer = GetComponent<PaperGraphVisualizer>();
@@ -123,13 +112,13 @@ namespace Crease.Folding.PaperGraph
             PaperGraphSnapshot snapshot = _paperGraph.CreateSnapshot();
             PreviewGraph.RestoreSnapshot(snapshot);
             string tag = string.IsNullOrEmpty(FoldTagName) ? null : FoldTagName;
-            bool valid = PreviewGraph.ExecuteFold(FoldPoint1, FoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTag, FoldOffset);
+            bool valid = PreviewGraph.ExecuteFold(FoldPoint1, FoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTags, FoldOffset);
 
             if (!valid) {
                 FoldPoint1 = LockedFoldPoint1;
                 FoldPoint2 = LockedFoldPoint2;
                 PreviewGraph.RestoreSnapshot(snapshot);
-                PreviewGraph.ExecuteFold(LockedFoldPoint1, LockedFoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTag, FoldOffset);
+                PreviewGraph.ExecuteFold(LockedFoldPoint1, LockedFoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTags, FoldOffset);
             } else {
                 LockedFoldPoint1 = FoldPoint1;
                 LockedFoldPoint2 = FoldPoint2;
@@ -178,7 +167,7 @@ namespace Crease.Folding.PaperGraph
             }
 
             string tag = string.IsNullOrEmpty(FoldTagName) ? null : FoldTagName;
-            _paperGraph.ExecuteFold(FoldPoint1, FoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTag, FoldOffset);
+            _paperGraph.ExecuteFold(FoldPoint1, FoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTags, FoldOffset);
             RefreshVisualizers();
         }
 
@@ -189,7 +178,7 @@ namespace Crease.Folding.PaperGraph
             }
 
             string tag = string.IsNullOrEmpty(FoldTagName) ? null : FoldTagName;
-            bool valid = _paperGraph.ExecuteCrease(FoldPoint1, FoldPoint2, FoldPlaneVector, tag, SelectedFilterTag, FoldDegrees);
+            bool valid = _paperGraph.ExecuteCrease(FoldPoint1, FoldPoint2, FoldPlaneVector, tag, SelectedFilterTags, FoldDegrees);
             if (valid)
                 RefreshVisualizers();
             return valid;

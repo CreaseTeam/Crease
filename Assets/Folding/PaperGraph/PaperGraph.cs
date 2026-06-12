@@ -47,6 +47,19 @@ public class PaperGraph : MonoBehaviour
         return new List<Vertex>();
     }
 
+    private HashSet<Vertex> BuildFilterSet(IReadOnlyList<string> filterTags) {
+        if (filterTags == null || filterTags.Count == 0) return null;
+
+        HashSet<Vertex> filterSet = new HashSet<Vertex>();
+        foreach (string tag in filterTags) {
+            if (string.IsNullOrEmpty(tag) || !Tags.ContainsKey(tag)) continue;
+            foreach (Vertex v in Tags[tag])
+                filterSet.Add(v);
+        }
+
+        return filterSet;
+    }
+
     private void Start() {
         Vertices.Clear();
         Edges.Clear();
@@ -55,16 +68,12 @@ public class PaperGraph : MonoBehaviour
         CreateSheet(Width, Height);
     }
     
-    public bool ExecuteFold(Vector3 foldPoint1, Vector3 foldPoint2, Vector3 planeVector, float degrees, string tagName = null, string filterTag = null, float foldOffset = 0f) {
+    public bool ExecuteFold(Vector3 foldPoint1, Vector3 foldPoint2, Vector3 planeVector, float degrees, string tagName = null, IReadOnlyList<string> filterTags = null, float foldOffset = 0f) {
         // Save state before the fold for undo
         _undoStack.Add(CreateSnapshot());
         _redoStack.Clear();
 
-        // Resolve filter set from tag
-        HashSet<Vertex> filterSet = null;
-        if (!string.IsNullOrEmpty(filterTag) && Tags.ContainsKey(filterTag)) {
-            filterSet = new HashSet<Vertex>(Tags[filterTag]);
-        }
+        HashSet<Vertex> filterSet = BuildFilterSet(filterTags);
 
         Vector3 foldAxis = (foldPoint2 - foldPoint1).normalized;
         Vector3 planeNormal = Vector3.Cross(foldAxis, planeVector).normalized;
@@ -179,16 +188,13 @@ public class PaperGraph : MonoBehaviour
 
     /// <summary>
     /// Splits edges and faces along the fold plane without rotating geometry.
-    /// Crease vertices are tagged; crease edges store <paramref name="foldAngle"/>.
+    /// When tagged, applies the same _edge / _moved / _static labels as <see cref="ExecuteFold"/>.
     /// </summary>
-    public bool ExecuteCrease(Vector3 foldPoint1, Vector3 foldPoint2, Vector3 planeVector, string tagName = null, string filterTag = null, float foldAngle = 180f) {
+    public bool ExecuteCrease(Vector3 foldPoint1, Vector3 foldPoint2, Vector3 planeVector, string tagName = null, IReadOnlyList<string> filterTags = null, float foldAngle = 180f) {
         _undoStack.Add(CreateSnapshot());
         _redoStack.Clear();
 
-        HashSet<Vertex> filterSet = null;
-        if (!string.IsNullOrEmpty(filterTag) && Tags.ContainsKey(filterTag)) {
-            filterSet = new HashSet<Vertex>(Tags[filterTag]);
-        }
+        HashSet<Vertex> filterSet = BuildFilterSet(filterTags);
 
         Vector3 foldAxis = (foldPoint2 - foldPoint1).normalized;
         Vector3 planeNormal = Vector3.Cross(foldAxis, planeVector).normalized;
@@ -205,23 +211,57 @@ public class PaperGraph : MonoBehaviour
         }
 
         if (!string.IsNullOrEmpty(tagName)) {
-            HashSet<Vertex> splitSet = new HashSet<Vertex>(splitVertices);
-            foreach (Vertex sv in splitVertices) {
-                AddVertexToTag(tagName, sv);
+            foreach (Vertex sv in splitVertices)
                 AddVertexToTag(tagName + "_edge", sv);
-            }
 
-            foreach (Vertex v in splitVertices) {
-                foreach (Edge e in v.Edges) {
-                    Vertex other = (e.V1 == v) ? e.V2 : e.V1;
-                    if (!splitSet.Contains(other)) continue;
-                    AddVertexToTag(tagName, other);
-                    AddVertexToTag(tagName + "_edge", other);
-                }
-            }
+            TagVerticesByFoldSide(foldPoint1, foldAxis, planeNormal, splitVertices, tagName, filterSet);
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// Tags non-crease vertices as tag_moved or tag_static based on which side of the fold plane
+    /// they lie on, matching <see cref="ExecuteFold"/> side classification.
+    /// </summary>
+    private void TagVerticesByFoldSide(
+        Vector3 foldPoint1,
+        Vector3 foldAxis,
+        Vector3 planeNormal,
+        List<Vertex> splitVertices,
+        string tagName,
+        HashSet<Vertex> filterSet) {
+        HashSet<Vertex> splitSet = new HashSet<Vertex>(splitVertices);
+
+        foreach (Vertex v in Vertices) {
+            if (filterSet != null && !filterSet.Contains(v)) continue;
+            if (splitSet.Contains(v)) continue;
+
+            float side = Vector3.Dot(v.Position - foldPoint1, planeNormal);
+            Vector3 toV = v.Position - foldPoint1;
+            float distToAxis = Vector3.Cross(foldAxis, toV).magnitude;
+
+            bool onPositiveSide = side > 0.0001f;
+            bool onPlaneOffAxis = Mathf.Abs(side) <= 0.0001f && distToAxis > 0.0001f;
+
+            if (onPlaneOffAxis) {
+                bool attachedToMoved = false;
+                foreach (Edge e in v.Edges) {
+                    Vertex other = (e.V1 == v) ? e.V2 : e.V1;
+                    if (Vector3.Dot(other.Position - foldPoint1, planeNormal) > 0.0001f) {
+                        attachedToMoved = true;
+                        break;
+                    }
+                }
+                if (!attachedToMoved)
+                    onPlaneOffAxis = false;
+            }
+
+            if (onPositiveSide || onPlaneOffAxis)
+                AddVertexToTag(tagName + "_moved", v);
+            else
+                AddVertexToTag(tagName + "_static", v);
+        }
     }
 
     /// <summary>

@@ -533,7 +533,7 @@ MonoBehaviour:
   FoldDegrees: 180
   FoldOffset: 0.005
   FoldTagName: 
-  SelectedFilterTagIndex: 0
+  SelectedFilterTags: []
   DragHandlePosition: {x: 0.5, y: 0, z: 0.5}
   IdealDragPosition: {x: 0, y: 0, z: 0}
   DragPlaneNormal: {x: 0, y: 1, z: 0}

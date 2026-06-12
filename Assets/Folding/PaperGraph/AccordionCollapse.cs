@@ -13,6 +13,17 @@ namespace Crease.Folding.PaperGraph
         public Dictionary<int, Vector3> FlatPositions = new Dictionary<int, Vector3>();
         public Dictionary<int, Vector3> CollapsedPositions = new Dictionary<int, Vector3>();
         public HashSet<int> MovedVertexIndices = new HashSet<int>();
+        public HashSet<int> AccordionBoundaryIndices = new HashSet<int>();
+
+        public Vector3 CenterPosition;
+        public Vector3 CreaseAxisA;
+        public Vector3 CreaseAxisB;
+        public Vector3 AccordionAxisDir;
+        public Vector3 AccordionPlaneNormal;
+        public Vector3 PlaneNormal;
+        public Vector3 DragAxis;
+        public float FoldDegrees;
+        public float FoldOffset;
     }
 
     public struct AccordionDragPath
@@ -51,17 +62,13 @@ namespace Crease.Folding.PaperGraph
         }
 
         /// <summary>
-        /// Computes the constrained drag path for an accordion step without modifying the graph.
-        /// Start lies on the axis perpendicular to the accordion axis through the crease intersection;
-        /// end is that point reflected across the accordion axis.
+        /// Computes the constrained drag path from prepared accordion data.
+        /// Start: where the axis perpendicular to the accordion axis (through the crease intersection)
+        /// meets the paper edge toward sheet-up. End: top-half collapse of that point.
         /// </summary>
         public static bool TryComputeDragPath(
             PaperGraph graph,
-            Vector3 creaseAxisA1,
-            Vector3 creaseAxisA2,
-            Vector3 creaseAxisB1,
-            Vector3 creaseAxisB2,
-            Vector3 planeNormal,
+            AccordionCollapseData data,
             out AccordionDragPath path,
             out string error) {
             path = default;
@@ -72,54 +79,147 @@ namespace Crease.Folding.PaperGraph
                 return false;
             }
 
-            Vector3 n = planeNormal.sqrMagnitude > 0.0001f ? planeNormal.normalized : Vector3.up;
-
-            if (!TryComputeCreaseIntersection(
-                    creaseAxisA1, creaseAxisA2, creaseAxisB1, creaseAxisB2, n, out Vector3 intersection)) {
-                error = "Crease axes do not intersect.";
+            if (data == null) {
+                error = "Accordion collapse data is null.";
                 return false;
             }
 
-            Vector3 fallbackAxisA = Vector3.ProjectOnPlane(creaseAxisA2 - creaseAxisA1, n).normalized;
-            Vector3 fallbackAxisB = Vector3.ProjectOnPlane(creaseAxisB2 - creaseAxisB1, n).normalized;
-
-            Vertex center = FindVertexNear(graph, intersection);
-            Vector3 sheetUp = GetSheetUpInPlane(graph, intersection, n);
-
-            Vector3 creaseAxisA = center != null
-                ? ResolveCreaseAxisFromGraph(graph, center, n, fallbackAxisA)
-                : fallbackAxisA;
-            Vector3 creaseAxisB = center != null
-                ? ResolveCreaseAxisFromGraph(graph, center, n, fallbackAxisB)
-                : fallbackAxisB;
-            OrientCreaseAxisTowardSheetUp(ref creaseAxisA, n, sheetUp);
-            OrientCreaseAxisTowardSheetUp(ref creaseAxisB, n, sheetUp);
-
-            Vector3 referenceX = GetReferenceXInPlane(n);
-            Vector3 accordionAxisDir = ComputeAccordionAxisDir(creaseAxisA, creaseAxisB, referenceX);
-            Vector3 dragAxis = Vector3.Cross(accordionAxisDir, n).normalized;
-            OrientNormalTowardSheetUp(ref dragAxis, sheetUp);
-
-            float maxExtent = 0f;
-            foreach (Vertex vertex in graph.Vertices) {
-                Vector3 rel = Vector3.ProjectOnPlane(vertex.Position - intersection, n);
-                if (rel.sqrMagnitude < 0.00001f) continue;
-                maxExtent = Mathf.Max(maxExtent, Vector3.Dot(rel, dragAxis));
+            Vector3 dragAxis = data.DragAxis.sqrMagnitude > 0.00001f ? data.DragAxis.normalized : Vector3.zero;
+            if (dragAxis.sqrMagnitude < 0.00001f) {
+                error = "Accordion drag axis is invalid.";
+                return false;
             }
 
-            if (maxExtent < PositionTolerance)
-                maxExtent = 0.1f;
+            if (!ClipAxisToPaperEdges(
+                    graph,
+                    data.CenterPosition,
+                    dragAxis,
+                    data.PlaneNormal,
+                    out Vector3 clippedMin,
+                    out Vector3 clippedMax)) {
+                error = "Failed to clip accordion drag axis to paper edges.";
+                return false;
+            }
 
-            Vector3 dragStart = intersection + dragAxis * maxExtent;
-            Vector3 dragEnd = MirrorPointInPaperPlane(dragStart, intersection, accordionAxisDir, n);
+            Vector3 dragStart = Vector3.Dot(clippedMin - data.CenterPosition, dragAxis)
+                >= Vector3.Dot(clippedMax - data.CenterPosition, dragAxis)
+                ? clippedMin
+                : clippedMax;
+            ComputeCollapsedPositionAsTopHalf(dragStart, data, out Vector3 dragEnd);
 
             path = new AccordionDragPath {
-                Intersection = intersection,
-                AccordionAxisDir = accordionAxisDir,
+                Intersection = data.CenterPosition,
+                AccordionAxisDir = data.AccordionAxisDir,
                 DragStart = dragStart,
                 DragEnd = dragEnd
             };
             return true;
+        }
+
+        /// <summary>
+        /// Clips an in-plane axis to the paper polygon using the same edge-intersection
+        /// method as <see cref="FoldInstructionRunner"/> fold-axis clipping.
+        /// </summary>
+        private static bool ClipAxisToPaperEdges(
+            PaperGraph graph,
+            Vector3 axisMidpoint,
+            Vector3 axisDir,
+            Vector3 planeNormal,
+            out Vector3 clippedMin,
+            out Vector3 clippedMax) {
+            clippedMin = axisMidpoint;
+            clippedMax = axisMidpoint;
+
+            Vector3 basisU = axisDir.sqrMagnitude > 0.00001f ? axisDir.normalized : Vector3.zero;
+            if (basisU.sqrMagnitude < 0.00001f)
+                return false;
+
+            Vector3 basisV = Vector3.Cross(planeNormal, basisU).normalized;
+
+            float minT = float.PositiveInfinity;
+            float maxT = float.NegativeInfinity;
+            bool foundAny = false;
+
+            foreach (Edge edge in graph.Edges) {
+                float aU = Vector3.Dot(edge.V1.Position - axisMidpoint, basisU);
+                float aV = Vector3.Dot(edge.V1.Position - axisMidpoint, basisV);
+                float bU = Vector3.Dot(edge.V2.Position - axisMidpoint, basisU);
+                float bV = Vector3.Dot(edge.V2.Position - axisMidpoint, basisV);
+
+                float dV = bV - aV;
+                if (Mathf.Abs(dV) < 0.000001f)
+                    continue;
+
+                float s = -aV / dV;
+                if (s < -0.0001f || s > 1.0001f)
+                    continue;
+
+                float t = aU + s * (bU - aU);
+
+                if (t < minT)
+                    minT = t;
+                if (t > maxT)
+                    maxT = t;
+                foundAny = true;
+            }
+
+            if (!foundAny || (maxT - minT) < 0.0001f)
+                return false;
+
+            clippedMin = axisMidpoint + basisU * minT;
+            clippedMax = axisMidpoint + basisU * maxT;
+            return true;
+        }
+
+        private static void ComputeCollapsedPositionAsTopHalf(
+            Vector3 flat,
+            AccordionCollapseData data,
+            out Vector3 collapsed) {
+            collapsed = MirrorFoldInPaperPlane(
+                flat,
+                data.CenterPosition,
+                data.AccordionAxisDir,
+                data.PlaneNormal,
+                data.FoldDegrees,
+                data.FoldOffset * 2f);
+        }
+
+        /// <summary>
+        /// Shared collapse target for a vertex — used by <see cref="BuildCollapseData"/> and drag-path resolution.
+        /// </summary>
+        private static void ComputeCollapsedPosition(
+            int vertexIndex,
+            Vector3 flat,
+            AccordionCollapseData data,
+            out Vector3 collapsed,
+            out bool moves) {
+            collapsed = flat;
+            moves = false;
+
+            if (data == null)
+                return;
+
+            Vector3 centerPos = data.CenterPosition;
+            if (vertexIndex == data.CenterIndex) {
+                collapsed = centerPos;
+                return;
+            }
+
+            if (data.AccordionBoundaryIndices.Contains(vertexIndex)) {
+                if (TryGetBoundaryCreaseAxis(
+                        flat, centerPos, data.CreaseAxisA, data.CreaseAxisB, data.PlaneNormal, out Vector3 creaseAxis)) {
+                    collapsed = MirrorFoldInPaperPlane(
+                        flat, centerPos, creaseAxis, data.PlaneNormal, data.FoldDegrees, data.FoldOffset);
+                    moves = true;
+                }
+                return;
+            }
+
+            float accordionSide = Vector3.Dot(flat - centerPos, data.AccordionPlaneNormal);
+            if (accordionSide > PositionTolerance) {
+                ComputeCollapsedPositionAsTopHalf(flat, data, out collapsed);
+                moves = true;
+            }
         }
 
         public static bool TryPrepare(
@@ -186,6 +286,9 @@ namespace Crease.Folding.PaperGraph
             EnsureAccordionPlaneNormalTowardSheetUp(
                 ref accordionPlaneNormal, graph, center.Position, planeNormal, sheetUp);
 
+            Vector3 dragAxis = Vector3.Cross(accordionAxisDir, planeNormal).normalized;
+            OrientNormalTowardSheetUp(ref dragAxis, sheetUp);
+
             graph.SplitEdgesCrossingPlane(center.Position, accordionPlaneNormal, 180f, null, 0f, out bool _);
 
             EnsureCreaseRaysFromCenter(
@@ -200,13 +303,20 @@ namespace Crease.Folding.PaperGraph
                 graph, center,
                 creaseAxisA, creaseAxisB,
                 accordionAxisDir, accordionPlaneNormal,
-                planeNormal, foldDegrees, foldOffset);
+                planeNormal, dragAxis, foldDegrees, foldOffset);
 
             if (!string.IsNullOrEmpty(tagName)) {
-                graph.AddVertexToTag(tagName, center);
                 graph.AddVertexToTag(tagName + "_edge", center);
-                foreach (int movedIdx in data.MovedVertexIndices)
-                    graph.AddVertexToTag(tagName + "_moved", graph.Vertices[movedIdx]);
+                foreach (var kvp in data.FlatPositions) {
+                    int idx = kvp.Key;
+                    if (idx < 0 || idx >= graph.Vertices.Count) continue;
+                    if (idx == data.CenterIndex) continue;
+
+                    if (data.MovedVertexIndices.Contains(idx))
+                        graph.AddVertexToTag(tagName + "_moved", graph.Vertices[idx]);
+                    else
+                        graph.AddVertexToTag(tagName + "_static", graph.Vertices[idx]);
+                }
             }
 
             return true;
@@ -415,52 +525,38 @@ namespace Crease.Folding.PaperGraph
             Vector3 accordionAxisDir,
             Vector3 accordionPlaneNormal,
             Vector3 planeNormal,
+            Vector3 dragAxis,
             float foldDegrees,
             float foldOffset) {
             AccordionCollapseData data = new AccordionCollapseData();
             data.CenterIndex = graph.Vertices.IndexOf(center);
             Vector3 centerPos = center.Position;
 
+            data.CenterPosition = centerPos;
+            data.CreaseAxisA = creaseAxisA;
+            data.CreaseAxisB = creaseAxisB;
+            data.AccordionAxisDir = accordionAxisDir;
+            data.AccordionPlaneNormal = accordionPlaneNormal;
+            data.PlaneNormal = planeNormal;
+            data.DragAxis = dragAxis;
+            data.FoldDegrees = foldDegrees;
+            data.FoldOffset = foldOffset;
+
             foreach (Vertex v in graph.Vertices) {
                 int idx = graph.Vertices.IndexOf(v);
                 data.FlatPositions[idx] = v.Position;
             }
 
-            HashSet<int> accordionEdgeIndices = CollectAccordionBoundaryVertexIndices(
+            data.AccordionBoundaryIndices = CollectAccordionBoundaryVertexIndices(
                 graph, centerPos, accordionAxisDir, data.CenterIndex);
-
-            float doubleOffset = foldOffset * 2f;
 
             foreach (var kvp in data.FlatPositions) {
                 int idx = kvp.Key;
-                if (idx == data.CenterIndex) {
-                    data.CollapsedPositions[idx] = centerPos;
-                    continue;
-                }
-
                 Vector3 flat = kvp.Value;
-
-                if (accordionEdgeIndices.Contains(idx)) {
-                    if (TryGetBoundaryCreaseAxis(flat, centerPos, creaseAxisA, creaseAxisB, planeNormal, out Vector3 creaseAxis)) {
-                        Vector3 collapsed = MirrorFoldInPaperPlane(
-                            flat, centerPos, creaseAxis, planeNormal, foldDegrees, foldOffset);
-                        data.CollapsedPositions[idx] = collapsed;
-                        data.MovedVertexIndices.Add(idx);
-                    } else {
-                        data.CollapsedPositions[idx] = flat;
-                    }
-                    continue;
-                }
-
-                float accordionSide = Vector3.Dot(flat - centerPos, accordionPlaneNormal);
-                if (accordionSide > PositionTolerance) {
-                    Vector3 collapsed = MirrorFoldInPaperPlane(
-                        flat, centerPos, accordionAxisDir, planeNormal, foldDegrees, doubleOffset);
-                    data.CollapsedPositions[idx] = collapsed;
+                ComputeCollapsedPosition(idx, flat, data, out Vector3 collapsed, out bool moves);
+                data.CollapsedPositions[idx] = collapsed;
+                if (moves)
                     data.MovedVertexIndices.Add(idx);
-                } else {
-                    data.CollapsedPositions[idx] = flat;
-                }
             }
 
             return data;
@@ -790,7 +886,6 @@ namespace Crease.Folding.PaperGraph
 
         private static void TagVertex(PaperGraph graph, string tag, Vertex v) {
             if (string.IsNullOrEmpty(tag) || v == null) return;
-            graph.AddVertexToTag(tag, v);
             graph.AddVertexToTag(tag + "_edge", v);
         }
 

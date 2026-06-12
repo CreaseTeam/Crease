@@ -726,6 +726,10 @@ PrefabInstance:
       propertyPath: _dashController
       value: 
       objectReference: {fileID: 1740083104869519838}
+    - target: {fileID: 2898456625125675225, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: _foldInstructionRunner
+      value: 
+      objectReference: {fileID: 8945394571852309787}
     - target: {fileID: 4892953631500691399, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 

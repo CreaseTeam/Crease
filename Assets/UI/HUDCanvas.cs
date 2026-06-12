@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using Crease.Flying.Player.Dash;
 using Crease.Flying.Player.Health;
 using PlayerHealth = Crease.Flying.Player.Health.Health;
+using Crease.Folding.PaperGraph;
 using Crease.Managers.Input;
 using Crease.UI.Flying;
 using TMPro;
@@ -9,6 +11,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Crease.UI
 {
@@ -68,10 +73,17 @@ namespace Crease.UI
         private GameObject _pauseMenuUI;
         private bool _isPaused = false;
 
+        [Header("Plane Type")]
+        [SerializeField]
+        private TMP_Dropdown _planeTypeDropdown;
+        [SerializeField]
+        private FoldInstructionRunner _foldInstructionRunner;
 
         public static HUDCanvas Instance { get; private set; }
 
         private int _collectibleCount = 0;
+        private readonly List<FoldInstruction> _foldInstructions = new();
+        private bool _isUpdatingPlaneTypeDropdown;
 
         public int Collect()
         {
@@ -121,6 +133,10 @@ namespace Crease.UI
         {
             _collectibleText.text = $"{_collectibleCount}";
             _rechargeBar.fillAmount = _dashController.CurrentRecharge / _dashController.MaxRecharge;
+
+            PopulatePlaneTypeDropdown();
+            if (_planeTypeDropdown != null)
+                _planeTypeDropdown.onValueChanged.AddListener(OnPlaneTypeDropdownChanged);
 
             // maxHealth = hearts.Count;
             // health = maxHealth;
@@ -343,6 +359,98 @@ namespace Crease.UI
             {
                 _dashController.RefreshDash();
             }
+        }
+
+        /// <summary>
+        /// Fills the plane type dropdown with every FoldInstruction in the project.
+        /// </summary>
+        public void PopulatePlaneTypeDropdown()
+        {
+            if (_planeTypeDropdown == null)
+                return;
+
+            _foldInstructions.Clear();
+            _foldInstructions.AddRange(FindAllFoldInstructions());
+
+            _planeTypeDropdown.ClearOptions();
+            var options = new List<string>(_foldInstructions.Count);
+            foreach (FoldInstruction instruction in _foldInstructions)
+                options.Add(instruction != null ? instruction.name : "Missing");
+
+            if (options.Count == 0)
+                options.Add("No plane types");
+
+            _isUpdatingPlaneTypeDropdown = true;
+            _planeTypeDropdown.AddOptions(options);
+            SyncPlaneTypeDropdownToRunner();
+            _isUpdatingPlaneTypeDropdown = false;
+        }
+
+        /// <summary>
+        /// Called when the plane type dropdown selection changes.
+        /// Can also be wired directly from the dropdown's OnValueChanged event.
+        /// </summary>
+        public void OnPlaneTypeDropdownChanged(int index)
+        {
+            if (_isUpdatingPlaneTypeDropdown)
+                return;
+
+            if (_foldInstructionRunner == null)
+            {
+                Debug.LogWarning("HUDCanvas.OnPlaneTypeDropdownChanged: FoldInstructionRunner is not assigned.");
+                return;
+            }
+
+            if (index < 0 || index >= _foldInstructions.Count)
+                return;
+
+            FoldInstruction selectedInstruction = _foldInstructions[index];
+            if (selectedInstruction == null)
+                return;
+
+            _foldInstructionRunner.LoadInstruction(selectedInstruction);
+        }
+
+        private void SyncPlaneTypeDropdownToRunner()
+        {
+            if (_planeTypeDropdown == null || _foldInstructions.Count == 0)
+                return;
+
+            int index = 0;
+            FoldInstruction currentInstruction = _foldInstructionRunner != null
+                ? _foldInstructionRunner.Instruction
+                : null;
+
+            if (currentInstruction != null)
+            {
+                int currentIndex = _foldInstructions.IndexOf(currentInstruction);
+                if (currentIndex >= 0)
+                    index = currentIndex;
+            }
+
+            _planeTypeDropdown.SetValueWithoutNotify(index);
+            _planeTypeDropdown.RefreshShownValue();
+        }
+
+        private static FoldInstruction[] FindAllFoldInstructions()
+        {
+#if UNITY_EDITOR
+            string[] guids = AssetDatabase.FindAssets("t:FoldInstruction");
+            var instructions = new List<FoldInstruction>(guids.Length);
+
+            foreach (string guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var instruction = AssetDatabase.LoadAssetAtPath<FoldInstruction>(path);
+                if (instruction != null)
+                    instructions.Add(instruction);
+            }
+
+            instructions.Sort((a, b) => string.Compare(a.name, b.name, System.StringComparison.Ordinal));
+            return instructions.ToArray();
+#else
+            return Resources.LoadAll<FoldInstruction>("FoldInstructions");
+#endif
         }
     }
 }

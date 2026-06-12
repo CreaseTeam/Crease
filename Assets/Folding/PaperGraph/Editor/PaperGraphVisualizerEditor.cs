@@ -12,6 +12,9 @@ namespace Crease.Folding.PaperGraph.Editor
 
             PaperGraphVisualizer visualizer = (PaperGraphVisualizer)target;
 
+            if (GUI.changed)
+                SceneView.RepaintAll();
+
             if (visualizer.Graph == null || visualizer.Graph.Tags == null || visualizer.Graph.Tags.Count == 0) {
                 EditorGUILayout.HelpBox("No tags available. Execute a fold with a tag name to populate tags.", MessageType.Info);
                 visualizer.SelectedTagIndex = 0;
