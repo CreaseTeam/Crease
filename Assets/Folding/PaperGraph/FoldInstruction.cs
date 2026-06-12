@@ -73,6 +73,19 @@ namespace Crease.Folding.PaperGraph
         [Tooltip("Euler angles defining the paper's target rotation.")]
         [FormerlySerializedAs("paperRotation")]
         public Vector3 PaperRotation;
+
+        [Header("Vertex Rotation (Optional)")]
+        [Tooltip("If true, rotates every vertex in the mesh around an axis after this step's fold is executed.")]
+        public bool RotateVertices = false;
+
+        [Tooltip("Point on the rotation axis (paper local space).")]
+        public Vector3 VertexRotationPivot;
+
+        [Tooltip("Direction of the rotation axis (paper local space).")]
+        public Vector3 VertexRotationAxis = Vector3.up;
+
+        [Tooltip("Rotation amount in degrees around VertexRotationAxis.")]
+        public float VertexRotationDegrees;
     }
 
     [CreateAssetMenu(fileName = "NewFoldInstruction", menuName = "Crease/Fold Instruction")]

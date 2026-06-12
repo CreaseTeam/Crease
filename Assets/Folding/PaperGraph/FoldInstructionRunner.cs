@@ -111,6 +111,9 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
     [FormerlySerializedAs("accordionCollapseDuration")]
     public float AccordionCollapseDuration = 0.75f;
 
+    [Tooltip("How fast vertex rotation runs after a fold (degrees per second).")]
+    public float VertexRotationSpeed = 180f;
+
     [Tooltip("Minimum accordion drag progress (0–1) required before ExecuteFold commits the collapse.")]
     [Range(0.9f, 1f)]
     public float AccordionExecuteMinProgress = 0.99f;
@@ -134,6 +137,7 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
     private bool _isUnfolding = false;
     private bool _isAutoFolding = false;
     private bool _isCreaseAnimating = false;
+    private bool _isExecutingStepAnimation = false;
     private FoldingRunPhase _phase = FoldingRunPhase.Folding;
 
     private readonly Dictionary<string, SavedCrease> _savedCreases = new Dictionary<string, SavedCrease>();
@@ -216,7 +220,7 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
 
     private void Update() {
         if (InputManager.Instance == null) return;
-        if (_isUnfolding || _isAutoFolding || _isCreaseAnimating) return;
+        if (_isUnfolding || _isAutoFolding || _isCreaseAnimating || _isExecutingStepAnimation) return;
 
         if (_phase == FoldingRunPhase.Folding && InputManager.Instance.ExecuteFoldTriggered)
             ExecuteCurrentStep();
@@ -313,17 +317,9 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
 
         // --- Calculate accuracy before executing the fold ---
         float foldAccuracy = CalculateFoldAccuracy(currentStep);
+        RecordStepAccuracy(foldAccuracy);
 
-        // Update cumulative tracking
-        _foldCount++;
-        _totalAccuracy += foldAccuracy;
-        float overallAccuracy = _totalAccuracy / _foldCount;
-
-        // Update HUD
-        HUDCanvas.Instance.UpdateFoldAccuracy(foldAccuracy);
-        HUDCanvas.Instance.UpdateOverallAccuracy(overallAccuracy);
-
-        Debug.Log($"FoldInstructionRunner: Fold accuracy = {foldAccuracy:F1}%, overall = {overallAccuracy:F1}%");
+        Debug.Log($"FoldInstructionRunner: Fold accuracy = {foldAccuracy:F1}%, overall = {_totalAccuracy / _foldCount:F1}%");
 
         if (currentStep.IsCrease) {
             StartCoroutine(ExecuteCreaseStepRoutine(currentStep));
@@ -331,28 +327,48 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         }
 
         if (currentStep.IsAccordionFold) {
-            Controller.CommitAccordionAction();
-            Controller.EndAccordionDragStep();
-            Controller.ClearPreview();
-            AudioManager.Instance.Play("fold");
-            Debug.Log($"FoldInstructionRunner: Executed accordion step {_currentStepIndex + 1}/{Instruction.Steps.Count}.");
-
-            ApplyLockFoldAxisIfNeeded(currentStep);
-            AdvanceToNextStep();
+            StartCoroutine(ExecuteAccordionFoldStepRoutine(currentStep));
             return;
         }
 
-        // Execute the fold with the values currently loaded in the controller
+        StartCoroutine(ExecuteStandardFoldStepRoutine(currentStep));
+    }
+
+    private System.Collections.IEnumerator ExecuteStandardFoldStepRoutine(FoldStep step) {
+        _isExecutingStepAnimation = true;
+
         Controller.ExecuteFoldAction();
         AudioManager.Instance.Play("fold");
         Debug.Log($"FoldInstructionRunner: Executed step {_currentStepIndex + 1}/{Instruction.Steps.Count}.");
 
-        ApplyLockFoldAxisIfNeeded(currentStep);
+        ApplyLockFoldAxisIfNeeded(step);
+        yield return AnimateVertexRotationIfNeeded(step);
         AdvanceToNextStep();
+
+        _isExecutingStepAnimation = false;
     }
 
-    private System.Collections.IEnumerator ExecuteCreaseStepRoutine(FoldStep executedStep) {
+    private System.Collections.IEnumerator ExecuteAccordionFoldStepRoutine(FoldStep step) {
+        _isExecutingStepAnimation = true;
+
+        Controller.CommitAccordionAction();
+        Controller.EndAccordionDragStep();
+        Controller.ClearPreview();
+        AudioManager.Instance.Play("fold");
+        Debug.Log($"FoldInstructionRunner: Executed accordion step {_currentStepIndex + 1}/{Instruction.Steps.Count}.");
+
+        ApplyLockFoldAxisIfNeeded(step);
+        yield return AnimateVertexRotationIfNeeded(step);
+        AdvanceToNextStep();
+
+        _isExecutingStepAnimation = false;
+    }
+
+    private System.Collections.IEnumerator ExecuteCreaseStepRoutine(FoldStep executedStep, bool animateFoldInFirst = false, bool advanceStep = true) {
         _isCreaseAnimating = true;
+
+        if (animateFoldInFirst)
+            yield return AnimateFoldDegreesRoutine(0f, executedStep.FoldDegrees, FoldAnimationSpeed);
 
         float startDegrees = Controller.FoldDegrees;
         bool creaseValid = Controller.ExecuteCreaseAction();
@@ -375,13 +391,21 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             Debug.LogWarning($"FoldInstructionRunner: Crease step {_currentStepIndex + 1} failed — topology was not cut.");
         }
 
-        if (Mathf.Abs(startDegrees) > 0.01f)
+        // Sync preview to the committed crease before animating back to flat.
+        Controller.ClearPreview();
+
+        if (creaseValid && Mathf.Abs(startDegrees) > 0.01f)
             yield return AnimateFoldDegreesRoutine(startDegrees, 0f, FoldAnimationSpeed);
 
         Controller.FoldDegrees = 0f;
         Controller.ClearPreview();
 
-        AdvanceToNextStep();
+        if (creaseValid)
+            yield return AnimateVertexRotationIfNeeded(executedStep);
+
+        if (advanceStep)
+            AdvanceToNextStep();
+
         _isCreaseAnimating = false;
     }
 
@@ -723,6 +747,45 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
 
     private Vector3 GetStepIdealDragPosition(FoldStep step) {
         return Instruction != null ? Instruction.ApplyOffset(step.IdealDragPosition) : step.IdealDragPosition;
+    }
+
+    private Vector3 GetStepVertexRotationPivot(FoldStep step) {
+        return Instruction != null ? Instruction.ApplyOffset(step.VertexRotationPivot) : step.VertexRotationPivot;
+    }
+
+    private void RecordStepAccuracy(float foldAccuracy) {
+        _foldCount++;
+        _totalAccuracy += foldAccuracy;
+        float overallAccuracy = _totalAccuracy / _foldCount;
+
+        if (HUDCanvas.Instance != null) {
+            HUDCanvas.Instance.UpdateFoldAccuracy(foldAccuracy);
+            HUDCanvas.Instance.UpdateOverallAccuracy(overallAccuracy);
+        }
+    }
+
+    private System.Collections.IEnumerator AnimateVertexRotationIfNeeded(FoldStep step) {
+        if (!step.RotateVertices || Controller == null)
+            yield break;
+
+        Vector3 pivot = GetStepVertexRotationPivot(step);
+        if (!Controller.BeginVertexRotationAnimation(pivot, step.VertexRotationAxis, step.VertexRotationDegrees)) {
+            Debug.LogWarning($"FoldInstructionRunner: Vertex rotation on step {_currentStepIndex + 1} failed — axis is zero or invalid.");
+            yield break;
+        }
+
+        float targetDegrees = step.VertexRotationDegrees;
+        float duration = Mathf.Abs(targetDegrees) / Mathf.Max(VertexRotationSpeed, 0.01f);
+        float elapsed = 0f;
+
+        while (elapsed < duration) {
+            elapsed += Time.deltaTime;
+            float t = duration > 0f ? Mathf.Clamp01(elapsed / duration) : 1f;
+            Controller.ApplyVertexRotationProgress(t);
+            yield return null;
+        }
+
+        Controller.CommitVertexRotationAnimation();
     }
 
     /// <summary>
@@ -1097,6 +1160,7 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         Controller.DragHandlePosition = dragHandlePosition;
         Controller.IdealDragPosition = idealDragPosition;
         Controller.DragPlaneNormal = step.DragPlaneNormal;
+        Controller.FoldDegrees = step.FoldDegrees;
         Controller.FoldTagName = string.IsNullOrEmpty(step.ApplyTag) ? "" : step.ApplyTag;
         Controller.FoldOffset = step.FoldOffset;
 
@@ -1160,39 +1224,13 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             }
 
             ConfigureControllerForStep(step);
-            
-            // Mark accuracy for auto fold as 100%
-            float foldAccuracy = 100f;
-            _foldCount++;
-            _totalAccuracy += foldAccuracy;
-            float overallAccuracy = _totalAccuracy / _foldCount;
 
-            if (HUDCanvas.Instance != null) {
-                HUDCanvas.Instance.UpdateFoldAccuracy(foldAccuracy);
-                HUDCanvas.Instance.UpdateOverallAccuracy(overallAccuracy);
-            }
+            // Mark accuracy for auto fold as 100%
+            RecordStepAccuracy(100f);
 
             if (step.IsCrease) {
-                yield return AnimateFoldDegreesRoutine(0f, step.FoldDegrees, FoldAnimationSpeed);
-
-                if (Controller.ExecuteCreaseAction()) {
-                    string creaseLabel = GetCreaseLabelForStepIndex(i, step);
-                    _savedCreases[creaseLabel] = new SavedCrease {
-                        Tag = creaseLabel,
-                        P1 = Controller.FoldPoint1,
-                        P2 = Controller.FoldPoint2,
-                        PlaneNormal = step.DragPlaneNormal
-                    };
-                    UpdateCreaseLine(creaseLabel);
-                    ApplyLockFoldAxisIfNeeded(step);
-                }
-
-                yield return AnimateFoldDegreesRoutine(step.FoldDegrees, 0f, FoldAnimationSpeed);
-                Controller.FoldDegrees = 0f;
-                Controller.ClearPreview();
-
-                if (AudioManager.Instance != null)
-                    AudioManager.Instance.Play("fold");
+                RecordStepAccuracy(100f);
+                yield return ExecuteCreaseStepRoutine(step, animateFoldInFirst: true, advanceStep: false);
             } else if (step.IsAccordionFold) {
                 ApplyStepToController(step);
 
@@ -1217,6 +1255,8 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
                 if (AudioManager.Instance != null)
                     AudioManager.Instance.Play("fold");
             }
+
+            yield return AnimateVertexRotationIfNeeded(step);
 
             _currentStepIndex = i + 1;
 

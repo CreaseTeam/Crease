@@ -26,6 +26,16 @@ public class PaperGraph : MonoBehaviour
     private List<PaperGraphSnapshot> _redoStack = new List<PaperGraphSnapshot>();
     private AccordionCollapseData _accordionData;
 
+    private struct VertexRotationAnimation {
+        public bool Active;
+        public Vector3 Pivot;
+        public Vector3 Axis;
+        public float TargetDegrees;
+        public List<Vector3> BaselinePositions;
+    }
+
+    private VertexRotationAnimation _vertexRotationAnimation;
+
     public bool HasAccordionData => _accordionData != null;
 
     /// <summary>
@@ -218,6 +228,54 @@ public class PaperGraph : MonoBehaviour
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// Captures the current vertex positions and prepares an animated rotation.
+    /// Does not push an undo snapshot — the preceding fold/crease owns the step undo.
+    /// </summary>
+    public bool BeginVertexRotationAnimation(Vector3 pivot, Vector3 axis, float degrees) {
+        if (axis.sqrMagnitude < 0.00001f)
+            return false;
+
+        var baselinePositions = new List<Vector3>(Vertices.Count);
+        foreach (Vertex v in Vertices)
+            baselinePositions.Add(v.Position);
+
+        _vertexRotationAnimation = new VertexRotationAnimation {
+            Active = true,
+            Pivot = pivot,
+            Axis = axis.normalized,
+            TargetDegrees = degrees,
+            BaselinePositions = baselinePositions
+        };
+        return true;
+    }
+
+    public void SetVertexRotationProgress(float t) {
+        if (!_vertexRotationAnimation.Active)
+            return;
+
+        float degrees = _vertexRotationAnimation.TargetDegrees * Mathf.Clamp01(t);
+        Quaternion rotation = Quaternion.AngleAxis(degrees, _vertexRotationAnimation.Axis);
+        Vector3 pivot = _vertexRotationAnimation.Pivot;
+
+        for (int i = 0; i < Vertices.Count; i++) {
+            Vector3 baseline = _vertexRotationAnimation.BaselinePositions[i];
+            Vertices[i].Position = pivot + rotation * (baseline - pivot);
+        }
+    }
+
+    public void CommitVertexRotationAnimation() {
+        if (!_vertexRotationAnimation.Active)
+            return;
+
+        SetVertexRotationProgress(1f);
+        ClearVertexRotationAnimation();
+    }
+
+    public void ClearVertexRotationAnimation() {
+        _vertexRotationAnimation = default;
     }
 
     /// <summary>
@@ -944,6 +1002,7 @@ public class PaperGraph : MonoBehaviour
         Faces = snapshot.Faces;
         Tags = snapshot.Tags;
         _accordionData = null;
+        ClearVertexRotationAnimation();
     }
 
     /// <summary>

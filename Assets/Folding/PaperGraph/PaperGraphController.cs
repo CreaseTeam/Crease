@@ -184,6 +184,44 @@ namespace Crease.Folding.PaperGraph
             return valid;
         }
 
+        public bool BeginVertexRotationAnimation(Vector3 pivot, Vector3 axis, float degrees) {
+            if (_paperGraph == null) {
+                Debug.LogError("No PaperGraph component found on this GameObject.");
+                return false;
+            }
+
+            if (!_paperGraph.BeginVertexRotationAnimation(pivot, axis, degrees))
+                return false;
+
+            ApplyVertexRotationProgress(0f);
+            return true;
+        }
+
+        public void ApplyVertexRotationProgress(float t) {
+            if (_paperGraph == null)
+                return;
+
+            _paperGraph.SetVertexRotationProgress(t);
+            SyncPreviewFromAuthoring();
+            RefreshVisualizers(reanchorDecals: false, trackPreviewDecals: true);
+        }
+
+        public void CommitVertexRotationAnimation() {
+            if (_paperGraph == null)
+                return;
+
+            _paperGraph.CommitVertexRotationAnimation();
+            SyncPreviewFromAuthoring();
+            RefreshVisualizers(reanchorDecals: true, trackPreviewDecals: false);
+        }
+
+        private void SyncPreviewFromAuthoring() {
+            if (_paperGraph == null || PreviewGraph == null)
+                return;
+
+            PreviewGraph.RestoreSnapshot(_paperGraph.CreateSnapshot());
+        }
+
         public bool PrepareAccordionAction(
             string creaseTagA,
             string creaseTagB,
