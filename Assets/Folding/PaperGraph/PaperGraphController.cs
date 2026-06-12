@@ -436,6 +436,30 @@ namespace Crease.Folding.PaperGraph
             RefreshVisualizers(reanchorDecals: false, trackPreviewDecals: IsAccordionDragStep);
         }
 
+        /// <summary>
+        /// Applies a fold preview from a fixed authoring snapshot (used for auto-crease unfold animation).
+        /// </summary>
+        public void UpdatePreviewFromSnapshot(PaperGraphSnapshot snapshot) {
+            if (PreviewGraph == null) return;
+
+            PreviewGraph.RestoreSnapshot(snapshot);
+            string tag = string.IsNullOrEmpty(FoldTagName) ? null : FoldTagName;
+            bool valid = PreviewGraph.ExecuteFold(FoldPoint1, FoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTags, FoldOffset);
+
+            if (!valid) {
+                FoldPoint1 = LockedFoldPoint1;
+                FoldPoint2 = LockedFoldPoint2;
+                PreviewGraph.RestoreSnapshot(snapshot);
+                PreviewGraph.ExecuteFold(LockedFoldPoint1, LockedFoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTags, FoldOffset);
+            } else {
+                LockedFoldPoint1 = FoldPoint1;
+                LockedFoldPoint2 = FoldPoint2;
+            }
+
+            CacheFoldValues();
+            RefreshVisualizers(reanchorDecals: false, trackPreviewDecals: true);
+        }
+
         public void UndoFold() {
             if (_paperGraph == null) {
                 Debug.LogError("No PaperGraph component found on this GameObject.");

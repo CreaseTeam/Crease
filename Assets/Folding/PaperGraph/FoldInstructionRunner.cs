@@ -370,6 +370,10 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         if (animateFoldInFirst)
             yield return AnimateFoldDegreesRoutine(0f, executedStep.FoldDegrees, FoldAnimationSpeed);
 
+        PaperGraphSnapshot preCreaseSnapshot = null;
+        if (animateFoldInFirst && _paperGraph != null)
+            preCreaseSnapshot = _paperGraph.CreateSnapshot();
+
         float startDegrees = Controller.FoldDegrees;
         bool creaseValid = Controller.ExecuteCreaseAction();
 
@@ -391,11 +395,12 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             Debug.LogWarning($"FoldInstructionRunner: Crease step {_currentStepIndex + 1} failed — topology was not cut.");
         }
 
-        // Sync preview to the committed crease before animating back to flat.
-        Controller.ClearPreview();
-
-        if (creaseValid && Mathf.Abs(startDegrees) > 0.01f)
-            yield return AnimateFoldDegreesRoutine(startDegrees, 0f, FoldAnimationSpeed);
+        if (creaseValid && Mathf.Abs(startDegrees) > 0.01f) {
+            if (preCreaseSnapshot != null)
+                yield return AnimateSnapshotFoldRoutine(preCreaseSnapshot, startDegrees, 0f, FoldAnimationSpeed);
+            else
+                yield return AnimateFoldDegreesRoutine(startDegrees, 0f, FoldAnimationSpeed);
+        }
 
         Controller.FoldDegrees = 0f;
         Controller.ClearPreview();
@@ -1054,6 +1059,26 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         }
     }
 
+    private System.Collections.IEnumerator AnimateSnapshotFoldRoutine(
+        PaperGraphSnapshot baseSnapshot,
+        float startDegrees,
+        float targetDegrees,
+        float speed) {
+        float currentDegrees = startDegrees;
+        Controller.FoldDegrees = currentDegrees;
+        Controller.UpdatePreviewFromSnapshot(baseSnapshot);
+
+        while (Mathf.Abs(currentDegrees - targetDegrees) > 0.01f) {
+            currentDegrees = Mathf.MoveTowards(currentDegrees, targetDegrees, speed * Time.deltaTime);
+            Controller.FoldDegrees = currentDegrees;
+            Controller.UpdatePreviewFromSnapshot(baseSnapshot);
+            yield return null;
+        }
+
+        Controller.FoldDegrees = targetDegrees;
+        Controller.UpdatePreviewFromSnapshot(baseSnapshot);
+    }
+
     private System.Collections.IEnumerator AnimateFoldDegreesRoutine(float startDegrees, float targetDegrees, float speed, float delayStart = 0f) {
         float currentDegrees = startDegrees;
         Controller.FoldDegrees = currentDegrees;
@@ -1191,11 +1216,10 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             List<string> resolved = new List<string>();
             foreach (string tag in filterTags) {
             if (string.IsNullOrEmpty(tag)) continue;
-            if (_paperGraph != null && _paperGraph.Tags != null && _paperGraph.Tags.ContainsKey(tag)) {
-                resolved.Add(tag);
-            } else {
-                Debug.LogWarning($"FoldInstructionRunner: Filter tag \"{tag}\" not found on graph. Ignoring filter.");
+            if (_paperGraph != null && _paperGraph.Tags != null && !_paperGraph.Tags.ContainsKey(tag)) {
+                Debug.LogWarning($"FoldInstructionRunner: Filter tag \"{tag}\" not found on graph.");
             }
+            resolved.Add(tag);
         }
 
         return resolved;

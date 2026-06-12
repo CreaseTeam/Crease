@@ -31,7 +31,7 @@ namespace Crease.Folding.PaperGraph
         [FormerlySerializedAs("applyTag")]
         public string ApplyTag = "";
 
-        [Tooltip("Only vertices with at least one of these tags are folded. Empty means everything.")]
+        [Tooltip("Only vertices with all of these tags are folded. Empty means everything.")]
         [FilterTags]
         public FilterTagSet FilterTags = new FilterTagSet();
 

@@ -60,14 +60,20 @@ public class PaperGraph : MonoBehaviour
     private HashSet<Vertex> BuildFilterSet(IReadOnlyList<string> filterTags) {
         if (filterTags == null || filterTags.Count == 0) return null;
 
-        HashSet<Vertex> filterSet = new HashSet<Vertex>();
+        HashSet<Vertex> filterSet = null;
         foreach (string tag in filterTags) {
-            if (string.IsNullOrEmpty(tag) || !Tags.ContainsKey(tag)) continue;
-            foreach (Vertex v in Tags[tag])
-                filterSet.Add(v);
+            if (string.IsNullOrEmpty(tag)) continue;
+            if (!Tags.ContainsKey(tag))
+                return new HashSet<Vertex>();
+
+            HashSet<Vertex> tagVertices = new HashSet<Vertex>(Tags[tag]);
+            if (filterSet == null)
+                filterSet = tagVertices;
+            else
+                filterSet.IntersectWith(tagVertices);
         }
 
-        return filterSet;
+        return filterSet ?? new HashSet<Vertex>();
     }
 
     private void Start() {
