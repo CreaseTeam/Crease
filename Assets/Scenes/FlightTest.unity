@@ -41849,6 +41849,10 @@ PrefabInstance:
       propertyPath: 'meshMaterials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 3defd103d8855054387fffa590d5da57, type: 2}
+    - target: {fileID: 6582845560619632518, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: baseSettings
+      value: 
+      objectReference: {fileID: 11400000, guid: c5cbbafd4ceea6541b92fedcbf2d48a2, type: 2}
     - target: {fileID: 8868588741534249518, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
