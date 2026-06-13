@@ -72,8 +72,6 @@ namespace Crease.Folding.Decals
 
         /// <summary>
         /// One entry per mesh fan triangle (matches submesh 0 topology). Back submesh reuses the same indices.
-        /// Must skip degenerate fans the same way <see cref="GraphMesh.GenerateMesh"/> does so
-        /// physics triangleIndex aligns with this list.
         /// </summary>
         private static void BuildTriangleList(GraphMesh graph, List<MeshTriangle> output)
         {
@@ -83,24 +81,14 @@ namespace Crease.Folding.Decals
             foreach (Face face in graph.Faces)
             {
                 if (face.Vertices.Count < 3) continue;
-
-                Vertex anchor = face.Vertices[0];
-                int v0Index = graph.Vertices.IndexOf(anchor);
+                int v0Index = graph.Vertices.IndexOf(face.Vertices[0]);
                 for (int i = 1; i < face.Vertices.Count - 1; i++)
                 {
-                    Vertex v1 = face.Vertices[i];
-                    Vertex v2 = face.Vertices[i + 1];
-
-                    Vector3 edgeA = v2.Position - anchor.Position;
-                    Vector3 edgeB = v1.Position - anchor.Position;
-                    if (Vector3.Cross(edgeA, edgeB).sqrMagnitude < 0.000001f)
-                        continue;
-
                     output.Add(new MeshTriangle
                     {
                         V0Index = v0Index,
-                        V1Index = graph.Vertices.IndexOf(v2),
-                        V2Index = graph.Vertices.IndexOf(v1)
+                        V1Index = graph.Vertices.IndexOf(face.Vertices[i + 1]),
+                        V2Index = graph.Vertices.IndexOf(face.Vertices[i])
                     });
                 }
             }
@@ -351,10 +339,7 @@ namespace Crease.Folding.Decals
         {
             Vector3 e1 = p1 - p0;
             Vector3 e2 = p2 - p0;
-            Vector3 normal = Vector3.Cross(e2, e1);
-            if (normal.sqrMagnitude < 0.000001f)
-                return Vector3.up;
-            return normal.normalized;
+            return Vector3.Cross(e2, e1).normalized;
         }
 
         private static Vector3 OutwardNormalForSide(Vector3 p0, Vector3 p1, Vector3 p2, PaperSide side)
@@ -686,11 +671,8 @@ namespace Crease.Folding.Decals
 
         public static Vector3 InterpolateTangent(GraphMesh authoringGraph, DecalPlacement placement, Vector3 localNormal)
         {
-            if (localNormal.sqrMagnitude < 0.0001f)
-                localNormal = Vector3.up;
-
             if (!TryGetAnchorVertices(authoringGraph, placement, out Vertex v0, out Vertex v1, out Vertex v2))
-                return SafeTangentFallback(localNormal);
+                return Vector3.ProjectOnPlane(Vector3.right, localNormal).normalized;
 
             Vector2 uv0 = VertexSheetUv(v0, placement.Side);
             Vector2 uv1 = VertexSheetUv(v1, placement.Side);
@@ -705,21 +687,11 @@ namespace Crease.Folding.Decals
             Vector3 dp2 = p2 - p0;
             float denom = duv1.x * duv2.y - duv1.y * duv2.x;
             if (Mathf.Abs(denom) < 0.000001f)
-                return SafeTangentFallback(localNormal);
+                return Vector3.ProjectOnPlane(Vector3.right, localNormal).normalized;
             float r = 1f / denom;
             Vector3 tangent = (dp1 * duv2.y - dp2 * duv1.y) * r;
             if (tangent.sqrMagnitude < 0.000001f)
-                return SafeTangentFallback(localNormal);
-            return tangent.normalized;
-        }
-
-        private static Vector3 SafeTangentFallback(Vector3 localNormal)
-        {
-            Vector3 tangent = Vector3.ProjectOnPlane(Vector3.right, localNormal);
-            if (tangent.sqrMagnitude < 0.000001f)
-                tangent = Vector3.Cross(localNormal, Vector3.forward);
-            if (tangent.sqrMagnitude < 0.000001f)
-                tangent = Vector3.right;
+                tangent = Vector3.Cross(localNormal, Vector3.up);
             return tangent.normalized;
         }
 

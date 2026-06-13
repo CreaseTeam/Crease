@@ -76,13 +76,6 @@ namespace Crease.Folding.Decals
             }
             localPos += localNormal * (BaseSurfaceOffset + _layerOrder * LayerOffsetStep);
 
-            if (localNormal.sqrMagnitude < 0.0001f)
-                localNormal = Vector3.up;
-            if (localTangent.sqrMagnitude < 0.0001f)
-                localTangent = Vector3.Cross(localNormal, Vector3.forward);
-            if (localTangent.sqrMagnitude < 0.0001f)
-                localTangent = Vector3.right;
-
             transform.SetParent(meshRoot, false);
             transform.localPosition = localPos;
             transform.localRotation = Quaternion.LookRotation(localNormal, localTangent)
