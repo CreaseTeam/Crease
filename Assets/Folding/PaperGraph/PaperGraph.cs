@@ -1014,61 +1014,74 @@ public class PaperGraph : MonoBehaviour
     /// <summary>
     /// Generates a double-sided Mesh from the current faces.
     /// Each face is fan-triangulated from its first vertex.
-    /// Back faces are appended with reversed winding and flipped normals.
+    /// Normals are computed per fan triangle so creases stay hard and non-planar poses
+    /// (such as mid-accordion collapse) stay visible. Back faces are appended with reversed
+    /// winding and negated normals.
     /// </summary>
     public Mesh GenerateMesh() {
-        // Build a mapping from Vertex -> index
-        Dictionary<Vertex, int> vertexIndex = new Dictionary<Vertex, int>();
         List<Vector3> positions = new List<Vector3>();
         List<Vector2> uvs = new List<Vector2>();
-        for (int i = 0; i < Vertices.Count; i++) {
-            vertexIndex[Vertices[i]] = i;
-            positions.Add(Vertices[i].Position);
-            uvs.Add(Vertices[i].Uv);
-        }
-
-        // Triangulate each face using a fan from vertex 0
+        List<Vector3> normals = new List<Vector3>();
         List<int> frontTriangles = new List<int>();
+
         foreach (Face face in Faces) {
             if (face.Vertices.Count < 3) continue;
-            int i0 = vertexIndex[face.Vertices[0]];
+
+            Vertex anchor = face.Vertices[0];
             for (int i = 1; i < face.Vertices.Count - 1; i++) {
-                int i1 = vertexIndex[face.Vertices[i]];
-                int i2 = vertexIndex[face.Vertices[i + 1]];
-                
-                // Native graph is configured Counter-Clockwise. 
-                // We must swap i1 and i2 to generate Clockwise triangles for Unity's front-faces (pointing +Y)
-                frontTriangles.Add(i0);
-                frontTriangles.Add(i2);
-                frontTriangles.Add(i1);
+                Vertex v1 = face.Vertices[i];
+                Vertex v2 = face.Vertices[i + 1];
+
+                // Front-submesh winding is (v0, v2, v1).
+                Vector3 edgeA = v2.Position - anchor.Position;
+                Vector3 edgeB = v1.Position - anchor.Position;
+                Vector3 triNormal = Vector3.Cross(edgeA, edgeB);
+                if (triNormal.sqrMagnitude < 0.000001f) continue;
+
+                triNormal.Normalize();
+
+                int index = positions.Count;
+                positions.Add(anchor.Position);
+                uvs.Add(anchor.Uv);
+                normals.Add(triNormal);
+
+                positions.Add(v2.Position);
+                uvs.Add(v2.Uv);
+                normals.Add(triNormal);
+
+                positions.Add(v1.Position);
+                uvs.Add(v1.Uv);
+                normals.Add(triNormal);
+
+                frontTriangles.Add(index);
+                frontTriangles.Add(index + 1);
+                frontTriangles.Add(index + 2);
             }
         }
 
-        // Duplicate vertices for the back side (offset by vertex count)
-        int vertCount = positions.Count;
-        for (int i = 0; i < vertCount; i++) {
+        int frontVertCount = positions.Count;
+        for (int i = 0; i < frontVertCount; i++) {
             positions.Add(positions[i]);
-            uvs.Add(new Vector2(1f - uvs[i].x, uvs[i].y)); // Mirror horizontal UVs for the back side
+            uvs.Add(new Vector2(1f - uvs[i].x, uvs[i].y));
+            normals.Add(-normals[i]);
         }
 
-        // Back-face triangles: reversed winding
         List<int> backTriangles = new List<int>();
         for (int i = 0; i < frontTriangles.Count; i += 3) {
-            backTriangles.Add(frontTriangles[i] + vertCount);
-            backTriangles.Add(frontTriangles[i + 2] + vertCount);
-            backTriangles.Add(frontTriangles[i + 1] + vertCount);
+            backTriangles.Add(frontTriangles[i] + frontVertCount);
+            backTriangles.Add(frontTriangles[i + 2] + frontVertCount);
+            backTriangles.Add(frontTriangles[i + 1] + frontVertCount);
         }
 
         Mesh mesh = new Mesh();
         mesh.SetVertices(positions);
         mesh.SetUVs(0, uvs);
-        
-        // Define submeshes (0 = front, 1 = back)
+        mesh.SetNormals(normals);
+
         mesh.subMeshCount = 2;
         mesh.SetTriangles(frontTriangles, 0);
         mesh.SetTriangles(backTriangles, 1);
-        
-        mesh.RecalculateNormals();
+
         mesh.RecalculateBounds();
         return mesh;
     }
