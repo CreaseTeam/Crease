@@ -76,6 +76,34 @@ public class PaperGraph : MonoBehaviour
         return filterSet ?? new HashSet<Vertex>();
     }
 
+    /// <summary>
+    /// Expands a layer filter to include crease-edge vertices (e.g. half_moved also uses half_edge)
+    /// so edges along a prior fold crease can still be split on layered paper.
+    /// </summary>
+    private HashSet<Vertex> BuildEdgeSplitFilterSet(HashSet<Vertex> filterSet, IReadOnlyList<string> filterTags) {
+        if (filterSet == null) return null;
+
+        HashSet<Vertex> edgeSplitSet = new HashSet<Vertex>(filterSet);
+        if (filterTags == null) return edgeSplitSet;
+
+        foreach (string tag in filterTags) {
+            if (string.IsNullOrEmpty(tag)) continue;
+
+            string edgeTag = null;
+            if (tag.EndsWith("_moved"))
+                edgeTag = tag.Substring(0, tag.Length - "_moved".Length) + "_edge";
+            else if (tag.EndsWith("_static"))
+                edgeTag = tag.Substring(0, tag.Length - "_static".Length) + "_edge";
+
+            if (edgeTag != null && Tags.ContainsKey(edgeTag)) {
+                foreach (Vertex v in Tags[edgeTag])
+                    edgeSplitSet.Add(v);
+            }
+        }
+
+        return edgeSplitSet;
+    }
+
     private void Start() {
         Vertices.Clear();
         Edges.Clear();
@@ -98,8 +126,9 @@ public class PaperGraph : MonoBehaviour
         float signedOffset = foldOffset * -Mathf.Sign(degrees);
 
         // Split edges along the fold plane; crease edges produced by SplitFace will carry signedOffset.
+        HashSet<Vertex> edgeSplitSet = BuildEdgeSplitFilterSet(filterSet, filterTags);
         bool splitValid;
-        List<Vertex> splitVertices = SplitEdgesCrossingPlane(foldPoint1, planeNormal, degrees, filterSet, signedOffset, out splitValid);
+        List<Vertex> splitVertices = SplitEdgesCrossingPlane(foldPoint1, planeNormal, degrees, edgeSplitSet, signedOffset, out splitValid);
 
         // Also invalid if the fold axis doesn't cleanly cross the paper (< 2 intersection points):
         // this means the axis missed the mesh entirely, or only grazed a single corner, and the
@@ -215,8 +244,9 @@ public class PaperGraph : MonoBehaviour
         Vector3 foldAxis = (foldPoint2 - foldPoint1).normalized;
         Vector3 planeNormal = Vector3.Cross(foldAxis, planeVector).normalized;
 
+        HashSet<Vertex> edgeSplitSet = BuildEdgeSplitFilterSet(filterSet, filterTags);
         bool splitValid;
-        List<Vertex> splitVertices = SplitEdgesCrossingPlane(foldPoint1, planeNormal, foldAngle, filterSet, 0f, out splitValid);
+        List<Vertex> splitVertices = SplitEdgesCrossingPlane(foldPoint1, planeNormal, foldAngle, edgeSplitSet, 0f, out splitValid);
 
         if (!splitValid || splitVertices.Count < 2) {
             PaperGraphSnapshot bad = _undoStack[_undoStack.Count - 1];
@@ -431,10 +461,10 @@ public class PaperGraph : MonoBehaviour
         Edges.Add(edgeA);
         Edges.Add(edgeB);
 
-        if (edge.Face1 != null)
-            edge.Face1.ReplaceSplitEdge(edge, edgeA, edgeB, mid);
-        if (edge.Face2 != null)
-            edge.Face2.ReplaceSplitEdge(edge, edgeA, edgeB, mid);
+        foreach (Face face in Faces) {
+            if (face.ContainsEdge(edge))
+                face.ReplaceSplitEdge(edge, edgeA, edgeB, mid);
+        }
 
         return mid;
     }
@@ -480,23 +510,24 @@ public class PaperGraph : MonoBehaviour
         Edges.Add(edgeA);
         Edges.Add(edgeB);
 
-        if (edge.Face1 != null)
-            edge.Face1.ReplaceSplitEdge(edge, edgeA, edgeB, split);
-        if (edge.Face2 != null)
-            edge.Face2.ReplaceSplitEdge(edge, edgeA, edgeB, split);
+        foreach (Face face in Faces) {
+            if (face.ContainsEdge(edge))
+                face.ReplaceSplitEdge(edge, edgeA, edgeB, split);
+        }
 
         return split;
     }
 
-    public List<Vertex> SplitEdgesCrossingPlane(Vector3 planePoint, Vector3 planeNormal, float foldAngle, HashSet<Vertex> filterSet, float foldOffset, out bool isValid) {
+    public List<Vertex> SplitEdgesCrossingPlane(Vector3 planePoint, Vector3 planeNormal, float foldAngle, HashSet<Vertex> edgeSplitSet, float foldOffset, out bool isValid) {
         isValid = true;
         List<Edge> edgeSnapshot = new List<Edge>(Edges);
         Dictionary<Face, List<Vertex>> faceSplitVertices = new Dictionary<Face, List<Vertex>>();
         List<Vertex> newSplitVertices = new List<Vertex>();
+        HashSet<Vertex> edgeIntersectionVertices = new HashSet<Vertex>();
 
         foreach (Edge oldEdge in edgeSnapshot) {
-            // If filtering, only split edges where at least one endpoint is in the filter set
-            if (filterSet != null && !filterSet.Contains(oldEdge.V1) && !filterSet.Contains(oldEdge.V2))
+            // If filtering, only split edges touching the filtered layer or its crease vertices
+            if (edgeSplitSet != null && !edgeSplitSet.Contains(oldEdge.V1) && !edgeSplitSet.Contains(oldEdge.V2))
                 continue;
 
             float d1 = Vector3.Dot(oldEdge.V1.Position - planePoint, planeNormal);
@@ -515,6 +546,7 @@ public class PaperGraph : MonoBehaviour
             vNew.Uv = intersectionUV;
             Vertices.Add(vNew);
             newSplitVertices.Add(vNew);
+            edgeIntersectionVertices.Add(vNew);
 
             // Propagate tags: add vNew to every tag that either endpoint belongs to
             foreach (var kvp in Tags) {
@@ -531,6 +563,8 @@ public class PaperGraph : MonoBehaviour
             Edge edgeB = new Edge(vNew, oldEdge.V2);
             edgeA.FoldAngle = oldEdge.FoldAngle;
             edgeB.FoldAngle = oldEdge.FoldAngle;
+            edgeA.FoldOffset = oldEdge.FoldOffset;
+            edgeB.FoldOffset = oldEdge.FoldOffset;
             edgeA.Face1 = oldEdge.Face1;
             edgeA.Face2 = oldEdge.Face2;
             edgeB.Face1 = oldEdge.Face1;
@@ -545,22 +579,16 @@ public class PaperGraph : MonoBehaviour
             Edges.Add(edgeA);
             Edges.Add(edgeB);
 
-            // Update faces to swap old edge for the two new ones
-            if (oldEdge.Face1 != null) {
-                oldEdge.Face1.ReplaceSplitEdge(oldEdge, edgeA, edgeB, vNew);
-                if (!faceSplitVertices.ContainsKey(oldEdge.Face1))
-                    faceSplitVertices[oldEdge.Face1] = new List<Vertex>();
-                faceSplitVertices[oldEdge.Face1].Add(vNew);
-            }
-            if (oldEdge.Face2 != null) {
-                oldEdge.Face2.ReplaceSplitEdge(oldEdge, edgeA, edgeB, vNew);
-                if (!faceSplitVertices.ContainsKey(oldEdge.Face2))
-                    faceSplitVertices[oldEdge.Face2] = new List<Vertex>();
-                faceSplitVertices[oldEdge.Face2].Add(vNew);
+            // Update every face that references this edge. Hinge faces may share
+            // crease edges without occupying Face1/Face2 on the edge object.
+            foreach (Face face in Faces) {
+                if (!face.ContainsEdge(oldEdge)) continue;
+                face.ReplaceSplitEdge(oldEdge, edgeA, edgeB, vNew);
+                RegisterFaceSplitVertex(face, vNew, faceSplitVertices);
             }
         }
 
-        // Ensure any face that straddles the plane also registers its existing vertices that lie exactly on the fold plane
+        // Register existing on-plane vertices for straddling faces that this fold crosses
         foreach (Face face in Faces) {
             int posCount = 0;
             int negCount = 0;
@@ -574,23 +602,31 @@ public class PaperGraph : MonoBehaviour
                 foreach (Vertex v in face.Vertices) {
                     float d = Vector3.Dot(v.Position - planePoint, planeNormal);
                     if (Mathf.Abs(d) <= 0.0001f) {
-                        if (!faceSplitVertices.ContainsKey(face))
-                            faceSplitVertices[face] = new List<Vertex>();
-                        if (!faceSplitVertices[face].Contains(v))
-                            faceSplitVertices[face].Add(v);
+                        RegisterFaceSplitVertex(face, v, faceSplitVertices);
                         if (!newSplitVertices.Contains(v))
-                            newSplitVertices.Add(v); // Also add to returned split vertices to ensure it becomes a proper crease
+                            newSplitVertices.Add(v);
                     }
                 }
             }
         }
 
-        // Split any face that had exactly two edges cut by the plane
         foreach (var kvp in faceSplitVertices) {
-            if (kvp.Value.Count == 2)
+            if (kvp.Value.Count == 2) {
                 SplitFace(kvp.Value[0], kvp.Value[1], kvp.Key, foldAngle, foldOffset);
-            else if (kvp.Value.Count > 2)
-                isValid = false;
+            } else if (kvp.Value.Count > 2) {
+                // Layered paper accumulates on-plane crease vertices from prior folds.
+                List<Vertex> intersectionsOnFace = new List<Vertex>();
+                foreach (Vertex v in kvp.Value) {
+                    if (edgeIntersectionVertices.Contains(v))
+                        intersectionsOnFace.Add(v);
+                }
+
+                if (intersectionsOnFace.Count == 2) {
+                    SplitFace(intersectionsOnFace[0], intersectionsOnFace[1], kvp.Key, foldAngle, foldOffset);
+                } else {
+                    isValid = false;
+                }
+            }
         }
 
         return newSplitVertices;
@@ -658,6 +694,14 @@ public class PaperGraph : MonoBehaviour
     }
 
     // ─── Hinge helpers ───────────────────────────────────────────────
+
+    private static void RegisterFaceSplitVertex(Face face, Vertex vNew, Dictionary<Face, List<Vertex>> faceSplitVertices) {
+        if (face == null) return;
+        if (!faceSplitVertices.ContainsKey(face))
+            faceSplitVertices[face] = new List<Vertex>();
+        if (!faceSplitVertices[face].Contains(vNew))
+            faceSplitVertices[face].Add(vNew);
+    }
 
     /// <summary>
     /// Rewires an edge so that oldV is replaced by newV.
@@ -745,10 +789,10 @@ public class PaperGraph : MonoBehaviour
                 if (splitSet.Contains(other)) continue; // crease edge — handled in step 3
                 if (!movedSet.Contains(other)) continue; // static side — keep as-is
 
-                if (e.Face1 != null && e.Face1.ContainsVertex(splitV))
-                    ReplaceFaceVertex(e.Face1, splitV, dupV);
-                if (e.Face2 != null && e.Face2.ContainsVertex(splitV))
-                    ReplaceFaceVertex(e.Face2, splitV, dupV);
+                foreach (Face face in Faces) {
+                    if (face.ContainsVertex(splitV) && FaceHasMovedVertex(face, movedSet))
+                        ReplaceFaceVertex(face, splitV, dupV);
+                }
 
                 RewireEdgeVertex(e, splitV, dupV);
             }
@@ -770,19 +814,15 @@ public class PaperGraph : MonoBehaviour
                 // Create duplicate crease edge for the moved side
                 Edge dupEdge = new Edge(dupV, dupOther);
                 dupEdge.FoldAngle = e.FoldAngle;
+                dupEdge.FoldOffset = e.FoldOffset;
                 Edges.Add(dupEdge);
 
-                // Find the moved-side faces and rewire them
-                if (e.Face1 != null && FaceHasMovedVertex(e.Face1, movedSet)) {
-                    ReplaceFaceVertex(e.Face1, splitV, dupV);
-                    ReplaceFaceVertex(e.Face1, other, dupOther);
-                    ReplaceFaceEdge(e.Face1, e, dupEdge);
-                }
-                
-                if (e.Face2 != null && FaceHasMovedVertex(e.Face2, movedSet)) {
-                    ReplaceFaceVertex(e.Face2, splitV, dupV);
-                    ReplaceFaceVertex(e.Face2, other, dupOther);
-                    ReplaceFaceEdge(e.Face2, e, dupEdge);
+                // Rewire every moved-side face that references this crease edge
+                foreach (Face face in Faces) {
+                    if (!face.ContainsEdge(e) || !FaceHasMovedVertex(face, movedSet)) continue;
+                    ReplaceFaceVertex(face, splitV, dupV);
+                    ReplaceFaceVertex(face, other, dupOther);
+                    ReplaceFaceEdge(face, e, dupEdge);
                 }
             }
         }
@@ -854,19 +894,64 @@ public class PaperGraph : MonoBehaviour
                 }
                 if (dupCreaseEdge == null) continue;
 
-                // Hinge face quad: [original, other, dupOther, dupV]
-                Face hingeFace = new Face(
-                    new List<Vertex> { splitV, other, dupOther, dupV },
-                    new List<Edge> { e, connectEdges[other], dupCreaseEdge, connectEdges[splitV] }
-                );
+                BuildOrderedHingeQuad(
+                    splitV, other, dupV, dupOther,
+                    e, dupCreaseEdge, connectEdges[splitV], connectEdges[other],
+                    out List<Vertex> hingeVerts, out List<Edge> hingeEdges);
+
+                Face hingeFace = new Face(hingeVerts, hingeEdges);
                 Faces.Add(hingeFace);
 
-                AssignFaceToEdge(e, hingeFace);
-                AssignFaceToEdge(dupCreaseEdge, hingeFace);
-                AssignFaceToEdge(connectEdges[splitV], hingeFace);
-                AssignFaceToEdge(connectEdges[other], hingeFace);
+                foreach (Edge hingeEdge in hingeEdges)
+                    AssignFaceToEdge(hingeEdge, hingeFace);
             }
         }
+    }
+
+    /// <summary>
+    /// Orders hinge quad vertices along the crease so fan triangulation cannot self-intersect.
+    /// </summary>
+    private static void BuildOrderedHingeQuad(
+        Vertex splitV, Vertex other, Vertex dupV, Vertex dupOther,
+        Edge creaseEdge, Edge dupCreaseEdge, Edge connectSplitV, Edge connectOther,
+        out List<Vertex> hingeVerts, out List<Edge> hingeEdges) {
+
+        Vector3 axisDir = other.Position - splitV.Position;
+        if (axisDir.sqrMagnitude < 0.00001f) {
+            hingeVerts = new List<Vertex> { splitV, other, dupOther, dupV };
+            hingeEdges = new List<Edge> { creaseEdge, connectOther, dupCreaseEdge, connectSplitV };
+            return;
+        }
+
+        axisDir.Normalize();
+        float tSplit = Vector3.Dot(splitV.Position, axisDir);
+        float tOther = Vector3.Dot(other.Position, axisDir);
+
+        Vertex creaseStart;
+        Vertex creaseEnd;
+        Vertex dupStart;
+        Vertex dupEnd;
+        Edge connectStart;
+        Edge connectEnd;
+
+        if (tSplit <= tOther) {
+            creaseStart = splitV;
+            creaseEnd = other;
+            dupStart = dupV;
+            dupEnd = dupOther;
+            connectStart = connectSplitV;
+            connectEnd = connectOther;
+        } else {
+            creaseStart = other;
+            creaseEnd = splitV;
+            dupStart = dupOther;
+            dupEnd = dupV;
+            connectStart = connectOther;
+            connectEnd = connectSplitV;
+        }
+
+        hingeVerts = new List<Vertex> { creaseStart, creaseEnd, dupEnd, dupStart };
+        hingeEdges = new List<Edge> { creaseEdge, connectEnd, dupCreaseEdge, connectStart };
     }
 
     public void CreateSheet(float width, float height) {

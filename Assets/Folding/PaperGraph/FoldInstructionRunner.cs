@@ -367,15 +367,20 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
     private System.Collections.IEnumerator ExecuteCreaseStepRoutine(FoldStep executedStep, bool animateFoldInFirst = false, bool advanceStep = true) {
         _isCreaseAnimating = true;
 
-        if (animateFoldInFirst)
+        if (animateFoldInFirst) {
             yield return AnimateFoldDegreesRoutine(0f, executedStep.FoldDegrees, FoldAnimationSpeed);
 
-        PaperGraphSnapshot preCreaseSnapshot = null;
-        if (animateFoldInFirst && _paperGraph != null)
-            preCreaseSnapshot = _paperGraph.CreateSnapshot();
+            float startDegrees = Controller.FoldDegrees;
+            if (Mathf.Abs(startDegrees) > 0.01f) {
+                yield return AnimateFoldDegreesRoutine(startDegrees, 0f, UnfoldAnimationSpeed, 0.1f);
+            }
 
-        float startDegrees = Controller.FoldDegrees;
-        bool creaseValid = Controller.ExecuteCreaseAction();
+            Controller.FoldDegrees = 0f;
+        }
+
+        float creaseDegrees = animateFoldInFirst ? executedStep.FoldDegrees : Controller.FoldDegrees;
+        Controller.FoldDegrees = creaseDegrees;
+        bool creaseValid = Controller.ExecuteCreaseAction(refreshVisuals: false);
 
         if (creaseValid) {
             AudioManager.Instance.Play("fold");
@@ -395,10 +400,9 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             Debug.LogWarning($"FoldInstructionRunner: Crease step {_currentStepIndex + 1} failed — topology was not cut.");
         }
 
-        if (creaseValid && Mathf.Abs(startDegrees) > 0.01f) {
-            if (preCreaseSnapshot != null)
-                yield return AnimateSnapshotFoldRoutine(preCreaseSnapshot, startDegrees, 0f, FoldAnimationSpeed);
-            else
+        if (!animateFoldInFirst) {
+            float startDegrees = Controller.FoldDegrees;
+            if (creaseValid && Mathf.Abs(startDegrees) > 0.01f)
                 yield return AnimateFoldDegreesRoutine(startDegrees, 0f, FoldAnimationSpeed);
         }
 
@@ -1059,26 +1063,6 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         }
     }
 
-    private System.Collections.IEnumerator AnimateSnapshotFoldRoutine(
-        PaperGraphSnapshot baseSnapshot,
-        float startDegrees,
-        float targetDegrees,
-        float speed) {
-        float currentDegrees = startDegrees;
-        Controller.FoldDegrees = currentDegrees;
-        Controller.UpdatePreviewFromSnapshot(baseSnapshot);
-
-        while (Mathf.Abs(currentDegrees - targetDegrees) > 0.01f) {
-            currentDegrees = Mathf.MoveTowards(currentDegrees, targetDegrees, speed * Time.deltaTime);
-            Controller.FoldDegrees = currentDegrees;
-            Controller.UpdatePreviewFromSnapshot(baseSnapshot);
-            yield return null;
-        }
-
-        Controller.FoldDegrees = targetDegrees;
-        Controller.UpdatePreviewFromSnapshot(baseSnapshot);
-    }
-
     private System.Collections.IEnumerator AnimateFoldDegreesRoutine(float startDegrees, float targetDegrees, float speed, float delayStart = 0f) {
         float currentDegrees = startDegrees;
         Controller.FoldDegrees = currentDegrees;
@@ -1202,6 +1186,8 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
                 Controller.FoldPoint1 = midpoint + foldAxisDir * Controller.FoldLineHalfLength;
                 Controller.FoldPoint2 = midpoint - foldAxisDir * Controller.FoldLineHalfLength;
                 Controller.FoldPlaneVector = step.DragPlaneNormal;
+                Controller.LockedFoldPoint1 = Controller.FoldPoint1;
+                Controller.LockedFoldPoint2 = Controller.FoldPoint2;
             }
         }
 
