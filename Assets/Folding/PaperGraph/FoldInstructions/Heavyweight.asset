@@ -10,21 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 34b6f10957cb31144b4e916fe8d806ef, type: 3}
-  m_Name: Stunt
+  m_Name: Heavyweight
   m_EditorClassIdentifier: Assembly-CSharp::FoldInstruction
   Offset: {x: 0, y: 0.15}
   Steps:
   - DragHandlePosition: {x: 0.5, y: 0, z: 0.5}
-    IdealDragPosition: {x: -0.5, y: 0, z: -0.5}
+    IdealDragPosition: {x: 0.01, y: 0, z: 0}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
     FoldOffset: 0.001
-    ApplyTag: accordion1
+    ApplyTag: 
     FilterTags:
       _tags: []
     _legacyFilterTag: 
     LockFoldAxis: 0
-    IsCrease: 1
+    IsCrease: 0
     IsAccordionFold: 0
     AccordionCreaseTagA: 
     AccordionCreaseTagB: 
@@ -35,54 +35,13 @@ MonoBehaviour:
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
   - DragHandlePosition: {x: -0.5, y: 0, z: 0.5}
-    IdealDragPosition: {x: 0.5, y: 0, z: -0.5}
-    DragPlaneNormal: {x: 0, y: 1, z: 0}
-    FoldDegrees: -180
-    FoldOffset: 0.001
-    ApplyTag: accordion2
-    FilterTags:
-      _tags: []
-    _legacyFilterTag: 
-    LockFoldAxis: 0
-    IsCrease: 1
-    IsAccordionFold: 0
-    AccordionCreaseTagA: 
-    AccordionCreaseTagB: 
-    RotatePaper: 0
-    PaperRotation: {x: 0, y: 0, z: 0}
-    RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
-    VertexRotationAxis: {x: 0, y: 1, z: 0}
-    VertexRotationDegrees: 0
-  - DragHandlePosition: {x: 0, y: 0, z: 0}
-    IdealDragPosition: {x: 0, y: 0, z: 0}
-    DragPlaneNormal: {x: 0, y: 1, z: 0}
-    FoldDegrees: -180
-    FoldOffset: 0.001
-    ApplyTag: accordion
-    FilterTags:
-      _tags: []
-    _legacyFilterTag: 
-    LockFoldAxis: 0
-    IsCrease: 0
-    IsAccordionFold: 1
-    AccordionCreaseTagA: accordion1
-    AccordionCreaseTagB: accordion2
-    RotatePaper: 0
-    PaperRotation: {x: 0, y: 0, z: 0}
-    RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
-    VertexRotationAxis: {x: 0, y: 1, z: 0}
-    VertexRotationDegrees: 0
-  - DragHandlePosition: {x: 0.5, y: 0, z: -0.5}
-    IdealDragPosition: {x: 0.235, y: 0, z: -0.65}
+    IdealDragPosition: {x: -0.01, y: 0, z: 0}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
     FoldOffset: 0.001
     ApplyTag: 
     FilterTags:
-      _tags:
-      - accordion_static
+      _tags: []
     _legacyFilterTag: 
     LockFoldAxis: 0
     IsCrease: 0
@@ -95,33 +54,12 @@ MonoBehaviour:
     VertexRotationPivot: {x: 0, y: 0, z: 0}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: -0.5, y: 0, z: -0.5}
-    IdealDragPosition: {x: -0.235, y: 0, z: -0.65}
-    DragPlaneNormal: {x: 0, y: 1, z: 0}
-    FoldDegrees: -180
-    FoldOffset: 0.001
-    ApplyTag: 
-    FilterTags:
-      _tags:
-      - accordion_static
-    _legacyFilterTag: 
-    LockFoldAxis: 0
-    IsCrease: 0
-    IsAccordionFold: 0
-    AccordionCreaseTagA: 
-    AccordionCreaseTagB: 
-    RotatePaper: 0
-    PaperRotation: {x: 0, y: 0, z: 0}
-    RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
-    VertexRotationAxis: {x: 0, y: 1, z: 0}
-    VertexRotationDegrees: 0
-  - DragHandlePosition: {x: 0, y: 0, z: 0}
-    IdealDragPosition: {x: 0, y: 0, z: -0.5}
+  - DragHandlePosition: {x: 0.5, y: 0, z: 0}
+    IdealDragPosition: {x: 0.01, y: 0, z: -0.2}
     DragPlaneNormal: {x: 0, y: -1, z: 0}
-    FoldDegrees: -180
-    FoldOffset: 0.001
-    ApplyTag: triangle_down
+    FoldDegrees: 180
+    FoldOffset: 0.002
+    ApplyTag: none
     FilterTags:
       _tags: []
     _legacyFilterTag: 
@@ -131,17 +69,57 @@ MonoBehaviour:
     AccordionCreaseTagA: 
     AccordionCreaseTagB: 
     RotatePaper: 1
-    PaperRotation: {x: 0, y: 0, z: -180}
+    PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
     VertexRotationPivot: {x: 0, y: 0, z: 0}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: 0, y: 0, z: -0.5}
+  - DragHandlePosition: {x: -0.5, y: 0.002, z: 0}
     IdealDragPosition: {x: 0, y: 0, z: -0.2}
-    DragPlaneNormal: {x: 0, y: -1, z: 0}
+    DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
-    FoldOffset: 0.004
-    ApplyTag: 
+    FoldOffset: 0.002
+    ApplyTag: none
+    FilterTags:
+      _tags: []
+    _legacyFilterTag: 
+    LockFoldAxis: 0
+    IsCrease: 0
+    IsAccordionFold: 0
+    AccordionCreaseTagA: 
+    AccordionCreaseTagB: 
+    RotatePaper: 0
+    PaperRotation: {x: 0, y: 0, z: 0}
+    RotateVertices: 0
+    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationAxis: {x: 0, y: 1, z: 0}
+    VertexRotationDegrees: 0
+  - DragHandlePosition: {x: 0, y: 0.002, z: 0.5}
+    IdealDragPosition: {x: 0, y: 0, z: -0.8}
+    DragPlaneNormal: {x: 0, y: 1, z: 0}
+    FoldDegrees: -180
+    FoldOffset: 0.002
+    ApplyTag: triangle_down
+    FilterTags:
+      _tags: []
+    _legacyFilterTag: 
+    LockFoldAxis: 0
+    IsCrease: 0
+    IsAccordionFold: 0
+    AccordionCreaseTagA: 
+    AccordionCreaseTagB: 
+    RotatePaper: 0
+    PaperRotation: {x: 0, y: 0, z: 0}
+    RotateVertices: 0
+    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationAxis: {x: 0, y: 1, z: 0}
+    VertexRotationDegrees: 0
+  - DragHandlePosition: {x: 0, y: 0.002, z: -0.8}
+    IdealDragPosition: {x: 0, y: 0, z: 0.2}
+    DragPlaneNormal: {x: 0, y: 1, z: 0}
+    FoldDegrees: -180
+    FoldOffset: 0.005
+    ApplyTag: triangle_up
     FilterTags:
       _tags:
       - triangle_down_moved
@@ -152,61 +130,40 @@ MonoBehaviour:
     AccordionCreaseTagA: 
     AccordionCreaseTagB: 
     RotatePaper: 0
-    PaperRotation: {x: 0, y: 0, z: -180}
+    PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
     VertexRotationPivot: {x: 0, y: 0, z: 0}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: -0.5, y: 0, z: -0.5}
-    IdealDragPosition: {x: 0.5, y: 0, z: -0.5}
-    DragPlaneNormal: {x: 0, y: -1, z: 0}
+  - DragHandlePosition: {x: 0, y: 0.002, z: 0.2}
+    IdealDragPosition: {x: 0, y: 0, z: -0.3}
+    DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
-    FoldOffset: 0.004
-    ApplyTag: half
-    FilterTags:
-      _tags: []
-    _legacyFilterTag: 
-    LockFoldAxis: 1
-    IsCrease: 0
-    IsAccordionFold: 0
-    AccordionCreaseTagA: 
-    AccordionCreaseTagB: 
-    RotatePaper: 0
-    PaperRotation: {x: 0, y: 0, z: -180}
-    RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
-    VertexRotationAxis: {x: 0, y: 1, z: 0}
-    VertexRotationDegrees: 0
-  - DragHandlePosition: {x: 0.5, y: 0, z: -0.5}
-    IdealDragPosition: {x: -0.3, y: 0, z: -0.5}
-    DragPlaneNormal: {x: 0, y: -1, z: 0}
-    FoldDegrees: -90
-    FoldOffset: 0
+    FoldOffset: 0.005
     ApplyTag: 
     FilterTags:
       _tags:
-      - half_moved
+      - triangle_up_moved
     _legacyFilterTag: 
-    LockFoldAxis: 1
+    LockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
     AccordionCreaseTagA: 
     AccordionCreaseTagB: 
     RotatePaper: 0
-    PaperRotation: {x: 0, y: 0, z: -180}
+    PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
     VertexRotationPivot: {x: 0, y: 0, z: 0}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
   - DragHandlePosition: {x: 0.5, y: 0, z: -0.3}
-    IdealDragPosition: {x: -0.3, y: 0, z: -0.3}
+    IdealDragPosition: {x: -0.5, y: 0, z: -0.3}
     DragPlaneNormal: {x: 0, y: -1, z: 0}
-    FoldDegrees: 90
-    FoldOffset: 0
-    ApplyTag: 
+    FoldDegrees: 180
+    FoldOffset: 0.01
+    ApplyTag: half
     FilterTags:
-      _tags:
-      - half_static
+      _tags: []
     _legacyFilterTag: 
     LockFoldAxis: 1
     IsCrease: 0
@@ -219,3 +176,45 @@ MonoBehaviour:
     VertexRotationPivot: {x: 0, y: 0, z: 0}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
+  - DragHandlePosition: {x: -0.3, y: 0, z: -0.3}
+    IdealDragPosition: {x: 0, y: 0, z: -0.3}
+    DragPlaneNormal: {x: 0, y: -1, z: 0}
+    FoldDegrees: 90
+    FoldOffset: 0.01
+    ApplyTag: none
+    FilterTags:
+      _tags:
+      - half_moved
+    _legacyFilterTag: 
+    LockFoldAxis: 0
+    IsCrease: 0
+    IsAccordionFold: 0
+    AccordionCreaseTagA: 
+    AccordionCreaseTagB: 
+    RotatePaper: 1
+    PaperRotation: {x: 0, y: 0, z: 0}
+    RotateVertices: 0
+    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationAxis: {x: 0, y: 1, z: 0}
+    VertexRotationDegrees: 0
+  - DragHandlePosition: {x: -0.3, y: 0.002, z: -0.3}
+    IdealDragPosition: {x: 0, y: 0, z: -0.3}
+    DragPlaneNormal: {x: 0, y: 1, z: 0}
+    FoldDegrees: 90
+    FoldOffset: 0.005
+    ApplyTag: none
+    FilterTags:
+      _tags:
+      - half_static
+    _legacyFilterTag: 
+    LockFoldAxis: 0
+    IsCrease: 0
+    IsAccordionFold: 0
+    AccordionCreaseTagA: 
+    AccordionCreaseTagB: 
+    RotatePaper: 1
+    PaperRotation: {x: 0, y: 0, z: 180}
+    RotateVertices: 1
+    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationAxis: {x: 0, y: 0, z: 1}
+    VertexRotationDegrees: 180
