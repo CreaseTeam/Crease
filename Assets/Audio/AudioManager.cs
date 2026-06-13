@@ -40,6 +40,9 @@ namespace Crease.Audio
 
         // Runtime lookup built from the list above
         private Dictionary<string, SoundEntry> _lookup;
+        // Scene-local parent for spawned one-shot AudioSources. This GameObject is
+        // intentionally NOT marked DontDestroyOnLoad and is not a child of the manager.
+        private Transform _spawnParent;
 
         // ───────── Optional settings passed to Play ─────────
         /// <summary>
@@ -120,6 +123,31 @@ namespace Crease.Audio
             // Spawn a temporary GameObject with an AudioSource
             var go = new GameObject($"OneShot_{key}");
             go.transform.position = position;
+
+            // If this spawned object is not parented, attach it under a single
+            // designated scene-local parent. Create the parent if it doesn't exist.
+            if (go.transform.parent == null)
+            {
+                if (_spawnParent == null || _spawnParent.gameObject == null)
+                {
+                    var parentGo = GameObject.Find("AudioManager_Sources");
+                    if (parentGo == null)
+                    {
+                        parentGo = new GameObject("AudioManager_Sources");
+                        parentGo.transform.SetParent(null); // ensure it's at root
+                    }
+                    else
+                    {
+                        parentGo.transform.SetParent(null); // ensure not childed to manager
+                    }
+
+                    // Do NOT call DontDestroyOnLoad on this parent; it should be
+                    // scene-local and destroyed during scene unload.
+                    _spawnParent = parentGo.transform;
+                }
+
+                go.transform.SetParent(_spawnParent, true);
+            }
 
             var src = go.AddComponent<AudioSource>();
             src.clip = entry.Clip;

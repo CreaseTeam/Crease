@@ -52,6 +52,12 @@ namespace Crease.Folding.PaperGraph
         [FormerlySerializedAs("meshMaterials")]
         public Material[] MeshMaterials;
 
+        [Header("Debug Materials")]
+        [Tooltip("Alternate material used when debug mode is enabled (single-material fallback).")]
+        public Material DebugMeshMaterial;
+        [Tooltip("Alternate materials for submeshes when debug mode is enabled (e.g. Element 0 = Front, Element 1 = Back).")]
+        public Material[] DebugMeshMaterials;
+
         [Header("Tag Highlight")]
         [HideInInspector]
         [FormerlySerializedAs("selectedTagIndex")]
@@ -63,6 +69,8 @@ namespace Crease.Folding.PaperGraph
 
         /// <summary>When true, mesh collider is not updated (avoids PhysX errors during animated preview).</summary>
         public bool SkipColliderUpdate = false;
+
+        public bool DebugMode { get; private set; }
 
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
@@ -202,6 +210,14 @@ namespace Crease.Folding.PaperGraph
 #endif
         }
 
+        public void SetDebugMode(bool enabled) {
+            if (DebugMode == enabled)
+                return;
+
+            DebugMode = enabled;
+            UpdateMesh();
+        }
+
         public void UpdateMesh() {
             if (Graph == null || _meshFilter == null || _meshRenderer == null) return;
 
@@ -210,12 +226,15 @@ namespace Crease.Folding.PaperGraph
                 _meshFilter.sharedMesh = generatedMesh;
                 _meshRenderer.enabled = true;
 
-                if (MeshMaterials != null && MeshMaterials.Length >= generatedMesh.subMeshCount) {
-                    _meshRenderer.sharedMaterials = MeshMaterials;
-                } else if (MeshMaterial != null) {
+                Material[] meshMaterials = DebugMode ? DebugMeshMaterials : MeshMaterials;
+                Material meshMaterial = DebugMode ? DebugMeshMaterial : MeshMaterial;
+
+                if (meshMaterials != null && meshMaterials.Length >= generatedMesh.subMeshCount) {
+                    _meshRenderer.sharedMaterials = meshMaterials;
+                } else if (meshMaterial != null) {
                     Material[] fallbackMats = new Material[generatedMesh.subMeshCount];
                     for (int i = 0; i < generatedMesh.subMeshCount; i++) {
-                        fallbackMats[i] = MeshMaterial;
+                        fallbackMats[i] = meshMaterial;
                     }
                     _meshRenderer.sharedMaterials = fallbackMats;
                 }

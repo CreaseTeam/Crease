@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34b6f10957cb31144b4e916fe8d806ef, type: 3}
   m_Name: Spinner
   m_EditorClassIdentifier: Assembly-CSharp::FoldInstruction
-  Offset: {x: 0, y: 0.15}
+  Offset: {x: 0, y: 0}
   Steps:
-  - DragHandlePosition: {x: 0.5, y: 0, z: 0.5}
-    IdealDragPosition: {x: -0.5, y: 0, z: -0.5}
+  - DragHandlePosition: {x: 0.5, y: 0, z: 0.65}
+    IdealDragPosition: {x: -0.5, y: 0, z: -0.35}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
     FoldOffset: 0.001
@@ -31,11 +31,11 @@ MonoBehaviour:
     RotatePaper: 0
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: -0.5, y: 0, z: 0.5}
-    IdealDragPosition: {x: 0.5, y: 0, z: -0.5}
+  - DragHandlePosition: {x: -0.5, y: 0, z: 0.65}
+    IdealDragPosition: {x: 0.5, y: 0, z: -0.35}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
     FoldOffset: 0.001
@@ -51,11 +51,11 @@ MonoBehaviour:
     RotatePaper: 0
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: 0, y: 0, z: 0}
-    IdealDragPosition: {x: 0, y: 0, z: 0}
+  - DragHandlePosition: {x: 0, y: 0, z: 0.15}
+    IdealDragPosition: {x: 0, y: 0, z: 0.15}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
     FoldOffset: 0.001
@@ -71,11 +71,11 @@ MonoBehaviour:
     RotatePaper: 0
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: 0.5, y: 0, z: -0.5}
-    IdealDragPosition: {x: 0.01, y: 0, z: -0.01}
+  - DragHandlePosition: {x: 0.5, y: 0, z: -0.35}
+    IdealDragPosition: {x: 0.01, y: 0, z: 0.14}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
     FoldOffset: 0.004
@@ -92,11 +92,11 @@ MonoBehaviour:
     RotatePaper: 0
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: -0.5, y: 0, z: -0.5}
-    IdealDragPosition: {x: -0.01, y: 0, z: -0.01}
+  - DragHandlePosition: {x: -0.5, y: 0, z: -0.35}
+    IdealDragPosition: {x: -0.01, y: 0, z: 0.14}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
     FoldOffset: 0.004
@@ -113,11 +113,11 @@ MonoBehaviour:
     RotatePaper: 0
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: 0.25, y: 0, z: -0.25}
-    IdealDragPosition: {x: 0.01, y: 0, z: -0.15}
+  - DragHandlePosition: {x: 0.25, y: 0, z: -0.1}
+    IdealDragPosition: {x: 0.01, y: 0, z: 0}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
     FoldOffset: 0.004
@@ -134,11 +134,11 @@ MonoBehaviour:
     RotatePaper: 0
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: -0.25, y: 0, z: -0.25}
-    IdealDragPosition: {x: -0.01, y: 0, z: -0.15}
+  - DragHandlePosition: {x: -0.25, y: 0, z: -0.1}
+    IdealDragPosition: {x: -0.01, y: 0, z: 0}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
     FoldOffset: 0.004
@@ -155,11 +155,11 @@ MonoBehaviour:
     RotatePaper: 0
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: 0, y: 0, z: 0}
-    IdealDragPosition: {x: 0, y: 0, z: -0.3}
+  - DragHandlePosition: {x: 0, y: 0, z: 0.15}
+    IdealDragPosition: {x: 0, y: 0, z: -0.15}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
     FoldOffset: 0.007
@@ -175,11 +175,11 @@ MonoBehaviour:
     RotatePaper: 0
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: 0.5, y: 0, z: -0.5}
-    IdealDragPosition: {x: 0.01, y: 0, z: -0.7}
+  - DragHandlePosition: {x: 0.5, y: 0, z: -0.35}
+    IdealDragPosition: {x: 0.01, y: 0, z: -0.55}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
     FoldOffset: 0.002
@@ -196,11 +196,11 @@ MonoBehaviour:
     RotatePaper: 0
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: -0.5, y: 0, z: -0.5}
-    IdealDragPosition: {x: -0.01, y: 0, z: -0.7}
+  - DragHandlePosition: {x: -0.5, y: 0, z: -0.35}
+    IdealDragPosition: {x: -0.01, y: 0, z: -0.55}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
     FoldOffset: 0.002
@@ -217,11 +217,11 @@ MonoBehaviour:
     RotatePaper: 0
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: -0.3, y: 0, z: -0.75}
-    IdealDragPosition: {x: 0.3, y: 0, z: -0.75}
+  - DragHandlePosition: {x: -0.3, y: 0, z: -0.6}
+    IdealDragPosition: {x: 0.3, y: 0, z: -0.6}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: 180
     FoldOffset: 0.02
@@ -237,11 +237,11 @@ MonoBehaviour:
     RotatePaper: 1
     PaperRotation: {x: 0, y: 0, z: -180}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 0, z: 1}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: 0.3, y: 0, z: -0.75}
-    IdealDragPosition: {x: -0.1, y: 0, z: -0.75}
+  - DragHandlePosition: {x: 0.3, y: 0, z: -0.6}
+    IdealDragPosition: {x: -0.1, y: 0, z: -0.6}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: 90
     FoldOffset: 0.008
@@ -259,11 +259,11 @@ MonoBehaviour:
     RotatePaper: 0
     PaperRotation: {x: 0, y: 0, z: -180}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 0, z: 1}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: 0.3, y: 0, z: -0.75}
-    IdealDragPosition: {x: -0.1, y: 0, z: -0.75}
+  - DragHandlePosition: {x: 0.3, y: 0, z: -0.6}
+    IdealDragPosition: {x: -0.1, y: 0, z: -0.6}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -90
     FoldOffset: 0.008
@@ -281,6 +281,6 @@ MonoBehaviour:
     RotatePaper: 1
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 0, z: 1}
     VertexRotationDegrees: 0

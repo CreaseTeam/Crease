@@ -730,6 +730,14 @@ PrefabInstance:
       propertyPath: _foldInstructionRunner
       value: 
       objectReference: {fileID: 8945394571852309787}
+    - target: {fileID: 2898456625125675225, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: _paperGraphVisualizers.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2898456625125675225, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: '_paperGraphVisualizers.Array.data[0]'
+      value: 
+      objectReference: {fileID: 6124060854669086299}
     - target: {fileID: 4892953631500691399, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -1021,6 +1029,17 @@ Camera:
   m_CorrespondingSourceObject: {fileID: 4105214768651930174, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
   m_PrefabInstance: {fileID: 8952235461921037973}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &6124060854669086299 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2936824549558735054, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
+  m_PrefabInstance: {fileID: 8952235461921037973}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1cffdd7f0fe9fe14d8024af722424d7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PaperGraphVisualizer
 --- !u!114 &6770765525342464528 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2434809022835782789, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}

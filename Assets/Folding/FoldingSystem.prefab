@@ -240,8 +240,20 @@ MonoBehaviour:
   ShowVertexLabels: 1
   ShowFoldAngles: 1
   ShowMesh: 1
+  ShowCoordinateRulers: 0
+  ShowHorizontalRuler: 1
+  ShowVerticalRuler: 1
+  RulerTickInterval: 0.1
+  RulerEdgeOffset: 0.05
+  RulerHeightOffset: 0.002
+  RulerTickSize: 0.02
+  RulerColor: {r: 0.35, g: 0.75, b: 1, a: 0.95}
   MeshMaterial: {fileID: 0}
   MeshMaterials: []
+  DebugMeshMaterial: {fileID: 0}
+  DebugMeshMaterials:
+  - {fileID: 2100000, guid: 564122fb4b241c44bb94e1f699be6b34, type: 2}
+  - {fileID: 2100000, guid: e3bb627605f041d458e168b69bbc6ce8, type: 2}
   SelectedTagIndex: 0
   TagHighlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   TagHighlightSize: 0.15
@@ -509,8 +521,18 @@ MonoBehaviour:
   ShowVertexLabels: 1
   ShowFoldAngles: 1
   ShowMesh: 0
+  ShowCoordinateRulers: 0
+  ShowHorizontalRuler: 1
+  ShowVerticalRuler: 1
+  RulerTickInterval: 0.1
+  RulerEdgeOffset: 0.05
+  RulerHeightOffset: 0.002
+  RulerTickSize: 0.02
+  RulerColor: {r: 0.35, g: 0.75, b: 1, a: 0.95}
   MeshMaterial: {fileID: 2100000, guid: 55e8a5b07feb4664e9061676f3ecc8a7, type: 2}
   MeshMaterials: []
+  DebugMeshMaterial: {fileID: 0}
+  DebugMeshMaterials: []
   SelectedTagIndex: 0
   TagHighlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   TagHighlightSize: 0.15
@@ -643,6 +665,7 @@ MonoBehaviour:
   UnfoldAnimationSpeed: 360
   FoldAnimationSpeed: 360
   AccordionCollapseDuration: 0.75
+  VertexRotationSpeed: 180
   AccordionExecuteMinProgress: 0.99
   AutoSnapDragHandle: 0
 --- !u!114 &1584305669687720572

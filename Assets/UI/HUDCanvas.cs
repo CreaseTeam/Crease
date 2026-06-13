@@ -79,11 +79,20 @@ namespace Crease.UI
         [SerializeField]
         private FoldInstructionRunner _foldInstructionRunner;
 
+        [Header("Folding Debug")]
+        [SerializeField]
+        private Toggle _debugModeToggle;
+        [SerializeField]
+        private PaperGraphVisualizer[] _paperGraphVisualizers;
+
         public static HUDCanvas Instance { get; private set; }
+
+        public bool DebugMode { get; private set; }
 
         private int _collectibleCount = 0;
         private readonly List<FoldInstruction> _foldInstructions = new();
         private bool _isUpdatingPlaneTypeDropdown;
+        private PaperGraphVisualizer[] _resolvedPaperGraphVisualizers = System.Array.Empty<PaperGraphVisualizer>();
 
         public int Collect()
         {
@@ -137,6 +146,13 @@ namespace Crease.UI
             PopulatePlaneTypeDropdown();
             if (_planeTypeDropdown != null)
                 _planeTypeDropdown.onValueChanged.AddListener(OnPlaneTypeDropdownChanged);
+
+            _resolvedPaperGraphVisualizers = ResolvePaperGraphVisualizers();
+            if (_debugModeToggle != null)
+            {
+                _debugModeToggle.onValueChanged.AddListener(OnDebugModeToggleChanged);
+                OnDebugModeToggleChanged(_debugModeToggle.isOn);
+            }
 
             // maxHealth = hearts.Count;
             // health = maxHealth;
@@ -390,6 +406,20 @@ namespace Crease.UI
         /// Called when the plane type dropdown selection changes.
         /// Can also be wired directly from the dropdown's OnValueChanged event.
         /// </summary>
+        /// <summary>
+        /// Called when the debug mode toggle changes. Can also be wired directly from the toggle's OnValueChanged event.
+        /// </summary>
+        public void OnDebugModeToggleChanged(bool enabled)
+        {
+            DebugMode = enabled;
+
+            foreach (PaperGraphVisualizer visualizer in _resolvedPaperGraphVisualizers)
+            {
+                if (visualizer != null)
+                    visualizer.SetDebugMode(enabled);
+            }
+        }
+
         public void OnPlaneTypeDropdownChanged(int index)
         {
             if (_isUpdatingPlaneTypeDropdown)
@@ -430,6 +460,31 @@ namespace Crease.UI
 
             _planeTypeDropdown.SetValueWithoutNotify(index);
             _planeTypeDropdown.RefreshShownValue();
+        }
+
+        private PaperGraphVisualizer[] ResolvePaperGraphVisualizers()
+        {
+            if (_paperGraphVisualizers != null && _paperGraphVisualizers.Length > 0)
+                return _paperGraphVisualizers;
+
+            if (_foldInstructionRunner == null || _foldInstructionRunner.Controller == null)
+                return System.Array.Empty<PaperGraphVisualizer>();
+
+            PaperGraphController controller = _foldInstructionRunner.Controller;
+            var visualizers = new List<PaperGraphVisualizer>(2);
+
+            PaperGraphVisualizer authoringVisualizer = controller.GetComponent<PaperGraphVisualizer>();
+            if (authoringVisualizer != null)
+                visualizers.Add(authoringVisualizer);
+
+            if (controller.PreviewGraph != null)
+            {
+                PaperGraphVisualizer previewVisualizer = controller.PreviewGraph.GetComponent<PaperGraphVisualizer>();
+                if (previewVisualizer != null)
+                    visualizers.Add(previewVisualizer);
+            }
+
+            return visualizers.ToArray();
         }
 
         private static FoldInstruction[] FindAllFoldInstructions()

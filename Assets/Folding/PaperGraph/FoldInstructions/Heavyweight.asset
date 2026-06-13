@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34b6f10957cb31144b4e916fe8d806ef, type: 3}
   m_Name: Heavyweight
   m_EditorClassIdentifier: Assembly-CSharp::FoldInstruction
-  Offset: {x: 0, y: 0.15}
+  Offset: {x: 0, y: 0}
   Steps:
-  - DragHandlePosition: {x: 0.5, y: 0, z: 0.5}
-    IdealDragPosition: {x: 0.01, y: 0, z: 0}
+  - DragHandlePosition: {x: 0.5, y: 0, z: 0.65}
+    IdealDragPosition: {x: 0.01, y: 0, z: 0.15}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
     FoldOffset: 0.001
@@ -31,11 +31,11 @@ MonoBehaviour:
     RotatePaper: 0
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: -0.5, y: 0, z: 0.5}
-    IdealDragPosition: {x: -0.01, y: 0, z: 0}
+  - DragHandlePosition: {x: -0.5, y: 0, z: 0.65}
+    IdealDragPosition: {x: -0.01, y: 0, z: 0.15}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
     FoldOffset: 0.001
@@ -51,11 +51,11 @@ MonoBehaviour:
     RotatePaper: 0
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: 0.5, y: 0, z: 0}
-    IdealDragPosition: {x: 0.01, y: 0, z: -0.2}
+  - DragHandlePosition: {x: 0.5, y: 0, z: 0.15}
+    IdealDragPosition: {x: 0.01, y: 0, z: -0.05}
     DragPlaneNormal: {x: 0, y: -1, z: 0}
     FoldDegrees: 180
     FoldOffset: 0.002
@@ -71,11 +71,11 @@ MonoBehaviour:
     RotatePaper: 1
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: -0.5, y: 0.002, z: 0}
-    IdealDragPosition: {x: 0, y: 0, z: -0.2}
+  - DragHandlePosition: {x: -0.5, y: 0, z: 0.15}
+    IdealDragPosition: {x: 0, y: 0, z: -0.05}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
     FoldOffset: 0.002
@@ -91,14 +91,14 @@ MonoBehaviour:
     RotatePaper: 0
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: 0, y: 0.002, z: 0.5}
-    IdealDragPosition: {x: 0, y: 0, z: -0.8}
+  - DragHandlePosition: {x: 0, y: 0, z: 0.65}
+    IdealDragPosition: {x: 0, y: 0, z: -0.65}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
-    FoldOffset: 0.002
+    FoldOffset: 0.0025
     ApplyTag: triangle_down
     FilterTags:
       _tags: []
@@ -111,14 +111,14 @@ MonoBehaviour:
     RotatePaper: 0
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: 0, y: 0.002, z: -0.8}
-    IdealDragPosition: {x: 0, y: 0, z: 0.2}
+  - DragHandlePosition: {x: 0, y: 0, z: -0.65}
+    IdealDragPosition: {x: 0, y: 0, z: 0.35}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
-    FoldOffset: 0.005
+    FoldOffset: 0.0055
     ApplyTag: triangle_up
     FilterTags:
       _tags:
@@ -132,14 +132,14 @@ MonoBehaviour:
     RotatePaper: 0
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: 0, y: 0.002, z: 0.2}
-    IdealDragPosition: {x: 0, y: 0, z: -0.3}
+  - DragHandlePosition: {x: 0, y: 0, z: 0.35}
+    IdealDragPosition: {x: 0, y: 0, z: -0.15}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
-    FoldOffset: 0.005
+    FoldOffset: 0.0085
     ApplyTag: 
     FilterTags:
       _tags:
@@ -153,11 +153,11 @@ MonoBehaviour:
     RotatePaper: 0
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: 0.5, y: 0, z: -0.3}
-    IdealDragPosition: {x: -0.5, y: 0, z: -0.3}
+  - DragHandlePosition: {x: 0.5, y: 0, z: -0.15}
+    IdealDragPosition: {x: -0.5, y: 0, z: -0.15}
     DragPlaneNormal: {x: 0, y: -1, z: 0}
     FoldDegrees: 180
     FoldOffset: 0.01
@@ -173,11 +173,11 @@ MonoBehaviour:
     RotatePaper: 0
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: -0.3, y: 0, z: -0.3}
-    IdealDragPosition: {x: 0, y: 0, z: -0.3}
+  - DragHandlePosition: {x: -0.45, y: 0, z: -0.4}
+    IdealDragPosition: {x: 0, y: 0, z: -0.45}
     DragPlaneNormal: {x: 0, y: -1, z: 0}
     FoldDegrees: 90
     FoldOffset: 0.01
@@ -194,11 +194,11 @@ MonoBehaviour:
     RotatePaper: 1
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 1, z: 0}
     VertexRotationDegrees: 0
-  - DragHandlePosition: {x: -0.3, y: 0.002, z: -0.3}
-    IdealDragPosition: {x: 0, y: 0, z: -0.3}
+  - DragHandlePosition: {x: -0.45, y: 0.02, z: -0.4}
+    IdealDragPosition: {x: 0, y: 0, z: -0.45}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: 90
     FoldOffset: 0.005
@@ -215,6 +215,6 @@ MonoBehaviour:
     RotatePaper: 1
     PaperRotation: {x: 0, y: 0, z: 180}
     RotateVertices: 1
-    VertexRotationPivot: {x: 0, y: 0, z: 0}
+    VertexRotationPivot: {x: 0, y: 0, z: 0.15}
     VertexRotationAxis: {x: 0, y: 0, z: 1}
     VertexRotationDegrees: 180
