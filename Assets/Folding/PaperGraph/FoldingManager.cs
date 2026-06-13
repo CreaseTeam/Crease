@@ -284,6 +284,9 @@ namespace Crease.Folding.PaperGraph
             _paperAlignStartRot = PaperGraph.transform.rotation;
             _paperAlignTargetRot = GetPlayerMeshRotation() * Quaternion.Euler(PaperToPlayerRotationOffset);
 
+            if (FoldingCamera != null) FoldingCamera.gameObject.SetActive(false);
+            if (FlyingCamera != null) FlyingCamera.gameObject.SetActive(true);
+
             BeginTransition(FoldingCamera, FlyingCamera);
         }
 
@@ -314,6 +317,8 @@ namespace Crease.Folding.PaperGraph
                 HUDCanvas.Instance.ShowFlyingUI(true);
             }
 
+            if (FoldingCamera != null)
+                FoldingCamera.gameObject.SetActive(false);
             if (FlyingCamera != null)
                 FlyingCamera.gameObject.SetActive(true);
         }
