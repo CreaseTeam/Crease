@@ -219,6 +219,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PaperGraph
   Width: 1
   Height: 1.3
+  BoundaryEdgeDarkenWidth: 0.004
+  BoundaryEdgeMinBrightness: 0.55
+  CreaseDarkenWidth: 0.025
+  CreaseMinBrightness: 0.65
 --- !u!114 &2936824549558735054
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -500,6 +504,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PaperGraph
   Width: 1
   Height: 1.3
+  BoundaryEdgeDarkenWidth: 0.004
+  BoundaryEdgeMinBrightness: 0.55
+  CreaseDarkenWidth: 0.025
+  CreaseMinBrightness: 0.65
 --- !u!114 &1270413128971087771
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -647,11 +655,6 @@ MonoBehaviour:
     Material: {fileID: -1031502912751442999, guid: 5d39f0a98f534ff40b4e83227764dae1, type: 3}
     Width: 0.01
     Color: {r: 1, g: 1, b: 1, a: 0.7}
-    HeightOffset: 0.0005
-  CreaseLineStyle:
-    Material: {fileID: -7139968578570027309, guid: 3e8780d8324937346be90315c6db76a7, type: 3}
-    Width: 0.006
-    Color: {r: 0.37106913, g: 0.37106913, b: 0.37106913, a: 0.9}
     HeightOffset: 0.0005
   _legacyGuideLineMaterial: {fileID: -1031502912751442999, guid: 5d39f0a98f534ff40b4e83227764dae1, type: 3}
   _legacyGuideLineWidth: 0.01
