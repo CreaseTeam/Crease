@@ -22,6 +22,14 @@ public class PaperGraph : MonoBehaviour
     [FormerlySerializedAs("height")]
     public float Height = 1f;
 
+    [Header("Edge Shading")]
+    [Tooltip("Object-space falloff distance for per-pixel darkening near creases and sheet edges.")]
+    [Min(0f)]
+    public float EdgeDarkenWidth = 0.004f;
+    [Tooltip("Surface brightness at the edge itself (1 = off).")]
+    [Range(0f, 1f)]
+    public float EdgeMinBrightness = 0.55f;
+
     private List<PaperGraphSnapshot> _undoStack = new List<PaperGraphSnapshot>();
     private List<PaperGraphSnapshot> _redoStack = new List<PaperGraphSnapshot>();
     private AccordionCollapseData _accordionData;
@@ -1016,17 +1024,21 @@ public class PaperGraph : MonoBehaviour
     /// Each face is fan-triangulated from its first vertex.
     /// Normals are computed per fan triangle so creases stay hard and non-planar poses
     /// (such as mid-accordion collapse) stay visible. Back faces are appended with reversed
-    /// winding and negated normals.
+    /// winding and negated normals. UV2 stores a per-face index used by the edge
+    /// darkening shader to select only that face's feature edges at each pixel.
     /// </summary>
     public Mesh GenerateMesh() {
         List<Vector3> positions = new List<Vector3>();
         List<Vector2> uvs = new List<Vector2>();
+        List<Vector2> faceIndices = new List<Vector2>();
         List<Vector3> normals = new List<Vector3>();
         List<int> frontTriangles = new List<int>();
 
-        foreach (Face face in Faces) {
+        for (int faceIndex = 0; faceIndex < Faces.Count; faceIndex++) {
+            Face face = Faces[faceIndex];
             if (face.Vertices.Count < 3) continue;
 
+            Vector2 faceIndexUv = new Vector2(faceIndex, 0f);
             Vertex anchor = face.Vertices[0];
             for (int i = 1; i < face.Vertices.Count - 1; i++) {
                 Vertex v1 = face.Vertices[i];
@@ -1043,14 +1055,17 @@ public class PaperGraph : MonoBehaviour
                 int index = positions.Count;
                 positions.Add(anchor.Position);
                 uvs.Add(anchor.Uv);
+                faceIndices.Add(faceIndexUv);
                 normals.Add(triNormal);
 
                 positions.Add(v2.Position);
                 uvs.Add(v2.Uv);
+                faceIndices.Add(faceIndexUv);
                 normals.Add(triNormal);
 
                 positions.Add(v1.Position);
                 uvs.Add(v1.Uv);
+                faceIndices.Add(faceIndexUv);
                 normals.Add(triNormal);
 
                 frontTriangles.Add(index);
@@ -1063,6 +1078,7 @@ public class PaperGraph : MonoBehaviour
         for (int i = 0; i < frontVertCount; i++) {
             positions.Add(positions[i]);
             uvs.Add(new Vector2(1f - uvs[i].x, uvs[i].y));
+            faceIndices.Add(faceIndices[i]);
             normals.Add(-normals[i]);
         }
 
@@ -1076,7 +1092,9 @@ public class PaperGraph : MonoBehaviour
         Mesh mesh = new Mesh();
         mesh.SetVertices(positions);
         mesh.SetUVs(0, uvs);
+        mesh.SetUVs(2, faceIndices);
         mesh.SetNormals(normals);
+        mesh.RecalculateTangents();
 
         mesh.subMeshCount = 2;
         mesh.SetTriangles(frontTriangles, 0);

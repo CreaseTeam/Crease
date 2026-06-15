@@ -381,15 +381,14 @@ namespace Crease.Folding.PaperGraph
 
             if (previewVisualizer.MeshMaterials != null && previewVisualizer.MeshMaterials.Length >= mesh.subMeshCount) {
                 _playerMeshRenderer.sharedMaterials = previewVisualizer.MeshMaterials;
-                return;
+            } else if (previewVisualizer.MeshMaterial != null) {
+                Material[] materials = new Material[mesh.subMeshCount];
+                for (int i = 0; i < materials.Length; i++)
+                    materials[i] = previewVisualizer.MeshMaterial;
+                _playerMeshRenderer.sharedMaterials = materials;
             }
 
-            if (previewVisualizer.MeshMaterial == null) return;
-
-            Material[] materials = new Material[mesh.subMeshCount];
-            for (int i = 0; i < materials.Length; i++)
-                materials[i] = previewVisualizer.MeshMaterial;
-            _playerMeshRenderer.sharedMaterials = materials;
+            PaperEdgeShading.Apply(_playerMeshRenderer, PaperGraph);
         }
 
         private void AttachDecalsToPlayerMesh() {

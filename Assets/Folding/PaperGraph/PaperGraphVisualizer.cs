@@ -243,6 +243,8 @@ namespace Crease.Folding.PaperGraph
                     CopyMeshToCollider(generatedMesh);
                     _meshCollider.convex = false;
                 }
+
+                PaperEdgeShading.Apply(_meshRenderer, Graph);
             } else {
                 _meshFilter.sharedMesh = null;
                 _meshRenderer.enabled = false;

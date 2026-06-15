@@ -36,7 +36,7 @@ public class FoldingLineStyle
         line.alignment = LineAlignment.View;
         line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         line.receiveShadows = false;
-        line.allowOcclusionWhenDynamic = false;
+        line.allowOcclusionWhenDynamic = true;
 
         if (Material != null) {
             Material lineMaterial = new Material(Material);
