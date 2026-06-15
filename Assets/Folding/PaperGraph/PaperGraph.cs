@@ -22,13 +22,23 @@ public class PaperGraph : MonoBehaviour
     [FormerlySerializedAs("height")]
     public float Height = 1f;
 
-    [Header("Edge Shading")]
-    [Tooltip("Object-space falloff distance for per-pixel darkening near creases and sheet edges.")]
+    [Header("Boundary Edge Shading")]
+    [Tooltip("Object-space falloff for darkening near the outer sheet edges.")]
     [Min(0f)]
-    public float EdgeDarkenWidth = 0.004f;
-    [Tooltip("Surface brightness at the edge itself (1 = off).")]
+    [FormerlySerializedAs("EdgeDarkenWidth")]
+    public float BoundaryEdgeDarkenWidth = 0.004f;
+    [Tooltip("Surface brightness at a boundary edge (1 = off).")]
     [Range(0f, 1f)]
-    public float EdgeMinBrightness = 0.55f;
+    [FormerlySerializedAs("EdgeMinBrightness")]
+    public float BoundaryEdgeMinBrightness = 0.55f;
+
+    [Header("Crease Line Shading")]
+    [Tooltip("Object-space falloff for fold/crease lines left on the paper.")]
+    [Min(0f)]
+    public float CreaseDarkenWidth = 0.006f;
+    [Tooltip("Surface brightness on a crease line (1 = off).")]
+    [Range(0f, 1f)]
+    public float CreaseMinBrightness = 0.4f;
 
     private List<PaperGraphSnapshot> _undoStack = new List<PaperGraphSnapshot>();
     private List<PaperGraphSnapshot> _redoStack = new List<PaperGraphSnapshot>();

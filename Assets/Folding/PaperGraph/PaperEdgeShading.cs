@@ -5,9 +5,9 @@ using UnityEngine;
 namespace Crease.Folding.PaperGraph
 {
     /// <summary>
-    /// Pushes deduplicated feature edge segments to paper materials via MaterialPropertyBlock.
-    /// Segment data is packed into a 1D float texture (3 texels per edge) so there is no
-    /// practical edge count cap for folded paper.
+    /// Pushes boundary and crease edge segments to paper materials via MaterialPropertyBlock.
+    /// Boundary edges are face-local with surface-plane distance; crease edges use 3D distance
+    /// on both faces of the fold so they remain visible from either side of the sheet.
     /// </summary>
     public static class PaperEdgeShading
     {
@@ -16,10 +16,15 @@ namespace Crease.Folding.PaperGraph
         private const int FloatsPerSegment = PixelsPerSegment * FloatsPerPixel;
         private const int MaxSegments = 4096;
 
+        private const float SegmentTypeBoundary = 0f;
+        private const float SegmentTypeCrease = 1f;
+
         private static readonly int EdgeSegmentCountId = Shader.PropertyToID("_EdgeSegmentCount");
         private static readonly int EdgeSegmentTexId = Shader.PropertyToID("_EdgeSegmentTex");
-        private static readonly int EdgeDarkenWidthId = Shader.PropertyToID("_EdgeDarkenWidth");
-        private static readonly int EdgeMinBrightnessId = Shader.PropertyToID("_EdgeMinBrightness");
+        private static readonly int BoundaryDarkenWidthId = Shader.PropertyToID("_BoundaryDarkenWidth");
+        private static readonly int BoundaryMinBrightnessId = Shader.PropertyToID("_BoundaryMinBrightness");
+        private static readonly int CreaseDarkenWidthId = Shader.PropertyToID("_CreaseDarkenWidth");
+        private static readonly int CreaseMinBrightnessId = Shader.PropertyToID("_CreaseMinBrightness");
 
         private static readonly float[] SegmentData = new float[MaxSegments * FloatsPerSegment];
         private static float[] _uploadBuffer;
@@ -43,7 +48,8 @@ namespace Crease.Folding.PaperGraph
             _propertyBlock ??= new MaterialPropertyBlock();
             renderer.GetPropertyBlock(_propertyBlock);
 
-            if (graph.EdgeDarkenWidth <= 0f) {
+            bool shadingEnabled = graph.BoundaryEdgeDarkenWidth > 0f || graph.CreaseDarkenWidth > 0f;
+            if (!shadingEnabled) {
                 _propertyBlock.SetInt(EdgeSegmentCountId, 0);
                 renderer.SetPropertyBlock(_propertyBlock);
                 return;
@@ -55,14 +61,11 @@ namespace Crease.Folding.PaperGraph
 
             int segmentCount = 0;
             foreach (Edge edge in graph.Edges) {
-                if (!IsFeatureEdge(edge))
-                    continue;
-
                 if (segmentCount >= MaxSegments) {
                     if (!_segmentLimitWarned) {
                         _segmentLimitWarned = true;
                         Debug.LogWarning(
-                            $"PaperEdgeShading: More than {MaxSegments} unique feature edges; extras are skipped.");
+                            $"PaperEdgeShading: More than {MaxSegments} edge segments; extras are skipped.");
                     }
                     break;
                 }
@@ -74,12 +77,21 @@ namespace Crease.Folding.PaperGraph
                     ? indexB
                     : -1;
 
+                float segmentType;
+                if (IsBoundaryEdge(edge))
+                    segmentType = SegmentTypeBoundary;
+                else if (IsFoldCrease(edge))
+                    segmentType = SegmentTypeCrease;
+                else
+                    continue;
+
                 WriteSegment(
                     segmentCount,
                     segmentTransform.MultiplyPoint3x4(edge.V1.Position),
                     segmentTransform.MultiplyPoint3x4(edge.V2.Position),
                     faceA,
-                    faceB);
+                    faceB,
+                    segmentType);
                 segmentCount++;
             }
 
@@ -87,12 +99,20 @@ namespace Crease.Folding.PaperGraph
 
             _propertyBlock.SetInt(EdgeSegmentCountId, segmentCount);
             _propertyBlock.SetTexture(EdgeSegmentTexId, _segmentTexture);
-            _propertyBlock.SetFloat(EdgeDarkenWidthId, graph.EdgeDarkenWidth);
-            _propertyBlock.SetFloat(EdgeMinBrightnessId, graph.EdgeMinBrightness);
+            _propertyBlock.SetFloat(BoundaryDarkenWidthId, graph.BoundaryEdgeDarkenWidth);
+            _propertyBlock.SetFloat(BoundaryMinBrightnessId, graph.BoundaryEdgeMinBrightness);
+            _propertyBlock.SetFloat(CreaseDarkenWidthId, graph.CreaseDarkenWidth);
+            _propertyBlock.SetFloat(CreaseMinBrightnessId, graph.CreaseMinBrightness);
             renderer.SetPropertyBlock(_propertyBlock);
         }
 
-        private static void WriteSegment(int segmentIndex, Vector3 a, Vector3 b, int faceA, int faceB) {
+        private static void WriteSegment(
+            int segmentIndex,
+            Vector3 a,
+            Vector3 b,
+            int faceA,
+            int faceB,
+            float segmentType) {
             int offset = segmentIndex * FloatsPerSegment;
             SegmentData[offset + 0] = a.x;
             SegmentData[offset + 1] = a.y;
@@ -104,7 +124,7 @@ namespace Crease.Folding.PaperGraph
             SegmentData[offset + 7] = 0f;
             SegmentData[offset + 8] = faceA;
             SegmentData[offset + 9] = faceB;
-            SegmentData[offset + 10] = 0f;
+            SegmentData[offset + 10] = segmentType;
             SegmentData[offset + 11] = 0f;
         }
 
@@ -148,9 +168,13 @@ namespace Crease.Folding.PaperGraph
             _segmentTextureSegmentCapacity = capacity;
         }
 
-        private static bool IsFeatureEdge(Edge edge) {
+        private static bool IsBoundaryEdge(Edge edge) {
+            return edge.Face1 == null || edge.Face2 == null;
+        }
+
+        private static bool IsFoldCrease(Edge edge) {
             if (edge.Face1 == null || edge.Face2 == null)
-                return true;
+                return false;
 
             return Mathf.Abs(edge.FoldAngle - 180f) > 0.01f;
         }

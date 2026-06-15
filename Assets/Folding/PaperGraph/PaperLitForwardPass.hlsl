@@ -248,7 +248,7 @@ void PaperLitPassFragment(
 
     InitializeBakedGIData(input, inputData);
 
-    half edgeBrightness = GetEdgeBrightness(
+    half edgeBrightness = GetCombinedEdgeBrightness(
         input.positionOS,
         TransformWorldToObjectNormal(input.normalWS),
         input.faceIndex);

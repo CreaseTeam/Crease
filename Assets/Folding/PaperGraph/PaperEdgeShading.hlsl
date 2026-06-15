@@ -1,10 +1,15 @@
 #ifndef PAPER_EDGE_SHADING_INCLUDED
 #define PAPER_EDGE_SHADING_INCLUDED
 
+#define PAPER_SEGMENT_BOUNDARY 0.0
+#define PAPER_SEGMENT_CREASE 1.0
+
 TEXTURE2D_FLOAT(_EdgeSegmentTex);
 int _EdgeSegmentCount;
-float _EdgeDarkenWidth;
-float _EdgeMinBrightness;
+float _BoundaryDarkenWidth;
+float _BoundaryMinBrightness;
+float _CreaseDarkenWidth;
+float _CreaseMinBrightness;
 
 float4 LoadSegmentPixel(int segmentIndex, int pixelOffset)
 {
@@ -22,14 +27,14 @@ float DistancePointToSegment(float3 pos, float3 a, float3 b)
     return distance(pos, a + ab * t);
 }
 
-float EdgeBrightnessFromDistance(float distance)
+float BrightnessFromDistance(float distance, float width, float minBrightness)
 {
-    if (_EdgeDarkenWidth <= 0.0)
+    if (width <= 0.0)
         return 1.0;
 
-    float t = saturate(distance / _EdgeDarkenWidth);
+    float t = saturate(distance / width);
     t = t * t * (3.0 - 2.0 * t);
-    return lerp(_EdgeMinBrightness, 1.0, t);
+    return lerp(minBrightness, 1.0, t);
 }
 
 bool SegmentMatchesFace(float2 facePair, int faceId)
@@ -43,31 +48,52 @@ bool SegmentMatchesFace(float2 facePair, int faceId)
     return false;
 }
 
-float GetEdgeBrightness(float3 positionOS, float3 normalOS, float faceIndex)
+float GetCombinedEdgeBrightness(float3 positionOS, float3 normalOS, float faceIndex)
 {
-    if (_EdgeSegmentCount <= 0 || _EdgeDarkenWidth <= 0.0)
+    if (_EdgeSegmentCount <= 0)
         return 1.0;
 
     int faceId = (int)(faceIndex + 0.5);
     float3 n = normalize(normalOS);
-    float minDistance = 1e6;
+    float boundaryDistance = 1e6;
+    float creaseDistance = 1e6;
+    bool hasBoundary = false;
+    bool hasCrease = false;
 
     for (int i = 0; i < _EdgeSegmentCount; i++)
     {
-        float2 facePair = LoadSegmentPixel(i, 2).xy;
+        float4 faceData = LoadSegmentPixel(i, 2);
+        float2 facePair = faceData.xy;
+        float segmentType = faceData.z;
+
         if (!SegmentMatchesFace(facePair, faceId))
             continue;
 
         float3 a = LoadSegmentPixel(i, 0).xyz;
         float3 b = LoadSegmentPixel(i, 1).xyz;
-        float3 planePos = positionOS - n * dot(positionOS - a, n);
-        minDistance = min(minDistance, DistancePointToSegment(planePos, a, b));
+
+        if (segmentType < 0.5)
+        {
+            float3 planePos = positionOS - n * dot(positionOS - a, n);
+            boundaryDistance = min(boundaryDistance, DistancePointToSegment(planePos, a, b));
+            hasBoundary = true;
+        }
+        else
+        {
+            creaseDistance = min(creaseDistance, DistancePointToSegment(positionOS, a, b));
+            hasCrease = true;
+        }
     }
 
-    if (minDistance > 1e5)
-        return 1.0;
+    float brightness = 1.0;
 
-    return EdgeBrightnessFromDistance(minDistance);
+    if (hasBoundary && _BoundaryDarkenWidth > 0.0)
+        brightness *= BrightnessFromDistance(boundaryDistance, _BoundaryDarkenWidth, _BoundaryMinBrightness);
+
+    if (hasCrease && _CreaseDarkenWidth > 0.0)
+        brightness *= BrightnessFromDistance(creaseDistance, _CreaseDarkenWidth, _CreaseMinBrightness);
+
+    return brightness;
 }
 
 #endif

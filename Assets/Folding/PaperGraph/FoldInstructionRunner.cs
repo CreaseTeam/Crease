@@ -57,14 +57,6 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         HeightOffset = 0.002f,
     };
 
-    [Header("Committed Crease Lines")]
-    [Tooltip("Visual style for crease lines left on the paper after a crease step.")]
-    public FoldingLineStyle CreaseLineStyle = new FoldingLineStyle {
-        Width = 0.006f,
-        Color = new Color(1f, 0.85f, 0.2f, 0.9f),
-        HeightOffset = 0.0005f,
-    };
-
     [SerializeField, HideInInspector, FormerlySerializedAs("GuideLineMaterial")]
     Material _legacyGuideLineMaterial;
 
@@ -141,7 +133,6 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
     private FoldingRunPhase _phase = FoldingRunPhase.Folding;
 
     private readonly Dictionary<string, SavedCrease> _savedCreases = new Dictionary<string, SavedCrease>();
-    private readonly Dictionary<string, LineRenderer> _creaseLineRenderers = new Dictionary<string, LineRenderer>();
 
     public IReadOnlyDictionary<string, SavedCrease> SavedCreases => _savedCreases;
 
@@ -202,8 +193,6 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             FoldAxisGuideStyle.Color = _legacyGuideLineColor;
         if (_legacyGuideLineHeightOffset > 0f)
             FoldAxisGuideStyle.HeightOffset = _legacyGuideLineHeightOffset;
-        if (_legacyCreaseLineColor.a > 0f)
-            CreaseLineStyle.Color = _legacyCreaseLineColor;
 
         _legacyLineStylesMigrated = true;
     }
@@ -211,11 +200,6 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
     private void ApplyLineStyles() {
         if (FoldAxisGuide != null)
             FoldAxisGuideStyle.ApplyTo(FoldAxisGuide);
-
-        foreach (LineRenderer line in _creaseLineRenderers.Values) {
-            if (line != null)
-                CreaseLineStyle.ApplyTo(line);
-        }
     }
 
     private void Update() {
@@ -240,9 +224,6 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
                     _isPaperLerping = false;
                 }
             }
-
-            if (_savedCreases.Count > 0)
-                RefreshAllCreaseLines();
         }
     }
 
@@ -393,7 +374,6 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
                 P2 = Controller.FoldPoint2,
                 PlaneNormal = executedStep.DragPlaneNormal
             };
-            UpdateCreaseLine(creaseLabel);
 
             ApplyLockFoldAxisIfNeeded(executedStep);
         } else {
@@ -556,25 +536,6 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
 
     private void ClearSavedCreases() {
         _savedCreases.Clear();
-        foreach (LineRenderer line in _creaseLineRenderers.Values) {
-            if (line != null)
-                Destroy(line.gameObject);
-        }
-        _creaseLineRenderers.Clear();
-    }
-
-    private LineRenderer EnsureCreaseLineRenderer(string tag) {
-        if (_creaseLineRenderers.TryGetValue(tag, out LineRenderer existing) && existing != null) {
-            CreaseLineStyle.ApplyTo(existing);
-            return existing;
-        }
-
-        GameObject lineObj = new GameObject($"CreaseLine_{tag}");
-        lineObj.transform.SetParent(Controller != null ? Controller.transform : transform, false);
-        LineRenderer line = lineObj.AddComponent<LineRenderer>();
-        CreaseLineStyle.ApplyTo(line);
-        _creaseLineRenderers[tag] = line;
-        return line;
     }
 
     private Camera GetActiveFoldingCamera() {
@@ -605,51 +566,6 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             ? planeNormal
             : -planeNormal;
         return facingNormalLocal * liftAmount;
-    }
-
-    private void RefreshAllCreaseLines() {
-        foreach (string tag in _savedCreases.Keys)
-            UpdateCreaseLine(tag);
-    }
-
-    private void UpdateCreaseLine(string tag) {
-        if (!_savedCreases.TryGetValue(tag, out SavedCrease crease))
-            return;
-
-        Vector3 planeNormal = crease.PlaneNormal.normalized;
-        if (planeNormal.sqrMagnitude < 0.0001f)
-            planeNormal = Vector3.up;
-
-        Vector3 axisDir = (crease.P2 - crease.P1).normalized;
-        if (axisDir.sqrMagnitude < 0.0001f)
-            return;
-
-        Vector3 axisMidpoint = (crease.P1 + crease.P2) * 0.5f;
-        Vector3 lineP1 = crease.P1;
-        Vector3 lineP2 = crease.P2;
-        float localMaxHeight = Vector3.Dot(axisMidpoint, planeNormal);
-
-        if (_paperGraph != null && _paperGraph.Edges.Count > 0) {
-            Vector3 clippedP1, clippedP2;
-            float clippedMaxHeight;
-            if (ClipLineToPaperEdges(lineP1, lineP2, axisDir, axisMidpoint, planeNormal, _paperGraph, out clippedP1, out clippedP2, out clippedMaxHeight)) {
-                lineP1 = clippedP1;
-                lineP2 = clippedP2;
-                localMaxHeight = clippedMaxHeight;
-            } else {
-                if (_creaseLineRenderers.TryGetValue(tag, out LineRenderer hidden) && hidden != null)
-                    hidden.enabled = false;
-                return;
-            }
-        }
-
-        float liftAmount = (localMaxHeight - Vector3.Dot(axisMidpoint, planeNormal)) + CreaseLineStyle.HeightOffset;
-        Vector3 offset = ComputeSurfaceLiftOffset(planeNormal, axisMidpoint, liftAmount);
-
-        LineRenderer creaseLine = EnsureCreaseLineRenderer(tag);
-        creaseLine.SetPosition(0, lineP1 + offset);
-        creaseLine.SetPosition(1, lineP2 + offset);
-        creaseLine.enabled = true;
     }
 
     /// <summary>
