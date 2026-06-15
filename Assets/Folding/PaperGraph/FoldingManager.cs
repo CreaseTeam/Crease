@@ -388,7 +388,14 @@ namespace Crease.Folding.PaperGraph
                 _playerMeshRenderer.sharedMaterials = materials;
             }
 
-            PaperEdgeShading.Apply(_playerMeshRenderer, PaperGraph);
+            PaperEdgeShading.Apply(_playerMeshRenderer, PaperGraph, GetFlightSegmentTransform());
+        }
+
+        private Matrix4x4 GetFlightSegmentTransform() {
+            if (MeshRotation == Vector3.zero)
+                return Matrix4x4.identity;
+
+            return Matrix4x4.Rotate(Quaternion.Euler(MeshRotation));
         }
 
         private void AttachDecalsToPlayerMesh() {

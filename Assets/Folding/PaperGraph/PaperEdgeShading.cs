@@ -29,6 +29,14 @@ namespace Crease.Folding.PaperGraph
         private static bool _segmentLimitWarned;
 
         public static void Apply(Renderer renderer, PaperGraph graph) {
+            Apply(renderer, graph, Matrix4x4.identity);
+        }
+
+        /// <param name="segmentTransform">
+        /// Maps graph-local edge endpoints into the target mesh object space.
+        /// Use the same rotation applied when saving the flight mesh.
+        /// </param>
+        public static void Apply(Renderer renderer, PaperGraph graph, Matrix4x4 segmentTransform) {
             if (renderer == null || graph == null)
                 return;
 
@@ -66,7 +74,12 @@ namespace Crease.Folding.PaperGraph
                     ? indexB
                     : -1;
 
-                WriteSegment(segmentCount, edge.V1.Position, edge.V2.Position, faceA, faceB);
+                WriteSegment(
+                    segmentCount,
+                    segmentTransform.MultiplyPoint3x4(edge.V1.Position),
+                    segmentTransform.MultiplyPoint3x4(edge.V2.Position),
+                    faceA,
+                    faceB);
                 segmentCount++;
             }
 
