@@ -45,18 +45,6 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
     [FormerlySerializedAs("dragHandle")]
     public FoldDragHandle DragHandle;
 
-    [Header("Fold Axis Guide Line")]
-    [Tooltip("LineRenderer used to display the ideal fold axis. Created automatically if not assigned.")]
-    [FormerlySerializedAs("foldAxisGuide")]
-    public LineRenderer FoldAxisGuide;
-
-    [Tooltip("Visual style for the active fold-axis guide (dashed line shown during a fold step).")]
-    public FoldingLineStyle FoldAxisGuideStyle = new FoldingLineStyle {
-        Width = 0.005f,
-        Color = new Color(1f, 1f, 1f, 0.7f),
-        HeightOffset = 0.002f,
-    };
-
     [SerializeField, HideInInspector, FormerlySerializedAs("GuideLineMaterial")]
     Material _legacyGuideLineMaterial;
 
@@ -151,7 +139,6 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
 
     private void OnValidate() {
         RecalculatePaperTarget();
-        ApplyLineStyles();
     }
 
     private void Awake() {
@@ -162,21 +149,8 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
     }
 
     private void Start() {
-        EnsureGuideLineRenderer();
-
         if (Instruction != null)
             LoadInstruction(Instruction);
-    }
-
-    private void EnsureGuideLineRenderer() {
-        if (FoldAxisGuide == null) {
-            GameObject guideObj = new GameObject("FoldAxisGuide");
-            guideObj.transform.SetParent(Controller != null ? Controller.transform : transform, false);
-            FoldAxisGuide = guideObj.AddComponent<LineRenderer>();
-        }
-
-        FoldAxisGuideStyle.ApplyTo(FoldAxisGuide);
-        FoldAxisGuide.enabled = false;
     }
 
     public void OnBeforeSerialize() { }
@@ -185,21 +159,20 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         if (_legacyLineStylesMigrated)
             return;
 
-        if (_legacyGuideLineMaterial != null)
-            FoldAxisGuideStyle.Material = _legacyGuideLineMaterial;
-        if (_legacyGuideLineWidth > 0f)
-            FoldAxisGuideStyle.Width = _legacyGuideLineWidth;
-        if (_legacyGuideLineColor.a > 0f)
-            FoldAxisGuideStyle.Color = _legacyGuideLineColor;
-        if (_legacyGuideLineHeightOffset > 0f)
-            FoldAxisGuideStyle.HeightOffset = _legacyGuideLineHeightOffset;
+        if (_paperGraph == null && Controller != null)
+            _paperGraph = Controller.GetComponent<PaperGraph>();
+
+        if (_paperGraph != null) {
+            if (_legacyGuideLineWidth > 0f)
+                _paperGraph.GuideLineWidth = _legacyGuideLineWidth;
+            if (_legacyGuideLineColor.a > 0f)
+                _paperGraph.GuideLineColor = _legacyGuideLineColor;
+            if (_legacyCreaseLineColor.a > 0f) {
+                _paperGraph.CreaseMinBrightness = Mathf.Clamp01(_legacyCreaseLineColor.grayscale * 0.5f);
+            }
+        }
 
         _legacyLineStylesMigrated = true;
-    }
-
-    private void ApplyLineStyles() {
-        if (FoldAxisGuide != null)
-            FoldAxisGuideStyle.ApplyTo(FoldAxisGuide);
     }
 
     private void Update() {
@@ -225,6 +198,12 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
                 }
             }
         }
+
+        if (_phase != FoldingRunPhase.Folding || Instruction == null || _currentStepIndex < 0
+            || _currentStepIndex >= Instruction.Steps.Count || _isCreaseAnimating || _isExecutingStepAnimation)
+            return;
+
+        UpdateGuideLine(Instruction.Steps[_currentStepIndex]);
     }
 
     /// <summary>
@@ -253,6 +232,7 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         if (Controller != null) Controller.HasFoldAxisLock = false;
 
         ClearSavedCreases();
+        HideGuideLine();
 
         // Reset the paper to a fresh sheet
         Controller.ResetSheet();
@@ -538,34 +518,76 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         _savedCreases.Clear();
     }
 
-    private Camera GetActiveFoldingCamera() {
-        if (FoldingManager.Instance != null && FoldingManager.Instance.FoldingCamera != null)
-            return FoldingManager.Instance.FoldingCamera;
-        return Camera.main;
+    private void UpdateGuideLine(FoldStep step) {
+        if (step.IsAccordionFold) {
+            UpdateAccordionGuideLine(step);
+            return;
+        }
+
+        UpdateFoldGuideLine(step);
     }
 
-    /// <summary>
-    /// Lifts a line slightly off the sheet on the side facing the camera so it is not hidden by opaque paper.
-    /// </summary>
-    private Vector3 ComputeSurfaceLiftOffset(Vector3 localPlaneNormal, Vector3 localAnchor, float liftAmount) {
-        if (liftAmount <= 0f)
-            return Vector3.zero;
+    private void UpdateAccordionGuideLine(FoldStep step) {
+        if (Controller == null || !Controller.IsAccordionDragStep) {
+            HideGuideLine();
+            return;
+        }
 
-        Vector3 planeNormal = localPlaneNormal.sqrMagnitude > 0.0001f ? localPlaneNormal.normalized : Vector3.up;
-        Camera cam = GetActiveFoldingCamera();
-        if (cam == null || Controller == null)
-            return planeNormal * liftAmount;
+        Vector3 dragStart = Controller.AccordionDragStart;
+        Vector3 dragEnd = Controller.AccordionDragEnd;
+        if ((dragEnd - dragStart).sqrMagnitude < 0.00001f) {
+            HideGuideLine();
+            return;
+        }
 
-        Vector3 worldAnchor = Controller.transform.TransformPoint(localAnchor);
-        Vector3 worldNormal = Controller.transform.TransformDirection(planeNormal);
-        Vector3 toCamera = cam.transform.position - worldAnchor;
-        if (toCamera.sqrMagnitude < 0.0001f)
-            return planeNormal * liftAmount;
+        ShowGuideLine(dragStart, dragEnd);
+    }
 
-        Vector3 facingNormalLocal = Vector3.Dot(toCamera.normalized, worldNormal) >= 0f
-            ? planeNormal
-            : -planeNormal;
-        return facingNormalLocal * liftAmount;
+    private void UpdateFoldGuideLine(FoldStep step) {
+        Vector3 dragStart = GetStepDragHandlePosition(step);
+        Vector3 dragEnd = GetStepIdealDragPosition(step);
+        Vector3 dragDelta = dragEnd - dragStart;
+
+        if (dragDelta.sqrMagnitude < 0.00001f) {
+            HideGuideLine();
+            return;
+        }
+
+        Vector3 planeNormal = step.DragPlaneNormal.normalized;
+        Vector3 dragDir = dragDelta.normalized;
+        Vector3 foldAxisDir = Vector3.Cross(planeNormal, dragDir).normalized;
+        if (foldAxisDir.sqrMagnitude < 0.0001f) {
+            HideGuideLine();
+            return;
+        }
+
+        Vector3 idealMidpoint = (dragStart + dragEnd) * 0.5f;
+
+        float halfLength = Controller != null ? Controller.FoldLineHalfLength : 1f;
+        Vector3 lineP1 = idealMidpoint + foldAxisDir * halfLength;
+        Vector3 lineP2 = idealMidpoint - foldAxisDir * halfLength;
+
+        if (_paperGraph != null && _paperGraph.Edges.Count > 0) {
+            Vector3 clippedP1, clippedP2;
+            float clippedMaxHeight;
+            if (ClipLineToPaperEdges(lineP1, lineP2, foldAxisDir, idealMidpoint, planeNormal, _paperGraph, out clippedP1, out clippedP2, out clippedMaxHeight)) {
+                lineP1 = clippedP1;
+                lineP2 = clippedP2;
+            } else {
+                HideGuideLine();
+                return;
+            }
+        }
+
+        ShowGuideLine(lineP1, lineP2);
+    }
+
+    private static void ShowGuideLine(Vector3 p1, Vector3 p2) {
+        PaperEdgeShading.SetFoldGuide(true, p1, p2);
+    }
+
+    private static void HideGuideLine() {
+        PaperEdgeShading.ClearFoldGuide();
     }
 
     /// <summary>
@@ -771,88 +793,6 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         UpdateGuideLine(step);
     }
 
-    private void UpdateGuideLine(FoldStep step) {
-        if (FoldAxisGuide == null) return;
-
-        if (step.IsAccordionFold) {
-            UpdateAccordionGuideLine(step);
-            return;
-        }
-
-        UpdateFoldGuideLine(step);
-    }
-
-    private void UpdateAccordionGuideLine(FoldStep step) {
-        if (Controller == null || !Controller.IsAccordionDragStep) {
-            HideGuideLine();
-            return;
-        }
-
-        Vector3 dragStart = Controller.AccordionDragStart;
-        Vector3 dragEnd = Controller.AccordionDragEnd;
-        if ((dragEnd - dragStart).sqrMagnitude < 0.00001f) {
-            HideGuideLine();
-            return;
-        }
-
-        Vector3 planeNormal = step.DragPlaneNormal.normalized;
-        Vector3 startOffset = ComputeSurfaceLiftOffset(planeNormal, dragStart, FoldAxisGuideStyle.HeightOffset);
-        Vector3 endOffset = ComputeSurfaceLiftOffset(planeNormal, dragEnd, FoldAxisGuideStyle.HeightOffset);
-
-        FoldAxisGuide.SetPosition(0, dragStart + startOffset);
-        FoldAxisGuide.SetPosition(1, dragEnd + endOffset);
-        FoldAxisGuide.enabled = true;
-    }
-
-    private void UpdateFoldGuideLine(FoldStep step) {
-        Vector3 dragStart = GetStepDragHandlePosition(step);
-        Vector3 dragEnd = GetStepIdealDragPosition(step);
-        Vector3 dragDelta = dragEnd - dragStart;
-
-        if (dragDelta.sqrMagnitude < 0.00001f) {
-            HideGuideLine();
-            return;
-        }
-
-        Vector3 planeNormal = step.DragPlaneNormal.normalized;
-        Vector3 dragDir = dragDelta.normalized;
-        Vector3 foldAxisDir = Vector3.Cross(planeNormal, dragDir).normalized;
-        if (foldAxisDir.sqrMagnitude < 0.0001f) {
-            HideGuideLine();
-            return;
-        }
-
-        Vector3 idealMidpoint = (dragStart + dragEnd) * 0.5f;
-
-        float halfLength = Controller != null ? Controller.FoldLineHalfLength : 1f;
-        Vector3 lineP1 = idealMidpoint + foldAxisDir * halfLength;
-        Vector3 lineP2 = idealMidpoint - foldAxisDir * halfLength;
-        float localMaxHeight = Vector3.Dot(idealMidpoint, planeNormal);
-
-        if (_paperGraph != null && _paperGraph.Edges.Count > 0) {
-            Vector3 clippedP1, clippedP2;
-            float clippedMaxHeight;
-            if (ClipLineToPaperEdges(lineP1, lineP2, foldAxisDir, idealMidpoint, planeNormal, _paperGraph, out clippedP1, out clippedP2, out clippedMaxHeight)) {
-                lineP1 = clippedP1;
-                lineP2 = clippedP2;
-                localMaxHeight = clippedMaxHeight;
-            } else {
-                FoldAxisGuide.enabled = false;
-                return;
-            }
-        }
-
-        float heightOffset = FoldAxisGuideStyle.HeightOffset;
-        if (Mathf.Abs(step.FoldOffset) > 0.00001f)
-            heightOffset = Mathf.Min(heightOffset, Mathf.Abs(step.FoldOffset) * 0.5f);
-
-        float liftAmount = (localMaxHeight - Vector3.Dot(idealMidpoint, planeNormal)) + heightOffset;
-        Vector3 offset = ComputeSurfaceLiftOffset(planeNormal, idealMidpoint, liftAmount);
-        FoldAxisGuide.SetPosition(0, lineP1 + offset);
-        FoldAxisGuide.SetPosition(1, lineP2 + offset);
-        FoldAxisGuide.enabled = true;
-    }
-
     /// <summary>
     /// Clips the fold axis line segment to only the region that overlaps the paper.
     /// Projects everything onto the 2D plane (perpendicular to planeNormal) and
@@ -921,10 +861,6 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         clippedP1 = axisMidpoint + basisU * minT;
         clippedP2 = axisMidpoint + basisU * maxT;
         return true;
-    }
-
-    private void HideGuideLine() {
-        if (FoldAxisGuide != null) FoldAxisGuide.enabled = false;
     }
 
     /// <summary>

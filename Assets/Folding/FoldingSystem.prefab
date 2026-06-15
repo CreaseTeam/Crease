@@ -223,6 +223,14 @@ MonoBehaviour:
   BoundaryEdgeMinBrightness: 0.55
   CreaseDarkenWidth: 0.025
   CreaseMinBrightness: 0.65
+  GuideLineWidth: 0.4
+  GuideLineFalloffPower: 100
+  GuideLineMinBrightness: 0
+  GuideLineColor: {r: 0, g: 0, b: 0, a: 1}
+  GuideDashesEnabled: 1
+  GuideDashLength: 0.04
+  GuideDashGap: 0.03
+  GuideDashOffset: 0
 --- !u!114 &2936824549558735054
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -508,6 +516,14 @@ MonoBehaviour:
   BoundaryEdgeMinBrightness: 0.55
   CreaseDarkenWidth: 0.025
   CreaseMinBrightness: 0.65
+  GuideLineWidth: 0.4
+  GuideLineFalloffPower: 100
+  GuideLineMinBrightness: 0
+  GuideLineColor: {r: 0, g: 0, b: 0, a: 1}
+  GuideDashesEnabled: 1
+  GuideDashLength: 0.04
+  GuideDashGap: 0.03
+  GuideDashOffset: 0
 --- !u!114 &1270413128971087771
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -650,12 +666,6 @@ MonoBehaviour:
   Instruction: {fileID: 11400000, guid: f6614e182e3a7a944b0a8ca13b863877, type: 2}
   Controller: {fileID: 3367760010211513509}
   DragHandle: {fileID: 8480749504740479558}
-  FoldAxisGuide: {fileID: 0}
-  FoldAxisGuideStyle:
-    Material: {fileID: -1031502912751442999, guid: 5d39f0a98f534ff40b4e83227764dae1, type: 3}
-    Width: 0.01
-    Color: {r: 1, g: 1, b: 1, a: 0.7}
-    HeightOffset: 0.0005
   _legacyGuideLineMaterial: {fileID: -1031502912751442999, guid: 5d39f0a98f534ff40b4e83227764dae1, type: 3}
   _legacyGuideLineWidth: 0.01
   _legacyGuideLineColor: {r: 1, g: 1, b: 1, a: 0.7}

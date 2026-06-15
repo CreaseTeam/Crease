@@ -2,6 +2,7 @@
 #define PAPER_LIT_FORWARD_PASS_INCLUDED
 
 #include "PaperEdgeShading.hlsl"
+#include "PaperFoldGuideShading.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
 #if defined(LOD_FADE_CROSSFADE)
@@ -253,6 +254,7 @@ void PaperLitPassFragment(
         TransformWorldToObjectNormal(input.normalWS),
         input.faceIndex);
     surfaceData.albedo.rgb *= edgeBrightness;
+    surfaceData.albedo.rgb = ApplyFoldGuideTint(surfaceData.albedo.rgb, input.positionOS);
 
     half4 color = UniversalFragmentPBR(inputData, surfaceData);
     color.rgb = MixFog(color.rgb, inputData.fogCoord);

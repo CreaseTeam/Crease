@@ -40,6 +40,29 @@ public class PaperGraph : MonoBehaviour
     [Range(0f, 1f)]
     public float CreaseMinBrightness = 0.4f;
 
+    [Header("Fold Guide Line")]
+    [Tooltip("Object-space width of the optimal fold guide line.")]
+    [Min(0f)]
+    public float GuideLineWidth = 0.005f;
+    [Tooltip("Falloff sharpness (1 = soft, higher = harder edges).")]
+    [Min(0.01f)]
+    public float GuideLineFalloffPower = 12f;
+    [Tooltip("Surface brightness at the center of the guide line.")]
+    [Range(0f, 1f)]
+    public float GuideLineMinBrightness = 0.35f;
+    [Tooltip("Guide line tint and blend strength (alpha).")]
+    public Color GuideLineColor = new Color(1f, 1f, 1f, 0.85f);
+    [Tooltip("Draw the guide line as dashes instead of a solid line.")]
+    public bool GuideDashesEnabled = true;
+    [Tooltip("Length of each dash in object space.")]
+    [Min(0f)]
+    public float GuideDashLength = 0.02f;
+    [Tooltip("Gap between dashes in object space.")]
+    [Min(0f)]
+    public float GuideDashGap = 0.015f;
+    [Tooltip("Offset dashes along the guide line.")]
+    public float GuideDashOffset = 0f;
+
     private List<PaperGraphSnapshot> _undoStack = new List<PaperGraphSnapshot>();
     private List<PaperGraphSnapshot> _redoStack = new List<PaperGraphSnapshot>();
     private AccordionCollapseData _accordionData;

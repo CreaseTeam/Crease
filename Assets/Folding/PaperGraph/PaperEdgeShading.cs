@@ -5,9 +5,7 @@ using UnityEngine;
 namespace Crease.Folding.PaperGraph
 {
     /// <summary>
-    /// Pushes boundary and crease edge segments to paper materials via MaterialPropertyBlock.
-    /// Boundary edges are face-local with surface-plane distance; crease edges use 3D distance
-    /// on both faces of the fold so they remain visible from either side of the sheet.
+    /// Pushes boundary, crease, and optional fold-guide segments to paper materials via MaterialPropertyBlock.
     /// </summary>
     public static class PaperEdgeShading
     {
@@ -25,6 +23,17 @@ namespace Crease.Folding.PaperGraph
         private static readonly int BoundaryMinBrightnessId = Shader.PropertyToID("_BoundaryMinBrightness");
         private static readonly int CreaseDarkenWidthId = Shader.PropertyToID("_CreaseDarkenWidth");
         private static readonly int CreaseMinBrightnessId = Shader.PropertyToID("_CreaseMinBrightness");
+        private static readonly int GuideActiveId = Shader.PropertyToID("_GuideActive");
+        private static readonly int GuideSegmentAId = Shader.PropertyToID("_GuideSegmentA");
+        private static readonly int GuideSegmentBId = Shader.PropertyToID("_GuideSegmentB");
+        private static readonly int GuideLineWidthId = Shader.PropertyToID("_GuideLineWidth");
+        private static readonly int GuideFalloffPowerId = Shader.PropertyToID("_GuideFalloffPower");
+        private static readonly int GuideMinBrightnessId = Shader.PropertyToID("_GuideMinBrightness");
+        private static readonly int GuideLineColorId = Shader.PropertyToID("_GuideLineColor");
+        private static readonly int GuideDashEnabledId = Shader.PropertyToID("_GuideDashEnabled");
+        private static readonly int GuideDashLengthId = Shader.PropertyToID("_GuideDashLength");
+        private static readonly int GuideDashGapId = Shader.PropertyToID("_GuideDashGap");
+        private static readonly int GuideDashOffsetId = Shader.PropertyToID("_GuideDashOffset");
 
         private static readonly float[] SegmentData = new float[MaxSegments * FloatsPerSegment];
         private static float[] _uploadBuffer;
@@ -32,6 +41,20 @@ namespace Crease.Folding.PaperGraph
         private static Texture2D _segmentTexture;
         private static int _segmentTextureSegmentCapacity;
         private static bool _segmentLimitWarned;
+
+        private static bool _foldGuideActive;
+        private static Vector3 _foldGuideA;
+        private static Vector3 _foldGuideB;
+
+        public static void SetFoldGuide(bool active, Vector3 a, Vector3 b) {
+            _foldGuideActive = active;
+            _foldGuideA = a;
+            _foldGuideB = b;
+        }
+
+        public static void ClearFoldGuide() {
+            SetFoldGuide(false, Vector3.zero, Vector3.zero);
+        }
 
         public static void Apply(Renderer renderer, PaperGraph graph) {
             Apply(renderer, graph, Matrix4x4.identity);
@@ -48,61 +71,76 @@ namespace Crease.Folding.PaperGraph
             _propertyBlock ??= new MaterialPropertyBlock();
             renderer.GetPropertyBlock(_propertyBlock);
 
-            bool shadingEnabled = graph.BoundaryEdgeDarkenWidth > 0f || graph.CreaseDarkenWidth > 0f;
-            if (!shadingEnabled) {
-                _propertyBlock.SetInt(EdgeSegmentCountId, 0);
-                renderer.SetPropertyBlock(_propertyBlock);
-                return;
-            }
-
-            Dictionary<Face, int> faceToIndex = new Dictionary<Face, int>();
-            for (int i = 0; i < graph.Faces.Count; i++)
-                faceToIndex[graph.Faces[i]] = i;
-
+            bool hasEdgeShading = graph.BoundaryEdgeDarkenWidth > 0f || graph.CreaseDarkenWidth > 0f;
             int segmentCount = 0;
-            foreach (Edge edge in graph.Edges) {
-                if (segmentCount >= MaxSegments) {
-                    if (!_segmentLimitWarned) {
-                        _segmentLimitWarned = true;
-                        Debug.LogWarning(
-                            $"PaperEdgeShading: More than {MaxSegments} edge segments; extras are skipped.");
+
+            if (hasEdgeShading) {
+                Dictionary<Face, int> faceToIndex = new Dictionary<Face, int>();
+                for (int i = 0; i < graph.Faces.Count; i++)
+                    faceToIndex[graph.Faces[i]] = i;
+
+                foreach (Edge edge in graph.Edges) {
+                    if (segmentCount >= MaxSegments) {
+                        if (!_segmentLimitWarned) {
+                            _segmentLimitWarned = true;
+                            Debug.LogWarning(
+                                $"PaperEdgeShading: More than {MaxSegments} edge segments; extras are skipped.");
+                        }
+                        break;
                     }
-                    break;
+
+                    int faceA = edge.Face1 != null && faceToIndex.TryGetValue(edge.Face1, out int indexA)
+                        ? indexA
+                        : -1;
+                    int faceB = edge.Face2 != null && faceToIndex.TryGetValue(edge.Face2, out int indexB)
+                        ? indexB
+                        : -1;
+
+                    float segmentType;
+                    if (IsBoundaryEdge(edge))
+                        segmentType = SegmentTypeBoundary;
+                    else if (IsFoldCrease(edge))
+                        segmentType = SegmentTypeCrease;
+                    else
+                        continue;
+
+                    WriteSegment(
+                        segmentCount,
+                        segmentTransform.MultiplyPoint3x4(edge.V1.Position),
+                        segmentTransform.MultiplyPoint3x4(edge.V2.Position),
+                        faceA,
+                        faceB,
+                        segmentType);
+                    segmentCount++;
                 }
 
-                int faceA = edge.Face1 != null && faceToIndex.TryGetValue(edge.Face1, out int indexA)
-                    ? indexA
-                    : -1;
-                int faceB = edge.Face2 != null && faceToIndex.TryGetValue(edge.Face2, out int indexB)
-                    ? indexB
-                    : -1;
-
-                float segmentType;
-                if (IsBoundaryEdge(edge))
-                    segmentType = SegmentTypeBoundary;
-                else if (IsFoldCrease(edge))
-                    segmentType = SegmentTypeCrease;
-                else
-                    continue;
-
-                WriteSegment(
-                    segmentCount,
-                    segmentTransform.MultiplyPoint3x4(edge.V1.Position),
-                    segmentTransform.MultiplyPoint3x4(edge.V2.Position),
-                    faceA,
-                    faceB,
-                    segmentType);
-                segmentCount++;
+                UploadSegmentTexture(segmentCount);
             }
 
-            UploadSegmentTexture(segmentCount);
+            Vector3 guideA = segmentTransform.MultiplyPoint3x4(_foldGuideA);
+            Vector3 guideB = segmentTransform.MultiplyPoint3x4(_foldGuideB);
+            bool guideVisible = _foldGuideActive && graph.GuideLineWidth > 0f;
 
             _propertyBlock.SetInt(EdgeSegmentCountId, segmentCount);
-            _propertyBlock.SetTexture(EdgeSegmentTexId, _segmentTexture);
+            if (segmentCount > 0)
+                _propertyBlock.SetTexture(EdgeSegmentTexId, _segmentTexture);
             _propertyBlock.SetFloat(BoundaryDarkenWidthId, graph.BoundaryEdgeDarkenWidth);
             _propertyBlock.SetFloat(BoundaryMinBrightnessId, graph.BoundaryEdgeMinBrightness);
             _propertyBlock.SetFloat(CreaseDarkenWidthId, graph.CreaseDarkenWidth);
             _propertyBlock.SetFloat(CreaseMinBrightnessId, graph.CreaseMinBrightness);
+
+            _propertyBlock.SetFloat(GuideActiveId, guideVisible ? 1f : 0f);
+            _propertyBlock.SetVector(GuideSegmentAId, guideA);
+            _propertyBlock.SetVector(GuideSegmentBId, guideB);
+            _propertyBlock.SetFloat(GuideLineWidthId, graph.GuideLineWidth);
+            _propertyBlock.SetFloat(GuideFalloffPowerId, graph.GuideLineFalloffPower);
+            _propertyBlock.SetFloat(GuideMinBrightnessId, graph.GuideLineMinBrightness);
+            _propertyBlock.SetColor(GuideLineColorId, graph.GuideLineColor);
+            _propertyBlock.SetFloat(GuideDashEnabledId, graph.GuideDashesEnabled ? 1f : 0f);
+            _propertyBlock.SetFloat(GuideDashLengthId, graph.GuideDashLength);
+            _propertyBlock.SetFloat(GuideDashGapId, graph.GuideDashGap);
+            _propertyBlock.SetFloat(GuideDashOffsetId, graph.GuideDashOffset);
+
             renderer.SetPropertyBlock(_propertyBlock);
         }
 
