@@ -36,6 +36,10 @@ namespace Crease.Flying.Environment.Collectibles
         private MeshRenderer _meshRenderer;
         private Collider _collider;
 
+        private bool _magnetized = false;
+        private GameObject _magnetizedTarget;
+        private float _magnetizedSpeed;
+
         private void Awake()
         {
             _meshRenderer = GetComponent<MeshRenderer>();
@@ -105,6 +109,41 @@ namespace Crease.Flying.Environment.Collectibles
             if (HUDCanvas.Instance != null)
             {
                 HUDCanvas.Instance.RefreshDash();
+            }
+        }
+
+        public void Magnetize(GameObject player, float speed)
+        {
+            // it would be weird to keep spinning
+            _spinTween?.Kill();
+
+            _magnetized = true;
+            _magnetizedTarget = player;
+            _magnetizedSpeed = speed;
+        }
+
+        private void Update()
+        {
+            if (_magnetized)
+            {
+
+                float distance = Vector3.Distance(
+                    transform.position,
+                    _magnetizedTarget.transform.position
+                );
+
+                // ease-in
+                float speed = Mathf.Lerp(1f, _magnetizedSpeed, distance / 10f);
+
+                // trail plane
+                Vector3 targetPos =
+                    _magnetizedTarget.transform.position -
+                    _magnetizedTarget.transform.forward * 1.5f;
+
+                transform.position = Vector3.Lerp(
+                    transform.position,
+                    targetPos,
+                    speed * Time.fixedDeltaTime);
             }
         }
     }
