@@ -11,6 +11,12 @@ namespace Crease.Flying.Environment.Collectibles
         [Header("Settings")]
         [Tooltip("The speed of the magnitized objects")]
         [SerializeField] private float _maxSpeed = 10f;
+        [Tooltip("The minimum speed of the magnitized objects")]
+        [SerializeField] private float _minSpeed = 0f;
+        [Tooltip("Time to reach max speed")]
+        [SerializeField] private float _totalTime = 2f;
+        [Tooltip("Normalized speed floor over magnetization time (x: 0-1 elapsed, y: 0-1 from min to max speed).")]
+        [SerializeField] private AnimationCurve _speedFloorCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
 
         private void OnTriggerEnter(Collider other)
         {
@@ -28,7 +34,7 @@ namespace Crease.Flying.Environment.Collectibles
                     return;
             }
 
-            coin.Magnetize(gameObject, _maxSpeed);
+            coin.Magnetize(gameObject, _minSpeed, _maxSpeed, _totalTime, _speedFloorCurve);
         }
     }
 }
