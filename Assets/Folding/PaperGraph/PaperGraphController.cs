@@ -1,5 +1,7 @@
+using Crease.Folding.Decals;
 using UnityEngine;
 using UnityEngine.Serialization;
+using System.Collections.Generic;
 
 namespace Crease.Folding.PaperGraph
 {
@@ -19,12 +21,13 @@ namespace Crease.Folding.PaperGraph
         [FormerlySerializedAs("foldTagName")]
         public string FoldTagName = "";
         [HideInInspector]
-        [FormerlySerializedAs("selectedFilterTagIndex")]
-        public int SelectedFilterTagIndex = 0;
+        public List<string> SelectedFilterTags = new List<string>();
 
         [Header("Drag Handle")]
         [FormerlySerializedAs("dragHandlePosition")]
         public Vector3 DragHandlePosition = Vector3.zero;
+        [HideInInspector]
+        public Vector3 IdealDragPosition = Vector3.zero;
         [FormerlySerializedAs("dragPlaneNormal")]
         public Vector3 DragPlaneNormal = Vector3.up;
         [FormerlySerializedAs("foldLineHalfLength")]
@@ -33,6 +36,10 @@ namespace Crease.Folding.PaperGraph
         [Header("Preview")]
         [FormerlySerializedAs("previewGraph")]
         public PaperGraph PreviewGraph;
+
+        [Header("Decals")]
+        [FormerlySerializedAs("stickerManager")]
+        public PaperDecalManager DecalManager;
 
         [Header("Gizmo")]
         [FormerlySerializedAs("showFoldGizmo")]
@@ -43,6 +50,8 @@ namespace Crease.Folding.PaperGraph
         public Color GizmoColor = new Color(1f, 0.5f, 0f, 0.25f);
 
         private PaperGraph _paperGraph;
+        private PaperGraphVisualizer _authoringVisualizer;
+        private PaperGraphVisualizer _previewVisualizer;
 
         // When set by FoldInstructionRunner, RecalculateFoldAxis will refuse to move
         // FoldPoint1/FoldPoint2 to a position whose axis line crosses this segment.
@@ -62,24 +71,27 @@ namespace Crease.Folding.PaperGraph
         [FormerlySerializedAs("lockedFoldPoint2")]
         public Vector3 LockedFoldPoint2;
 
+        public bool IsAccordionDragStep { get; private set; }
+        public Vector3 AccordionDragStart { get; private set; }
+        public Vector3 AccordionDragEnd { get; private set; }
+        public float AccordionCollapseT { get; private set; }
+
+        public bool IsAccordionDragComplete(float minProgress = 0.99f) {
+            return IsAccordionDragStep && AccordionCollapseT >= minProgress;
+        }
+
         private Vector3 _prevFoldPoint1;
         private Vector3 _prevFoldPoint2;
         private Vector3 _prevFoldPlaneVector;
         private float _prevFoldDegrees;
 
-        public string SelectedFilterTag {
-            get {
-                if (_paperGraph == null || _paperGraph.Tags == null || _paperGraph.Tags.Count == 0)
-                    return null;
-                var tagKeys = new System.Collections.Generic.List<string>(_paperGraph.Tags.Keys);
-                if (SelectedFilterTagIndex <= 0 || SelectedFilterTagIndex > tagKeys.Count)
-                    return null;
-                return tagKeys[SelectedFilterTagIndex - 1];
-            }
-        }
-
         private void Awake() {
             _paperGraph = GetComponent<PaperGraph>();
+            _authoringVisualizer = GetComponent<PaperGraphVisualizer>();
+            if (PreviewGraph != null)
+                _previewVisualizer = PreviewGraph.GetComponent<PaperGraphVisualizer>();
+            if (DecalManager == null)
+                DecalManager = GetComponent<PaperDecalManager>();
             CacheFoldValues();
         }
 
@@ -100,18 +112,52 @@ namespace Crease.Folding.PaperGraph
             PaperGraphSnapshot snapshot = _paperGraph.CreateSnapshot();
             PreviewGraph.RestoreSnapshot(snapshot);
             string tag = string.IsNullOrEmpty(FoldTagName) ? null : FoldTagName;
-            bool valid = PreviewGraph.ExecuteFold(FoldPoint1, FoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTag, FoldOffset);
+            bool valid = PreviewGraph.ExecuteFold(FoldPoint1, FoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTags, FoldOffset);
 
             if (!valid) {
                 FoldPoint1 = LockedFoldPoint1;
                 FoldPoint2 = LockedFoldPoint2;
+                PreviewGraph.RestoreSnapshot(snapshot);
+                PreviewGraph.ExecuteFold(LockedFoldPoint1, LockedFoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTags, FoldOffset);
             } else {
                 LockedFoldPoint1 = FoldPoint1;
                 LockedFoldPoint2 = FoldPoint2;
             }
 
             CacheFoldValues();
-            RefreshVisualizers();
+            RefreshVisualizers(reanchorDecals: false, trackPreviewDecals: true);
+        }
+
+        private void FreezeAtLastValidFold() {
+            FoldPoint1 = LockedFoldPoint1;
+            FoldPoint2 = LockedFoldPoint2;
+            FoldPlaneVector = DragPlaneNormal;
+            UpdatePreview();
+        }
+
+        /// <summary>
+        /// Invalid when the drag handle and the instruction's ideal fold axis lie on opposite
+        /// sides of the start boundary (the ideal fold axis duplicated through drag start).
+        /// </summary>
+        private bool IsPastStartBoundary(Vector3 dragStart, Vector3 dragCurrent) {
+            Vector3 idealDrag = IdealDragPosition - dragStart;
+            if (idealDrag.sqrMagnitude < 0.00001f) return false;
+
+            Vector3 idealDir = idealDrag.normalized;
+            Vector3 idealFoldCenter = dragStart + idealDrag * 0.5f;
+            float handleT = Vector3.Dot(dragCurrent - dragStart, idealDir);
+            float idealFoldT = Vector3.Dot(idealFoldCenter - dragStart, idealDir);
+            return handleT * idealFoldT < -0.0001f;
+        }
+
+        private bool IsFoldCandidateInvalid(Vector3 dragStart, Vector3 dragCurrent, Vector3 candidateP1, Vector3 candidateP2) {
+            if (IsPastStartBoundary(dragStart, dragCurrent)) return true;
+
+            if (HasFoldAxisLock) {
+                return FoldAxisCrossesLockSegment(candidateP1, candidateP2, FoldAxisLockP1, FoldAxisLockP2, DragPlaneNormal);
+            }
+
+            return false;
         }
 
         public void ExecuteFoldAction() {
@@ -121,8 +167,149 @@ namespace Crease.Folding.PaperGraph
             }
 
             string tag = string.IsNullOrEmpty(FoldTagName) ? null : FoldTagName;
-            _paperGraph.ExecuteFold(FoldPoint1, FoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTag, FoldOffset);
+            _paperGraph.ExecuteFold(FoldPoint1, FoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTags, FoldOffset);
             RefreshVisualizers();
+        }
+
+        public bool ExecuteCreaseAction(bool refreshVisuals = true) {
+            if (_paperGraph == null) {
+                Debug.LogError("No PaperGraph component found on this GameObject.");
+                return false;
+            }
+
+            string tag = string.IsNullOrEmpty(FoldTagName) ? null : FoldTagName;
+            bool valid = _paperGraph.ExecuteCrease(FoldPoint1, FoldPoint2, FoldPlaneVector, tag, SelectedFilterTags, FoldDegrees);
+            if (valid && refreshVisuals)
+                RefreshVisualizers();
+            return valid;
+        }
+
+        public bool BeginVertexRotationAnimation(Vector3 pivot, Vector3 axis, float degrees) {
+            if (_paperGraph == null) {
+                Debug.LogError("No PaperGraph component found on this GameObject.");
+                return false;
+            }
+
+            if (!_paperGraph.BeginVertexRotationAnimation(pivot, axis, degrees))
+                return false;
+
+            ApplyVertexRotationProgress(0f);
+            return true;
+        }
+
+        public void ApplyVertexRotationProgress(float t) {
+            if (_paperGraph == null)
+                return;
+
+            _paperGraph.SetVertexRotationProgress(t);
+            SyncPreviewFromAuthoring();
+            RefreshVisualizers(reanchorDecals: false, trackPreviewDecals: true);
+        }
+
+        public void CommitVertexRotationAnimation() {
+            if (_paperGraph == null)
+                return;
+
+            _paperGraph.CommitVertexRotationAnimation();
+            SyncPreviewFromAuthoring();
+            RefreshVisualizers(reanchorDecals: true, trackPreviewDecals: false);
+        }
+
+        private void SyncPreviewFromAuthoring() {
+            if (_paperGraph == null || PreviewGraph == null)
+                return;
+
+            PreviewGraph.RestoreSnapshot(_paperGraph.CreateSnapshot());
+        }
+
+        public bool PrepareAccordionAction(
+            string creaseTagA,
+            string creaseTagB,
+            Vector3 creaseAxisA1,
+            Vector3 creaseAxisA2,
+            Vector3 creaseAxisB1,
+            Vector3 creaseAxisB2,
+            float foldDegrees,
+            Vector3 planeVector,
+            float foldOffset) {
+            if (_paperGraph == null) {
+                Debug.LogError("No PaperGraph component found on this GameObject.");
+                return false;
+            }
+
+            string tag = string.IsNullOrEmpty(FoldTagName) ? null : FoldTagName;
+            bool valid = _paperGraph.PrepareAccordionCollapse(
+                creaseTagA, creaseTagB, tag,
+                creaseAxisA1, creaseAxisA2, creaseAxisB1, creaseAxisB2,
+                foldDegrees, planeVector, foldOffset);
+            if (valid)
+                RefreshVisualizers();
+            return valid;
+        }
+
+        public void UpdateAccordionPreview(float collapseT) {
+            if (_paperGraph == null || PreviewGraph == null || !_paperGraph.HasAccordionData) return;
+
+            if (_previewVisualizer != null)
+                _previewVisualizer.SkipColliderUpdate = true;
+
+            AccordionCollapseData data = _paperGraph.GetAccordionData();
+            PaperGraphSnapshot snapshot = _paperGraph.CreateSnapshot();
+            PreviewGraph.RestoreSnapshot(snapshot);
+            AccordionCollapse.ApplyPose(PreviewGraph, data, collapseT, FoldOffset);
+            RefreshVisualizers(reanchorDecals: false, trackPreviewDecals: true);
+        }
+
+        public bool CommitAccordionAction() {
+            if (_paperGraph == null) {
+                Debug.LogError("No PaperGraph component found on this GameObject.");
+                return false;
+            }
+
+            float t = IsAccordionDragStep ? AccordionCollapseT : 1f;
+            bool valid = _paperGraph.CommitAccordionCollapse(FoldOffset, t);
+            if (valid)
+                RefreshVisualizers();
+            return valid;
+        }
+
+        public void BeginAccordionDragStep(Vector3 dragStart, Vector3 dragEnd) {
+            IsAccordionDragStep = true;
+            AccordionDragStart = dragStart;
+            AccordionDragEnd = dragEnd;
+            AccordionCollapseT = 0f;
+            DragHandlePosition = dragStart;
+            IdealDragPosition = dragEnd;
+            UpdateAccordionPreview(0f);
+        }
+
+        public void EndAccordionDragStep() {
+            IsAccordionDragStep = false;
+            AccordionCollapseT = 0f;
+        }
+
+        public void UpdateAccordionFromDrag(Vector3 dragCurrentLocal) {
+            if (!IsAccordionDragStep) return;
+
+            Vector3 line = AccordionDragEnd - AccordionDragStart;
+            float lineLengthSq = line.sqrMagnitude;
+            if (lineLengthSq < 0.00001f) return;
+
+            float t = Vector3.Dot(dragCurrentLocal - AccordionDragStart, line) / lineLengthSq;
+            t = Mathf.Clamp01(t);
+
+            DragHandlePosition = AccordionDragStart + line * t;
+            AccordionCollapseT = t;
+            UpdateAccordionPreview(t);
+        }
+
+        public void SetAccordionPreviewProgress(float t) {
+            if (!IsAccordionDragStep) return;
+
+            t = Mathf.Clamp01(t);
+            AccordionCollapseT = t;
+            DragHandlePosition = Vector3.Lerp(AccordionDragStart, AccordionDragEnd, t);
+            UpdateAccordionPreview(t);
         }
 
         public void RecalculateFoldAxis() {
@@ -137,16 +324,11 @@ namespace Crease.Folding.PaperGraph
             Vector3 candidateP1 = midpoint + foldAxisDir * FoldLineHalfLength;
             Vector3 candidateP2 = midpoint - foldAxisDir * FoldLineHalfLength;
 
-            if (HasFoldAxisLock) {
-                bool crosses = FoldAxisCrossesLockSegment(candidateP1, candidateP2, FoldAxisLockP1, FoldAxisLockP2, DragPlaneNormal);
-                if (crosses) {
-                    FoldPoint1 = LockedFoldPoint1;
-                    FoldPoint2 = LockedFoldPoint2;
-                    FoldPlaneVector = DragPlaneNormal;
-                    return;
-                }
-                LockedFoldPoint1 = candidateP1;
-                LockedFoldPoint2 = candidateP2;
+            if (HasFoldAxisLock && FoldAxisCrossesLockSegment(candidateP1, candidateP2, FoldAxisLockP1, FoldAxisLockP2, DragPlaneNormal)) {
+                FoldPoint1 = LockedFoldPoint1;
+                FoldPoint2 = LockedFoldPoint2;
+                FoldPlaneVector = DragPlaneNormal;
+                return;
             }
 
             FoldPoint1 = candidateP1;
@@ -242,9 +424,16 @@ namespace Crease.Folding.PaperGraph
         public void ClearPreview() {
             if (_paperGraph == null || PreviewGraph == null) return;
 
+            if (_previewVisualizer != null)
+                _previewVisualizer.SkipColliderUpdate = false;
+
             PaperGraphSnapshot snapshot = _paperGraph.CreateSnapshot();
             PreviewGraph.RestoreSnapshot(snapshot);
-            RefreshVisualizers();
+
+            if (IsAccordionDragStep && _paperGraph.HasAccordionData)
+                AccordionCollapse.ApplyPose(PreviewGraph, _paperGraph.GetAccordionData(), AccordionCollapseT, FoldOffset);
+
+            RefreshVisualizers(reanchorDecals: false, trackPreviewDecals: IsAccordionDragStep);
         }
 
         public void UndoFold() {
@@ -255,6 +444,25 @@ namespace Crease.Folding.PaperGraph
 
             _paperGraph.Undo();
             RefreshVisualizers();
+        }
+
+        /// <summary>
+        /// Reverts one committed fold on the authoring graph without moving decals.
+        /// Use before unfold preview animation so stickers can track the preview mesh.
+        /// </summary>
+        public void UndoAuthoringFold() {
+            if (_paperGraph == null) {
+                Debug.LogError("No PaperGraph component found on this GameObject.");
+                return;
+            }
+
+            _paperGraph.Undo();
+            RefreshMeshesOnly();
+        }
+
+        private void RefreshMeshesOnly() {
+            _authoringVisualizer?.UpdateMesh();
+            _previewVisualizer?.UpdateMesh();
         }
 
         public void RedoFold() {
@@ -293,30 +501,23 @@ namespace Crease.Folding.PaperGraph
             Vector3 candidateP1 = midpoint + foldAxisDir * FoldLineHalfLength;
             Vector3 candidateP2 = midpoint - foldAxisDir * FoldLineHalfLength;
 
-            if (HasFoldAxisLock) {
-                bool crosses = FoldAxisCrossesLockSegment(candidateP1, candidateP2, FoldAxisLockP1, FoldAxisLockP2, DragPlaneNormal);
-                if (crosses) {
-                    FoldPoint1 = LockedFoldPoint1;
-                    FoldPoint2 = LockedFoldPoint2;
-                    FoldPlaneVector = DragPlaneNormal;
-                    UpdatePreview();
-                    return;
-                }
-                LockedFoldPoint1 = candidateP1;
-                LockedFoldPoint2 = candidateP2;
+            if (IsFoldCandidateInvalid(dragStartLocal, dragCurrentLocal, candidateP1, candidateP2)) {
+                FreezeAtLastValidFold();
+                return;
             }
 
             FoldPoint1 = candidateP1;
             FoldPoint2 = candidateP2;
             FoldPlaneVector = DragPlaneNormal;
-
             UpdatePreview();
         }
 
-        private void RefreshVisualizers() {
-            foreach (PaperGraphVisualizer vis in FindObjectsByType<PaperGraphVisualizer>(FindObjectsSortMode.None)) {
-                vis.UpdateMesh();
-            }
+        private void RefreshVisualizers(bool reanchorDecals = true, bool trackPreviewDecals = false) {
+            _authoringVisualizer?.UpdateMesh();
+            _previewVisualizer?.UpdateMesh();
+
+            if (DecalManager != null)
+                DecalManager.RefreshAfterMeshUpdate(reanchorDecals, trackPreviewDecals);
         }
 
         private void OnDrawGizmos() {
@@ -351,6 +552,20 @@ namespace Crease.Folding.PaperGraph
                 Gizmos.DrawRay(foldCenter, foldNormal * GizmoHeight * 0.5f);
 
                 Gizmos.matrix = Matrix4x4.identity;
+            }
+
+            Vector3 idealDrag = IdealDragPosition - DragHandlePosition;
+            if (idealDrag.sqrMagnitude > 0.00001f) {
+                Vector3 idealFoldAxisDir = Vector3.Cross(DragPlaneNormal, idealDrag.normalized).normalized;
+                if (idealFoldAxisDir.sqrMagnitude > 0.0001f) {
+                    Gizmos.matrix = localToWorld;
+                    Gizmos.color = Color.yellow;
+                    Vector3 startP1 = DragHandlePosition + idealFoldAxisDir * FoldLineHalfLength;
+                    Vector3 startP2 = DragHandlePosition - idealFoldAxisDir * FoldLineHalfLength;
+                    Gizmos.DrawLine(startP1, startP2);
+                    Gizmos.DrawSphere(startP1, 0.015f);
+                    Gizmos.DrawSphere(startP2, 0.015f);
+                }
             }
 
             if (HasFoldAxisLock) {

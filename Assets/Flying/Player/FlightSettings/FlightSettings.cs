@@ -21,6 +21,14 @@ namespace Crease.Flying.Player.FlightSettings
         public float ClimbEfficiency = 3.5f;
         [FormerlySerializedAs("turnInterpolation")]
         public float TurnInterpolation = 0.1f;
+
+        [Header("Stability")]
+        [Tooltip("How strongly the plane aligns its nose with its velocity vector. Higher = more weathervane effect.")]
+        public float StabilityStrength = 2f;
+        [Tooltip("Speed at which stability reaches full strength.")]
+        public float StabilityReferenceSpeed = 15f;
+        [Tooltip("How much active input reduces stability. 1 = fully suppressed while turning, 0 = always full stability.")]
+        public float StabilityInputSuppression = 0.85f;
         [FormerlySerializedAs("xDrag")]
         public float XDrag = 0.99f;
         [FormerlySerializedAs("yDrag")]

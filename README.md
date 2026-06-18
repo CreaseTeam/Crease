@@ -17,6 +17,8 @@ Crease is still in-progress, however is planned for release on Steam for Windows
 | F            | West Btn       | Drop item                                    |
 | Scroll       | DPad U / D     | Zoom camera                                  |
 | C            | Select         | Go to folding mode or recenter screen when folding |
+| W / S        | DPad U / D     | Scale sticker                                |
+| A / D        | DPad L / R     | Rotate sticker                               |
 | Esc          | Start          | Pause / Settings Menu                        |
 
 ### Debug Controls (Dev Only)

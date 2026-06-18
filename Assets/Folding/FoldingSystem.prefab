@@ -218,7 +218,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PaperGraph
   Width: 1
-  Height: 1
+  Height: 1.3
+  BoundaryEdgeDarkenWidth: 0.004
+  BoundaryEdgeMinBrightness: 0.55
+  CreaseDarkenWidth: 0.025
+  CreaseMinBrightness: 0.65
+  GuideLineWidth: 0.4
+  GuideLineFalloffPower: 100
+  GuideLineMinBrightness: 0
+  GuideLineColor: {r: 0, g: 0, b: 0, a: 1}
+  GuideDashesEnabled: 1
+  GuideDashLength: 0.04
+  GuideDashGap: 0.03
+  GuideDashOffset: 0
 --- !u!114 &2936824549558735054
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -240,11 +252,24 @@ MonoBehaviour:
   ShowVertexLabels: 1
   ShowFoldAngles: 1
   ShowMesh: 1
+  ShowCoordinateRulers: 0
+  ShowHorizontalRuler: 1
+  ShowVerticalRuler: 1
+  RulerTickInterval: 0.1
+  RulerEdgeOffset: 0.05
+  RulerHeightOffset: 0.002
+  RulerTickSize: 0.02
+  RulerColor: {r: 0.35, g: 0.75, b: 1, a: 0.95}
   MeshMaterial: {fileID: 0}
   MeshMaterials: []
+  DebugMeshMaterial: {fileID: 0}
+  DebugMeshMaterials:
+  - {fileID: 2100000, guid: 564122fb4b241c44bb94e1f699be6b34, type: 2}
+  - {fileID: 2100000, guid: e3bb627605f041d458e168b69bbc6ce8, type: 2}
   SelectedTagIndex: 0
   TagHighlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   TagHighlightSize: 0.15
+  SkipColliderUpdate: 0
 --- !u!33 &1008834195140893063
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -448,6 +473,7 @@ GameObject:
   - component: {fileID: 6591481184047634249}
   - component: {fileID: 6991035767176078}
   - component: {fileID: 1584305669687720572}
+  - component: {fileID: 4502290895782083903}
   m_Layer: 0
   m_Name: PaperGraph
   m_TagString: MainPaper
@@ -485,7 +511,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PaperGraph
   Width: 1
-  Height: 1
+  Height: 1.3
+  BoundaryEdgeDarkenWidth: 0.004
+  BoundaryEdgeMinBrightness: 0.55
+  CreaseDarkenWidth: 0.025
+  CreaseMinBrightness: 0.65
+  GuideLineWidth: 0.4
+  GuideLineFalloffPower: 100
+  GuideLineMinBrightness: 0
+  GuideLineColor: {r: 0, g: 0, b: 0, a: 1}
+  GuideDashesEnabled: 1
+  GuideDashLength: 0.04
+  GuideDashGap: 0.03
+  GuideDashOffset: 0
 --- !u!114 &1270413128971087771
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -507,11 +545,22 @@ MonoBehaviour:
   ShowVertexLabels: 1
   ShowFoldAngles: 1
   ShowMesh: 0
+  ShowCoordinateRulers: 0
+  ShowHorizontalRuler: 1
+  ShowVerticalRuler: 1
+  RulerTickInterval: 0.1
+  RulerEdgeOffset: 0.05
+  RulerHeightOffset: 0.002
+  RulerTickSize: 0.02
+  RulerColor: {r: 0.35, g: 0.75, b: 1, a: 0.95}
   MeshMaterial: {fileID: 2100000, guid: 55e8a5b07feb4664e9061676f3ecc8a7, type: 2}
   MeshMaterials: []
+  DebugMeshMaterial: {fileID: 0}
+  DebugMeshMaterials: []
   SelectedTagIndex: 0
   TagHighlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   TagHighlightSize: 0.15
+  SkipColliderUpdate: 0
 --- !u!114 &3367760010211513509
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -530,11 +579,13 @@ MonoBehaviour:
   FoldDegrees: 180
   FoldOffset: 0.005
   FoldTagName: 
-  SelectedFilterTagIndex: 0
+  SelectedFilterTags: []
   DragHandlePosition: {x: 0.5, y: 0, z: 0.5}
+  IdealDragPosition: {x: 0, y: 0, z: 0}
   DragPlaneNormal: {x: 0, y: 1, z: 0}
   FoldLineHalfLength: 1
   PreviewGraph: {fileID: 5559411859718704963}
+  DecalManager: {fileID: 4502290895782083903}
   ShowFoldGizmo: 1
   GizmoHeight: 0.05
   GizmoColor: {r: 0, g: 1, b: 1, a: 0.3}
@@ -615,16 +666,20 @@ MonoBehaviour:
   Instruction: {fileID: 11400000, guid: f6614e182e3a7a944b0a8ca13b863877, type: 2}
   Controller: {fileID: 3367760010211513509}
   DragHandle: {fileID: 8480749504740479558}
-  FoldAxisGuide: {fileID: 0}
-  GuideLineMaterial: {fileID: -1031502912751442999, guid: 5d39f0a98f534ff40b4e83227764dae1, type: 3}
-  GuideLineWidth: 0.01
-  GuideLineColor: {r: 1, g: 1, b: 1, a: 0.7}
-  GuideLineHeightOffset: 0.0005
+  _legacyGuideLineMaterial: {fileID: -1031502912751442999, guid: 5d39f0a98f534ff40b4e83227764dae1, type: 3}
+  _legacyGuideLineWidth: 0.01
+  _legacyGuideLineColor: {r: 1, g: 1, b: 1, a: 0.7}
+  _legacyGuideLineHeightOffset: 0.0005
+  _legacyCreaseLineColor: {r: 1, g: 0.85, b: 0.2, a: 0.9}
+  _legacyLineStylesMigrated: 1
   AccuracyFalloff: 5
   PaperLerpSpeed: 5
   CurrentPaperRotation: {x: 0, y: 0, z: 0}
-  UnfoldAnimationSpeed: 180
-  FoldAnimationSpeed: 180
+  UnfoldAnimationSpeed: 360
+  FoldAnimationSpeed: 360
+  AccordionCollapseDuration: 0.75
+  VertexRotationSpeed: 180
+  AccordionExecuteMinProgress: 0.99
   AutoSnapDragHandle: 0
 --- !u!114 &1584305669687720572
 MonoBehaviour:
@@ -640,3 +695,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PaperRotationHandle
   RotationSpeed: 0.3
   _trackedCamera: {fileID: 4105214768651930174}
+--- !u!114 &4502290895782083903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8247833909943875533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55d497f5ea4591446a57d2504231fefd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.Decals.PaperDecalManager
+  Controller: {fileID: 3367760010211513509}
+  FoldingCamera: {fileID: 4105214768651930174}

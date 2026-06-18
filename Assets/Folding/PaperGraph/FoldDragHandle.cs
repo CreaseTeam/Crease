@@ -73,7 +73,9 @@ namespace Crease.Folding.PaperGraph
             if (localNormal.sqrMagnitude < 0.0001f) return;
             Vector3 worldNormal = Controller.transform.TransformDirection(localNormal);
 
-            Vector3 localStartPos = Controller.DragHandlePosition;
+            Vector3 localStartPos = Controller.IsAccordionDragStep
+                ? Controller.AccordionDragStart
+                : Controller.DragHandlePosition;
             Vector3 worldStartPos = Controller.transform.TransformPoint(localStartPos);
             Plane dragPlane = new Plane(worldNormal, worldStartPos);
 
@@ -81,10 +83,24 @@ namespace Crease.Folding.PaperGraph
 
             if (dragPlane.Raycast(ray, out float enter)) {
                 Vector3 hitPoint = ray.GetPoint(enter);
+                Vector3 localHit = Controller.transform.InverseTransformPoint(hitPoint);
+
+                if (Controller.IsAccordionDragStep) {
+                    Vector3 worldEnd = Controller.transform.TransformPoint(Controller.AccordionDragEnd);
+                    Vector3 worldLine = worldEnd - worldStartPos;
+                    if (worldLine.sqrMagnitude > 0.00001f) {
+                        float t = Vector3.Dot(hitPoint - worldStartPos, worldLine) / worldLine.sqrMagnitude;
+                        t = Mathf.Clamp01(t);
+                        hitPoint = worldStartPos + worldLine * t;
+                        localHit = Controller.transform.InverseTransformPoint(hitPoint);
+                    }
+
+                    transform.position = hitPoint;
+                    Controller.UpdateAccordionFromDrag(localHit);
+                    return;
+                }
 
                 transform.position = hitPoint;
-
-                Vector3 localHit = Controller.transform.InverseTransformPoint(hitPoint);
                 Controller.UpdateFoldFromDrag(localStartPos, localHit);
             }
         }
@@ -95,7 +111,10 @@ namespace Crease.Folding.PaperGraph
 
         public void ResetHandle() {
             if (Controller != null) {
-                transform.position = Controller.transform.TransformPoint(Controller.DragHandlePosition);
+                Vector3 localPos = Controller.IsAccordionDragStep
+                    ? Controller.AccordionDragStart
+                    : Controller.DragHandlePosition;
+                transform.position = Controller.transform.TransformPoint(localPos);
             }
         }
 

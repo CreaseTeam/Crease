@@ -17,21 +17,17 @@ namespace Crease.Folding.PaperGraph.Editor
                 EditorGUILayout.Space(5);
                 EditorGUILayout.LabelField("Filter by Tag", EditorStyles.boldLabel);
 
-                List<string> tagKeys = new List<string>(graph.Tags.Keys);
-                List<string> options = new List<string> { "(None)" };
-                options.AddRange(tagKeys);
-
-                if (controller.SelectedFilterTagIndex >= options.Count)
-                    controller.SelectedFilterTagIndex = 0;
-
-                int newIndex = EditorGUILayout.Popup("Filter Tag", controller.SelectedFilterTagIndex, options.ToArray());
-                if (newIndex != controller.SelectedFilterTagIndex) {
-                    Undo.RecordObject(controller, "Change Filter Tag");
-                    controller.SelectedFilterTagIndex = newIndex;
-                    EditorUtility.SetDirty(controller);
-                }
-            } else {
-                controller.SelectedFilterTagIndex = 0;
+                List<string> availableTags = FilterTagDropdown.CollectAvailableTags(graph);
+                FilterTagDropdown.DrawLayout(
+                    controller.SelectedFilterTags,
+                    availableTags,
+                    nextTags => {
+                        Undo.RecordObject(controller, "Change Filter Tags");
+                        controller.SelectedFilterTags = nextTags ?? new List<string>();
+                        EditorUtility.SetDirty(controller);
+                    });
+            } else if (controller.SelectedFilterTags != null && controller.SelectedFilterTags.Count > 0) {
+                controller.SelectedFilterTags.Clear();
             }
 
             EditorGUILayout.Space(10);

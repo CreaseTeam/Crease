@@ -30,11 +30,21 @@ namespace Crease.Flying.Environment.Collectibles
         [SerializeField] private float _spinSpeed = 90f;
         [Tooltip("Particle system to play when the item is collected.")]
         [SerializeField] private ParticleSystem _collectEffect;
+        [Tooltip("Should the collectible be attracted to the player?")]
+        [SerializeField] private bool _magnetize = true;
 
         private bool _hasBeenCollected;
         private Tween _spinTween;
         private MeshRenderer _meshRenderer;
         private Collider _collider;
+
+        private bool _magnetized = false;
+        private GameObject _magnetizedTarget;
+        private float _magnetizedMinSpeed;
+        private float _magnetizedMaxSpeed;
+        private float _magnetizedElapsed;
+        private float _magnetizedTotalTime;
+        private AnimationCurve _magnetizedSpeedFloorCurve;
 
         private void Awake()
         {
@@ -105,6 +115,40 @@ namespace Crease.Flying.Environment.Collectibles
             if (HUDCanvas.Instance != null)
             {
                 HUDCanvas.Instance.RefreshDash();
+            }
+        }
+
+        public void Magnetize(GameObject player, float minSpeed, float maxSpeed, float totalTime, AnimationCurve speedFloorCurve)
+        {
+            if (!_magnetize) return;
+            // it would be weird to keep spinning
+            _spinTween?.Kill();
+
+            _magnetized = true;
+            _magnetizedTarget = player;
+            _magnetizedMinSpeed = minSpeed;
+            _magnetizedMaxSpeed = maxSpeed;
+            _magnetizedElapsed = 0f;
+            _magnetizedTotalTime = totalTime;
+            _magnetizedSpeedFloorCurve = speedFloorCurve;
+        }
+
+        private void Update()
+        {
+            if (_magnetized)
+            {
+                _magnetizedElapsed += Time.deltaTime;
+
+                float normalizedTime = _magnetizedElapsed / _magnetizedTotalTime;
+                float speed = Mathf.Lerp(
+                    _magnetizedMinSpeed,
+                    _magnetizedMaxSpeed,
+                    _magnetizedSpeedFloorCurve.Evaluate(normalizedTime));
+
+                transform.position = Vector3.Lerp(
+                    transform.position,
+                    _magnetizedTarget.transform.position,
+                    speed * Time.deltaTime);
             }
         }
     }
