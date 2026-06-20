@@ -31,3 +31,4 @@ MonoBehaviour:
   boostSpeed: 3
   initialSpeed: 10
   minimumVelocity: 0
+  windForceMultiplier: 1

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Serialization;
 using Crease.Flying.Environment.Wind;
+using Crease.Flying.Player.FlightSettings;
+using UnityEngine;
 
 namespace Crease.Flying.Player
 {
@@ -14,16 +14,19 @@ namespace Crease.Flying.Player
         [FormerlySerializedAs("activeWindZones")]
         public List<WindProvider> ActiveWindZones = new List<WindProvider>();
 
-        [Header("Settings")]
-        [Tooltip("Multiplier for how much the wind affects the physics.")]
-        [FormerlySerializedAs("windForceMultiplier")]
-        public float WindForceMultiplier = 1.0f;
-
         private KinematicBody _body;
+        private FlightStats _stats;
 
         private void Awake()
         {
             _body = GetComponent<KinematicBody>();
+            _stats = GetComponent<FlightStats>();
+
+            if (_stats == null)
+            {
+                Debug.LogError($"FlightForceReceiver on '{name}' requires a FlightStats component.");
+                enabled = false;
+            }
         }
 
         public void AddWindZone(WindProvider zone)
@@ -61,7 +64,7 @@ namespace Crease.Flying.Player
 
             if (totalWindForce.sqrMagnitude > 0.01f)
             {
-                Vector3 finalForce = totalWindForce * WindForceMultiplier;
+                Vector3 finalForce = totalWindForce * _stats.CurrentStats.WindForceMultiplier;
                 _body.AddForce(finalForce);
             }
         }

@@ -58,5 +58,10 @@ namespace Crease.Flying.Player.FlightSettings
         public float InitialSpeed = 10f;
         [FormerlySerializedAs("minimumVelocity")]
         public float MinimumVelocity = 5f;
+
+        [Header("Wind")]
+        [Tooltip("Multiplier for how much the wind affects the physics.")]
+        [FormerlySerializedAs("windForceMultiplier")]
+        public float WindForceMultiplier = 1.0f;
     }
 }
