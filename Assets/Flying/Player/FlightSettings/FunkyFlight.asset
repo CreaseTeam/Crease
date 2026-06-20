@@ -12,23 +12,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 313fd6e9ff9ebc141b8a99eb215e9863, type: 3}
   m_Name: FunkyFlight
   m_EditorClassIdentifier: Assembly-CSharp::FlightSettings
-  divingGravity: 40
-  climbingGravity: 30
-  lift: 18
-  diveRate: 5
-  climbRate: 3
-  climbEfficiency: 3
-  turnInterpolation: 2
-  xDrag: 0.995
-  yDrag: 0.99
-  zDrag: 0.995
-  pitchSpeed: 180
-  maxPitch: 89
-  yawSpeed: 90
-  rollSpeed: 100
-  rollBackSpeed: 150
-  maxRoll: 60
-  boostSpeed: 3
-  initialSpeed: 10
-  minimumVelocity: 0
-  windForceMultiplier: 1
+  Mass: 1
+  DivingGravity: 40
+  ClimbingGravity: 30
+  Lift: 18
+  DiveRate: 5
+  ClimbRate: 3
+  ClimbEfficiency: 3
+  TurnInterpolation: 2
+  StabilityStrength: 2
+  StabilityReferenceSpeed: 15
+  StabilityInputSuppression: 0.85
+  XDrag: 0.995
+  YDrag: 0.99
+  ZDrag: 0.995
+  PitchSpeed: 240
+  MaxPitch: 89
+  YawSpeed: 120
+  RollSpeed: 100
+  RollBackSpeed: 150
+  MaxRoll: 90
+  BoostSpeed: 3
+  InitialSpeed: 10
+  MinimumVelocity: 0
+  WindForceMultiplier: 1

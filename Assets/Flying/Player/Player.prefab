@@ -664,7 +664,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b1ea091b084cfe419d68c8709b9b188, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KinematicBody
-  mass: 1
   autoConfigureRigidbody: 1
 --- !u!114 &1147598551027705273
 MonoBehaviour:
