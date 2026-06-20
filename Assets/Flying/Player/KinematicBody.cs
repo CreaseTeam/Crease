@@ -25,11 +25,10 @@ namespace Crease.Flying.Player
     public class KinematicBody : MonoBehaviour
     {
         [Header("Configuration")]
-        [Tooltip("Mass used for force calculations. Does not use Rigidbody mass.")]
-        [SerializeField] private float mass = 1f;
-
         [Tooltip("If true, the Rigidbody will be auto-configured on Awake.")]
         [SerializeField] private bool autoConfigureRigidbody = true;
+
+        private float _mass = 1f;
 
         public Vector3 Velocity { get; set; }
 
@@ -37,8 +36,13 @@ namespace Crease.Flying.Player
 
         public float Mass
         {
-            get => mass;
-            set => mass = Mathf.Max(0.001f, value);
+            get => _mass;
+            set
+            {
+                _mass = Mathf.Max(0.001f, value);
+                if (_rb != null)
+                    _rb.mass = _mass;
+            }
         }
 
         public bool Frozen { get; set; }
@@ -67,7 +71,7 @@ namespace Crease.Flying.Player
                     bounceCombine = PhysicsMaterialCombine.Minimum
                 };
 
-                _rb.mass = mass;
+                _rb.mass = _mass;
 
                 foreach (var col in GetComponents<Collider>())
                 {
@@ -92,7 +96,7 @@ namespace Crease.Flying.Player
 
             if (_accumulatedForce.sqrMagnitude > 0f)
             {
-                Velocity += (_accumulatedForce / mass) * Time.fixedDeltaTime;
+                Velocity += (_accumulatedForce / _mass) * Time.fixedDeltaTime;
                 _accumulatedForce = Vector3.zero;
             }
 
@@ -106,7 +110,7 @@ namespace Crease.Flying.Player
 
         public void AddImpulse(Vector3 impulse)
         {
-            Velocity += impulse / mass;
+            Velocity += impulse / _mass;
         }
 
         public void AddVelocityChange(Vector3 delta)

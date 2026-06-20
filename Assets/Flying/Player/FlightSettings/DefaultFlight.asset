@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 313fd6e9ff9ebc141b8a99eb215e9863, type: 3}
   m_Name: DefaultFlight
   m_EditorClassIdentifier: Assembly-CSharp::FlightSettings
+  Mass: 1
   DivingGravity: 20
   ClimbingGravity: 15
   Lift: 9

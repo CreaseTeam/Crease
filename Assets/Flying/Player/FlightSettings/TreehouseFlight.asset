@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 313fd6e9ff9ebc141b8a99eb215e9863, type: 3}
   m_Name: TreehouseFlight
   m_EditorClassIdentifier: Assembly-CSharp::FlightSettings
+  mass: 1
   divingGravity: 10
   climbingGravity: 7.5
   lift: 9

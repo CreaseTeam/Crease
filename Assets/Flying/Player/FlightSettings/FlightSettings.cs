@@ -3,10 +3,19 @@ using UnityEngine.Serialization;
 
 namespace Crease.Flying.Player.FlightSettings
 {
+    /// <summary>
+    /// Scriptable flight stat values. To add a new stat:
+    /// 1. Add a public float field here (with default and optional FormerlySerializedAs).
+    /// 2. Add a matching name to <see cref="FlightStatType"/>.
+    /// FlightStatAccessor validates the two stay in sync at startup.
+    /// </summary>
     [CreateAssetMenu(fileName = "FlightSettings", menuName = "Crease/Flight Settings")]
     public class FlightSettings : ScriptableObject
     {
         [Header("Flight Physics")]
+        [Tooltip("Mass used for force calculations on the player body.")]
+        [FormerlySerializedAs("mass")]
+        public float Mass = 1f;
         [FormerlySerializedAs("divingGravity")]
         public float DivingGravity = 0.12f;
         [FormerlySerializedAs("climbingGravity")]
