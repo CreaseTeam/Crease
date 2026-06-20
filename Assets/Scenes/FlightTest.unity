@@ -41838,8 +41838,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1740083104869519838, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: dashDuration
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1740083104869519838, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
       propertyPath: rechargeRate
-      value: 5
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1740083104869519838, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
+      propertyPath: boostStrength
+      value: 35
       objectReference: {fileID: 0}
     - target: {fileID: 3283959142390254623, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
       propertyPath: m_Name
@@ -41852,7 +41860,7 @@ PrefabInstance:
     - target: {fileID: 6582845560619632518, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
       propertyPath: baseSettings
       value: 
-      objectReference: {fileID: 11400000, guid: c5cbbafd4ceea6541b92fedcbf2d48a2, type: 2}
+      objectReference: {fileID: 11400000, guid: 9b1217474d211dd43992e69d14200559, type: 2}
     - target: {fileID: 8868588741534249518, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

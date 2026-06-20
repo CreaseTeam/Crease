@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 313fd6e9ff9ebc141b8a99eb215e9863, type: 3}
-  m_Name: HeavyweightFlight
+  m_Name: HeavyweightFlight 1
   m_EditorClassIdentifier: Assembly-CSharp::FlightSettings
-  divingGravity: 2.5
+  divingGravity: 5
   climbingGravity: 5
-  lift: 4
+  lift: 2
   diveRate: 1
   climbRate: 1
   climbEfficiency: 1
@@ -28,6 +28,6 @@ MonoBehaviour:
   rollSpeed: 80
   rollBackSpeed: 130
   maxRoll: 45
-  boostSpeed: 1
-  initialSpeed: 10
+  boostSpeed: 0
+  initialSpeed: 20
   minimumVelocity: 0

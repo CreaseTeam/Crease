@@ -12,22 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 313fd6e9ff9ebc141b8a99eb215e9863, type: 3}
   m_Name: DartFlight
   m_EditorClassIdentifier: Assembly-CSharp::FlightSettings
-  divingGravity: 25
-  climbingGravity: 20
-  lift: 1
-  diveRate: 3.5
-  climbRate: 0.5
+  divingGravity: 33
+  climbingGravity: 25
+  lift: 0.5
+  diveRate: 8
+  climbRate: 0.1
   climbEfficiency: 3
-  turnInterpolation: 2
+  turnInterpolation: 1
   xDrag: 0.995
   yDrag: 0.99
   zDrag: 0.995
-  pitchSpeed: 120
+  pitchSpeed: 200
   maxPitch: 89
-  yawSpeed: 60
-  rollSpeed: 120
-  rollBackSpeed: 180
+  yawSpeed: 120
+  rollSpeed: 300
+  rollBackSpeed: 210
   maxRoll: 45
-  boostSpeed: 3
-  initialSpeed: 20
+  boostSpeed: 10
+  initialSpeed: 25
   minimumVelocity: 0
