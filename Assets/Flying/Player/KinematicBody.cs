@@ -67,6 +67,8 @@ namespace Crease.Flying.Player
                     bounceCombine = PhysicsMaterialCombine.Minimum
                 };
 
+                _rb.mass = mass;
+
                 foreach (var col in GetComponents<Collider>())
                 {
                     col.material = frictionlessMat;

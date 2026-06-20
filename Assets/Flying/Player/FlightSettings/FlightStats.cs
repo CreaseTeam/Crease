@@ -27,7 +27,8 @@ namespace Crease.Flying.Player.FlightSettings
         MaxRoll,
         BoostSpeed,
         InitialSpeed,
-        MinimumVelocity
+        MinimumVelocity,
+        WindForceMultiplier
     }
 
     public class FlightStats : MonoBehaviour
@@ -185,6 +186,7 @@ namespace Crease.Flying.Player.FlightSettings
             mod.BoostSpeed = targetSettings.BoostSpeed - _currentStats.BoostSpeed;
             mod.InitialSpeed = targetSettings.InitialSpeed - _currentStats.InitialSpeed;
             mod.MinimumVelocity = targetSettings.MinimumVelocity - _currentStats.MinimumVelocity;
+            mod.WindForceMultiplier = targetSettings.WindForceMultiplier - _currentStats.WindForceMultiplier;
 
             AddModifier(mod);
             return mod;
@@ -221,6 +223,7 @@ namespace Crease.Flying.Player.FlightSettings
                 case FlightStatType.BoostSpeed: mod.BoostSpeed = modifierValue; break;
                 case FlightStatType.InitialSpeed: mod.InitialSpeed = modifierValue; break;
                 case FlightStatType.MinimumVelocity: mod.MinimumVelocity = modifierValue; break;
+                case FlightStatType.WindForceMultiplier: mod.WindForceMultiplier = modifierValue; break;
             }
 
             AddModifier(mod);
@@ -258,6 +261,7 @@ namespace Crease.Flying.Player.FlightSettings
             mod.BoostSpeed = 0f;
             mod.InitialSpeed = 0f;
             mod.MinimumVelocity = 0f;
+            mod.WindForceMultiplier = 0f;
         }
 
         private float GetCurrentValue(FlightStatType statType)
@@ -288,6 +292,7 @@ namespace Crease.Flying.Player.FlightSettings
                 case FlightStatType.BoostSpeed: return _currentStats.BoostSpeed;
                 case FlightStatType.InitialSpeed: return _currentStats.InitialSpeed;
                 case FlightStatType.MinimumVelocity: return _currentStats.MinimumVelocity;
+                case FlightStatType.WindForceMultiplier: return _currentStats.WindForceMultiplier;
                 default: return 0f;
             }
         }
@@ -318,6 +323,7 @@ namespace Crease.Flying.Player.FlightSettings
             _currentStats.BoostSpeed = _baseSettings.BoostSpeed;
             _currentStats.InitialSpeed = _baseSettings.InitialSpeed;
             _currentStats.MinimumVelocity = _baseSettings.MinimumVelocity;
+            _currentStats.WindForceMultiplier = _baseSettings.WindForceMultiplier;
 
             foreach (var mod in _activeModifiers)
             {
@@ -345,6 +351,7 @@ namespace Crease.Flying.Player.FlightSettings
                 _currentStats.BoostSpeed += mod.BoostSpeed;
                 _currentStats.InitialSpeed += mod.InitialSpeed;
                 _currentStats.MinimumVelocity += mod.MinimumVelocity;
+                _currentStats.WindForceMultiplier += mod.WindForceMultiplier;
             }
         }
     }
