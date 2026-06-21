@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Crease.Flying.Environment.Wind;
-using Crease.Flying.Player.FlightSettings;
 using UnityEngine;
 using UnityEngine.Serialization;
 

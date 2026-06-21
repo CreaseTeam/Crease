@@ -897,7 +897,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1542097411947404974, guid: b19acc678881fe44c8ac81dd3d2ad3a0, type: 3}
       propertyPath: OnTriggerEntered.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: Crease.Flying.Player.FlightSettings.FlightStatsModifier, Assembly-CSharp
+      value: Crease.Flying.Player.FlightStatsModifier, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 1542097411947404974, guid: b19acc678881fe44c8ac81dd3d2ad3a0, type: 3}
       propertyPath: OnTriggerEntered.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
@@ -905,7 +905,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 9d55ef9bf95a6f2428b90e290621ca93, type: 2}
     - target: {fileID: 1542097411947404974, guid: b19acc678881fe44c8ac81dd3d2ad3a0, type: 3}
       propertyPath: OnTriggerEntered.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: Crease.Flying.Player.FlightSettings.FlightSettings, Assembly-CSharp
+      value: Crease.Flying.Player.FlightSettings, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 1993755112788547217, guid: b19acc678881fe44c8ac81dd3d2ad3a0, type: 3}
       propertyPath: m_Mesh

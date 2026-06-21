@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Crease.Flying.Player.FlightSettings
+namespace Crease.Flying.Player
 {
     /// <summary>
     /// Scriptable flight stat values. To add a new stat:

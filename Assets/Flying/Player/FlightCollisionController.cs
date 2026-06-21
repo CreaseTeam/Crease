@@ -1,6 +1,6 @@
 using Crease.Flying.Environment.Interactables;
 using Crease.Flying.Environment.Obstacle;
-using Crease.Flying.Player.Dash;
+using Crease.Flying.Player.FlightModifiers;
 using Crease.Flying.Player.Health;
 using PlayerHealth = Crease.Flying.Player.Health.Health;
 using UnityEngine;
@@ -99,22 +99,21 @@ namespace Crease.Flying.Player
         public UnityEvent OnRecoveryComplete;
 
         public bool IsRecovering => _isRecovering;
-        public bool IsInvulnerable => Time.time < _invulnerableUntil || (_dashController != null && _dashController.IsInvincible);
+        public bool IsInvulnerable => _flightModifiers != null && _flightModifiers.IsActive(FlightModifierType.Invulnerable);
         public float PreCollisionSpeed => _preCollisionSpeed;
 
         private bool _isRecovering;
         private float _preCollisionSpeed;
         private float _targetRecoverySpeed;
         private float _recoveryStartTime;
-        private float _invulnerableUntil;
-        private DashController _dashController;
+        private FlightModifiers.FlightModifiers _flightModifiers;
 
         private void Awake()
         {
             if (_body == null) _body = GetComponent<KinematicBody>();
             if (_playerCollider == null) _playerCollider = GetComponent<Collider>();
             if (_healthComponent == null) _healthComponent = GetComponent<PlayerHealth>();
-            _dashController = GetComponent<DashController>();
+            _flightModifiers = GetComponent<FlightModifiers.FlightModifiers>();
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -200,7 +199,9 @@ namespace Crease.Flying.Player
             _targetRecoverySpeed = _preCollisionSpeed * _speedRetention;
             _recoveryStartTime = Time.time + _recoveryDelay;
             _isRecovering = true;
-            _invulnerableUntil = Time.time + _invulnerabilityDuration;
+
+            if (_flightModifiers != null)
+                _flightModifiers.ApplyForDuration(FlightModifierType.Invulnerable, this, _invulnerabilityDuration);
 
             OnKnockback?.Invoke();
         }

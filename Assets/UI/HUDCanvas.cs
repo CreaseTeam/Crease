@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Crease.Flying.Player.Dash;
+using Crease.Flying.Player.Abilities;
 using Crease.Flying.Player.Health;
 using PlayerHealth = Crease.Flying.Player.Health.Health;
 using Crease.Folding.PaperGraph;
@@ -20,8 +20,8 @@ namespace Crease.UI
     public class HUDCanvas : MonoBehaviour
     {
         [SerializeField]
-        [FormerlySerializedAs("dashController")]
-        private DashController _dashController;
+        [FormerlySerializedAs("_dashController")]
+        private AbilityController _abilityController;
         [SerializeField]
         [FormerlySerializedAs("rechargeBar")]
         private Image _rechargeBar;
@@ -141,7 +141,8 @@ namespace Crease.UI
         void Start()
         {
             _collectibleText.text = $"{_collectibleCount}";
-            _rechargeBar.fillAmount = _dashController.CurrentRecharge / _dashController.MaxRecharge;
+            if (_rechargeBar != null && _abilityController != null)
+                _rechargeBar.fillAmount = _abilityController.RechargeNormalized;
 
             PopulatePlaneTypeDropdown();
             if (_planeTypeDropdown != null)
@@ -168,11 +169,12 @@ namespace Crease.UI
                 UpdateTimerDisplay();
             }
 
-            _rechargeBar.fillAmount = _dashController.CurrentRecharge / _dashController.MaxRecharge;
+            if (_rechargeBar != null && _abilityController != null)
+                _rechargeBar.fillAmount = _abilityController.RechargeNormalized;
 
-            if (_dashBarBorder != null)
+            if (_dashBarBorder != null && _abilityController != null)
             {
-                bool isFullyCharged = _dashController.CurrentRecharge >= _dashController.MaxRecharge;
+                bool isFullyCharged = _abilityController.RechargeNormalized >= 1f;
                 if (isFullyCharged)
                 {
                     bool flip = Mathf.PingPong(Time.time * 2f, 1f) > 0.5f;
@@ -369,12 +371,15 @@ namespace Crease.UI
             }
         }
 
+        public void RefreshAbility()
+        {
+            if (_abilityController != null)
+                _abilityController.Refresh();
+        }
+
         public void RefreshDash()
         {
-            if (_dashController != null)
-            {
-                _dashController.RefreshDash();
-            }
+            RefreshAbility();
         }
 
         /// <summary>

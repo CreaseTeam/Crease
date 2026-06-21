@@ -1,6 +1,6 @@
 using System.Collections;
 using Crease.Flying.Environment.Interactables;
-using Crease.Flying.Player.Dash;
+using Crease.Flying.Player.Abilities;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -69,8 +69,8 @@ namespace Crease.Flying.Environment.Interactables.Swinging
 
             if (_onlyTriggerOnDash)
             {
-                DashController dashController = other.GetComponentInParent<DashController>();
-                if (dashController == null || !dashController.IsDashing)
+                AbilityController abilityController = other.GetComponentInParent<AbilityController>();
+                if (abilityController == null || !abilityController.IsActive)
                     return;
             }
 
@@ -198,8 +198,8 @@ namespace Crease.Flying.Environment.Interactables.Swinging
 
             if (_onlyTriggerOnDash)
             {
-                DashController dashController = playerCollider.GetComponentInParent<DashController>();
-                if (dashController == null || !dashController.IsDashing)
+                AbilityController abilityController = playerCollider.GetComponentInParent<AbilityController>();
+                if (abilityController == null || !abilityController.IsActive)
                     return false;
             }
 

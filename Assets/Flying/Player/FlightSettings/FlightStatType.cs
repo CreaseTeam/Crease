@@ -1,4 +1,4 @@
-namespace Crease.Flying.Player.FlightSettings
+namespace Crease.Flying.Player
 {
     /// <summary>
     /// Must stay in sync with public float fields on <see cref="FlightSettings"/>.

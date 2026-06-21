@@ -1,9 +1,8 @@
 using System.Collections.Generic;
-using Crease.Flying.Player;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Crease.Flying.Player.FlightSettings
+namespace Crease.Flying.Player
 {
     public class FlightStats : MonoBehaviour
     {

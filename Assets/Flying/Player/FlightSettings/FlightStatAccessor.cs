@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Crease.Flying.Player.FlightSettings
+namespace Crease.Flying.Player
 {
     /// <summary>
     /// Central read/write access for all flight stats. Keeps modifier logic in one place

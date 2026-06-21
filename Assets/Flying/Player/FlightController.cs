@@ -1,5 +1,4 @@
-using Crease.Flying.Player.Dash;
-using Crease.Flying.Player.FlightSettings;
+using Crease.Flying.Player.FlightModifiers;
 using Crease.Managers.Input;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -10,7 +9,7 @@ namespace Crease.Flying.Player
     public class FlightController : MonoBehaviour
     {
         private KinematicBody _body;
-        private DashController _dashController;
+        private FlightModifiers.FlightModifiers _flightModifiers;
 
         [FormerlySerializedAs("pitch")]
         [SerializeField] private float _pitch = 0f;
@@ -42,7 +41,7 @@ namespace Crease.Flying.Player
         private void Awake()
         {
             _body = GetComponent<KinematicBody>();
-            _dashController = GetComponent<DashController>();
+            _flightModifiers = GetComponent<FlightModifiers.FlightModifiers>();
         }
 
         void Start()
@@ -67,7 +66,7 @@ namespace Crease.Flying.Player
         void FixedUpdate()
         {
             ProcessInput();
-            if (_dashController == null || !_dashController.IsDashing)
+            if (_flightModifiers == null || !_flightModifiers.IsActive(FlightModifierType.LockFlightControl))
                 UpdateVelocity();
             ApplyStabilityTorque();
             ClampOrientation();

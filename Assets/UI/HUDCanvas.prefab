@@ -1747,7 +1747,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 229d76640ead903439b3237e335a01b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HUDCanvas
-  _dashController: {fileID: 0}
+  _abilityController: {fileID: 0}
   _rechargeBar: {fileID: 4434643408426296693}
   _dashBarBorder: {fileID: 6136693616890475763}
   _collectibleText: {fileID: 5594039762732754378}
