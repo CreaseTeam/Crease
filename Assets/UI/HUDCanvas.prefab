@@ -1762,6 +1762,8 @@ MonoBehaviour:
   _timerText: {fileID: 7071465742784683190}
   _pauseMenuUI: {fileID: 357967908704961714}
   _planeTypeDropdown: {fileID: 5702888987407963842}
+  _loadoutLibrary: {fileID: 11400000, guid: b7c8d9e0f1a2345678901234abcdef03, type: 2}
+  _loadoutApplier: {fileID: 0}
   _foldInstructionRunner: {fileID: 0}
   _debugModeToggle: {fileID: 7105462068740072999}
   _paperGraphVisualizers: []

@@ -1,6 +1,5 @@
 using Crease.Flying.Player;
 using Crease.Flying.Player.Animation;
-using Crease.Folding.PaperGraph;
 using Crease.Managers.Input;
 using UnityEngine;
 
@@ -20,9 +19,6 @@ namespace Crease.Flying.Player.Abilities
         [SerializeField] private GameObject _rechargeProximityIndicator;
         [SerializeField] private FlightStats _flightStats;
         [SerializeField] private FlightModifiers.FlightModifiers _flightModifiers;
-
-        [Header("Loadout (Optional)")]
-        [SerializeField] private FoldInstructionRunner _foldInstructionRunner;
 
         private Ability.Runtime _runtime;
 
@@ -79,21 +75,6 @@ namespace Crease.Flying.Player.Abilities
             _equippedAbility = ability;
             _runtime = ability != null ? ability.Begin(this) : null;
             _runtime?.OnEquipped();
-        }
-
-        public void ApplyLoadout(PlaneLoadout loadout)
-        {
-            if (loadout == null)
-                return;
-
-            if (loadout.FoldInstruction != null && _foldInstructionRunner != null)
-                _foldInstructionRunner.LoadInstruction(loadout.FoldInstruction);
-
-            if (loadout.FlightSettings != null && _flightStats != null)
-                _flightStats.SetBaseSettings(loadout.FlightSettings);
-
-            if (loadout.Ability != null)
-                Equip(loadout.Ability);
         }
 
         public void Refresh() => _runtime?.Refresh();

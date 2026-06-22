@@ -18,7 +18,7 @@ MonoBehaviour:
   DashDuration: 0.5
   SpinSpeed: 2
   InvincibilityDuration: 1
-  TrailTime: 0.5
+  TrailTime: 0.75
   RechargeMode: 1
   RechargeRate: 5
   RechargeMax: 100

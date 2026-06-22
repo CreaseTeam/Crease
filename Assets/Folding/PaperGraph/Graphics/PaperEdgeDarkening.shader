@@ -1,4 +1,4 @@
-Shader "Crease/Folding/PaperEdgeDarkening"
+Shader "Crease/Folding/PaperGraph/Graphics/PaperEdgeDarkening"
 {
     Properties
     {
