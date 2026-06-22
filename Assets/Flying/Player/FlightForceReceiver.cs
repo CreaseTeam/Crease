@@ -64,7 +64,7 @@ namespace Crease.Flying.Player
 
             if (totalWindForce.sqrMagnitude > 0.01f)
             {
-                Vector3 finalForce = totalWindForce * _stats.CurrentStats.WindForceMultiplier;
+                Vector3 finalForce = totalWindForce * _stats.CurrentStats.WindForceMultiplier * _stats.CurrentStats.SimulationSpeed;
                 _body.AddForce(finalForce);
             }
         }

@@ -1,6 +1,7 @@
 using Crease.Flying.Environment.Interactables;
 using Crease.Flying.Environment.Obstacle;
 using Crease.Flying.Player.FlightModifiers;
+using Crease.Flying.Player.FlightSettings;
 using Crease.Flying.Player.Health;
 using PlayerHealth = Crease.Flying.Player.Health.Health;
 using UnityEngine;
@@ -106,7 +107,9 @@ namespace Crease.Flying.Player
         private float _preCollisionSpeed;
         private float _targetRecoverySpeed;
         private float _recoveryStartTime;
+        private float _scaledRecoveryDuration;
         private FlightModifiers.FlightModifiers _flightModifiers;
+        private FlightStats _flightStats;
 
         private void Awake()
         {
@@ -114,6 +117,7 @@ namespace Crease.Flying.Player
             if (_playerCollider == null) _playerCollider = GetComponent<Collider>();
             if (_healthComponent == null) _healthComponent = GetComponent<PlayerHealth>();
             _flightModifiers = GetComponent<FlightModifiers.FlightModifiers>();
+            _flightStats = GetComponent<FlightStats>();
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -197,7 +201,9 @@ namespace Crease.Flying.Player
 
             _preCollisionSpeed = preCollisionSpeed;
             _targetRecoverySpeed = _preCollisionSpeed * _speedRetention;
-            _recoveryStartTime = Time.time + _recoveryDelay;
+            float simSpeed = _flightStats != null ? _flightStats.CurrentStats.SimulationSpeed : 1f;
+            _recoveryStartTime = Time.time + _recoveryDelay / simSpeed;
+            _scaledRecoveryDuration = _recoveryDuration / simSpeed;
             _isRecovering = true;
 
             if (_flightModifiers != null)
@@ -260,7 +266,7 @@ namespace Crease.Flying.Player
             }
 
             float elapsedRecoveryTime = Time.time - _recoveryStartTime;
-            float remainingTime = _recoveryDuration - elapsedRecoveryTime;
+            float remainingTime = _scaledRecoveryDuration - elapsedRecoveryTime;
 
             if (remainingTime <= 0f)
             {
