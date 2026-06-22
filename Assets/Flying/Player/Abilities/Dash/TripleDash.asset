@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37060498d076bff4ca3d825d9b5b4b54, type: 3}
   m_Name: TripleDash
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Player.Dash.MultiDashAbility
-  DisplayName: 
+  DisplayName: TripleDash
   Icon: {fileID: 0}
-  BoostStrength: 50
+  BoostStrength: 20
   DashDuration: 0.5
   SpinSpeed: 2
-  InvincibilityDuration: 0.6
+  InvincibilityDuration: 1
   TrailTime: 0.5
-  RechargeMode: 0
-  RechargeRate: 20
+  RechargeMode: 1
+  RechargeRate: 5
   RechargeMax: 100
   DashCharges: 3

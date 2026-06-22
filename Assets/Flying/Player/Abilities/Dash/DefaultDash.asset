@@ -15,9 +15,10 @@ MonoBehaviour:
   DisplayName: Dash
   Icon: {fileID: 0}
   BoostStrength: 30
-  DashDuration: 0.5
-  InvincibilityDuration: 1
-  TrailTime: 0.75
+  DashDuration: 1
+  SpinSpeed: 2
+  InvincibilityDuration: 1.5
+  TrailTime: 1.5
   RechargeMode: 1
   RechargeRate: 5
   RechargeMax: 100
