@@ -1,4 +1,5 @@
 using Crease.Flying.Player;
+using Crease.Flying.Player.FlightModifiers;
 using Crease.Managers.Input;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -17,6 +18,7 @@ namespace Crease.Flying.Player.Camera
         [SerializeField]
         private CameraSettings _settings;
 
+        private FlightModifiers.FlightModifiers _flightModifiers;
         private Vector3 _runtimeOffset;
 
         private float _currentYaw;
@@ -39,6 +41,17 @@ namespace Crease.Flying.Player.Camera
             _panYaw = 0f;
             _panPitch = 0f;
         }
+
+        private void Awake()
+        {
+            if (FlightController != null)
+                _flightModifiers = FlightController.GetComponent<FlightModifiers.FlightModifiers>();
+            else if (Target != null)
+                _flightModifiers = Target.GetComponent<FlightModifiers.FlightModifiers>();
+        }
+
+        private float ScaledDeltaTime =>
+            Time.deltaTime * (_flightModifiers != null ? _flightModifiers.SimulationSpeed : 1f);
 
         private void Start()
         {
@@ -69,11 +82,11 @@ namespace Crease.Flying.Player.Camera
         {
             if (Target == null) return;
 
-            float dt = Time.deltaTime;
-            if (dt < 0.0001f) return;
+            float scaledDt = ScaledDeltaTime;
+            if (scaledDt < 0.0001f) return;
 
-            HandleZoom(dt);
-            HandlePanning(dt);
+            HandleZoom(scaledDt);
+            HandlePanning(scaledDt);
 
             if (InputManager.Instance != null && InputManager.Instance.CenterCameraTriggered)
             {
@@ -88,15 +101,15 @@ namespace Crease.Flying.Player.Camera
             float targetYaw = targetEuler.y;
             float targetPitch = NormalizeAngle(targetEuler.x);
 
-            float rawPitchRate = Mathf.DeltaAngle(_prevTargetPitch, targetPitch) / dt;
+            float rawPitchRate = Mathf.DeltaAngle(_prevTargetPitch, targetPitch) / scaledDt;
             _prevTargetPitch = targetPitch;
-            _smoothedPitchRate = Mathf.Lerp(_smoothedPitchRate, rawPitchRate, dt * _settings.PitchRateSmoothing);
+            _smoothedPitchRate = Mathf.Lerp(_smoothedPitchRate, rawPitchRate, scaledDt * _settings.PitchRateSmoothing);
             float desiredOffset = -_smoothedPitchRate * _settings.ProfileStrength;
             desiredOffset = Mathf.Clamp(desiredOffset, -_settings.MaxProfileOffset, _settings.MaxProfileOffset);
-            _currentProfileOffset = Mathf.Lerp(_currentProfileOffset, desiredOffset, dt * _settings.ProfileDecay);
+            _currentProfileOffset = Mathf.Lerp(_currentProfileOffset, desiredOffset, scaledDt * _settings.ProfileDecay);
 
-            _currentYaw = Mathf.LerpAngle(_currentYaw, targetYaw, dt * _settings.YawSpeed);
-            _currentPitch = Mathf.LerpAngle(_currentPitch, targetPitch, dt * _settings.PitchSpeed);
+            _currentYaw = Mathf.LerpAngle(_currentYaw, targetYaw, scaledDt * _settings.YawSpeed);
+            _currentPitch = Mathf.LerpAngle(_currentPitch, targetPitch, scaledDt * _settings.PitchSpeed);
             float finalPitch = _currentPitch + _currentProfileOffset;
 
             float targetRoll = (FlightController != null) ? -FlightController.Roll : NormalizeAngle(targetEuler.z);
@@ -105,7 +118,13 @@ namespace Crease.Flying.Player.Camera
 
             Vector3 baseDesiredPosition = Target.position + baseRigRotation * _runtimeOffset;
             if (_unpannedBasePosition == Vector3.zero) _unpannedBasePosition = transform.position;
-            _unpannedBasePosition = Vector3.SmoothDamp(_unpannedBasePosition, baseDesiredPosition, ref _positionVelocity, 1f / _settings.PositionSmoothing);
+            _unpannedBasePosition = Vector3.SmoothDamp(
+                _unpannedBasePosition,
+                baseDesiredPosition,
+                ref _positionVelocity,
+                1f / _settings.PositionSmoothing,
+                Mathf.Infinity,
+                scaledDt);
 
             Vector3 baseLookTarget = Vector3.Lerp(
                 Target.position,
@@ -118,7 +137,7 @@ namespace Crease.Flying.Player.Camera
             Quaternion baseDesiredRotation = Quaternion.LookRotation(lookDir, upVec);
 
             if (_unpannedBaseRotation.w == 0f) _unpannedBaseRotation = transform.rotation;
-            _unpannedBaseRotation = Quaternion.Slerp(_unpannedBaseRotation, baseDesiredRotation, dt * _settings.LookSmoothing);
+            _unpannedBaseRotation = Quaternion.Slerp(_unpannedBaseRotation, baseDesiredRotation, scaledDt * _settings.LookSmoothing);
 
             Quaternion localPan = Quaternion.Euler(-_panPitch, _panYaw, 0f);
 

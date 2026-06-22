@@ -8,11 +8,14 @@ namespace Crease.Flying.Player.TimeStop
     public class TimeStopAbility : Ability
     {
         [Header("Time Stop")]
-        [Tooltip("How long the simulation speed override lasts.")]
+        [Tooltip("How long the time stop lasts in experienced (real) time.")]
         public float Duration = 2f;
 
         [Tooltip("Simulation speed while active. 0 freezes flight physics, 1 is normal speed.")]
         public float SimulationSpeed = 0f;
+
+        [Tooltip("Unity time scale while active. 0 freezes most gameplay, 1 is normal speed.")]
+        public float TimeScale = 0.3f;
 
         [Header("Recharge")]
         public float RechargeRate = 10f;
@@ -25,7 +28,9 @@ namespace Crease.Flying.Player.TimeStop
             private readonly TimeStopAbility _def;
             private float _activeTimer;
             private float _recharge;
+            private float _savedTimeScale = 1f;
             private bool _canUse = true;
+            private bool _timeStopActive;
 
             public override bool IsActive => _activeTimer > 0f;
             public override bool CanActivate => _canUse;
@@ -42,18 +47,22 @@ namespace Crease.Flying.Player.TimeStop
                 _recharge = _def.RechargeMax;
                 _canUse = true;
                 _activeTimer = 0f;
+                _timeStopActive = false;
             }
 
             public override void OnUnequipped()
             {
-                _activeTimer = 0f;
-                RevokeSimulationSpeed();
+                EndTimeStop();
             }
 
             public override void Tick(float deltaTime)
             {
                 if (_activeTimer > 0f)
-                    _activeTimer -= deltaTime;
+                {
+                    _activeTimer -= Time.unscaledDeltaTime;
+                    if (_activeTimer <= 0f)
+                        EndTimeStop();
+                }
 
                 if (_recharge < _def.RechargeMax)
                 {
@@ -74,13 +83,15 @@ namespace Crease.Flying.Player.TimeStop
                 _canUse = false;
                 _recharge = 0f;
                 _activeTimer = _def.Duration;
+                _timeStopActive = true;
+                _savedTimeScale = Time.timeScale;
+                Time.timeScale = _def.TimeScale;
 
                 if (C.FlightModifiers != null)
                 {
-                    C.FlightModifiers.ApplyForDuration(
+                    C.FlightModifiers.SetActive(
                         FlightModifierType.SimulationSpeed,
                         this,
-                        _def.Duration,
                         _def.SimulationSpeed);
                 }
 
@@ -91,6 +102,17 @@ namespace Crease.Flying.Player.TimeStop
             {
                 _canUse = true;
                 _recharge = _def.RechargeMax;
+            }
+
+            private void EndTimeStop()
+            {
+                if (!_timeStopActive)
+                    return;
+
+                _timeStopActive = false;
+                _activeTimer = 0f;
+                Time.timeScale = _savedTimeScale;
+                RevokeSimulationSpeed();
             }
 
             private void RevokeSimulationSpeed()

@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Player.Loadouts.PlaneLoadout
   FoldInstruction: {fileID: 11400000, guid: 59ce8b8185a22e34a963a51bf064e6bd, type: 2}
   FlightSettings: {fileID: 11400000, guid: 204397c0df06b994a97bdd15b29c59df, type: 2}
-  Ability: {fileID: 11400000, guid: aabbccdd11223344556677889900a002, type: 2}
+  Ability: {fileID: 11400000, guid: d2e3f405162738495a6b7c8d9e0f1a2b, type: 2}

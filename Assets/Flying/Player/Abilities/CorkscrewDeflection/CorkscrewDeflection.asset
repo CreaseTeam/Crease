@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Player.CorkscrewDeflection.CorkscrewDeflectionAbility
   DisplayName: Corkscrew Deflection
   Icon: {fileID: 0}
-  Duration: 1.5
-  SpinSpeed: 2
+  Duration: 5
+  SpinSpeed: 3
   DamageTakenReduction: 0.5
   RechargeRate: 10
   RechargeMax: 100

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Player.TimeStop.TimeStopAbility
   DisplayName: Time Stop
   Icon: {fileID: 0}
-  Duration: 2
-  SimulationSpeed: 0
+  Duration: 3
+  SimulationSpeed: 3
+  TimeScale: 0.2
   RechargeRate: 10
   RechargeMax: 100
