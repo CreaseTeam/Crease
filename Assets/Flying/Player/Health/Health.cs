@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Crease.Flying.Player;
 using Crease.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -26,6 +27,9 @@ namespace Crease.Flying.Player.Health
 
         public void TakeDamage(float amount, DamageType type)
         {
+            if (FlightStats.Instance != null && FlightStats.Instance.CurrentStats != null)
+                amount *= FlightStats.Instance.CurrentStats.DamageTaken;
+
             amount = Mathf.Min(amount, CurrentHealth);
             if (amount <= 0f) return;
 
