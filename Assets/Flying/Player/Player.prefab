@@ -798,7 +798,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1431797563303238190}
-  - component: {fileID: 183573655080417583}
   - component: {fileID: 9201342132183545357}
   m_Layer: 0
   m_Name: AnimationParent
@@ -823,28 +822,6 @@ Transform:
   - {fileID: 8993998958267351050}
   m_Father: {fileID: 4050445033718603467}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &183573655080417583
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9191342132183545356}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 09c9844605094434683139394810dd7f, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &9201342132183545357
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -860,4 +837,4 @@ MonoBehaviour:
   _meshTransform: {fileID: 8993998958267351050}
   _defaultOffsetSize: 0.3
   _defaultSpinSpeedMultiplier: 1.5
-  _offsetTransitionDuration: 0.16666667
+  _rollEaseDuration: 0.15

@@ -1,38 +1,35 @@
+using DG.Tweening;
 using UnityEngine;
 
 namespace Crease.Flying.Player.Animation
 {
     /// <summary>
-    /// Central player animation driver. Spin rotation is handled by the Animator (Spin bool);
-    /// procedural mesh offset for barrel rolls is blended here.
+    /// Drives procedural barrel-roll rotation on this transform and optional mesh offset on a child.
     /// </summary>
-    [RequireComponent(typeof(Animator))]
     public class AnimationController : MonoBehaviour
     {
-        private static readonly int SpinParam = Animator.StringToHash("Spin");
-
         [SerializeField] private Transform _meshTransform;
         [SerializeField] private float _defaultOffsetSize = 0.3f;
         [SerializeField] private float _defaultSpinSpeedMultiplier = 1.5f;
-        [SerializeField] private float _offsetTransitionDuration = 0.16666667f;
+        [SerializeField] private float _rollEaseDuration = 0.15f;
 
-        private Animator _animator;
         private Vector3 _baseMeshLocalPosition;
         private float _currentOffset;
         private float _targetOffset;
-        private float _offsetVelocity;
+        private float _rollAngle;
+        private float _degreesPerSecond;
+        private float _spinEase = 1f;
         private float _durationRemaining;
         private RollMode _mode;
-        private bool _barrelRollEnding;
-        private bool _barrelRollEndSpinStarted;
-        private float _barrelRollEndStartNormalizedTime;
-        private float _barrelRollEndStartOffset;
-        private bool _isSpinning;
+        private Tween _rollTween;
+        private Tween _offsetTween;
+        private Tween _spinEaseTween;
 
         private enum RollMode
         {
             None,
             BarrelRoll,
+            BarrelRollEnding,
             AileronRoll
         }
 
@@ -40,8 +37,6 @@ namespace Crease.Flying.Player.Animation
 
         private void Awake()
         {
-            _animator = GetComponent<Animator>();
-
             if (_meshTransform != null)
                 _baseMeshLocalPosition = _meshTransform.localPosition;
         }
@@ -49,21 +44,13 @@ namespace Crease.Flying.Player.Animation
         private void Update()
         {
             UpdateDuration();
-            UpdateOffset();
-        }
-
-        private void LateUpdate()
-        {
+            UpdateRoll();
             ApplyMeshOffset();
-
-            // Animator updates before MonoBehaviour.Update, so rotation is reset here after
-            // the spin state has fully released control of the transform.
-            if (!_isSpinning)
-                transform.localRotation = Quaternion.identity;
         }
 
         private void OnDisable()
         {
+            KillTweens();
             ResetRollState();
             ApplyMeshOffset();
         }
@@ -73,38 +60,51 @@ namespace Crease.Flying.Player.Animation
         /// <param name="offsetSize">Downward mesh offset in local units. Null uses the configured default.</param>
         public void StartBarrelRoll(float duration = -1f, float? spinSpeed = null, float? offsetSize = null)
         {
-            _barrelRollEnding = false;
-            _barrelRollEndSpinStarted = false;
+            KillTweens();
+            ResetVisuals();
+
             _mode = RollMode.BarrelRoll;
             _targetOffset = offsetSize ?? _defaultOffsetSize;
+            _degreesPerSecond = 360f * (spinSpeed ?? _defaultSpinSpeedMultiplier);
             _durationRemaining = duration < 0f ? float.PositiveInfinity : duration;
-            BeginSpin(spinSpeed);
+
+            if (_rollEaseDuration <= 0f)
+            {
+                _currentOffset = _targetOffset;
+                _spinEase = 1f;
+                return;
+            }
+
+            _spinEase = 0f;
+            _offsetTween = DOTween.To(() => _currentOffset, value => _currentOffset = value, _targetOffset, _rollEaseDuration)
+                .SetEase(Ease.InOutSine);
+            _spinEaseTween = DOTween.To(() => _spinEase, value => _spinEase = value, 1f, _rollEaseDuration)
+                .SetEase(Ease.InOutSine);
         }
 
         public void StopBarrelRoll()
         {
-            if (_mode != RollMode.BarrelRoll || _barrelRollEnding)
+            if (_mode != RollMode.BarrelRoll)
                 return;
 
-            _targetOffset = 0f;
-            _durationRemaining = 0f;
-            _barrelRollEnding = true;
-            _barrelRollEndSpinStarted = false;
-            _barrelRollEndStartOffset = _currentOffset;
-            _offsetVelocity = 0f;
+            KillTweens();
+            _spinEase = 1f;
+            BeginBarrelRollEnding();
         }
 
         /// <param name="duration">Seconds before auto-stop. Negative values spin until stopped manually.</param>
         /// <param name="spinSpeed">Multiplier on the default spin rate. Null uses the configured default.</param>
         public void StartAileronRoll(float duration = -1f, float? spinSpeed = null)
         {
-            _barrelRollEnding = false;
+            KillTweens();
+            ResetVisuals();
+
             _mode = RollMode.AileronRoll;
             _targetOffset = 0f;
             _currentOffset = 0f;
-            _offsetVelocity = 0f;
+            _degreesPerSecond = 360f * (spinSpeed ?? _defaultSpinSpeedMultiplier);
+            _spinEase = 1f;
             _durationRemaining = duration < 0f ? float.PositiveInfinity : duration;
-            BeginSpin(spinSpeed);
         }
 
         public void StopAileronRoll()
@@ -112,41 +112,9 @@ namespace Crease.Flying.Player.Animation
             if (_mode != RollMode.AileronRoll)
                 return;
 
-            _durationRemaining = 0f;
-            _mode = RollMode.None;
-            StopSpin();
-        }
-
-        private void BeginSpin(float? spinSpeed)
-        {
-            _isSpinning = true;
-            _animator.speed = spinSpeed ?? _defaultSpinSpeedMultiplier;
-            _animator.SetBool(SpinParam, true);
-        }
-
-        private void StopSpin()
-        {
-            _isSpinning = false;
-            _animator.SetBool(SpinParam, false);
-            _animator.speed = 1f;
-        }
-
-        private void ResetRollState()
-        {
-            _currentOffset = 0f;
-            _targetOffset = 0f;
-            _offsetVelocity = 0f;
-            _durationRemaining = 0f;
-            _barrelRollEnding = false;
-            _barrelRollEndSpinStarted = false;
-            _mode = RollMode.None;
-            _isSpinning = false;
-
-            if (_animator != null)
-            {
-                _animator.SetBool(SpinParam, false);
-                _animator.speed = 1f;
-            }
+            KillTweens();
+            ResetRollState();
+            ApplyMeshOffset();
         }
 
         private void UpdateDuration()
@@ -165,55 +133,49 @@ namespace Crease.Flying.Player.Animation
                 StopAileronRoll();
         }
 
-        private void UpdateOffset()
+        private void UpdateRoll()
         {
-            if (_meshTransform == null)
+            if (_mode != RollMode.BarrelRoll && _mode != RollMode.AileronRoll)
                 return;
 
-            if (_barrelRollEnding)
-            {
-                UpdateBarrelRollEnding();
-                return;
-            }
-
-            if (_offsetTransitionDuration <= 0f)
-                _currentOffset = _targetOffset;
-            else
-                _currentOffset = Mathf.SmoothDamp(
-                    _currentOffset,
-                    _targetOffset,
-                    ref _offsetVelocity,
-                    _offsetTransitionDuration);
+            _rollAngle += _degreesPerSecond * _spinEase * Time.deltaTime;
+            ApplyRotation();
         }
 
-        private void UpdateBarrelRollEnding()
+        private void BeginBarrelRollEnding()
         {
-            if (!_isSpinning)
-                return;
+            _mode = RollMode.BarrelRollEnding;
+            _durationRemaining = 0f;
 
-            AnimatorStateInfo state = _animator.GetCurrentAnimatorStateInfo(0);
-            if (!state.IsName("Spin"))
-                return;
+            float remainder = 360f - Mathf.Repeat(_rollAngle, 360f);
+            if (remainder < 0.001f)
+                remainder = 360f;
 
-            if (!_barrelRollEndSpinStarted)
-            {
-                _barrelRollEndStartNormalizedTime = state.normalizedTime;
-                _barrelRollEndSpinStarted = true;
-                return;
-            }
+            float endAngle = _rollAngle + remainder;
+            float duration = remainder / _degreesPerSecond;
 
-            float rollProgress = state.normalizedTime - _barrelRollEndStartNormalizedTime;
-            _currentOffset = Mathf.Lerp(_barrelRollEndStartOffset, 0f, Mathf.Clamp01(rollProgress));
+            _rollTween = DOTween.To(() => _rollAngle, value =>
+                {
+                    _rollAngle = value;
+                    ApplyRotation();
+                }, endAngle, duration)
+                .SetEase(Ease.InOutSine)
+                .OnComplete(CompleteBarrelRoll);
 
-            if (rollProgress < 1f)
-                return;
+            _offsetTween = DOTween.To(() => _currentOffset, value => _currentOffset = value, 0f, duration)
+                .SetEase(Ease.InOutSine);
+        }
 
-            _currentOffset = 0f;
-            _offsetVelocity = 0f;
-            _barrelRollEnding = false;
-            _barrelRollEndSpinStarted = false;
-            _mode = RollMode.None;
-            StopSpin();
+        private void CompleteBarrelRoll()
+        {
+            KillTweens();
+            ResetRollState();
+            ApplyMeshOffset();
+        }
+
+        private void ApplyRotation()
+        {
+            transform.localRotation = Quaternion.Euler(0f, 0f, -Mathf.Repeat(_rollAngle, 360f));
         }
 
         private void ApplyMeshOffset()
@@ -222,6 +184,35 @@ namespace Crease.Flying.Player.Animation
                 return;
 
             _meshTransform.localPosition = _baseMeshLocalPosition + Vector3.down * _currentOffset;
+        }
+
+        private void KillTweens()
+        {
+            _rollTween?.Kill();
+            _offsetTween?.Kill();
+            _spinEaseTween?.Kill();
+            _rollTween = null;
+            _offsetTween = null;
+            _spinEaseTween = null;
+        }
+
+        private void ResetVisuals()
+        {
+            _rollAngle = 0f;
+            _currentOffset = 0f;
+            _spinEase = 1f;
+            transform.localRotation = Quaternion.identity;
+        }
+
+        private void ResetRollState()
+        {
+            _mode = RollMode.None;
+            _rollAngle = 0f;
+            _currentOffset = 0f;
+            _targetOffset = 0f;
+            _spinEase = 1f;
+            _durationRemaining = 0f;
+            transform.localRotation = Quaternion.identity;
         }
     }
 }
