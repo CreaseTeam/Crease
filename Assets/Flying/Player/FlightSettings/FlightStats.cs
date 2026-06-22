@@ -22,7 +22,6 @@ namespace Crease.Flying.Player
         private KinematicBody _body;
 
         public FlightSettings CurrentStats => _currentStats;
-        public float ScaledFixedDeltaTime => Time.fixedDeltaTime * CurrentStats.SimulationSpeed;
 
         private void Awake()
         {
@@ -169,8 +168,6 @@ namespace Crease.Flying.Player
                 if (mod == null) continue;
                 FlightStatAccessor.AddInto(mod, _currentStats);
             }
-
-            _currentStats.SimulationSpeed = Mathf.Clamp(_currentStats.SimulationSpeed, 0.01f, 5f);
 
             ApplyMassToBody();
         }

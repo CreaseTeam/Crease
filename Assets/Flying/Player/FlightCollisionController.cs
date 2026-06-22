@@ -1,7 +1,6 @@
 using Crease.Flying.Environment.Interactables;
 using Crease.Flying.Environment.Obstacle;
 using Crease.Flying.Player.FlightModifiers;
-using Crease.Flying.Player.FlightSettings;
 using Crease.Flying.Player.Health;
 using PlayerHealth = Crease.Flying.Player.Health.Health;
 using UnityEngine;
@@ -109,7 +108,6 @@ namespace Crease.Flying.Player
         private float _recoveryStartTime;
         private float _scaledRecoveryDuration;
         private FlightModifiers.FlightModifiers _flightModifiers;
-        private FlightStats _flightStats;
 
         private void Awake()
         {
@@ -117,7 +115,6 @@ namespace Crease.Flying.Player
             if (_playerCollider == null) _playerCollider = GetComponent<Collider>();
             if (_healthComponent == null) _healthComponent = GetComponent<PlayerHealth>();
             _flightModifiers = GetComponent<FlightModifiers.FlightModifiers>();
-            _flightStats = GetComponent<FlightStats>();
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -201,7 +198,7 @@ namespace Crease.Flying.Player
 
             _preCollisionSpeed = preCollisionSpeed;
             _targetRecoverySpeed = _preCollisionSpeed * _speedRetention;
-            float simSpeed = _flightStats != null ? _flightStats.CurrentStats.SimulationSpeed : 1f;
+            float simSpeed = _flightModifiers != null ? _flightModifiers.SimulationSpeed : 1f;
             _recoveryStartTime = Time.time + _recoveryDelay / simSpeed;
             _scaledRecoveryDuration = _recoveryDuration / simSpeed;
             _isRecovering = true;

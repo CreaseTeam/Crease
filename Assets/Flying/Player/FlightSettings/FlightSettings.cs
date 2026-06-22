@@ -72,10 +72,5 @@ namespace Crease.Flying.Player
         [Tooltip("Multiplier for how much the wind affects the physics.")]
         [FormerlySerializedAs("windForceMultiplier")]
         public float WindForceMultiplier = 1.0f;
-
-        [Header("Simulation Speed")]
-        [Tooltip("Scales all flight physics by this factor. 2 = twice as fast, 0.5 = half speed. Path is unchanged.")]
-        [Min(0.01f)]
-        public float SimulationSpeed = 1f;
     }
 }

@@ -29,7 +29,6 @@ namespace Crease.Flying.Player
         BoostSpeed,
         InitialSpeed,
         MinimumVelocity,
-        WindForceMultiplier,
-        SimulationSpeed
+        WindForceMultiplier
     }
 }

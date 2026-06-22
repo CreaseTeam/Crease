@@ -21,6 +21,7 @@ namespace Crease.Flying.Player
     ///   body.SetVelocity(v)    — hard override (use sparingly)
     ///   body.MoveRotation(q)   — rotate the rigidbody
     /// </summary>
+    [DefaultExecutionOrder(100)]
     [RequireComponent(typeof(Rigidbody))]
     public class KinematicBody : MonoBehaviour
     {
@@ -47,8 +48,15 @@ namespace Crease.Flying.Player
 
         public bool Frozen { get; set; }
 
+        /// <summary>
+        /// Scales world movement and force integration. Set each frame by flight systems.
+        /// </summary>
+        public float SimulationSpeed { get; set; } = 1f;
+
         private Rigidbody _rb;
         private Vector3 _accumulatedForce;
+
+        private float ScaledFixedDeltaTime => Time.fixedDeltaTime * SimulationSpeed;
 
         private void Awake()
         {
@@ -96,11 +104,11 @@ namespace Crease.Flying.Player
 
             if (_accumulatedForce.sqrMagnitude > 0f)
             {
-                Velocity += (_accumulatedForce / _mass) * Time.fixedDeltaTime;
+                Velocity += (_accumulatedForce / _mass) * ScaledFixedDeltaTime;
                 _accumulatedForce = Vector3.zero;
             }
 
-            _rb.linearVelocity = Velocity;
+            _rb.linearVelocity = Velocity * SimulationSpeed;
         }
 
         public void AddForce(Vector3 force)
@@ -120,7 +128,7 @@ namespace Crease.Flying.Player
 
         public void AddAcceleration(Vector3 acceleration)
         {
-            Velocity += acceleration * Time.fixedDeltaTime;
+            Velocity += acceleration * ScaledFixedDeltaTime;
         }
 
         public void SetVelocity(Vector3 velocity)

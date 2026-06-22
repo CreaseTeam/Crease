@@ -36,4 +36,3 @@ MonoBehaviour:
   InitialSpeed: 10
   MinimumVelocity: 0
   WindForceMultiplier: 1
-  SimulationSpeed: 1

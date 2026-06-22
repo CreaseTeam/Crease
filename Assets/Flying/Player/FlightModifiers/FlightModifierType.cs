@@ -4,5 +4,6 @@ namespace Crease.Flying.Player.FlightModifiers
     {
         Invulnerable,
         LockFlightControl,
+        SimulationSpeed,
     }
 }

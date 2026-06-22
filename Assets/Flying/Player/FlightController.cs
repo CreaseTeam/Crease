@@ -5,6 +5,7 @@ using UnityEngine.Serialization;
 
 namespace Crease.Flying.Player
 {
+    [DefaultExecutionOrder(-100)]
     [RequireComponent(typeof(KinematicBody))]
     public class FlightController : MonoBehaviour
     {
@@ -68,6 +69,8 @@ namespace Crease.Flying.Player
 
         void FixedUpdate()
         {
+            _body.SimulationSpeed = _flightModifiers != null ? _flightModifiers.SimulationSpeed : 1f;
+
             if (!IsFlightControlLocked)
             {
                 ProcessInput();
@@ -79,7 +82,8 @@ namespace Crease.Flying.Player
             UpdateRotation();
         }
 
-        private float ScaledDeltaTime => _stats.ScaledFixedDeltaTime;
+        private float ScaledDeltaTime =>
+            _flightModifiers != null ? _flightModifiers.ScaledFixedDeltaTime : Time.fixedDeltaTime;
 
         private void UpdateVelocity()
         {
@@ -122,7 +126,7 @@ namespace Crease.Flying.Player
                 velocity = Vector3.Lerp(velocity, lookDirection * speed, tInterp);
             }
 
-            float simSpeed = _stats.CurrentStats.SimulationSpeed;
+            float simSpeed = _flightModifiers != null ? _flightModifiers.SimulationSpeed : 1f;
             velocity.x *= Mathf.Pow(_stats.CurrentStats.XDrag, simSpeed);
             velocity.y *= Mathf.Pow(_stats.CurrentStats.YDrag, simSpeed);
             velocity.z *= Mathf.Pow(_stats.CurrentStats.ZDrag, simSpeed);
