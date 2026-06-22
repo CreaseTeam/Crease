@@ -63,13 +63,19 @@ namespace Crease.Flying.Player
             _meshRotation = _meshTransform.localEulerAngles;
         }
 
+        private bool IsFlightControlLocked =>
+            _flightModifiers != null && _flightModifiers.IsActive(FlightModifierType.LockFlightControl);
+
         void FixedUpdate()
         {
-            ProcessInput();
-            if (_flightModifiers == null || !_flightModifiers.IsActive(FlightModifierType.LockFlightControl))
+            if (!IsFlightControlLocked)
+            {
+                ProcessInput();
                 UpdateVelocity();
-            ApplyStabilityTorque();
-            ClampOrientation();
+                ApplyStabilityTorque();
+                ClampOrientation();
+            }
+
             UpdateRotation();
         }
 

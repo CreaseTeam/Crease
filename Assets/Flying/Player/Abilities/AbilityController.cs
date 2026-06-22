@@ -1,8 +1,8 @@
 using Crease.Flying.Player;
+using Crease.Flying.Player.Animation;
 using Crease.Folding.PaperGraph;
 using Crease.Managers.Input;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Crease.Flying.Player.Abilities
 {
@@ -11,17 +11,12 @@ namespace Crease.Flying.Player.Abilities
     /// </summary>
     public class AbilityController : MonoBehaviour
     {
-        [FormerlySerializedAs("_defaultAbility")]
         [SerializeField] private Ability _equippedAbility;
 
         [Header("References For Abilities")]
-        [FormerlySerializedAs("_animator")]
-        [SerializeField] private Animator _animator;
-        [FormerlySerializedAs("_kinematicBody")]
+        [SerializeField] private AnimationController _animationController;
         [SerializeField] private KinematicBody _body;
-        [FormerlySerializedAs("_wingTrailController")]
         [SerializeField] private WingTrailController _wingTrail;
-        [FormerlySerializedAs("_dashBorder")]
         [SerializeField] private GameObject _rechargeProximityIndicator;
         [SerializeField] private FlightStats _flightStats;
         [SerializeField] private FlightModifiers.FlightModifiers _flightModifiers;
@@ -35,7 +30,7 @@ namespace Crease.Flying.Player.Abilities
 
         public Transform PlayerTransform => transform;
         public KinematicBody Body => _body;
-        public Animator PlayerAnimator => _animator;
+        public AnimationController AnimationController => _animationController;
         public FlightStats FlightStats => _flightStats;
         public FlightModifiers.FlightModifiers FlightModifiers => _flightModifiers;
         public WingTrailController WingTrail => _wingTrail;
@@ -64,7 +59,7 @@ namespace Crease.Flying.Player.Abilities
             if (_runtime == null)
                 return;
 
-            if (InputManager.Instance != null && InputManager.Instance.DashTriggered)
+            if (InputManager.Instance != null && InputManager.Instance.ActivateAbilityPressed)
                 _runtime.TryActivate();
 
             _runtime.Tick(Time.deltaTime);
@@ -102,7 +97,7 @@ namespace Crease.Flying.Player.Abilities
         }
 
         public void Refresh() => _runtime?.Refresh();
-        public void TriggerAbility() => _runtime?.TryActivate();
+        public void ActivateAbility() => _runtime?.TryActivate();
 
         public void AdjustProximitySourceCount(int delta)
         {

@@ -20,14 +20,11 @@ namespace Crease.UI
     public class HUDCanvas : MonoBehaviour
     {
         [SerializeField]
-        [FormerlySerializedAs("_dashController")]
         private AbilityController _abilityController;
         [SerializeField]
-        [FormerlySerializedAs("rechargeBar")]
-        private Image _rechargeBar;
+        private Image _abilityRechargeBar;
         [SerializeField]
-        [FormerlySerializedAs("dashBarBorder")]
-        private GameObject _dashBarBorder;
+        private GameObject _abilityReadyBorder;
         [SerializeField]
         [FormerlySerializedAs("collectibleText")]
         private TextMeshProUGUI _collectibleText;
@@ -141,8 +138,8 @@ namespace Crease.UI
         void Start()
         {
             _collectibleText.text = $"{_collectibleCount}";
-            if (_rechargeBar != null && _abilityController != null)
-                _rechargeBar.fillAmount = _abilityController.RechargeNormalized;
+            if (_abilityRechargeBar != null && _abilityController != null)
+                _abilityRechargeBar.fillAmount = _abilityController.RechargeNormalized;
 
             PopulatePlaneTypeDropdown();
             if (_planeTypeDropdown != null)
@@ -169,20 +166,20 @@ namespace Crease.UI
                 UpdateTimerDisplay();
             }
 
-            if (_rechargeBar != null && _abilityController != null)
-                _rechargeBar.fillAmount = _abilityController.RechargeNormalized;
+            if (_abilityRechargeBar != null && _abilityController != null)
+                _abilityRechargeBar.fillAmount = _abilityController.RechargeNormalized;
 
-            if (_dashBarBorder != null && _abilityController != null)
+            if (_abilityReadyBorder != null && _abilityController != null)
             {
-                bool isFullyCharged = _abilityController.RechargeNormalized >= 1f;
-                if (isFullyCharged)
+                bool canUse = _abilityController.CanActivate;
+                if (canUse)
                 {
                     bool flip = Mathf.PingPong(Time.time * 2f, 1f) > 0.5f;
-                    _dashBarBorder.SetActive(flip);
+                    _abilityReadyBorder.SetActive(flip);
                 }
                 else
                 {
-                    _dashBarBorder.SetActive(false);
+                    _abilityReadyBorder.SetActive(false);
                 }
             }
         }
@@ -375,11 +372,6 @@ namespace Crease.UI
         {
             if (_abilityController != null)
                 _abilityController.Refresh();
-        }
-
-        public void RefreshDash()
-        {
-            RefreshAbility();
         }
 
         /// <summary>

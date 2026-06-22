@@ -55,7 +55,7 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
     Color _legacyGuideLineColor = new Color(1f, 1f, 1f, 0.7f);
 
     [SerializeField, HideInInspector, FormerlySerializedAs("GuideLineHeightOffset")]
-    float _legacyGuideLineHeightOffset = 0.002f;
+    float _legacyGuideLineHeightOffset;
 
     [SerializeField, HideInInspector, FormerlySerializedAs("CreaseLineColor")]
     Color _legacyCreaseLineColor = new Color(1f, 0.85f, 0.2f, 0.9f);

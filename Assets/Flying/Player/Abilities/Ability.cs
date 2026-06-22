@@ -3,8 +3,7 @@ using UnityEngine;
 namespace Crease.Flying.Player.Abilities
 {
     /// <summary>
-    /// Base for ability assets. To add a new ability, copy DashAbility.cs:
-    /// tuning fields on the asset, behavior in a private nested Runtime class.
+    /// Base for ability assets. To add a new ability, duplicate DashAbility.cs or start from AbilityStub.
     /// </summary>
     public abstract class Ability : ScriptableObject
     {
