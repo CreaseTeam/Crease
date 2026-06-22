@@ -58,7 +58,7 @@ MonoBehaviour:
     IdealDragPosition: {x: 0, y: 0, z: 0.15}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
-    FoldOffset: 0.003
+    FoldOffset: 0.006
     ApplyTag: accordion
     FilterTags:
       _tags: []
@@ -78,7 +78,7 @@ MonoBehaviour:
     IdealDragPosition: {x: 0.235, y: 0, z: -0.5}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
-    FoldOffset: 0.0001
+    FoldOffset: 0.002
     ApplyTag: 
     FilterTags:
       _tags:
@@ -99,7 +99,7 @@ MonoBehaviour:
     IdealDragPosition: {x: -0.235, y: 0, z: -0.5}
     DragPlaneNormal: {x: 0, y: 1, z: 0}
     FoldDegrees: -180
-    FoldOffset: 0.0001
+    FoldOffset: 0.002
     ApplyTag: 
     FilterTags:
       _tags:
@@ -140,7 +140,7 @@ MonoBehaviour:
     IdealDragPosition: {x: 0, y: 0, z: -0.05}
     DragPlaneNormal: {x: 0, y: -1, z: 0}
     FoldDegrees: -180
-    FoldOffset: 0.004
+    FoldOffset: 0.008
     ApplyTag: 
     FilterTags:
       _tags:
@@ -213,7 +213,7 @@ MonoBehaviour:
     IsAccordionFold: 0
     AccordionCreaseTagA: 
     AccordionCreaseTagB: 
-    RotatePaper: 0
+    RotatePaper: 1
     PaperRotation: {x: 0, y: 0, z: 0}
     RotateVertices: 0
     VertexRotationPivot: {x: 0, y: 0, z: 0.15}
