@@ -690,13 +690,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1a2b3c4d5e6f7890123456789abcd07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Player.Abilities.AbilityController
-  _equippedAbility: {fileID: 11400000, guid: aabbccdd11223344556677889900a002, type: 2}
+  _equippedAbility: {fileID: 11400000, guid: 4b29948a4ebb6464d96d991381d33e76, type: 2}
   _animationController: {fileID: 9201342132183545357}
   _body: {fileID: 6633779251846987741}
   _wingTrail: {fileID: 6900904615396018688}
   _rechargeProximityIndicator: {fileID: 1189625132337031897}
   _flightStats: {fileID: 5517443600840389601}
   _flightModifiers: {fileID: 9001000000000000001}
+  _foldInstructionRunner: {fileID: 0}
 --- !u!114 &6900904615396018688
 MonoBehaviour:
   m_ObjectHideFlags: 0
