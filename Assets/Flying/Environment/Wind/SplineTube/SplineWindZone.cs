@@ -59,25 +59,24 @@ namespace Crease.Flying.Environment.Wind.SplineTube
 
         private void OnEnterZone(Collider other)
         {
-            FlightForceReceiver receiver = other.attachedRigidbody
-                ? other.attachedRigidbody.GetComponent<FlightForceReceiver>()
-                : other.GetComponent<FlightForceReceiver>();
+            // Search the collider's own GameObject and its parent hierarchy for
+            // FlightForceReceiver. We cannot use other.attachedRigidbody here because
+            // each TubeSegment child has its own Rigidbody — attachedRigidbody returns
+            // the segment's Rigidbody instead of the player's, causing the lookup to fail.
+            FlightForceReceiver receiver = other.GetComponentInParent<FlightForceReceiver>();
+            if (receiver == null) receiver = other.GetComponent<FlightForceReceiver>();
 
             if (receiver != null)
             {
                 receiver.AddWindZone(this);
-                // GetWindForceAtPoint only receives a world position (see WindProvider),
-                // so we cache the player's transform here in order to read their live
-                // forward vector for the alignment dot product later.
                 _cachedPlayerTransform = receiver.transform;
             }
         }
 
         private void OnExitZone(Collider other)
         {
-            FlightForceReceiver receiver = other.attachedRigidbody
-                ? other.attachedRigidbody.GetComponent<FlightForceReceiver>()
-                : other.GetComponent<FlightForceReceiver>();
+            FlightForceReceiver receiver = other.GetComponentInParent<FlightForceReceiver>();
+            if (receiver == null) receiver = other.GetComponent<FlightForceReceiver>();
 
             if (receiver != null)
             {
@@ -120,8 +119,9 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             // tangent), scaled by how aligned that facing direction already is with the tube.
             // This rewards players for actively steering along the tube rather than the tube
             // forcibly carrying them along its path regardless of their heading.
+            // The closer to the center the bigger the boost, as opposed to the edges of the tube.
             Vector3 finalForce = _cachedPlayerTransform.forward * strength;
-            if (DebugLog) Debug.Log($"dot={dot:F2} | boostMult={boostMultiplier:F2} | wind={finalForce.magnitude:F1}");
+            // if (DebugLog) Debug.Log($"dot={dot:F2} | boostMult={boostMultiplier:F2} | wind={finalForce.magnitude:F1}");
             return finalForce;
         }
 

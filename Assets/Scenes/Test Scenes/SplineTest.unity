@@ -5382,30 +5382,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: SplineWindZone
       objectReference: {fileID: 0}
-    - target: {fileID: 3658918223571428295, guid: 090e8a18593f1614693e70e354281060, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 3658918223571428295, guid: 090e8a18593f1614693e70e354281060, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 3658918223571428295, guid: 090e8a18593f1614693e70e354281060, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3658918223571428295, guid: 090e8a18593f1614693e70e354281060, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3658918223571428295, guid: 090e8a18593f1614693e70e354281060, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 90
-      objectReference: {fileID: 0}
-    - target: {fileID: 3658918223571428295, guid: 090e8a18593f1614693e70e354281060, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4253195539861809588, guid: 090e8a18593f1614693e70e354281060, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -5444,10 +5420,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4253195539861809588, guid: 090e8a18593f1614693e70e354281060, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5444906405529772516, guid: 090e8a18593f1614693e70e354281060, type: 3}
-      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

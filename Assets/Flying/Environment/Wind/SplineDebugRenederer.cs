@@ -6,6 +6,7 @@ namespace Crease.Flying.Environment.Wind.SplineTube
     /// TEMPORARY DEBUG TOOL — not part of the final feature.
     /// Renders each convex segment child's mesh in bright color so the tube trigger
     /// volume is visible in Game view / Play mode, where MeshColliders never render.
+    /// Used to make it easier to see exactly where the spline is (with/without particles).
     /// Remove this component (and script) once real VFX makes the tube visible enough.
     /// </summary>
     [ExecuteAlways]

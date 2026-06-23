@@ -3,6 +3,7 @@ using UnityEngine.Events;
 using UnityEngine.Splines;
 using Unity.Mathematics;
 using System.Collections.Generic;
+using Crease.Flying.Player;
 
 namespace Crease.Flying.Environment.Wind.SplineTube
 {
@@ -283,23 +284,36 @@ namespace Crease.Flying.Environment.Wind.SplineTube
         /// </summary>
         public void OnChildTriggerEnter(Collider other)
         {
+            // Ignore segment-to-segment triggers — segments overlap at boundaries.
+            if (other.GetComponent<SegmentTriggerRelay>() != null) return;
+
+            // Only process the player — identified by FlightForceReceiver.
+            FlightForceReceiver receiver = other.GetComponentInParent<FlightForceReceiver>();
+            if (receiver == null) receiver = other.GetComponent<FlightForceReceiver>();
+            if (receiver == null) return;
+
+            bool wasOutside = _activeSegmentCount == 0;
             _activeSegmentCount++;
-            if (_activeSegmentCount == 1)
+            if (wasOutside)
             {
+                // Debug.Log("[SplineTubeTrigger] Player entered tube. Invoking OnTriggerEntered.");
                 OnTriggerEntered?.Invoke(other);
             }
         }
 
-        /// <summary>
-        /// Called by SegmentTriggerRelay children when a collider exits any segment.
-        /// Decrements the counter; fires OnTriggerExited only on 1→0 transition
-        /// so the player can cross segment boundaries without triggering a false exit.
-        /// </summary>
         public void OnChildTriggerExit(Collider other)
         {
+            // Same filter — ignore segment-to-segment and non-player colliders.
+            if (other.GetComponent<SegmentTriggerRelay>() != null) return;
+
+            FlightForceReceiver receiver = other.GetComponentInParent<FlightForceReceiver>();
+            if (receiver == null) receiver = other.GetComponent<FlightForceReceiver>();
+            if (receiver == null) return;
+
             _activeSegmentCount = Mathf.Max(0, _activeSegmentCount - 1);
             if (_activeSegmentCount == 0)
             {
+                // Debug.Log("[SplineTubeTrigger] Player exited tube. Invoking OnTriggerExited.");
                 OnTriggerExited?.Invoke(other);
             }
         }
