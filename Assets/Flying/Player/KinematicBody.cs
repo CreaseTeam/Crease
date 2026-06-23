@@ -21,7 +21,8 @@ namespace Crease.Flying.Player
     ///   body.SetVelocity(v)    — hard override (use sparingly)
     ///   body.MoveRotation(q)   — rotate the rigidbody
     /// </summary>
-    [DefaultExecutionOrder(100)]
+    // Runs last so it has the final say on velocity each FixedUpdate.
+    [DefaultExecutionOrder(1000)]
     [RequireComponent(typeof(Rigidbody))]
     public class KinematicBody : MonoBehaviour
     {
