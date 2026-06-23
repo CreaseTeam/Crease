@@ -145,15 +145,18 @@ namespace Crease.Flying.Environment.Wind.SplineTube
 
         private void RebuildSegmentColliders()
         {
-            // Destroy existing segment children before rebuilding.
-            foreach (GameObject seg in _segmentObjects)
+            // Destroy only segment children (those with SegmentTriggerRelay) before rebuilding.
+            // This preserves non-segment children like Steam particle systems that designers
+            // have manually added as children of this GameObject.
+            SegmentTriggerRelay[] existingRelays = GetComponentsInChildren<SegmentTriggerRelay>();
+            foreach (SegmentTriggerRelay relay in existingRelays)
             {
-                if (seg != null)
+                if (relay != null && relay.gameObject != null)
                 {
                     if (Application.isPlaying)
-                        Destroy(seg);
+                        Destroy(relay.gameObject);
                     else
-                        DestroyImmediate(seg);
+                        DestroyImmediate(relay.gameObject);
                 }
             }
             _segmentObjects.Clear();

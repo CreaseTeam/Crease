@@ -197,82 +197,59 @@ namespace Crease.Flying.Environment.Wind.SplineTube
         {
             if (_secondaryParticleSystem == null || emissionMesh == null) return;
 
+            // Mirror the primary system exactly — same mesh, same Local simulation space,
+            // same velocity-over-lifetime along Z. Steam is visually differentiated purely
+            // through its own Inspector values (Start Size, Start Color, material) and the
+            // Secondary Speed/Duration fields below, not through different emission logic.
+            // This is the same approach the frustum uses: same cone shape for both primary
+            // and secondary, different visual settings per system.
             var secondaryMain = _secondaryParticleSystem.main;
-            // World simulation space avoids coordinate mismatch: the emission mesh verts
-            // are in the root GameObject's local space, but the secondary ParticleSystem
-            // lives on a child GameObject with its own transform. World space sidesteps
-            // this entirely — particles emit from world-space positions directly, so no
-            // transform double-application occurs regardless of where the child sits.
-            secondaryMain.simulationSpace = ParticleSystemSimulationSpace.World;
-            secondaryMain.scalingMode     = ParticleSystemScalingMode.Hierarchy;
+            // Use Custom simulation space pointed at the ROOT transform, not the child's
+            // own Local space. This makes the secondary system interpret the emission mesh
+            // vertices relative to the same transform the primary system uses, so particles
+            // spawn in exactly the same positions as the primary wind particles.
+            secondaryMain.simulationSpace       = ParticleSystemSimulationSpace.Custom;
+            secondaryMain.customSimulationSpace = transform;
+            secondaryMain.scalingMode           = ParticleSystemScalingMode.Hierarchy;
+            secondaryMain.maxParticles          = 500;
 
-            // Build a world-space version of the emission mesh for the secondary system.
-            // The primary system uses root-local-space verts (for Local sim space);
-            // the secondary needs world-space verts (for World sim space).
-            Mesh worldSpaceMesh = BuildWorldSpaceMesh();
-            if (worldSpaceMesh == null) return;
+            var emission = _secondaryParticleSystem.emission;
+            emission.enabled      = true;
+            emission.rateOverTime = _emissionRate * 1.5f;
 
             var shape = _secondaryParticleSystem.shape;
-            shape.enabled       = true;
-            shape.shapeType     = ParticleSystemShapeType.Mesh;
-            shape.meshShapeType = ParticleSystemMeshShapeType.Triangle;
-            shape.mesh          = worldSpaceMesh;
-
-            shape.randomDirectionAmount = 0f;
+            shape.enabled               = true;
+            shape.shapeType             = ParticleSystemShapeType.Mesh;
+            shape.meshShapeType         = ParticleSystemMeshShapeType.Triangle;
+            shape.mesh                  = emissionMesh;
             shape.alignToDirection      = false;
+            shape.randomDirectionAmount = 0f;
+
+            // Drive particles along local Z just like the primary system.
+            var velocityOverLifetime = _secondaryParticleSystem.velocityOverLifetime;
+            velocityOverLifetime.enabled = true;
+            velocityOverLifetime.space   = ParticleSystemSimulationSpace.Custom;
 
             if (_secondaryDriveMode == SecondaryDriveMode.Speed)
             {
                 float speed = Mathf.Max(_secondarySpeed, 0.001f);
                 secondaryMain.startSpeed    = speed;
                 secondaryMain.startLifetime = speed > 0 ? _secondaryDuration : 1f;
+                velocityOverLifetime.z = speed;
             }
             else
             {
                 float duration = Mathf.Max(_secondaryDuration, 0.001f);
                 secondaryMain.startLifetime = duration;
                 secondaryMain.startSpeed    = _secondarySpeed;
+                velocityOverLifetime.z = _secondarySpeed;
             }
+
+            velocityOverLifetime.x = 0f;
+            velocityOverLifetime.y = 0f;
         }
 
-        /// <summary>
-        /// Builds a version of the combined segment mesh with vertices in world space,
-        /// for use with the secondary ParticleSystem running in World simulation space.
-        /// Kept separate from _combinedSegmentMesh (which is root-local-space) so the
-        /// two systems do not interfere with each other.
-        /// </summary>
-        private Mesh _worldSpaceSegmentMesh;
-        private Mesh BuildWorldSpaceMesh()
-        {
-            if (_cachedRelays == null || _cachedRelays.Length == 0) return null;
 
-            CombineInstance[] combine = new CombineInstance[_cachedRelays.Length];
-            bool anyValid = false;
-
-            for (int i = 0; i < _cachedRelays.Length; i++)
-            {
-                MeshCollider mc = _cachedRelays[i].GetComponent<MeshCollider>();
-                if (mc == null || mc.sharedMesh == null) continue;
-
-                // Identity matrix: verts are already in world space from GenerateSegmentMesh.
-                combine[i].mesh      = mc.sharedMesh;
-                combine[i].transform = Matrix4x4.identity;
-                anyValid = true;
-            }
-
-            if (!anyValid) return null;
-
-            if (_worldSpaceSegmentMesh == null)
-            {
-                _worldSpaceSegmentMesh      = new Mesh();
-                _worldSpaceSegmentMesh.name = "SplineTubeWorldSpaceEmissionMesh";
-            }
-
-            _worldSpaceSegmentMesh.Clear();
-            _worldSpaceSegmentMesh.CombineMeshes(combine, mergeSubMeshes: true, useMatrices: true);
-            _worldSpaceSegmentMesh.RecalculateBounds();
-            return _worldSpaceSegmentMesh;
-        }
 
         private void WarnIfDriftExceedsRadius()
         {
@@ -303,13 +280,6 @@ namespace Crease.Flying.Environment.Wind.SplineTube
                     DestroyImmediate(_combinedSegmentMesh);
             }
 
-            if (_worldSpaceSegmentMesh != null)
-            {
-                if (Application.isPlaying)
-                    Destroy(_worldSpaceSegmentMesh);
-                else
-                    DestroyImmediate(_worldSpaceSegmentMesh);
-            }
         }
     }
 }

@@ -17,6 +17,8 @@ GameObject:
   - component: {fileID: 933676755461964740}
   - component: {fileID: 8354564782749646844}
   - component: {fileID: 5444906405529772516}
+  - component: {fileID: 9096623736098259463}
+  - component: {fileID: 8053536115182019174}
   m_Layer: 0
   m_Name: SplineWindZone
   m_TagString: Untagged
@@ -33,7 +35,7 @@ Transform:
   m_GameObject: {fileID: 971442111681154991}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: -0}
+  m_LocalPosition: {x: 0, y: 50, z: 6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -661,7 +663,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   FeatherEdges: 1
-  DebugLog: 0
+  DebugLog: 1
 --- !u!114 &599884683186278681
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -680,7 +682,7 @@ MonoBehaviour:
   _emissionRate: 80
   _driftWarningRadiusMultiplier: 1.5
   _secondaryParticleSystem: {fileID: 4612309026073900413}
-  _secondarySpeed: 5
+  _secondarySpeed: 2
   _secondaryDuration: 2
   _secondaryDriveMode: 0
 --- !u!199 &933676755461964740
@@ -5499,6 +5501,75 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SplineDebugRenederer
   DebugColor: {r: 0.89937496, g: 0, b: 1, a: 0.4}
+--- !u!114 &9096623736098259463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 971442111681154991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 007c7c09592abec46b0b0c869db95e30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Environment.Wind.SplineTube.SplineTubeTrigger
+  Radius: 1.5
+  RadiusCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  RingCount: 24
+  Segments: 12
+  MaxSegmentAngle: 25
+  AutoConfigureRigidbody: 1
+  OnTriggerEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  OnTriggerExited:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &8053536115182019174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 971442111681154991}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 785a1bc6ec938254f8feecf35d12cae0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Environment.Wind.SplineTube.SplineSteamMarkers
+  _tubeTrigger: {fileID: 2157813350161059041}
+  _steamPrefab: {fileID: 4612309026073900413}
+  _verticalOffset: 0.25
+  _sideOffset: 0
+  _steamWidth: 1.5
+  _steamHeight: 1.5
+  _segmentLengthMultiplier: 1.15
+  _startSpeed: 1.5
+  _startLifetime: 1.5
+  _emissionRate: 35
 --- !u!1 &2625267043940952648
 GameObject:
   m_ObjectHideFlags: 0
@@ -5525,13 +5596,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2625267043940952648}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.54, y: 0.24, z: 0}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4253195539861809588}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!198 &4612309026073900413
 ParticleSystem:
   m_ObjectHideFlags: 0
@@ -5605,7 +5676,7 @@ ParticleSystem:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  moveWithTransform: 1
+  moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 0
   randomSeed: 0
