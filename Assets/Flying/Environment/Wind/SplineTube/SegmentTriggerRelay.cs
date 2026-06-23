@@ -8,6 +8,9 @@ namespace Crease.Flying.Environment.Wind.SplineTube
     /// reference-counted enter/exit methods, so crossing between adjacent segments
     /// never produces a false exit/enter pair at the SplineWindZone level.
     /// 
+    /// Also stores the ring index range this segment covers so SplineWindParticles
+    /// can look up the correct tangent direction for per-segment particle orientation.
+    /// 
     /// This script is created and managed entirely by SplineTubeTrigger at runtime.
     /// Do not add it manually.
     /// </summary>
@@ -15,9 +18,17 @@ namespace Crease.Flying.Environment.Wind.SplineTube
     {
         private SplineTubeTrigger _parent;
 
-        public void Initialize(SplineTubeTrigger parent)
+        /// <summary>Index of the first ring this segment covers in SplineTubeTrigger.Rings.</summary>
+        public int StartRingIndex { get; private set; }
+
+        /// <summary>Index of the last ring this segment covers in SplineTubeTrigger.Rings.</summary>
+        public int EndRingIndex { get; private set; }
+
+        public void Initialize(SplineTubeTrigger parent, int startRingIndex, int endRingIndex)
         {
-            _parent = parent;
+            _parent         = parent;
+            StartRingIndex  = startRingIndex;
+            EndRingIndex    = endRingIndex;
         }
 
         private void OnTriggerEnter(Collider other)

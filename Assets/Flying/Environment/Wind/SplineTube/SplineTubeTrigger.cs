@@ -210,7 +210,7 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             // Wire up a SegmentTriggerRelay on each child so enter/exit events
             // route back to this parent with reference counting.
             SegmentTriggerRelay relay = segObj.AddComponent<SegmentTriggerRelay>();
-            relay.Initialize(this);
+            relay.Initialize(this, startRing, endRing);
 
             _segmentObjects.Add(segObj);
         }
@@ -288,7 +288,7 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             _activeSegmentCount++;
             if (wasOutside)
             {
-                // Debug.Log("[SplineTubeTrigger] Player entered tube. Invoking OnTriggerEntered.");
+                //Debug.Log("[SplineTubeTrigger] Player entered tube. Invoking OnTriggerEntered.");
                 OnTriggerEntered?.Invoke(other);
             }
         }
@@ -305,7 +305,7 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             _activeSegmentCount = Mathf.Max(0, _activeSegmentCount - 1);
             if (_activeSegmentCount == 0)
             {
-                // Debug.Log("[SplineTubeTrigger] Player exited tube. Invoking OnTriggerExited.");
+                //Debug.Log("[SplineTubeTrigger] Player exited tube. Invoking OnTriggerExited.");
                 OnTriggerExited?.Invoke(other);
             }
         }
