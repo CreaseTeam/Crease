@@ -193,6 +193,13 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             UpdateSecondaryParticleSystem(emissionMesh);
         }
 
+        // June 2026 NOTE: For steam particle system: rotation of Steam (child game object of SplineWindZone) is 
+        // set to 90 in the x-direction otherwise it does not align properly with spline.
+        // May need to be changed in the future depending on implementation, but should work for all Spline
+        // shapes as far as I tested. Since it is basic VFX stage it should be good.
+        // This is bc I copy-pasted the Steam particle system from the Wind Frustums for simplicity 
+        // at this time of early development, but we should probably make a new particle system
+        // that works better for varying spline shapes in the future.
         private void UpdateSecondaryParticleSystem(Mesh emissionMesh)
         {
             if (_secondaryParticleSystem == null || emissionMesh == null) return;
