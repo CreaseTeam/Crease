@@ -11,13 +11,12 @@ GameObject:
   - component: {fileID: 4253195539861809588}
   - component: {fileID: 8546350048629974109}
   - component: {fileID: 6179623131388735766}
-  - component: {fileID: 2157813350161059041}
   - component: {fileID: 8432195866415094785}
-  - component: {fileID: 599884683186278681}
+  - component: {fileID: 2157813350161059041}
   - component: {fileID: 933676755461964740}
+  - component: {fileID: 599884683186278681}
   - component: {fileID: 8354564782749646844}
   - component: {fileID: 5444906405529772516}
-  - component: {fileID: 9096623736098259463}
   m_Layer: 0
   m_Name: SplineWindZone
   m_TagString: Untagged
@@ -568,53 +567,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &2157813350161059041
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 971442111681154991}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 007c7c09592abec46b0b0c869db95e30, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Environment.Wind.SplineTube.SplineTubeTrigger
-  Radius: 3
-  RadiusCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  RingCount: 24
-  Segments: 12
-  MaxSegmentAngle: 25
-  AutoConfigureRigidbody: 1
-  OnTriggerEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  OnTriggerExited:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!114 &8432195866415094785
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -663,7 +615,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   FeatherEdges: 1
   DebugLog: 1
---- !u!114 &599884683186278681
+--- !u!114 &2157813350161059041
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -672,18 +624,44 @@ MonoBehaviour:
   m_GameObject: {fileID: 971442111681154991}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c78f75e44a696e144a1e066aa12c9d92, type: 3}
+  m_Script: {fileID: 11500000, guid: 007c7c09592abec46b0b0c869db95e30, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Environment.Wind.SplineTube.SplineWindParticles
-  _emissionMeshOverride: {fileID: 0}
-  _startSpeed: 4
-  _startLifetime: 0.6
-  _emissionRate: 80
-  _driftWarningRadiusMultiplier: 1.5
-  _secondaryParticleSystem: {fileID: 4612309026073900413}
-  _secondarySpeed: 2
-  _secondaryDuration: 2
-  _secondaryDriveMode: 0
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Environment.Wind.SplineTube.SplineTubeTrigger
+  Radius: 1.5
+  RadiusCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  RingCount: 24
+  Segments: 12
+  MaxSegmentAngle: 25
+  AutoConfigureRigidbody: 1
+  OnTriggerEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  OnTriggerExited:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!199 &933676755461964740
 ParticleSystemRenderer:
   serializedVersion: 7
@@ -764,6 +742,27 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
+--- !u!114 &599884683186278681
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 971442111681154991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c78f75e44a696e144a1e066aa12c9d92, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Environment.Wind.SplineTube.SplineWindParticles
+  _emissionMeshOverride: {fileID: 0}
+  _startSpeed: 4
+  _startLifetime: 0.6
+  _emissionRate: 80
+  _driftWarningRadiusMultiplier: 1.5
+  _secondaryParticleSystem: {fileID: 4612309026073900413}
+  _secondarySpeed: 2
+  _secondaryDuration: 2
+  _secondaryDriveMode: 0
 --- !u!198 &8354564782749646844
 ParticleSystem:
   m_ObjectHideFlags: 0
@@ -5500,53 +5499,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SplineDebugRenederer
   DebugColor: {r: 0.89937496, g: 0, b: 1, a: 0.4}
---- !u!114 &9096623736098259463
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 971442111681154991}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 007c7c09592abec46b0b0c869db95e30, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Environment.Wind.SplineTube.SplineTubeTrigger
-  Radius: 1.5
-  RadiusCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  RingCount: 24
-  Segments: 12
-  MaxSegmentAngle: 25
-  AutoConfigureRigidbody: 1
-  OnTriggerEntered:
-    m_PersistentCalls:
-      m_Calls: []
-  OnTriggerExited:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1 &2625267043940952648
 GameObject:
   m_ObjectHideFlags: 0

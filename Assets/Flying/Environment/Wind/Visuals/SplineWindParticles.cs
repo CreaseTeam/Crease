@@ -163,8 +163,11 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             var main = _particleSystem.main;
             main.simulationSpace = ParticleSystemSimulationSpace.Local;
             main.scalingMode     = ParticleSystemScalingMode.Hierarchy;
-            main.startSpeed      = _startSpeed;
             main.startLifetime   = _startLifetime;
+
+            // Zero out startSpeed so the shape module contributes no initial velocity —
+            // velocityOverLifetime below is the sole driver of particle direction and speed.
+            main.startSpeed = 0f;
 
             var emission = _particleSystem.emission;
             emission.enabled      = true;
@@ -179,15 +182,15 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             shape.randomDirectionAmount = 0f;
             shape.alignToDirection      = false;
 
+            // Drive particles along the spline's start tangent direction in local space.
+            // startSpeed is zeroed above so the shape module doesn't fight this velocity.
+            Vector3 localDir = GetSplineStartDirectionLocal();
             var velocityOverLifetime = _particleSystem.velocityOverLifetime;
             velocityOverLifetime.enabled = true;
             velocityOverLifetime.space   = ParticleSystemSimulationSpace.Local;
-            // Drives particles along this object's local forward axis. Known v1 limitation:
-            // a single particle system cannot bend per-particle velocity around sharp turns.
-            // Short StartLifetime keeps this visually acceptable on moderate curves.
-            velocityOverLifetime.z = _startSpeed;
-            velocityOverLifetime.x = 0f;
-            velocityOverLifetime.y = 0f;
+            velocityOverLifetime.x       = _startSpeed * localDir.x;
+            velocityOverLifetime.y       = _startSpeed * localDir.y;
+            velocityOverLifetime.z       = _startSpeed * localDir.z;
 
             WarnIfDriftExceedsRadius();
             UpdateSecondaryParticleSystem(emissionMesh);
@@ -220,6 +223,9 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             secondaryMain.scalingMode           = ParticleSystemScalingMode.Hierarchy;
             secondaryMain.maxParticles          = 500;
 
+            // Zero out startSpeed so the shape module contributes no initial velocity.
+            secondaryMain.startSpeed = 0f;
+
             var emission = _secondaryParticleSystem.emission;
             emission.enabled      = true;
             emission.rateOverTime = _emissionRate * 1.5f;
@@ -232,7 +238,8 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             shape.alignToDirection      = false;
             shape.randomDirectionAmount = 0f;
 
-            // Drive particles along local Z just like the primary system.
+            // Drive particles along the spline's start tangent, same as primary system.
+            Vector3 localDir = GetSplineStartDirectionLocal();
             var velocityOverLifetime = _secondaryParticleSystem.velocityOverLifetime;
             velocityOverLifetime.enabled = true;
             velocityOverLifetime.space   = ParticleSystemSimulationSpace.Custom;
@@ -240,23 +247,37 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             if (_secondaryDriveMode == SecondaryDriveMode.Speed)
             {
                 float speed = Mathf.Max(_secondarySpeed, 0.001f);
-                secondaryMain.startSpeed    = speed;
-                secondaryMain.startLifetime = speed > 0 ? _secondaryDuration : 1f;
-                velocityOverLifetime.z = speed;
+                secondaryMain.startLifetime     = speed > 0 ? _secondaryDuration : 1f;
+                velocityOverLifetime.x          = speed * localDir.x;
+                velocityOverLifetime.y          = speed * localDir.y;
+                velocityOverLifetime.z          = speed * localDir.z;
             }
             else
             {
                 float duration = Mathf.Max(_secondaryDuration, 0.001f);
                 secondaryMain.startLifetime = duration;
-                secondaryMain.startSpeed    = _secondarySpeed;
-                velocityOverLifetime.z = _secondarySpeed;
+                velocityOverLifetime.x      = _secondarySpeed * localDir.x;
+                velocityOverLifetime.y      = _secondarySpeed * localDir.y;
+                velocityOverLifetime.z      = _secondarySpeed * localDir.z;
             }
-
-            velocityOverLifetime.x = 0f;
-            velocityOverLifetime.y = 0f;
         }
 
+        /// <summary>
+        /// Returns the spline's start tangent converted into this root GameObject's local space.
+        /// Used to drive velocityOverLifetime so particles flow along the actual spline direction
+        /// rather than a fixed local axis, making flow direction correct regardless of tube orientation.
+        /// Falls back to local forward (0,0,1) if rings are unavailable.
+        /// </summary>
+        private Vector3 GetSplineStartDirectionLocal()
+        {
+            if (_tubeTrigger == null || _tubeTrigger.Rings == null || _tubeTrigger.Rings.Count < 2)
+                return Vector3.forward;
 
+            Vector3 worldTangent = _tubeTrigger.Rings[0].Tangent;
+            if (worldTangent.sqrMagnitude < 0.0001f) return Vector3.forward;
+
+            return transform.InverseTransformDirection(worldTangent.normalized);
+        }
 
         private void WarnIfDriftExceedsRadius()
         {
@@ -286,7 +307,6 @@ namespace Crease.Flying.Environment.Wind.SplineTube
                 else
                     DestroyImmediate(_combinedSegmentMesh);
             }
-
         }
     }
 }
