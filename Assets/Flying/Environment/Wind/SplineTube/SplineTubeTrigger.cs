@@ -83,14 +83,6 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             Initialize();
         }
 
-        private void OnValidate()
-        {
-            if (_splineContainer != null)
-            {
-                RebuildMesh();
-            }
-        }
-
         private void Initialize()
         {
             _splineContainer = GetComponent<SplineContainer>();
