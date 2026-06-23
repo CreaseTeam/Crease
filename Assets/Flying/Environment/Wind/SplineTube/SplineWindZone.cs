@@ -116,7 +116,11 @@ namespace Crease.Flying.Environment.Wind.SplineTube
                 strength *= Mathf.Clamp01(1.0f - normalizedDist);
             }
 
-            Vector3 finalForce = tubeTangent * strength;
+            // Per spec: force is applied in the direction the player is facing (not the tube's
+            // tangent), scaled by how aligned that facing direction already is with the tube.
+            // This rewards players for actively steering along the tube rather than the tube
+            // forcibly carrying them along its path regardless of their heading.
+            Vector3 finalForce = _cachedPlayerTransform.forward * strength;
             if (DebugLog) Debug.Log($"dot={dot:F2} | boostMult={boostMultiplier:F2} | wind={finalForce.magnitude:F1}");
             return finalForce;
         }
