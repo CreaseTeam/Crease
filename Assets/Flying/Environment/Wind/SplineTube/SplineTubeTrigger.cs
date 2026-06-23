@@ -83,6 +83,14 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             Initialize();
         }
 
+        private void OnValidate()
+        {
+            if (_splineContainer != null)
+            {
+                RebuildMesh();
+            }
+        }
+
         private void Initialize()
         {
             _splineContainer = GetComponent<SplineContainer>();
@@ -288,7 +296,7 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             _activeSegmentCount++;
             if (wasOutside)
             {
-                Debug.Log("[SplineTubeTrigger] Player entered tube. Invoking OnTriggerEntered.");
+                // Debug.Log("[SplineTubeTrigger] Player entered tube. Invoking OnTriggerEntered.");
                 OnTriggerEntered?.Invoke(other);
             }
         }
@@ -305,7 +313,7 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             _activeSegmentCount = Mathf.Max(0, _activeSegmentCount - 1);
             if (_activeSegmentCount == 0)
             {
-                Debug.Log("[SplineTubeTrigger] Player exited tube. Invoking OnTriggerExited.");
+                // Debug.Log("[SplineTubeTrigger] Player exited tube. Invoking OnTriggerExited.");
                 OnTriggerExited?.Invoke(other);
             }
         }
