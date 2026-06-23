@@ -1,3 +1,4 @@
+using System.Collections;
 using Crease.Flying.Player;
 using Crease.Flying.Player.FlightModifiers;
 using Crease.Managers.Input;
@@ -36,10 +37,80 @@ namespace Crease.Flying.Player.Camera
         private float _mouseInactivityTimer;
         private Vector2 _lastMouseInput;
 
+        private Transform _lookCaptureTarget;
+        private float _lookCaptureBlend;
+        private Coroutine _lookCaptureRoutine;
+
+        public bool IsLookCaptureActive => _lookCaptureRoutine != null || _lookCaptureBlend > 0.001f;
+
         public void RecenterPan()
         {
             _panYaw = 0f;
             _panPitch = 0f;
+        }
+
+        public void StartLookCapture(Transform lookTarget, float transitionInDuration, float holdDuration, float transitionOutDuration)
+        {
+            if (lookTarget == null)
+                return;
+
+            if (_lookCaptureRoutine != null)
+                StopCoroutine(_lookCaptureRoutine);
+
+            _lookCaptureRoutine = StartCoroutine(LookCaptureRoutine(lookTarget, transitionInDuration, holdDuration, transitionOutDuration));
+        }
+
+        public void CancelLookCapture()
+        {
+            if (_lookCaptureRoutine != null)
+            {
+                StopCoroutine(_lookCaptureRoutine);
+                _lookCaptureRoutine = null;
+            }
+
+            _lookCaptureTarget = null;
+            _lookCaptureBlend = 0f;
+        }
+
+        private IEnumerator LookCaptureRoutine(Transform lookTarget, float transitionInDuration, float holdDuration, float transitionOutDuration)
+        {
+            _lookCaptureTarget = lookTarget;
+            RecenterPan();
+
+            yield return AnimateLookCaptureBlend(0f, 1f, transitionInDuration);
+
+            float holdElapsed = 0f;
+            while (holdElapsed < holdDuration)
+            {
+                holdElapsed += ScaledDeltaTime;
+                yield return null;
+            }
+
+            yield return AnimateLookCaptureBlend(1f, 0f, transitionOutDuration);
+
+            _lookCaptureTarget = null;
+            _lookCaptureBlend = 0f;
+            _lookCaptureRoutine = null;
+        }
+
+        private IEnumerator AnimateLookCaptureBlend(float from, float to, float duration)
+        {
+            if (duration <= 0f)
+            {
+                _lookCaptureBlend = to;
+                yield break;
+            }
+
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += ScaledDeltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                _lookCaptureBlend = Mathf.Lerp(from, to, t);
+                yield return null;
+            }
+
+            _lookCaptureBlend = to;
         }
 
         private void Awake()
@@ -86,7 +157,9 @@ namespace Crease.Flying.Player.Camera
             if (scaledDt < 0.0001f) return;
 
             HandleZoom(scaledDt);
-            HandlePanning(scaledDt);
+
+            if (!IsLookCaptureActive)
+                HandlePanning(scaledDt);
 
             if (InputManager.Instance != null && InputManager.Instance.CenterCameraTriggered)
             {
@@ -143,11 +216,22 @@ namespace Crease.Flying.Player.Camera
 
             Quaternion finalRotation = _unpannedBaseRotation * localPan;
 
-            Quaternion rOrbit = finalRotation * Quaternion.Inverse(_unpannedBaseRotation);
-            Vector3 offsetFromTarget = _unpannedBasePosition - Target.position;
+            if (_lookCaptureBlend > 0f && _lookCaptureTarget != null)
+            {
+                Vector3 captureLookDir = (_lookCaptureTarget.position - _unpannedBasePosition).normalized;
+                Quaternion captureRotation = Quaternion.LookRotation(captureLookDir, upVec);
+                finalRotation = Quaternion.Slerp(finalRotation, captureRotation, _lookCaptureBlend);
+                transform.position = _unpannedBasePosition;
+                transform.rotation = finalRotation;
+            }
+            else
+            {
+                Quaternion rOrbit = finalRotation * Quaternion.Inverse(_unpannedBaseRotation);
+                Vector3 offsetFromTarget = _unpannedBasePosition - Target.position;
 
-            transform.position = Target.position + rOrbit * offsetFromTarget;
-            transform.rotation = finalRotation;
+                transform.position = Target.position + rOrbit * offsetFromTarget;
+                transform.rotation = finalRotation;
+            }
         }
 
         private void HandleZoom(float dt)

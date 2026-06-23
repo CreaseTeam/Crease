@@ -1,4 +1,5 @@
 using System.Collections;
+using Crease.Flying.Player.Camera;
 using TMPro;
 using UnityEngine;
 
@@ -26,6 +27,31 @@ namespace Crease.Handwritting
         [Tooltip("Show all text immediately when the scene starts.")]
         bool _instantOnStart;
 
+        [SerializeField]
+        [Tooltip("Rotate the text each frame to face the billboard target.")]
+        bool _billboardTowardsPlayer;
+
+        [SerializeField]
+        [Tooltip("Transform to face when billboarding. Uses the main camera when unset.")]
+        Transform _billboardTarget;
+
+        [SerializeField]
+        [Tooltip("Smoothly rotate the player camera to look at this text when playback starts.")]
+        bool _captureCameraOnPlay;
+
+        [SerializeField]
+        CameraController _cameraController;
+
+        [SerializeField]
+        [Min(0f)]
+        [Tooltip("Seconds to blend the camera toward and away from the text.")]
+        float _cameraCaptureTransitionDuration = 0.75f;
+
+        [SerializeField]
+        [Min(0f)]
+        [Tooltip("Seconds to keep the camera locked on the text before returning.")]
+        float _cameraCaptureHoldDuration = 3f;
+
         TextMeshPro _text;
         Material _materialInstance;
         Coroutine _playRoutine;
@@ -49,6 +75,7 @@ namespace Crease.Handwritting
         void Awake()
         {
             _text = GetComponent<TextMeshPro>();
+            ResolveCameraController();
             ApplyFont();
         }
 
@@ -72,10 +99,62 @@ namespace Crease.Handwritting
                 PlayWriteIn();
         }
 
+        void LateUpdate()
+        {
+            if (!_billboardTowardsPlayer)
+                return;
+
+            Transform target = _billboardTarget;
+            if (target == null && UnityEngine.Camera.main != null)
+                target = UnityEngine.Camera.main.transform;
+
+            if (target == null)
+                return;
+
+            Vector3 forward = transform.position - target.position;
+            if (forward.sqrMagnitude < 0.0001f)
+                return;
+
+            transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+        }
+
         void OnDestroy()
         {
+            if (_cameraController != null)
+                _cameraController.CancelLookCapture();
+
             if (_materialInstance != null)
                 Destroy(_materialInstance);
+        }
+
+        void ResolveCameraController()
+        {
+            if (_cameraController != null)
+                return;
+
+            if (UnityEngine.Camera.main == null)
+                return;
+
+            _cameraController = UnityEngine.Camera.main.GetComponentInParent<CameraController>();
+        }
+
+        void TryStartCameraCapture()
+        {
+            if (!_captureCameraOnPlay)
+                return;
+
+            ResolveCameraController();
+            if (_cameraController == null)
+            {
+                Debug.LogWarning($"{nameof(HandwrittenTextPlayer)} on {name} could not find a {nameof(CameraController)} for camera capture.");
+                return;
+            }
+
+            _cameraController.StartLookCapture(
+                transform,
+                _cameraCaptureTransitionDuration,
+                _cameraCaptureHoldDuration,
+                _cameraCaptureTransitionDuration);
         }
 
         public void PlayWriteIn()
@@ -91,6 +170,7 @@ namespace Crease.Handwritting
             if (_playRoutine != null)
                 StopCoroutine(_playRoutine);
 
+            TryStartCameraCapture();
             _playRoutine = StartCoroutine(PlayWriteInRoutine(ResolveText(text)));
         }
 
@@ -112,6 +192,7 @@ namespace Crease.Handwritting
 
             SetText(ResolveText(text));
             SetFullyVisible();
+            TryStartCameraCapture();
         }
 
         string ResolveText(string text)
