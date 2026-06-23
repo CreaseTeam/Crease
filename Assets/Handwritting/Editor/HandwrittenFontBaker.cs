@@ -85,6 +85,15 @@ namespace Crease.Handwritting.Editor
             font.RevealAtlas = revealAtlas;
             font.FontMaterial = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
 
+            HandwrittenBMFontExporter.Export(
+                font,
+                inkAtlas,
+                bakedGlyphs,
+                cellSize,
+                atlasWidth,
+                atlasHeight,
+                fontDirectory);
+
             EditorUtility.SetDirty(font);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

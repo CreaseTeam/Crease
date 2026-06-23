@@ -267,9 +267,9 @@ namespace Crease.Handwritting.Editor
             EditorGUILayout.EndHorizontal();
 
             if (_font.FontAsset != null)
-                EditorGUILayout.HelpBox("Font is baked and ready for HandwrittenTextPlayer.", MessageType.Info);
+                EditorGUILayout.HelpBox("Font is baked and ready for HandwrittenTextPlayer. BMFont (.fnt + .png) is exported alongside the bake.", MessageType.Info);
             else
-                EditorGUILayout.HelpBox("Bake to generate the TMP font, reveal atlas, and material.", MessageType.Warning);
+                EditorGUILayout.HelpBox("Bake to generate the TMP font, reveal atlas, material, and BMFont export.", MessageType.Warning);
         }
 
         void UndoLastStroke()
