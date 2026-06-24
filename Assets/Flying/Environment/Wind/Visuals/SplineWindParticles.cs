@@ -14,10 +14,19 @@ namespace Crease.Flying.Environment.Wind.SplineTube
         [SerializeField] private float _startLifetime = 0.6f;
 
         [Tooltip("Particle emission rate per segment (particles per second).")]
-        [SerializeField] private float _emissionRate = 20f;
+        [SerializeField] private float _emissionRate = 8f;
 
         [Tooltip("Material applied to each segment's particle system renderer.")]
         [SerializeField] private Material _particleMaterial;
+
+        [Tooltip("How much particle speed contributes to stretch length.")]
+        [SerializeField] private float _stretchVelocityScale = 0f;
+
+        [Tooltip("Base length scale for stretched billboard particles.")]
+        [SerializeField] private float _stretchLengthScale = 40f;
+
+        [Tooltip("Width of each particle. Lower = thinner streaks.")]
+        [SerializeField] private float _startSize = 0.1f;
 
         [Header("Secondary Particle System (Steam)")]
         [Tooltip("Optional secondary particle system (e.g. Steam child GameObject) whose shape is synced " +
@@ -55,6 +64,16 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             // Start guarantees SplineTubeTrigger.Awake has already run and built
             // all segment children before we try to add particle systems to them.
             UpdateParticleSystems();
+        }
+
+        private void OnValidate()
+        {
+            // Only reconfigure during Play mode — segment particle systems don't
+            // exist in edit mode since they're created at runtime by SplineTubeTrigger.
+            if (Application.isPlaying)
+            {
+                UpdateParticleSystems();
+            }
         }
 
         private void Update()
@@ -123,6 +142,17 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             main.scalingMode     = ParticleSystemScalingMode.Hierarchy;
             main.startLifetime   = _startLifetime;
             main.startSpeed      = 0f; // velocity driven entirely by velocityOverLifetime below
+            main.startSize       = new ParticleSystem.MinMaxCurve(_startSize);
+
+            // Stagger each segment's particle timing based on its position along the spline
+            // so particles appear to flow continuously from tube start to end, rather than
+            // each segment emitting in its own synchronized clump.
+            int totalRings = _tubeTrigger.Rings != null ? _tubeTrigger.Rings.Count : 1;
+            float phase = (float)relay.StartRingIndex / Mathf.Max(totalRings - 1, 1);
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            ps.useAutoRandomSeed = false;
+            ps.randomSeed        = (uint)(phase * uint.MaxValue);
+            ps.Play();
 
             var emission = ps.emission;
             emission.enabled      = true;
@@ -148,10 +178,18 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             vol.y       = _startSpeed * worldTangent.y;
             vol.z       = _startSpeed * worldTangent.z;
 
-            // Apply material if provided.
+            // Apply material and stretched billboard render mode so particles
+            // look like elongated streaks flowing in the wind direction,
+            // matching the frustum wind particle visual style.
             var renderer = ps.GetComponent<ParticleSystemRenderer>();
-            if (renderer != null && _particleMaterial != null)
-                renderer.material = _particleMaterial;
+            if (renderer != null)
+            {
+                if (_particleMaterial != null)
+                    renderer.material = _particleMaterial;
+                renderer.renderMode        = ParticleSystemRenderMode.Stretch;
+                renderer.velocityScale     = _stretchVelocityScale;
+                renderer.lengthScale       = _stretchLengthScale;
+            }
         }
 
         // June 2026 NOTE: For steam particle system: rotation of Steam (child game object of SplineWindZone) is 
