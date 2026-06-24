@@ -35,6 +35,11 @@ namespace Crease.Folding.Decals
         /// </summary>
         public bool UseAxisAlignment;
         public Vector3 AlignAxisLocal;
+
+        /// <summary>
+        /// When true, regions of the decal that extend past the paper boundary are culled at placement time.
+        /// </summary>
+        public bool CullOverhang;
     }
 
     public static class DecalPlacementUtility
@@ -46,7 +51,8 @@ namespace Crease.Folding.Decals
             float rotationUv = 0f,
             float heightScale = 0f,
             Vector3 alignAxisLocal = default,
-            bool useAxisAlignment = false)
+            bool useAxisAlignment = false,
+            bool cullOverhang = false)
         {
             return new DecalPlacement
             {
@@ -65,7 +71,8 @@ namespace Crease.Folding.Decals
                 ViewRayOriginLocal = hit.ViewRayOriginLocal,
                 ViewRayDirLocal = hit.ViewRayDirLocal,
                 UseAxisAlignment = useAxisAlignment,
-                AlignAxisLocal = alignAxisLocal
+                AlignAxisLocal = alignAxisLocal,
+                CullOverhang = cullOverhang
             };
         }
     }

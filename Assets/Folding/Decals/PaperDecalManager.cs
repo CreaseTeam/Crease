@@ -216,7 +216,8 @@ namespace Crease.Folding.Decals
                         tickWidth,
                         heightScale: tickHeight,
                         alignAxisLocal: axis,
-                        useAxisAlignment: true));
+                        useAxisAlignment: true,
+                        cullOverhang: true));
                 }
 
                 along += period;
@@ -274,6 +275,7 @@ namespace Crease.Folding.Decals
         {
             if (texture == null) return;
             EnsureGhost();
+            _ghostPreviewCache.Invalidate();
             _ghostQuad.SetTexture(texture);
             _ghostQuad.gameObject.SetActive(true);
             DecalPlacement temp = DecalPlacementUtility.FromSurfaceHit(texture, hit, scale, rotationUv);

@@ -12,6 +12,7 @@ namespace Crease.Folding.Decals
 
         private MeshRenderer _renderer;
         private Material _materialInstance;
+        private Mesh _clippedMesh;
         private bool _isGhost;
         private int _layerOrder;
 
@@ -65,12 +66,22 @@ namespace Crease.Folding.Decals
                     out Vector3 localTangent,
                     previewCache))
             {
-                if (previewCache != null)
+                if (placement.LocalNormal.sqrMagnitude > 0.0001f)
+                {
+                    localPos = placement.LocalPoint;
+                    localNormal = placement.LocalNormal;
+                    localTangent = DecalSurfaceQuery.InterpolateTangent(authoringGraph, placement, localNormal);
+                }
+                else if (previewCache != null)
+                {
                     return;
-
-                localPos = DecalSurfaceQuery.InterpolatePosition(authoringGraph, placement);
-                localNormal = DecalSurfaceQuery.InterpolateNormal(authoringGraph, placement);
-                localTangent = DecalSurfaceQuery.InterpolateTangent(authoringGraph, placement, localNormal);
+                }
+                else
+                {
+                    localPos = DecalSurfaceQuery.InterpolatePosition(authoringGraph, placement);
+                    localNormal = DecalSurfaceQuery.InterpolateNormal(authoringGraph, placement);
+                    localTangent = DecalSurfaceQuery.InterpolateTangent(authoringGraph, placement, localNormal);
+                }
             }
 
             if (meshVertexRotation != Quaternion.identity)
@@ -90,9 +101,69 @@ namespace Crease.Folding.Decals
 
             transform.SetParent(meshRoot, false);
             transform.localPosition = localPos;
-            transform.localRotation = BuildPlacementRotation(placement, localNormal, localTangent);
+            Quaternion placementRotation = BuildPlacementRotation(placement, localNormal, localTangent);
+            transform.localRotation = placementRotation;
             Vector2 quadScale = GetQuadScale(placement);
             transform.localScale = new Vector3(quadScale.x, quadScale.y, -1f);
+            Vector3 axisU = placementRotation * Vector3.right;
+            Vector3 axisV = placementRotation * Vector3.up;
+            ApplyMeshForPlacement(
+                placement,
+                displayGraph,
+                localPos,
+                localNormal,
+                axisU,
+                axisV,
+                quadScale,
+                meshVertexRotation);
+        }
+
+        private void ApplyMeshForPlacement(
+            DecalPlacement placement,
+            GraphMesh displayGraph,
+            Vector3 localPos,
+            Vector3 localNormal,
+            Vector3 axisU,
+            Vector3 axisV,
+            Vector2 quadScale,
+            Quaternion meshVertexRotation)
+        {
+            MeshFilter filter = GetComponent<MeshFilter>();
+            if (filter == null)
+                return;
+
+            if (!placement.CullOverhang)
+            {
+                filter.sharedMesh = _sharedQuadMesh;
+                if (_renderer != null)
+                    _renderer.enabled = true;
+                return;
+            }
+
+            if (_clippedMesh == null)
+                _clippedMesh = new Mesh { name = "ClippedDecalQuad" };
+
+            if (DecalPaperClipUtility.TryBuildClippedMesh(
+                    displayGraph,
+                    placement,
+                    localPos,
+                    localNormal,
+                    axisU,
+                    axisV,
+                    quadScale,
+                    out Mesh clippedMesh,
+                    _clippedMesh,
+                    meshVertexRotation))
+            {
+                filter.sharedMesh = clippedMesh;
+                if (_renderer != null)
+                    _renderer.enabled = true;
+                return;
+            }
+
+            filter.sharedMesh = _sharedQuadMesh;
+            if (_renderer != null)
+                _renderer.enabled = false;
         }
 
         private static Quaternion BuildPlacementRotation(
@@ -209,6 +280,8 @@ namespace Crease.Folding.Decals
         {
             if (_materialInstance != null)
                 Destroy(_materialInstance);
+            if (_clippedMesh != null)
+                Destroy(_clippedMesh);
         }
     }
 }
