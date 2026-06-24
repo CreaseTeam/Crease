@@ -119,6 +119,10 @@ namespace Crease.Flying.Environment.Wind.SplineTube
                 ParticleSystem ps = relay.GetComponent<ParticleSystem>();
                 if (ps == null) ps = relay.gameObject.AddComponent<ParticleSystem>();
 
+                // Cache the renderer here alongside the ParticleSystem to avoid
+                // calling GetComponent again inside ConfigureSegmentParticleSystem.
+                ParticleSystemRenderer psRenderer = ps.GetComponent<ParticleSystemRenderer>();
+
                 // Get the midpoint ring index for this segment to sample tangent direction.
                 int midRing = (relay.StartRingIndex + relay.EndRingIndex) / 2;
                 midRing = Mathf.Clamp(midRing, 0, _tubeTrigger.Rings.Count - 1);
@@ -128,11 +132,11 @@ namespace Crease.Flying.Environment.Wind.SplineTube
                 // origin (no local offset), so world space == local space for this child.
                 // We orient the ParticleSystem's velocity along the world-space tangent
                 // directly since Local simulation space on a world-origin child = world space.
-                ConfigureSegmentParticleSystem(ps, relay, worldTangent);
+                ConfigureSegmentParticleSystem(ps, psRenderer, relay, worldTangent);
             }
         }
 
-        private void ConfigureSegmentParticleSystem(ParticleSystem ps, SegmentTriggerRelay relay, Vector3 worldTangent)
+        private void ConfigureSegmentParticleSystem(ParticleSystem ps, ParticleSystemRenderer psRenderer, SegmentTriggerRelay relay, Vector3 worldTangent)
         {
             MeshCollider mc = relay.GetComponent<MeshCollider>();
             if (mc == null || mc.sharedMesh == null) return;
@@ -170,7 +174,7 @@ namespace Crease.Flying.Environment.Wind.SplineTube
 
             // Drive particles along this segment's actual tangent direction in world space.
             // Each segment has its own ParticleSystem so the direction is correct for that
-            // specific piece of the tube — this is the core fix vs. one system for the whole tube.
+            // specific piece of the tube.
             var vol = ps.velocityOverLifetime;
             vol.enabled = true;
             vol.space   = ParticleSystemSimulationSpace.World;
@@ -181,14 +185,13 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             // Apply material and stretched billboard render mode so particles
             // look like elongated streaks flowing in the wind direction,
             // matching the frustum wind particle visual style.
-            var renderer = ps.GetComponent<ParticleSystemRenderer>();
-            if (renderer != null)
+            if (psRenderer != null)
             {
                 if (_particleMaterial != null)
-                    renderer.material = _particleMaterial;
-                renderer.renderMode        = ParticleSystemRenderMode.Stretch;
-                renderer.velocityScale     = _stretchVelocityScale;
-                renderer.lengthScale       = _stretchLengthScale;
+                    psRenderer.material = _particleMaterial;
+                psRenderer.renderMode    = ParticleSystemRenderMode.Stretch;
+                psRenderer.velocityScale = _stretchVelocityScale;
+                psRenderer.lengthScale   = _stretchLengthScale;
             }
         }
 
