@@ -41,16 +41,10 @@ public class PaperGraph : MonoBehaviour
     public float CreaseMinBrightness = 0.4f;
 
     [Header("Fold Guide Line")]
-    [Tooltip("Object-space width of the optimal fold guide line.")]
+    [Tooltip("Object-space width of each guide dash.")]
     [Min(0f)]
     public float GuideLineWidth = 0.005f;
-    [Tooltip("Falloff sharpness (1 = soft, higher = harder edges).")]
-    [Min(0.01f)]
-    public float GuideLineFalloffPower = 12f;
-    [Tooltip("Surface brightness at the center of the guide line.")]
-    [Range(0f, 1f)]
-    public float GuideLineMinBrightness = 0.35f;
-    [Tooltip("Guide line tint and blend strength (alpha).")]
+    [Tooltip("Guide dash color.")]
     public Color GuideLineColor = new Color(1f, 1f, 1f, 0.85f);
     [Tooltip("Draw the guide line as dashes instead of a solid line.")]
     public bool GuideDashesEnabled = true;
@@ -115,6 +109,76 @@ public class PaperGraph : MonoBehaviour
         }
 
         return filterSet ?? new HashSet<Vertex>();
+    }
+
+    private const float FoldPlaneEpsilon = 0.0001f;
+
+    /// <summary>
+    /// Returns faces that would be split by a fold along the given plane, respecting filter tags.
+    /// Read-only; does not mutate the graph.
+    /// </summary>
+    public HashSet<Face> GetFacesSplitByFoldPlane(
+        Vector3 planePoint,
+        Vector3 planeNormal,
+        IReadOnlyList<string> filterTags)
+    {
+        HashSet<Face> faces = new HashSet<Face>();
+        if (planeNormal.sqrMagnitude < 0.0001f)
+            return faces;
+
+        planeNormal = planeNormal.normalized;
+        HashSet<Vertex> filterSet = BuildFilterSet(filterTags);
+
+        foreach (Edge edge in Edges)
+        {
+            if (filterSet != null && !filterSet.Contains(edge.V1) && !filterSet.Contains(edge.V2))
+                continue;
+
+            float d1 = Vector3.Dot(edge.V1.Position - planePoint, planeNormal);
+            float d2 = Vector3.Dot(edge.V2.Position - planePoint, planeNormal);
+            if (d1 * d2 >= 0f)
+                continue;
+
+            if (edge.Face1 != null)
+                faces.Add(edge.Face1);
+            if (edge.Face2 != null)
+                faces.Add(edge.Face2);
+        }
+
+        foreach (Face face in Faces)
+        {
+            if (filterSet != null)
+            {
+                bool hasFilteredVertex = false;
+                foreach (Vertex vertex in face.Vertices)
+                {
+                    if (filterSet.Contains(vertex))
+                    {
+                        hasFilteredVertex = true;
+                        break;
+                    }
+                }
+
+                if (!hasFilteredVertex)
+                    continue;
+            }
+
+            int positiveCount = 0;
+            int negativeCount = 0;
+            foreach (Vertex vertex in face.Vertices)
+            {
+                float d = Vector3.Dot(vertex.Position - planePoint, planeNormal);
+                if (d > FoldPlaneEpsilon)
+                    positiveCount++;
+                else if (d < -FoldPlaneEpsilon)
+                    negativeCount++;
+            }
+
+            if (positiveCount > 0 && negativeCount > 0)
+                faces.Add(face);
+        }
+
+        return faces;
     }
 
     private void Start() {

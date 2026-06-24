@@ -9,6 +9,7 @@ namespace Crease.Folding.Decals
     {
         private const float FacingEpsilon = 0.01f;
         private const float DepthEpsilon = 0.0001f;
+        private const float PlanarRayStartOffset = 0.5f;
 
         public struct SurfaceHit
         {
@@ -21,6 +22,7 @@ namespace Crease.Folding.Decals
             public Vector3 LocalNormal;
             public Vector2 SheetUv;
             public PaperSide Side;
+            public Face HitFace;
             public Vector3 ViewRayOriginLocal;
             public Vector3 ViewRayDirLocal;
         }
@@ -48,6 +50,7 @@ namespace Crease.Folding.Decals
             public int V0Index;
             public int V1Index;
             public int V2Index;
+            public Face Face;
         }
 
         public DecalSurfaceQuery(
@@ -68,6 +71,19 @@ namespace Crease.Folding.Decals
             if (_surfaceGraph == null) return;
             BuildTriangleList(_surfaceGraph, _triangles);
             _frontTriangleCount = _triangles.Count;
+
+            int frontCount = _triangles.Count;
+            for (int i = 0; i < frontCount; i++)
+            {
+                MeshTriangle tri = _triangles[i];
+                _triangles.Add(new MeshTriangle
+                {
+                    V0Index = tri.V0Index,
+                    V1Index = tri.V2Index,
+                    V2Index = tri.V1Index,
+                    Face = tri.Face
+                });
+            }
         }
 
         /// <summary>
@@ -100,7 +116,8 @@ namespace Crease.Folding.Decals
                     {
                         V0Index = v0Index,
                         V1Index = graph.Vertices.IndexOf(v2),
-                        V2Index = graph.Vertices.IndexOf(v1)
+                        V2Index = graph.Vertices.IndexOf(v1),
+                        Face = face
                     });
                 }
             }
@@ -113,18 +130,282 @@ namespace Crease.Folding.Decals
                 return miss;
 
             Ray worldRay = camera.ScreenPointToRay(screenPosition);
-            Vector3 viewOriginLocal = _meshSurfaceRoot.InverseTransformPoint(worldRay.origin);
-            Vector3 viewDirLocal = _meshSurfaceRoot.InverseTransformDirection(worldRay.direction).normalized;
-
-            if (!TryGetOutermostVisibleHit(worldRay, out RaycastHit physicsHit))
-                return miss;
-
-            return BuildSurfaceHit(physicsHit, viewOriginLocal, viewDirLocal);
+            Vector3 rayOriginLocal = _meshSurfaceRoot.InverseTransformPoint(worldRay.origin);
+            Vector3 rayDirLocal = _meshSurfaceRoot.InverseTransformDirection(worldRay.direction).normalized;
+            return RaycastAlongRay(worldRay, rayOriginLocal, rayDirLocal, null);
         }
 
-        private bool TryGetOutermostVisibleHit(Ray worldRay, out RaycastHit bestHit)
+        /// <summary>
+        /// Casts from above the folding plane along -planeNormal and returns the nearest surface hit
+        /// on an allowed face. Uses analytic triangle tests in paper-local space so the query
+        /// does not depend on a physics collider (authoring mesh is often not collidable).
+        /// </summary>
+        private static void BuildTriangleListWithBackFaces(GraphMesh graph, List<MeshTriangle> output)
+        {
+            BuildTriangleList(graph, output);
+            int frontCount = output.Count;
+            for (int i = 0; i < frontCount; i++)
+            {
+                MeshTriangle tri = output[i];
+                output.Add(new MeshTriangle
+                {
+                    V0Index = tri.V0Index,
+                    V1Index = tri.V2Index,
+                    V2Index = tri.V1Index,
+                    Face = tri.Face
+                });
+            }
+        }
+
+        /// <summary>
+        /// Planar top-side raycast against the authoring graph in paper-local space.
+        /// Used to author fold-guide placements before the current fold is applied.
+        /// </summary>
+        public static SurfaceHit RaycastPlanarTopOnGraph(
+            GraphMesh authoringGraph,
+            Vector3 samplePointLocal,
+            Vector3 planeNormalLocal,
+            HashSet<Face> allowedFaces)
+        {
+            SurfaceHit miss = new SurfaceHit { Hit = false };
+            if (authoringGraph == null || planeNormalLocal.sqrMagnitude < 0.0001f)
+                return miss;
+
+            planeNormalLocal = planeNormalLocal.normalized;
+            Vector3 rayOriginLocal = samplePointLocal + planeNormalLocal * PlanarRayStartOffset;
+            Vector3 rayDirLocal = -planeNormalLocal;
+
+            var triangles = new List<MeshTriangle>();
+            BuildTriangleListWithBackFaces(authoringGraph, triangles);
+            return RaycastTrianglesAnalyticOnGraph(authoringGraph, triangles, rayOriginLocal, rayDirLocal, allowedFaces);
+        }
+
+        public SurfaceHit RaycastPlanarTop(
+            Vector3 samplePointLocal,
+            Vector3 planeNormalLocal,
+            HashSet<Face> allowedFaces)
+        {
+            if (_authoringGraph == null)
+                return new SurfaceHit { Hit = false };
+
+            if (_authoringGraph == _surfaceGraph)
+                return RaycastPlanarTopOnGraph(_authoringGraph, samplePointLocal, planeNormalLocal, allowedFaces);
+
+            SurfaceHit miss = new SurfaceHit { Hit = false };
+            if (planeNormalLocal.sqrMagnitude < 0.0001f)
+                return miss;
+
+            planeNormalLocal = planeNormalLocal.normalized;
+            Vector3 rayOriginLocal = samplePointLocal + planeNormalLocal * PlanarRayStartOffset;
+            Vector3 rayDirLocal = -planeNormalLocal;
+            return RaycastTrianglesAnalytic(rayOriginLocal, rayDirLocal, allowedFaces);
+        }
+
+        private static SurfaceHit RaycastTrianglesAnalyticOnGraph(
+            GraphMesh graph,
+            List<MeshTriangle> triangles,
+            Vector3 rayOriginLocal,
+            Vector3 rayDirLocal,
+            HashSet<Face> allowedFaces)
+        {
+            SurfaceHit miss = new SurfaceHit { Hit = false };
+            if (triangles.Count == 0)
+                return miss;
+
+            rayDirLocal = rayDirLocal.normalized;
+            bool found = false;
+            float bestT = float.MaxValue;
+            MeshTriangle bestTri = default;
+            Vector3 bestBary = default;
+
+            for (int t = 0; t < triangles.Count; t++)
+            {
+                MeshTriangle tri = triangles[t];
+                if (allowedFaces != null && (tri.Face == null || !allowedFaces.Contains(tri.Face)))
+                    continue;
+
+                if (!IsValidIndex(graph, tri.V0Index)
+                    || !IsValidIndex(graph, tri.V1Index)
+                    || !IsValidIndex(graph, tri.V2Index))
+                    continue;
+
+                Vertex v0 = graph.Vertices[tri.V0Index];
+                Vertex v1 = graph.Vertices[tri.V1Index];
+                Vertex v2 = graph.Vertices[tri.V2Index];
+                Vector3 p0 = v0.Position;
+                Vector3 p1 = v1.Position;
+                Vector3 p2 = v2.Position;
+
+                if (!TryRayIntersectTriangle(rayOriginLocal, rayDirLocal, p0, p1, p2, out float tHit, out Vector3 bary))
+                    continue;
+
+                if (tHit >= bestT - DepthEpsilon)
+                    continue;
+
+                bestT = tHit;
+                bestTri = tri;
+                bestBary = bary;
+                found = true;
+            }
+
+            if (!found)
+                return miss;
+
+            Vertex hitV0 = graph.Vertices[bestTri.V0Index];
+            Vertex hitV1 = graph.Vertices[bestTri.V1Index];
+            Vertex hitV2 = graph.Vertices[bestTri.V2Index];
+            Vector3 localPoint = bestBary.x * hitV0.Position + bestBary.y * hitV1.Position + bestBary.z * hitV2.Position;
+            Vector3 authBary = ComputeBarycentric(hitV0.Position, hitV1.Position, hitV2.Position, localPoint);
+            PaperSide side = ResolveCameraFacingSide(hitV0.Position, hitV1.Position, hitV2.Position, rayDirLocal);
+            Vector3 localNormal = OutwardNormalForSide(hitV0.Position, hitV1.Position, hitV2.Position, side);
+
+            return new SurfaceHit
+            {
+                Hit = true,
+                Anchor0Index = bestTri.V0Index,
+                Anchor1Index = bestTri.V1Index,
+                Anchor2Index = bestTri.V2Index,
+                Barycentric = authBary,
+                LocalPoint = localPoint,
+                LocalNormal = localNormal,
+                SheetUv = BarycentricInterpolateSheetUv(hitV0, hitV1, hitV2, side, authBary),
+                Side = side,
+                HitFace = bestTri.Face,
+                ViewRayOriginLocal = rayOriginLocal,
+                ViewRayDirLocal = rayDirLocal
+            };
+        }
+
+        private SurfaceHit RaycastTrianglesAnalytic(
+            Vector3 rayOriginLocal,
+            Vector3 rayDirLocal,
+            HashSet<Face> allowedFaces)
+        {
+            SurfaceHit miss = new SurfaceHit { Hit = false };
+            if (_triangles.Count == 0)
+                return miss;
+
+            rayDirLocal = rayDirLocal.normalized;
+            bool found = false;
+            float bestT = float.MaxValue;
+            MeshTriangle bestTri = default;
+            Vector3 bestBary = default;
+
+            for (int t = 0; t < _triangles.Count; t++)
+            {
+                MeshTriangle tri = _triangles[t];
+                if (allowedFaces != null && (tri.Face == null || !allowedFaces.Contains(tri.Face)))
+                    continue;
+
+                if (!TryResolveAuthoringTriangle(tri, out int i0, out int i1, out int i2))
+                    continue;
+
+                Vertex sv0 = _surfaceGraph.Vertices[tri.V0Index];
+                Vertex sv1 = _surfaceGraph.Vertices[tri.V1Index];
+                Vertex sv2 = _surfaceGraph.Vertices[tri.V2Index];
+                Vector3 p0 = sv0.Position;
+                Vector3 p1 = sv1.Position;
+                Vector3 p2 = sv2.Position;
+
+                if (!TryRayIntersectTriangle(rayOriginLocal, rayDirLocal, p0, p1, p2, out float tHit, out Vector3 bary))
+                    continue;
+
+                if (tHit >= bestT - DepthEpsilon)
+                    continue;
+
+                bestT = tHit;
+                bestTri = tri;
+                bestBary = bary;
+                found = true;
+            }
+
+            if (!found)
+                return miss;
+
+            if (!TryResolveAuthoringTriangle(bestTri, out int a0, out int a1, out int a2))
+                return miss;
+
+            Vertex v0 = _authoringGraph.Vertices[a0];
+            Vertex v1 = _authoringGraph.Vertices[a1];
+            Vertex v2 = _authoringGraph.Vertices[a2];
+            Vector3 localPoint = bestBary.x * v0.Position + bestBary.y * v1.Position + bestBary.z * v2.Position;
+            Vector3 authBary = ComputeBarycentric(v0.Position, v1.Position, v2.Position, localPoint);
+            PaperSide side = ResolveCameraFacingSide(v0.Position, v1.Position, v2.Position, rayDirLocal);
+            Vector3 localNormal = OutwardNormalForSide(v0.Position, v1.Position, v2.Position, side);
+
+            return new SurfaceHit
+            {
+                Hit = true,
+                Anchor0Index = a0,
+                Anchor1Index = a1,
+                Anchor2Index = a2,
+                Barycentric = authBary,
+                LocalPoint = localPoint,
+                LocalNormal = localNormal,
+                SheetUv = BarycentricInterpolateSheetUv(v0, v1, v2, side, authBary),
+                Side = side,
+                HitFace = bestTri.Face,
+                ViewRayOriginLocal = rayOriginLocal,
+                ViewRayDirLocal = rayDirLocal
+            };
+        }
+
+        private static bool TryRayIntersectTriangle(
+            Vector3 rayOrigin,
+            Vector3 rayDir,
+            Vector3 v0,
+            Vector3 v1,
+            Vector3 v2,
+            out float t,
+            out Vector3 barycentric)
+        {
+            t = 0f;
+            barycentric = default;
+
+            Vector3 edge1 = v1 - v0;
+            Vector3 edge2 = v2 - v0;
+            Vector3 pvec = Vector3.Cross(rayDir, edge2);
+            float det = Vector3.Dot(edge1, pvec);
+            if (Mathf.Abs(det) < 1e-8f)
+                return false;
+
+            float invDet = 1f / det;
+            Vector3 tvec = rayOrigin - v0;
+            float u = Vector3.Dot(tvec, pvec) * invDet;
+            if (u < -0.001f || u > 1.001f)
+                return false;
+
+            Vector3 qvec = Vector3.Cross(tvec, edge1);
+            float v = Vector3.Dot(rayDir, qvec) * invDet;
+            if (v < -0.001f || u + v > 1.001f)
+                return false;
+
+            t = Vector3.Dot(edge2, qvec) * invDet;
+            if (t < DepthEpsilon)
+                return false;
+
+            barycentric = new Vector3(1f - u - v, u, v);
+            return true;
+        }
+
+        private SurfaceHit RaycastAlongRay(
+            Ray worldRay,
+            Vector3 rayOriginLocal,
+            Vector3 rayDirLocal,
+            HashSet<Face> allowedFaces)
+        {
+            SurfaceHit miss = new SurfaceHit { Hit = false };
+            if (!TryGetNearestHitAlongRay(worldRay, allowedFaces, out RaycastHit physicsHit))
+                return miss;
+
+            return BuildSurfaceHit(physicsHit, rayOriginLocal, rayDirLocal);
+        }
+
+        private bool TryGetNearestHitAlongRay(Ray worldRay, HashSet<Face> allowedFaces, out RaycastHit bestHit)
         {
             bestHit = default;
+            if (_meshCollider == null)
+                return false;
             RaycastHit[] hits = Physics.RaycastAll(worldRay, 100f);
             bool found = false;
             float bestDistance = float.MaxValue;
@@ -132,7 +413,15 @@ namespace Crease.Folding.Decals
             for (int i = 0; i < hits.Length; i++)
             {
                 RaycastHit hit = hits[i];
-                if (hit.collider != _meshCollider) continue;
+                if (hit.collider != _meshCollider)
+                    continue;
+
+                if (allowedFaces != null)
+                {
+                    Face face = GetFaceForPhysicsHit(hit);
+                    if (face == null || !allowedFaces.Contains(face))
+                        continue;
+                }
 
                 if (hit.distance < bestDistance - DepthEpsilon)
                 {
@@ -143,6 +432,22 @@ namespace Crease.Folding.Decals
             }
 
             return found;
+        }
+
+        private Face GetFaceForPhysicsHit(RaycastHit hit)
+        {
+            int triangleIndex = hit.triangleIndex;
+            if (triangleIndex < 0)
+                return null;
+
+            int logicalIndex = triangleIndex;
+            if (_frontTriangleCount > 0 && logicalIndex >= _frontTriangleCount)
+                logicalIndex -= _frontTriangleCount;
+
+            if (logicalIndex < 0 || logicalIndex >= _triangles.Count)
+                return null;
+
+            return _triangles[logicalIndex].Face;
         }
 
         private SurfaceHit BuildSurfaceHit(RaycastHit physicsHit, Vector3 viewOriginLocal, Vector3 viewDirLocal)
@@ -199,6 +504,7 @@ namespace Crease.Folding.Decals
                 LocalNormal = localNormal,
                 SheetUv = BarycentricInterpolateSheetUv(v0, v1, v2, side, bary),
                 Side = side,
+                HitFace = GetFaceForPhysicsHit(physicsHit),
                 ViewRayOriginLocal = viewOriginLocal,
                 ViewRayDirLocal = viewDirLocal
             };

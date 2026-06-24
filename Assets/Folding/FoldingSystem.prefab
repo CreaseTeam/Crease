@@ -224,8 +224,6 @@ MonoBehaviour:
   CreaseDarkenWidth: 0.025
   CreaseMinBrightness: 0.65
   GuideLineWidth: 0.4
-  GuideLineFalloffPower: 100
-  GuideLineMinBrightness: 0
   GuideLineColor: {r: 0, g: 0, b: 0, a: 1}
   GuideDashesEnabled: 1
   GuideDashLength: 0.04
@@ -516,9 +514,7 @@ MonoBehaviour:
   BoundaryEdgeMinBrightness: 0.55
   CreaseDarkenWidth: 0.025
   CreaseMinBrightness: 0.65
-  GuideLineWidth: 0.4
-  GuideLineFalloffPower: 100
-  GuideLineMinBrightness: 0
+  GuideLineWidth: 0.015
   GuideLineColor: {r: 0, g: 0, b: 0, a: 1}
   GuideDashesEnabled: 1
   GuideDashLength: 0.04
@@ -709,3 +705,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.Decals.PaperDecalManager
   Controller: {fileID: 3367760010211513509}
   FoldingCamera: {fileID: 4105214768651930174}
+  BaseSurfaceOffset: 0.0001
+  LayerOffsetStep: 0.00001

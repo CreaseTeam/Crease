@@ -540,7 +540,7 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             return;
         }
 
-        ShowGuideLine(dragStart, dragEnd);
+        ShowGuideLine(step, dragStart, dragEnd);
     }
 
     private void UpdateFoldGuideLine(FoldStep step) {
@@ -579,15 +579,23 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             }
         }
 
-        ShowGuideLine(lineP1, lineP2);
+        ShowGuideLine(step, lineP1, lineP2);
     }
 
-    private static void ShowGuideLine(Vector3 p1, Vector3 p2) {
-        PaperEdgeShading.SetFoldGuide(true, p1, p2);
+    private void ShowGuideLine(FoldStep step, Vector3 p1, Vector3 p2) {
+        if (Controller?.DecalManager == null || _paperGraph == null || step == null)
+            return;
+
+        Controller.DecalManager.UpdateFoldGuide(
+            p1,
+            p2,
+            step.DragPlaneNormal.normalized,
+            ResolveFilterTagsForStep(step),
+            _paperGraph);
     }
 
-    private static void HideGuideLine() {
-        PaperEdgeShading.ClearFoldGuide();
+    private void HideGuideLine() {
+        Controller?.DecalManager?.HideFoldGuide();
     }
 
     /// <summary>
@@ -1009,7 +1017,7 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
 
         if (preserveStickers && Controller?.DecalManager != null) {
             Controller.DecalManager.InvalidatePreviewCaches();
-            Controller.DecalManager.RefreshAfterMeshUpdate(reanchorAuthoring: true, trackPreviewSurface: false);
+            Controller.DecalManager.RefreshAfterMeshUpdate(reanchorAuthoring: true);
         }
     }
 

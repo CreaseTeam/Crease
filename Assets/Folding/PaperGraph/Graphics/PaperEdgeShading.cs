@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Crease.Folding.PaperGraph
 {
     /// <summary>
-    /// Pushes boundary, crease, and optional fold-guide segments to paper materials via MaterialPropertyBlock.
+    /// Pushes boundary and crease segments to paper materials via MaterialPropertyBlock.
     /// </summary>
     public static class PaperEdgeShading
     {
@@ -23,17 +23,6 @@ namespace Crease.Folding.PaperGraph
         private static readonly int BoundaryMinBrightnessId = Shader.PropertyToID("_BoundaryMinBrightness");
         private static readonly int CreaseDarkenWidthId = Shader.PropertyToID("_CreaseDarkenWidth");
         private static readonly int CreaseMinBrightnessId = Shader.PropertyToID("_CreaseMinBrightness");
-        private static readonly int GuideActiveId = Shader.PropertyToID("_GuideActive");
-        private static readonly int GuideSegmentAId = Shader.PropertyToID("_GuideSegmentA");
-        private static readonly int GuideSegmentBId = Shader.PropertyToID("_GuideSegmentB");
-        private static readonly int GuideLineWidthId = Shader.PropertyToID("_GuideLineWidth");
-        private static readonly int GuideFalloffPowerId = Shader.PropertyToID("_GuideFalloffPower");
-        private static readonly int GuideMinBrightnessId = Shader.PropertyToID("_GuideMinBrightness");
-        private static readonly int GuideLineColorId = Shader.PropertyToID("_GuideLineColor");
-        private static readonly int GuideDashEnabledId = Shader.PropertyToID("_GuideDashEnabled");
-        private static readonly int GuideDashLengthId = Shader.PropertyToID("_GuideDashLength");
-        private static readonly int GuideDashGapId = Shader.PropertyToID("_GuideDashGap");
-        private static readonly int GuideDashOffsetId = Shader.PropertyToID("_GuideDashOffset");
 
         private static readonly float[] SegmentData = new float[MaxSegments * FloatsPerSegment];
         private static float[] _uploadBuffer;
@@ -41,20 +30,6 @@ namespace Crease.Folding.PaperGraph
         private static Texture2D _segmentTexture;
         private static int _segmentTextureSegmentCapacity;
         private static bool _segmentLimitWarned;
-
-        private static bool _foldGuideActive;
-        private static Vector3 _foldGuideA;
-        private static Vector3 _foldGuideB;
-
-        public static void SetFoldGuide(bool active, Vector3 a, Vector3 b) {
-            _foldGuideActive = active;
-            _foldGuideA = a;
-            _foldGuideB = b;
-        }
-
-        public static void ClearFoldGuide() {
-            SetFoldGuide(false, Vector3.zero, Vector3.zero);
-        }
 
         public static void Apply(Renderer renderer, PaperGraph graph) {
             Apply(renderer, graph, Matrix4x4.identity);
@@ -117,10 +92,6 @@ namespace Crease.Folding.PaperGraph
                 UploadSegmentTexture(segmentCount);
             }
 
-            Vector3 guideA = segmentTransform.MultiplyPoint3x4(_foldGuideA);
-            Vector3 guideB = segmentTransform.MultiplyPoint3x4(_foldGuideB);
-            bool guideVisible = _foldGuideActive && graph.GuideLineWidth > 0f;
-
             _propertyBlock.SetInt(EdgeSegmentCountId, segmentCount);
             if (segmentCount > 0)
                 _propertyBlock.SetTexture(EdgeSegmentTexId, _segmentTexture);
@@ -128,18 +99,6 @@ namespace Crease.Folding.PaperGraph
             _propertyBlock.SetFloat(BoundaryMinBrightnessId, graph.BoundaryEdgeMinBrightness);
             _propertyBlock.SetFloat(CreaseDarkenWidthId, graph.CreaseDarkenWidth);
             _propertyBlock.SetFloat(CreaseMinBrightnessId, graph.CreaseMinBrightness);
-
-            _propertyBlock.SetFloat(GuideActiveId, guideVisible ? 1f : 0f);
-            _propertyBlock.SetVector(GuideSegmentAId, guideA);
-            _propertyBlock.SetVector(GuideSegmentBId, guideB);
-            _propertyBlock.SetFloat(GuideLineWidthId, graph.GuideLineWidth);
-            _propertyBlock.SetFloat(GuideFalloffPowerId, graph.GuideLineFalloffPower);
-            _propertyBlock.SetFloat(GuideMinBrightnessId, graph.GuideLineMinBrightness);
-            _propertyBlock.SetColor(GuideLineColorId, graph.GuideLineColor);
-            _propertyBlock.SetFloat(GuideDashEnabledId, graph.GuideDashesEnabled ? 1f : 0f);
-            _propertyBlock.SetFloat(GuideDashLengthId, graph.GuideDashLength);
-            _propertyBlock.SetFloat(GuideDashGapId, graph.GuideDashGap);
-            _propertyBlock.SetFloat(GuideDashOffsetId, graph.GuideDashOffset);
 
             renderer.SetPropertyBlock(_propertyBlock);
         }
