@@ -8,10 +8,10 @@ namespace Crease.Flying.Environment.Wind.SplineTube
     {
         [Header("Particle Settings")]
         [Tooltip("Speed particles travel along the tube direction.")]
-        [SerializeField] private float _startSpeed = 4f;
+        [SerializeField] private float _startSpeed = 50f;
 
         [Tooltip("How long each particle lives before respawning.")]
-        [SerializeField] private float _startLifetime = 0.6f;
+        [SerializeField] private float _startLifetime = 0.3f;
 
         [Tooltip("Particle emission rate per segment (particles per second).")]
         [SerializeField] private float _emissionRate = 8f;
@@ -23,7 +23,7 @@ namespace Crease.Flying.Environment.Wind.SplineTube
         [SerializeField] private float _stretchVelocityScale = 0f;
 
         [Tooltip("Base length scale for stretched billboard particles.")]
-        [SerializeField] private float _stretchLengthScale = 40f;
+        [SerializeField] private float _stretchLengthScale = 50f;
 
         [Tooltip("Width of each particle. Lower = thinner streaks.")]
         [SerializeField] private float _startSize = 0.1f;
@@ -140,7 +140,7 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             var main = ps.main;
             main.simulationSpace = ParticleSystemSimulationSpace.World;
             main.scalingMode     = ParticleSystemScalingMode.Hierarchy;
-            main.startLifetime   = _startLifetime;
+            main.startLifetime = _startLifetime;
             main.startSpeed      = 0f; // velocity driven entirely by velocityOverLifetime below
             main.startSize       = new ParticleSystem.MinMaxCurve(_startSize);
 

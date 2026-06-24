@@ -412,12 +412,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c78f75e44a696e144a1e066aa12c9d92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Environment.Wind.SplineTube.SplineWindParticles
-  _startSpeed: 4
-  _startLifetime: 0.6
+  _startSpeed: 50
+  _startLifetime: 0.3
   _emissionRate: 8
   _particleMaterial: {fileID: 2100000, guid: c29106e97ecad6f44a544a7e173cb6df, type: 2}
   _stretchVelocityScale: 0
-  _stretchLengthScale: 40
+  _stretchLengthScale: 50
   _startSize: 0.1
   _secondaryParticleSystem: {fileID: 4612309026073900413}
   _secondarySpeed: 2
