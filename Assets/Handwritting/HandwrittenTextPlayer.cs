@@ -52,6 +52,20 @@ namespace Crease.Handwritting
         [Tooltip("Seconds to keep the camera locked on the text before returning.")]
         float _cameraCaptureHoldDuration = 3f;
 
+        [SerializeField]
+        [Tooltip("Fade out after the text has fully appeared.")]
+        bool _disappear;
+
+        [SerializeField]
+        [Min(0f)]
+        [Tooltip("Seconds to keep fully visible text on screen before fading out.")]
+        float _lingerTime = 2f;
+
+        [SerializeField]
+        [Min(0.01f)]
+        [Tooltip("Seconds to fade the text out after the linger time.")]
+        float _fadeOutDuration = 0.5f;
+
         TextMeshPro _text;
         Material _materialInstance;
         Coroutine _playRoutine;
@@ -191,8 +205,12 @@ namespace Crease.Handwritting
             }
 
             SetText(ResolveText(text));
+            ResetTextVisibility();
             SetFullyVisible();
             TryStartCameraCapture();
+
+            if (_disappear)
+                _playRoutine = StartCoroutine(DisappearAfterLingerRoutine());
         }
 
         string ResolveText(string text)
@@ -201,6 +219,11 @@ namespace Crease.Handwritting
                 return text;
 
             return _text.text;
+        }
+
+        void ResetTextVisibility()
+        {
+            _text.alpha = 1f;
         }
 
         void SetFullyVisible()
@@ -272,6 +295,7 @@ namespace Crease.Handwritting
         IEnumerator PlayWriteInRoutine(string text)
         {
             ResetRevealState();
+            ResetTextVisibility();
             SetText(text);
 
             int charCount = _text.textInfo.characterCount;
@@ -303,6 +327,33 @@ namespace Crease.Handwritting
             }
 
             SetFullyVisible();
+
+            if (_disappear)
+                yield return DisappearAfterLingerRoutine();
+            else
+                _playRoutine = null;
+        }
+
+        IEnumerator DisappearAfterLingerRoutine()
+        {
+            float lingerElapsed = 0f;
+            while (lingerElapsed < _lingerTime)
+            {
+                lingerElapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            float startAlpha = _text.alpha;
+            float fadeElapsed = 0f;
+            while (fadeElapsed < _fadeOutDuration)
+            {
+                fadeElapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(fadeElapsed / _fadeOutDuration);
+                _text.alpha = Mathf.Lerp(startAlpha, 0f, t);
+                yield return null;
+            }
+
+            _text.alpha = 0f;
             _playRoutine = null;
         }
 
