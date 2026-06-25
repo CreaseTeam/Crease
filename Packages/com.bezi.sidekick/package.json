@@ -14,10 +14,11 @@
     "bezi3d"
   ],
   "unity": "2018.3",
-  "version": "0.87.0",
+  "version": "0.95.1",
   "type": "library",
   "hideInEditor": false,
   "dependencies": {
-    "com.unity.nuget.newtonsoft-json": "3.2.1"
+    "com.unity.nuget.newtonsoft-json": "3.2.1",
+    "com.unity.timeline": "1.6.0"
   }
 }

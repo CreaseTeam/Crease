@@ -10,14 +10,9 @@
     "overrideReferences": false,
     "precompiledReferences": [
         "Newtonsoft.Json.dll",
-        "Microsoft.CSharp.dll",
-        "Microsoft.CodeAnalysis.dll",
-        "Microsoft.CodeAnalysis.CSharp.dll",
-        "System.Collections.Immutable.dll",
-        "System.Reflection.Metadata.dll",
-        "System.Runtime.CompilerServices.Unsafe.dll"
+        "Microsoft.CSharp.dll"
     ],
-    "autoReferenced": true,
+    "autoReferenced": false,
     "defineConstraints": [],
     "versionDefines": [],
     "noEngineReferences": false
