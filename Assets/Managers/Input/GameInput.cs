@@ -120,7 +120,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Dash"",
+                    ""name"": ""ActivateAbility"",
                     ""type"": ""Button"",
                     ""id"": ""500b201b-64ed-4710-b93e-ea7869be9473"",
                     ""expectedControlType"": """",
@@ -283,7 +283,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""Dash"",
+                    ""action"": ""ActivateAbility"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -294,7 +294,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Gamepad"",
-                    ""action"": ""Dash"",
+                    ""action"": ""ActivateAbility"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -917,7 +917,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_CameraZoom = m_Player.FindAction("CameraZoom", throwIfNotFound: true);
         m_Player_Drop = m_Player.FindAction("Drop", throwIfNotFound: true);
-        m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
+        m_Player_ActivateAbility = m_Player.FindAction("ActivateAbility", throwIfNotFound: true);
         m_Player_Return = m_Player.FindAction("Return", throwIfNotFound: true);
         m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
         m_Player_CameraPan = m_Player.FindAction("CameraPan", throwIfNotFound: true);
@@ -1020,7 +1020,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_CameraZoom;
     private readonly InputAction m_Player_Drop;
-    private readonly InputAction m_Player_Dash;
+    private readonly InputAction m_Player_ActivateAbility;
     private readonly InputAction m_Player_Return;
     private readonly InputAction m_Player_Pause;
     private readonly InputAction m_Player_CameraPan;
@@ -1049,9 +1049,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Drop => m_Wrapper.m_Player_Drop;
         /// <summary>
-        /// Provides access to the underlying input action "Player/Dash".
+        /// Provides access to the underlying input action "Player/ActivateAbility".
         /// </summary>
-        public InputAction @Dash => m_Wrapper.m_Player_Dash;
+        public InputAction @ActivateAbility => m_Wrapper.m_Player_ActivateAbility;
         /// <summary>
         /// Provides access to the underlying input action "Player/Return".
         /// </summary>
@@ -1103,9 +1103,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @Drop.started += instance.OnDrop;
             @Drop.performed += instance.OnDrop;
             @Drop.canceled += instance.OnDrop;
-            @Dash.started += instance.OnDash;
-            @Dash.performed += instance.OnDash;
-            @Dash.canceled += instance.OnDash;
+            @ActivateAbility.started += instance.OnActivateAbility;
+            @ActivateAbility.performed += instance.OnActivateAbility;
+            @ActivateAbility.canceled += instance.OnActivateAbility;
             @Return.started += instance.OnReturn;
             @Return.performed += instance.OnReturn;
             @Return.canceled += instance.OnReturn;
@@ -1138,9 +1138,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @Drop.started -= instance.OnDrop;
             @Drop.performed -= instance.OnDrop;
             @Drop.canceled -= instance.OnDrop;
-            @Dash.started -= instance.OnDash;
-            @Dash.performed -= instance.OnDash;
-            @Dash.canceled -= instance.OnDash;
+            @ActivateAbility.started -= instance.OnActivateAbility;
+            @ActivateAbility.performed -= instance.OnActivateAbility;
+            @ActivateAbility.canceled -= instance.OnActivateAbility;
             @Return.started -= instance.OnReturn;
             @Return.performed -= instance.OnReturn;
             @Return.canceled -= instance.OnReturn;
@@ -1510,12 +1510,12 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnDrop(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Dash" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "ActivateAbility" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnDash(InputAction.CallbackContext context);
+        void OnActivateAbility(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Return" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

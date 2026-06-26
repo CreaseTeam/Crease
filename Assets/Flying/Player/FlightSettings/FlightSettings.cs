@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Crease.Flying.Player.FlightSettings
+namespace Crease.Flying.Player
 {
     /// <summary>
     /// Scriptable flight stat values. To add a new stat:
@@ -72,5 +72,9 @@ namespace Crease.Flying.Player.FlightSettings
         [Tooltip("Multiplier for how much the wind affects the physics.")]
         [FormerlySerializedAs("windForceMultiplier")]
         public float WindForceMultiplier = 1.0f;
+
+        [Header("Combat")]
+        [Tooltip("Multiplier for all damage taken. 1 = normal, 2 = double, 0.5 = half.")]
+        public float DamageTaken = 1f;
     }
 }

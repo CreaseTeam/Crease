@@ -1,16 +1,16 @@
-using Crease.Flying.Player.Dash;
-using Crease.Flying.Player.FlightSettings;
+using Crease.Flying.Player.FlightModifiers;
 using Crease.Managers.Input;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace Crease.Flying.Player
 {
+    [DefaultExecutionOrder(-100)]
     [RequireComponent(typeof(KinematicBody))]
     public class FlightController : MonoBehaviour
     {
         private KinematicBody _body;
-        private DashController _dashController;
+        private FlightModifiers.FlightModifiers _flightModifiers;
 
         [FormerlySerializedAs("pitch")]
         [SerializeField] private float _pitch = 0f;
@@ -42,7 +42,7 @@ namespace Crease.Flying.Player
         private void Awake()
         {
             _body = GetComponent<KinematicBody>();
-            _dashController = GetComponent<DashController>();
+            _flightModifiers = GetComponent<FlightModifiers.FlightModifiers>();
         }
 
         void Start()
@@ -64,19 +64,31 @@ namespace Crease.Flying.Player
             _meshRotation = _meshTransform.localEulerAngles;
         }
 
+        private bool IsFlightControlLocked =>
+            _flightModifiers != null && _flightModifiers.IsActive(FlightModifierType.LockFlightControl);
+
         void FixedUpdate()
         {
-            ProcessInput();
-            if (_dashController == null || !_dashController.IsDashing)
+            _body.SimulationSpeed = _flightModifiers != null ? _flightModifiers.SimulationSpeed : 1f;
+
+            if (!IsFlightControlLocked)
+            {
+                ProcessInput();
                 UpdateVelocity();
-            ApplyStabilityTorque();
-            ClampOrientation();
+                ApplyStabilityTorque();
+                ClampOrientation();
+            }
+
             UpdateRotation();
         }
+
+        private float ScaledDeltaTime =>
+            _flightModifiers != null ? _flightModifiers.ScaledFixedDeltaTime : Time.fixedDeltaTime;
 
         private void UpdateVelocity()
         {
             Vector3 velocity = _body.Velocity;
+            float scaledDt = ScaledDeltaTime;
 
             float pitchRadians = _pitch * Mathf.Deg2Rad;
             float cosPitch = Mathf.Cos(pitchRadians);
@@ -89,20 +101,20 @@ namespace Crease.Flying.Player
             float mp = _stats.CurrentStats.MaxPitch;
             float gravityT = Mathf.InverseLerp(-mp, mp, _pitch);
             float currentGravity = Mathf.Lerp(_stats.CurrentStats.ClimbingGravity, _stats.CurrentStats.DivingGravity, gravityT);
-            velocity.y -= currentGravity * Time.fixedDeltaTime;
+            velocity.y -= currentGravity * scaledDt;
 
-            velocity.y += cosPitch * cosPitch * _stats.CurrentStats.Lift * Time.fixedDeltaTime;
+            velocity.y += cosPitch * cosPitch * _stats.CurrentStats.Lift * scaledDt;
 
             if (velocity.y < 0 && cosPitch > 0)
             {
-                float yAcc = velocity.y * -_stats.CurrentStats.DiveRate * cosPitch * cosPitch * Time.fixedDeltaTime;
+                float yAcc = velocity.y * -_stats.CurrentStats.DiveRate * cosPitch * cosPitch * scaledDt;
                 velocity.y += yAcc;
                 RedirectVerticalAcceleration(ref velocity, lookDirection, yAcc, safeCosPitch);
             }
 
             if (pitchRadians < 0)
             {
-                float yAcc = horizontalSpeed * -sinPitch * -sinPitch * _stats.CurrentStats.ClimbRate * Time.fixedDeltaTime;
+                float yAcc = horizontalSpeed * -sinPitch * -sinPitch * _stats.CurrentStats.ClimbRate * scaledDt;
                 velocity.y += yAcc * _stats.CurrentStats.ClimbEfficiency;
                 RedirectVerticalAcceleration(ref velocity, lookDirection, -yAcc, safeCosPitch);
             }
@@ -110,13 +122,14 @@ namespace Crease.Flying.Player
             float speed = velocity.magnitude;
             if (speed > 0.001f)
             {
-                float tInterp = _stats.CurrentStats.TurnInterpolation * Time.fixedDeltaTime;
+                float tInterp = _stats.CurrentStats.TurnInterpolation * scaledDt;
                 velocity = Vector3.Lerp(velocity, lookDirection * speed, tInterp);
             }
 
-            velocity.x *= _stats.CurrentStats.XDrag;
-            velocity.y *= _stats.CurrentStats.YDrag;
-            velocity.z *= _stats.CurrentStats.ZDrag;
+            float simSpeed = _flightModifiers != null ? _flightModifiers.SimulationSpeed : 1f;
+            velocity.x *= Mathf.Pow(_stats.CurrentStats.XDrag, simSpeed);
+            velocity.y *= Mathf.Pow(_stats.CurrentStats.YDrag, simSpeed);
+            velocity.z *= Mathf.Pow(_stats.CurrentStats.ZDrag, simSpeed);
 
             float minVel = _stats.CurrentStats.MinimumVelocity;
             if (velocity.magnitude < minVel)
@@ -167,7 +180,7 @@ namespace Crease.Flying.Player
             float pitchRate = Vector3.Dot(worldAngularVelocity, transform.right);
             float yawRate = Vector3.Dot(worldAngularVelocity, Vector3.up);
 
-            float dt = Time.fixedDeltaTime;
+            float dt = ScaledDeltaTime;
             _pitch += pitchRate * dt;
             _yaw += yawRate * dt;
         }
@@ -198,12 +211,13 @@ namespace Crease.Flying.Player
             Vector2 move = InputManager.Instance.MoveInput;
             _inputMagnitude = move.magnitude;
 
-            _pitch += move.y * _stats.CurrentStats.PitchSpeed * Time.fixedDeltaTime;
+            float scaledDt = ScaledDeltaTime;
+            _pitch += move.y * _stats.CurrentStats.PitchSpeed * scaledDt;
 
             if (move.x != 0f)
             {
-                _yaw += move.x * _stats.CurrentStats.YawSpeed * Time.fixedDeltaTime;
-                _roll += move.x * _stats.CurrentStats.RollSpeed * Time.fixedDeltaTime;
+                _yaw += move.x * _stats.CurrentStats.YawSpeed * scaledDt;
+                _roll += move.x * _stats.CurrentStats.RollSpeed * scaledDt;
             }
 
             if (InputManager.Instance.BoostPressed)
@@ -213,12 +227,12 @@ namespace Crease.Flying.Player
             {
                 if (_roll > 0f)
                 {
-                    _roll -= _stats.CurrentStats.RollBackSpeed * Time.fixedDeltaTime;
+                    _roll -= _stats.CurrentStats.RollBackSpeed * scaledDt;
                     if (_roll < 0f) _roll = 0f;
                 }
                 else if (_roll < 0f)
                 {
-                    _roll += _stats.CurrentStats.RollBackSpeed * Time.fixedDeltaTime;
+                    _roll += _stats.CurrentStats.RollBackSpeed * scaledDt;
                     if (_roll > 0f) _roll = 0f;
                 }
             }

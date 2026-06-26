@@ -159,7 +159,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SwingOnPlaneHit
   planeTag: Player
-  onlyTriggerOnDash: 0
+  _onlyWhileAbilityActive: 0
   preventKnockback: 1
   pivot: {fileID: 2268054842377240375}
   endLocalEuler: {x: 0, y: 90, z: 0}

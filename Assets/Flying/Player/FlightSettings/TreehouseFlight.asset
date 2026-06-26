@@ -33,3 +33,4 @@ MonoBehaviour:
   initialSpeed: 10
   minimumVelocity: 0
   windForceMultiplier: 1
+  DamageTaken: 1

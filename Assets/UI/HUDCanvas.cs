@@ -1,5 +1,6 @@
 using System.Collections.Generic;
-using Crease.Flying.Player.Dash;
+using Crease.Flying.Player.Abilities;
+using Crease.Flying.Player.Loadouts;
 using Crease.Flying.Player.Health;
 using PlayerHealth = Crease.Flying.Player.Health.Health;
 using Crease.Folding.PaperGraph;
@@ -11,23 +12,17 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace Crease.UI
 {
     public class HUDCanvas : MonoBehaviour
     {
         [SerializeField]
-        [FormerlySerializedAs("dashController")]
-        private DashController _dashController;
+        private AbilityController _abilityController;
         [SerializeField]
-        [FormerlySerializedAs("rechargeBar")]
-        private Image _rechargeBar;
+        private Image _abilityRechargeBar;
         [SerializeField]
-        [FormerlySerializedAs("dashBarBorder")]
-        private GameObject _dashBarBorder;
+        private GameObject _abilityReadyBorder;
         [SerializeField]
         [FormerlySerializedAs("collectibleText")]
         private TextMeshProUGUI _collectibleText;
@@ -73,9 +68,14 @@ namespace Crease.UI
         private GameObject _pauseMenuUI;
         private bool _isPaused = false;
 
-        [Header("Plane Type")]
+        [Header("Folding")]
         [SerializeField]
+        [FormerlySerializedAs("planeTypeDropdown")]
         private TMP_Dropdown _planeTypeDropdown;
+        [SerializeField]
+        private PlaneLoadoutLibrary _loadoutLibrary;
+        [SerializeField]
+        private PlaneLoadoutApplier _loadoutApplier;
         [SerializeField]
         private FoldInstructionRunner _foldInstructionRunner;
 
@@ -90,8 +90,8 @@ namespace Crease.UI
         public bool DebugMode { get; private set; }
 
         private int _collectibleCount = 0;
-        private readonly List<FoldInstruction> _foldInstructions = new();
-        private bool _isUpdatingPlaneTypeDropdown;
+        private int _selectedLoadoutIndex;
+        private bool _isUpdatingLoadoutDropdown;
         private PaperGraphVisualizer[] _resolvedPaperGraphVisualizers = System.Array.Empty<PaperGraphVisualizer>();
 
         public int Collect()
@@ -141,11 +141,13 @@ namespace Crease.UI
         void Start()
         {
             _collectibleText.text = $"{_collectibleCount}";
-            _rechargeBar.fillAmount = _dashController.CurrentRecharge / _dashController.MaxRecharge;
+            if (_abilityRechargeBar != null && _abilityController != null)
+                _abilityRechargeBar.fillAmount = _abilityController.RechargeNormalized;
 
-            PopulatePlaneTypeDropdown();
+            PopulateLoadoutDropdown();
             if (_planeTypeDropdown != null)
-                _planeTypeDropdown.onValueChanged.AddListener(OnPlaneTypeDropdownChanged);
+                _planeTypeDropdown.onValueChanged.AddListener(OnLoadoutDropdownChanged);
+            ApplySelectedLoadout();
 
             _resolvedPaperGraphVisualizers = ResolvePaperGraphVisualizers();
             if (_debugModeToggle != null)
@@ -159,6 +161,11 @@ namespace Crease.UI
             // Debug.Log($"HUDCanvas Start: collectible={_collectibleCount}");
         }
 
+        private void OnEnable()
+        {
+            PopulateLoadoutDropdown();
+        }
+
         // Update is called once per frame
         void Update()
         {
@@ -168,19 +175,20 @@ namespace Crease.UI
                 UpdateTimerDisplay();
             }
 
-            _rechargeBar.fillAmount = _dashController.CurrentRecharge / _dashController.MaxRecharge;
+            if (_abilityRechargeBar != null && _abilityController != null)
+                _abilityRechargeBar.fillAmount = _abilityController.RechargeNormalized;
 
-            if (_dashBarBorder != null)
+            if (_abilityReadyBorder != null && _abilityController != null)
             {
-                bool isFullyCharged = _dashController.CurrentRecharge >= _dashController.MaxRecharge;
-                if (isFullyCharged)
+                bool canUse = _abilityController.CanActivate;
+                if (canUse)
                 {
                     bool flip = Mathf.PingPong(Time.time * 2f, 1f) > 0.5f;
-                    _dashBarBorder.SetActive(flip);
+                    _abilityReadyBorder.SetActive(flip);
                 }
                 else
                 {
-                    _dashBarBorder.SetActive(false);
+                    _abilityReadyBorder.SetActive(false);
                 }
             }
         }
@@ -369,43 +377,93 @@ namespace Crease.UI
             }
         }
 
-        public void RefreshDash()
+        public void RefreshAbility()
         {
-            if (_dashController != null)
-            {
-                _dashController.RefreshDash();
-            }
+            if (_abilityController != null)
+                _abilityController.Refresh();
         }
 
-        /// <summary>
-        /// Fills the plane type dropdown with every FoldInstruction in the project.
-        /// </summary>
-        public void PopulatePlaneTypeDropdown()
+        public void PopulateLoadoutDropdown()
         {
-            if (_planeTypeDropdown == null)
+            if (_planeTypeDropdown == null || _loadoutLibrary == null)
                 return;
 
-            _foldInstructions.Clear();
-            _foldInstructions.AddRange(FindAllFoldInstructions());
-
             _planeTypeDropdown.ClearOptions();
-            var options = new List<string>(_foldInstructions.Count);
-            foreach (FoldInstruction instruction in _foldInstructions)
-                options.Add(instruction != null ? instruction.name : "Missing");
+            var options = new List<string>();
+            foreach (PlaneLoadout loadout in _loadoutLibrary.Loadouts)
+                options.Add(loadout != null ? loadout.name : "Missing");
 
             if (options.Count == 0)
-                options.Add("No plane types");
+                options.Add("No loadouts");
 
-            _isUpdatingPlaneTypeDropdown = true;
+            _isUpdatingLoadoutDropdown = true;
             _planeTypeDropdown.AddOptions(options);
-            SyncPlaneTypeDropdownToRunner();
-            _isUpdatingPlaneTypeDropdown = false;
+            SyncLoadoutDropdownToRunner();
+            _isUpdatingLoadoutDropdown = false;
         }
 
-        /// <summary>
-        /// Called when the plane type dropdown selection changes.
-        /// Can also be wired directly from the dropdown's OnValueChanged event.
-        /// </summary>
+        public void OnLoadoutDropdownChanged(int index)
+        {
+            if (_isUpdatingLoadoutDropdown)
+                return;
+
+            _selectedLoadoutIndex = index;
+            ApplySelectedLoadout();
+        }
+
+        private void ApplySelectedLoadout()
+        {
+            PlaneLoadout loadout = GetSelectedLoadout();
+            if (loadout == null)
+                return;
+
+            if (_loadoutApplier == null)
+            {
+                Debug.LogWarning("HUDCanvas: LoadoutApplier is not assigned.");
+                return;
+            }
+
+            _loadoutApplier.ApplyLoadout(loadout);
+        }
+
+        private void SyncLoadoutDropdownToRunner()
+        {
+            if (_planeTypeDropdown == null || _loadoutLibrary == null || _loadoutLibrary.Loadouts.Count == 0)
+                return;
+
+            int index = 0;
+            FoldInstruction currentInstruction = _foldInstructionRunner != null
+                ? _foldInstructionRunner.Instruction
+                : null;
+
+            if (currentInstruction != null)
+            {
+                for (int i = 0; i < _loadoutLibrary.Loadouts.Count; i++)
+                {
+                    PlaneLoadout loadout = _loadoutLibrary.Loadouts[i];
+                    if (loadout != null && loadout.FoldInstruction == currentInstruction)
+                    {
+                        index = i;
+                        break;
+                    }
+                }
+            }
+
+            _selectedLoadoutIndex = index;
+            _planeTypeDropdown.SetValueWithoutNotify(index);
+            _planeTypeDropdown.RefreshShownValue();
+        }
+
+        private PlaneLoadout GetSelectedLoadout()
+        {
+            if (_loadoutLibrary == null || _loadoutLibrary.Loadouts.Count == 0)
+                return null;
+
+            int index = _planeTypeDropdown != null ? _planeTypeDropdown.value : _selectedLoadoutIndex;
+            index = Mathf.Clamp(index, 0, _loadoutLibrary.Loadouts.Count - 1);
+            return _loadoutLibrary.Loadouts[index];
+        }
+
         /// <summary>
         /// Called when the debug mode toggle changes. Can also be wired directly from the toggle's OnValueChanged event.
         /// </summary>
@@ -418,48 +476,6 @@ namespace Crease.UI
                 if (visualizer != null)
                     visualizer.SetDebugMode(enabled);
             }
-        }
-
-        public void OnPlaneTypeDropdownChanged(int index)
-        {
-            if (_isUpdatingPlaneTypeDropdown)
-                return;
-
-            if (_foldInstructionRunner == null)
-            {
-                Debug.LogWarning("HUDCanvas.OnPlaneTypeDropdownChanged: FoldInstructionRunner is not assigned.");
-                return;
-            }
-
-            if (index < 0 || index >= _foldInstructions.Count)
-                return;
-
-            FoldInstruction selectedInstruction = _foldInstructions[index];
-            if (selectedInstruction == null)
-                return;
-
-            _foldInstructionRunner.LoadInstruction(selectedInstruction);
-        }
-
-        private void SyncPlaneTypeDropdownToRunner()
-        {
-            if (_planeTypeDropdown == null || _foldInstructions.Count == 0)
-                return;
-
-            int index = 0;
-            FoldInstruction currentInstruction = _foldInstructionRunner != null
-                ? _foldInstructionRunner.Instruction
-                : null;
-
-            if (currentInstruction != null)
-            {
-                int currentIndex = _foldInstructions.IndexOf(currentInstruction);
-                if (currentIndex >= 0)
-                    index = currentIndex;
-            }
-
-            _planeTypeDropdown.SetValueWithoutNotify(index);
-            _planeTypeDropdown.RefreshShownValue();
         }
 
         private PaperGraphVisualizer[] ResolvePaperGraphVisualizers()
@@ -485,27 +501,6 @@ namespace Crease.UI
             }
 
             return visualizers.ToArray();
-        }
-
-        private static FoldInstruction[] FindAllFoldInstructions()
-        {
-#if UNITY_EDITOR
-            string[] guids = AssetDatabase.FindAssets("t:FoldInstruction");
-            var instructions = new List<FoldInstruction>(guids.Length);
-
-            foreach (string guid in guids)
-            {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                var instruction = AssetDatabase.LoadAssetAtPath<FoldInstruction>(path);
-                if (instruction != null)
-                    instructions.Add(instruction);
-            }
-
-            instructions.Sort((a, b) => string.Compare(a.name, b.name, System.StringComparison.Ordinal));
-            return instructions.ToArray();
-#else
-            return Resources.LoadAll<FoldInstruction>("FoldInstructions");
-#endif
         }
     }
 }

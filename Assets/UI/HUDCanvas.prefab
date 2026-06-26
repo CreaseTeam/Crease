@@ -1747,9 +1747,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 229d76640ead903439b3237e335a01b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HUDCanvas
-  _dashController: {fileID: 0}
-  _rechargeBar: {fileID: 4434643408426296693}
-  _dashBarBorder: {fileID: 6136693616890475763}
+  _abilityController: {fileID: 0}
+  _abilityRechargeBar: {fileID: 4434643408426296693}
+  _abilityReadyBorder: {fileID: 6136693616890475763}
   _collectibleText: {fileID: 5594039762732754378}
   _healthBar: {fileID: 1292078482510752566}
   _playerHealth: {fileID: 0}
@@ -1762,6 +1762,8 @@ MonoBehaviour:
   _timerText: {fileID: 7071465742784683190}
   _pauseMenuUI: {fileID: 357967908704961714}
   _planeTypeDropdown: {fileID: 5702888987407963842}
+  _loadoutLibrary: {fileID: 11400000, guid: b7c8d9e0f1a2345678901234abcdef03, type: 2}
+  _loadoutApplier: {fileID: 0}
   _foldInstructionRunner: {fileID: 0}
   _debugModeToggle: {fileID: 7105462068740072999}
   _paperGraphVisualizers: []
@@ -3260,7 +3262,7 @@ GameObject:
   - component: {fileID: 2516083455694221074}
   - component: {fileID: 4434643408426296693}
   m_Layer: 5
-  m_Name: DashFill
+  m_Name: AbilityRechargeFill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4072,7 +4074,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8981558309502223820}
   m_Layer: 5
-  m_Name: DashUI
+  m_Name: AbilityUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5751,7 +5753,7 @@ GameObject:
   - component: {fileID: 9202908394771230980}
   - component: {fileID: 6188302851394977652}
   m_Layer: 5
-  m_Name: DashBorder
+  m_Name: AbilityReadyBorder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7408,7 +7410,7 @@ GameObject:
   - component: {fileID: 7008360130473977280}
   - component: {fileID: 7546461377566111092}
   m_Layer: 5
-  m_Name: DashBackground
+  m_Name: AbilityRechargeBackground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

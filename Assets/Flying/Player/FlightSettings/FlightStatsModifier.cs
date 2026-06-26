@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Crease.Flying.Player.FlightSettings
+namespace Crease.Flying.Player
 {
     /// <summary>
     /// Auxiliary script designed to be hooked up to Unity Events in the editor

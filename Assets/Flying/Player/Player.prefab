@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 882477613693805417}
   - component: {fileID: 8568081101017760894}
   m_Layer: 0
-  m_Name: DashRecharge
+  m_Name: AbilityProximity
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -74,8 +74,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1c1362449e1fb1d40a047becd7a3a928, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DashSensor
-  _dashController: {fileID: 1147598551027705273}
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Player.Abilities.AbilityProximitySensor
+  _abilityController: {fileID: 9001000000000000002}
 --- !u!23 &2441858211850976530
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -463,7 +463,9 @@ GameObject:
   - component: {fileID: 185509089845354311}
   - component: {fileID: 6378557457462834897}
   - component: {fileID: 6633779251846987741}
-  - component: {fileID: 1147598551027705273}
+  - component: {fileID: 9001000000000000001}
+  - component: {fileID: 9001000000000000002}
+  - component: {fileID: 9001000000000000003}
   - component: {fileID: 6900904615396018688}
   - component: {fileID: 355721681263100046}
   - component: {fileID: 4338409860427139704}
@@ -665,7 +667,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KinematicBody
   autoConfigureRigidbody: 1
---- !u!114 &1147598551027705273
+--- !u!114 &9001000000000000001
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -674,20 +676,44 @@ MonoBehaviour:
   m_GameObject: {fileID: 7903687590958615882}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16535e9ae6a49e44ca7f881f79126bc7, type: 3}
+  m_Script: {fileID: 11500000, guid: f1a2b3c4d5e6f7890123456789abcd02, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DashController
-  _animator: {fileID: 183573655080417583}
-  _kinematicBody: {fileID: 6633779251846987741}
-  _boostStrength: 30
-  _dashDuration: 0.5
-  _invincibilityDuration: 1
-  _wingTrailController: {fileID: 6900904615396018688}
-  _trailTime: 0.75
-  _dashBorder: {fileID: 1189625132337031897}
-  _rechargeMode: 1
-  _rechargeRate: 5
-  _rechargeMax: 100
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Player.FlightModifiers.FlightModifiers
+  _baseSimulationSpeed: 1
+--- !u!114 &9001000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7903687590958615882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1a2b3c4d5e6f7890123456789abcd07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Player.Abilities.AbilityController
+  _equippedAbility: {fileID: 11400000, guid: 4b29948a4ebb6464d96d991381d33e76, type: 2}
+  _animationController: {fileID: 9201342132183545357}
+  _body: {fileID: 6633779251846987741}
+  _wingTrail: {fileID: 6900904615396018688}
+  _rechargeProximityIndicator: {fileID: 1189625132337031897}
+  _flightStats: {fileID: 5517443600840389601}
+  _flightModifiers: {fileID: 9001000000000000001}
+--- !u!114 &9001000000000000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7903687590958615882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1a2b3c4d5e6f7890123456789abcd09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Player.Loadouts.PlaneLoadoutApplier
+  _foldInstructionRunner: {fileID: 0}
+  _flightStats: {fileID: 5517443600840389601}
+  _abilityController: {fileID: 9001000000000000002}
 --- !u!114 &6900904615396018688
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -773,7 +799,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1431797563303238190}
-  - component: {fileID: 183573655080417583}
+  - component: {fileID: 9201342132183545357}
   m_Layer: 0
   m_Name: AnimationParent
   m_TagString: Untagged
@@ -797,25 +823,19 @@ Transform:
   - {fileID: 8993998958267351050}
   m_Father: {fileID: 4050445033718603467}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &183573655080417583
-Animator:
-  serializedVersion: 7
+--- !u!114 &9201342132183545357
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9191342132183545356}
   m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 09c9844605094434683139394810dd7f, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9e0f1a2b3c456789012abcdef345678, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Player.Animation.AnimationController
+  _meshTransform: {fileID: 8993998958267351050}
+  _defaultOffsetSize: 0.3
+  _defaultSpinSpeedMultiplier: 1.5
+  _rollEaseDuration: 0.15

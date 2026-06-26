@@ -1,4 +1,6 @@
+using System.Collections;
 using Crease.Flying.Player;
+using Crease.Flying.Player.FlightModifiers;
 using Crease.Managers.Input;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -17,6 +19,7 @@ namespace Crease.Flying.Player.Camera
         [SerializeField]
         private CameraSettings _settings;
 
+        private FlightModifiers.FlightModifiers _flightModifiers;
         private Vector3 _runtimeOffset;
 
         private float _currentYaw;
@@ -34,11 +37,92 @@ namespace Crease.Flying.Player.Camera
         private float _mouseInactivityTimer;
         private Vector2 _lastMouseInput;
 
+        private Transform _lookCaptureTarget;
+        private float _lookCaptureBlend;
+        private Coroutine _lookCaptureRoutine;
+
+        public bool IsLookCaptureActive => _lookCaptureRoutine != null || _lookCaptureBlend > 0.001f;
+
         public void RecenterPan()
         {
             _panYaw = 0f;
             _panPitch = 0f;
         }
+
+        public void StartLookCapture(Transform lookTarget, float transitionInDuration, float holdDuration, float transitionOutDuration)
+        {
+            if (lookTarget == null)
+                return;
+
+            if (_lookCaptureRoutine != null)
+                StopCoroutine(_lookCaptureRoutine);
+
+            _lookCaptureRoutine = StartCoroutine(LookCaptureRoutine(lookTarget, transitionInDuration, holdDuration, transitionOutDuration));
+        }
+
+        public void CancelLookCapture()
+        {
+            if (_lookCaptureRoutine != null)
+            {
+                StopCoroutine(_lookCaptureRoutine);
+                _lookCaptureRoutine = null;
+            }
+
+            _lookCaptureTarget = null;
+            _lookCaptureBlend = 0f;
+        }
+
+        private IEnumerator LookCaptureRoutine(Transform lookTarget, float transitionInDuration, float holdDuration, float transitionOutDuration)
+        {
+            _lookCaptureTarget = lookTarget;
+            RecenterPan();
+
+            yield return AnimateLookCaptureBlend(0f, 1f, transitionInDuration);
+
+            float holdElapsed = 0f;
+            while (holdElapsed < holdDuration)
+            {
+                holdElapsed += ScaledDeltaTime;
+                yield return null;
+            }
+
+            yield return AnimateLookCaptureBlend(1f, 0f, transitionOutDuration);
+
+            _lookCaptureTarget = null;
+            _lookCaptureBlend = 0f;
+            _lookCaptureRoutine = null;
+        }
+
+        private IEnumerator AnimateLookCaptureBlend(float from, float to, float duration)
+        {
+            if (duration <= 0f)
+            {
+                _lookCaptureBlend = to;
+                yield break;
+            }
+
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += ScaledDeltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                _lookCaptureBlend = Mathf.Lerp(from, to, t);
+                yield return null;
+            }
+
+            _lookCaptureBlend = to;
+        }
+
+        private void Awake()
+        {
+            if (FlightController != null)
+                _flightModifiers = FlightController.GetComponent<FlightModifiers.FlightModifiers>();
+            else if (Target != null)
+                _flightModifiers = Target.GetComponent<FlightModifiers.FlightModifiers>();
+        }
+
+        private float ScaledDeltaTime =>
+            Time.deltaTime * (_flightModifiers != null ? _flightModifiers.SimulationSpeed : 1f);
 
         private void Start()
         {
@@ -69,11 +153,13 @@ namespace Crease.Flying.Player.Camera
         {
             if (Target == null) return;
 
-            float dt = Time.deltaTime;
-            if (dt < 0.0001f) return;
+            float scaledDt = ScaledDeltaTime;
+            if (scaledDt < 0.0001f) return;
 
-            HandleZoom(dt);
-            HandlePanning(dt);
+            HandleZoom(scaledDt);
+
+            if (!IsLookCaptureActive)
+                HandlePanning(scaledDt);
 
             if (InputManager.Instance != null && InputManager.Instance.CenterCameraTriggered)
             {
@@ -88,15 +174,15 @@ namespace Crease.Flying.Player.Camera
             float targetYaw = targetEuler.y;
             float targetPitch = NormalizeAngle(targetEuler.x);
 
-            float rawPitchRate = Mathf.DeltaAngle(_prevTargetPitch, targetPitch) / dt;
+            float rawPitchRate = Mathf.DeltaAngle(_prevTargetPitch, targetPitch) / scaledDt;
             _prevTargetPitch = targetPitch;
-            _smoothedPitchRate = Mathf.Lerp(_smoothedPitchRate, rawPitchRate, dt * _settings.PitchRateSmoothing);
+            _smoothedPitchRate = Mathf.Lerp(_smoothedPitchRate, rawPitchRate, scaledDt * _settings.PitchRateSmoothing);
             float desiredOffset = -_smoothedPitchRate * _settings.ProfileStrength;
             desiredOffset = Mathf.Clamp(desiredOffset, -_settings.MaxProfileOffset, _settings.MaxProfileOffset);
-            _currentProfileOffset = Mathf.Lerp(_currentProfileOffset, desiredOffset, dt * _settings.ProfileDecay);
+            _currentProfileOffset = Mathf.Lerp(_currentProfileOffset, desiredOffset, scaledDt * _settings.ProfileDecay);
 
-            _currentYaw = Mathf.LerpAngle(_currentYaw, targetYaw, dt * _settings.YawSpeed);
-            _currentPitch = Mathf.LerpAngle(_currentPitch, targetPitch, dt * _settings.PitchSpeed);
+            _currentYaw = Mathf.LerpAngle(_currentYaw, targetYaw, scaledDt * _settings.YawSpeed);
+            _currentPitch = Mathf.LerpAngle(_currentPitch, targetPitch, scaledDt * _settings.PitchSpeed);
             float finalPitch = _currentPitch + _currentProfileOffset;
 
             float targetRoll = (FlightController != null) ? -FlightController.Roll : NormalizeAngle(targetEuler.z);
@@ -105,7 +191,13 @@ namespace Crease.Flying.Player.Camera
 
             Vector3 baseDesiredPosition = Target.position + baseRigRotation * _runtimeOffset;
             if (_unpannedBasePosition == Vector3.zero) _unpannedBasePosition = transform.position;
-            _unpannedBasePosition = Vector3.SmoothDamp(_unpannedBasePosition, baseDesiredPosition, ref _positionVelocity, 1f / _settings.PositionSmoothing);
+            _unpannedBasePosition = Vector3.SmoothDamp(
+                _unpannedBasePosition,
+                baseDesiredPosition,
+                ref _positionVelocity,
+                1f / _settings.PositionSmoothing,
+                Mathf.Infinity,
+                scaledDt);
 
             Vector3 baseLookTarget = Vector3.Lerp(
                 Target.position,
@@ -118,17 +210,28 @@ namespace Crease.Flying.Player.Camera
             Quaternion baseDesiredRotation = Quaternion.LookRotation(lookDir, upVec);
 
             if (_unpannedBaseRotation.w == 0f) _unpannedBaseRotation = transform.rotation;
-            _unpannedBaseRotation = Quaternion.Slerp(_unpannedBaseRotation, baseDesiredRotation, dt * _settings.LookSmoothing);
+            _unpannedBaseRotation = Quaternion.Slerp(_unpannedBaseRotation, baseDesiredRotation, scaledDt * _settings.LookSmoothing);
 
             Quaternion localPan = Quaternion.Euler(-_panPitch, _panYaw, 0f);
 
             Quaternion finalRotation = _unpannedBaseRotation * localPan;
 
-            Quaternion rOrbit = finalRotation * Quaternion.Inverse(_unpannedBaseRotation);
-            Vector3 offsetFromTarget = _unpannedBasePosition - Target.position;
+            if (_lookCaptureBlend > 0f && _lookCaptureTarget != null)
+            {
+                Vector3 captureLookDir = (_lookCaptureTarget.position - _unpannedBasePosition).normalized;
+                Quaternion captureRotation = Quaternion.LookRotation(captureLookDir, upVec);
+                finalRotation = Quaternion.Slerp(finalRotation, captureRotation, _lookCaptureBlend);
+                transform.position = _unpannedBasePosition;
+                transform.rotation = finalRotation;
+            }
+            else
+            {
+                Quaternion rOrbit = finalRotation * Quaternion.Inverse(_unpannedBaseRotation);
+                Vector3 offsetFromTarget = _unpannedBasePosition - Target.position;
 
-            transform.position = Target.position + rOrbit * offsetFromTarget;
-            transform.rotation = finalRotation;
+                transform.position = Target.position + rOrbit * offsetFromTarget;
+                transform.rotation = finalRotation;
+            }
         }
 
         private void HandleZoom(float dt)

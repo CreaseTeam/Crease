@@ -110,12 +110,10 @@ namespace Crease.Flying.Environment.Collectibles
             }
         }
 
-        public void RefreshDash()
+        public void RefreshAbility()
         {
             if (HUDCanvas.Instance != null)
-            {
-                HUDCanvas.Instance.RefreshDash();
-            }
+                HUDCanvas.Instance.RefreshAbility();
         }
 
         public void Magnetize(GameObject player, float minSpeed, float maxSpeed, float totalTime, AnimationCurve speedFloorCurve)
