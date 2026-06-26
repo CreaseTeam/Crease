@@ -123,6 +123,9 @@ namespace Crease.Folding.Decals
                     if (!TriangleMatchesSide(p0, p1, p2, placement.Side, surfaceNormal))
                         continue;
 
+                    if (!TriangleMatchesCullRegion(anchor, v1, v2, placement))
+                        continue;
+
                     Vector2 a = ProjectToDecalPlane(p0, center, axisU, axisV);
                     Vector2 b = ProjectToDecalPlane(p1, center, axisU, axisV);
                     Vector2 c = ProjectToDecalPlane(p2, center, axisU, axisV);
@@ -136,6 +139,59 @@ namespace Crease.Folding.Decals
                     output.Add(new Triangle2D { A = a, B = b, C = c });
                 }
             }
+        }
+
+        private static bool TriangleMatchesCullRegion(
+            Vertex anchor,
+            Vertex v1,
+            Vertex v2,
+            DecalPlacement placement)
+        {
+            if (placement.CullRegionSheetUvPolygons == null || placement.CullRegionSheetUvPolygons.Length == 0)
+                return true;
+
+            Vector2 uv0 = VertexSheetUv(anchor, placement.Side);
+            Vector2 uv1 = VertexSheetUv(v1, placement.Side);
+            Vector2 uv2 = VertexSheetUv(v2, placement.Side);
+            Vector2 centroid = (uv0 + uv1 + uv2) / 3f;
+
+            for (int i = 0; i < placement.CullRegionSheetUvPolygons.Length; i++)
+            {
+                Vector2[] polygon = placement.CullRegionSheetUvPolygons[i];
+                if (polygon == null || polygon.Length < 3)
+                    continue;
+
+                if (IsPointInPolygon(centroid, polygon)
+                    || IsPointInPolygon(uv0, polygon)
+                    || IsPointInPolygon(uv1, polygon)
+                    || IsPointInPolygon(uv2, polygon))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static Vector2 VertexSheetUv(Vertex vertex, PaperSide side)
+        {
+            if (side == PaperSide.Back)
+                return new Vector2(1f - vertex.Uv.x, vertex.Uv.y);
+            return vertex.Uv;
+        }
+
+        private static bool IsPointInPolygon(Vector2 point, Vector2[] polygon)
+        {
+            bool inside = false;
+            for (int i = 0, j = polygon.Length - 1; i < polygon.Length; j = i++)
+            {
+                Vector2 a = polygon[i];
+                Vector2 b = polygon[j];
+                bool intersects = (a.y > point.y) != (b.y > point.y)
+                    && point.x < (b.x - a.x) * (point.y - a.y) / (b.y - a.y) + a.x;
+                if (intersects)
+                    inside = !inside;
+            }
+
+            return inside;
         }
 
         private static bool TriangleMatchesSide(

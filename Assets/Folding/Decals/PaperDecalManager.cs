@@ -217,7 +217,8 @@ namespace Crease.Folding.Decals
                         heightScale: tickHeight,
                         alignAxisLocal: axis,
                         useAxisAlignment: true,
-                        cullOverhang: true));
+                        cullOverhang: true,
+                        cullFaces: allowedFaces));
                 }
 
                 along += period;
