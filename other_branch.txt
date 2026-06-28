@@ -584,6 +584,11 @@ Transform:
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 
+--- !u!4 &189220356 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8424490050691201794, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
+  m_PrefabInstance: {fileID: 513064888}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &190622750
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -643,7 +648,7 @@ PrefabInstance:
     - target: {fileID: 6484455313470857965, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 368736692}
+      objectReference: {fileID: 966346560}
     - target: {fileID: 7577508088859911764, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: m_Name
       value: FrustumWindZone_4 (4)
@@ -2716,7 +2721,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 1460555757}
     m_Modifications:
     - target: {fileID: 4303939199678677826, guid: 321b5f87c660ec344a2e9cfd96b142f1, type: 3}
       propertyPath: m_Name
@@ -3938,6 +3943,9 @@ PrefabInstance:
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
 --- !u!1001 &2036702963
+
+--- !u!1001 &3479183127657217181
+>
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -3945,6 +3953,7 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+
     - target: {fileID: 833541508558576192, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: height
       value: 40
@@ -3996,7 +4005,7 @@ PrefabInstance:
     - target: {fileID: 6484455313470857965, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 368736692}
+      objectReference: {fileID: 1991250775}
     - target: {fileID: 7577508088859911764, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: m_Name
       value: FrustumWindZone_4 (9)
@@ -4016,50 +4025,83 @@ PrefabInstance:
     - target: {fileID: 8424490050691201794, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: m_LocalPosition.x
       value: 53.82468
-      objectReference: {fileID: 0}
+
     - target: {fileID: 133706949719423867, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1114134691}
     - target: {fileID: 2451224297240717620, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 918572858}
     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 321.68268
+>
       objectReference: {fileID: 0}
     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
       propertyPath: m_LocalPosition.y
+
       value: 5.1419
+
+      value: -4.5
+>
       objectReference: {fileID: 0}
     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
       propertyPath: m_LocalPosition.z
+
       value: 435.6
+
+      value: 786.3
+>
       objectReference: {fileID: 0}
     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
       propertyPath: m_LocalRotation.w
+
       value: 0.28844917
+
+      value: 1
+>
       objectReference: {fileID: 0}
     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
       propertyPath: m_LocalRotation.x
+
       value: 0.61595565
+
+      value: 0
+>
       objectReference: {fileID: 0}
     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
       propertyPath: m_LocalRotation.y
+
       value: 0.7236179
+
+      value: 0
+>
       objectReference: {fileID: 0}
     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
       propertyPath: m_LocalRotation.z
+
       value: -0.11735764
+
+      value: 0
+>
       objectReference: {fileID: 0}
     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
+
       value: 31.681
+
+      value: 0
+>
       objectReference: {fileID: 0}
     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
+
       value: 161.297
+
+      value: 0
+>
       objectReference: {fileID: 0}
     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -4068,23 +4110,23 @@ PrefabInstance:
     - target: {fileID: 3281495320049832495, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 2049436397}
     - target: {fileID: 4314052007856976880, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 461052910}
     - target: {fileID: 4756628547052756171, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 802930861}
     - target: {fileID: 5612213430693250925, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 458683746}
     - target: {fileID: 7874392756599227554, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 307822125}
     - target: {fileID: 8989367088842558116, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
       propertyPath: m_Name
       value: Grass & Lake Blockout
