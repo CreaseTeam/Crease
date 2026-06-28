@@ -15513,205 +15513,6 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
---- !u!1 &711281446
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 711281449}
-  - component: {fileID: 711281448}
-  - component: {fileID: 711281447}
-  m_Layer: 0
-  m_Name: Spline
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &711281447
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 711281446}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b74686beb0670a4ea61325c0acf4411, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Splines::UnityEngine.Splines.SplineInstantiate
-  m_Container: {fileID: 711281448}
-  m_ItemsToInstantiate:
-  - prefab: {fileID: 0}
-    Prefab: {fileID: 1528640213212214896, guid: 16a43bdba42b00241be46cc4f654be83, type: 3}
-    probability: 0
-    Probability: 20
-  - prefab: {fileID: 0}
-    Prefab: {fileID: 2772138382363747400, guid: a2e3288dbc40eb14f821f733c9e4add1, type: 3}
-    probability: 0
-    Probability: 20
-  - prefab: {fileID: 0}
-    Prefab: {fileID: 6576150925937482888, guid: 3b5eb0c7a76907447822b22b65c4cc7c, type: 3}
-    probability: 0
-    Probability: 20
-  - prefab: {fileID: 0}
-    Prefab: {fileID: 4724206978321926639, guid: 45d13d504f653694386b9af5c4a71f17, type: 3}
-    probability: 0
-    Probability: 20
-  - prefab: {fileID: 0}
-    Prefab: {fileID: 2584751347399604357, guid: 09144dabab4b7e44c8afe6708cabc4e4, type: 3}
-    probability: 0
-    Probability: 20
-  m_Method: 1
-  m_Space: 0
-  m_Spacing: {x: 1, y: 1}
-  m_Up: 1
-  m_Forward: 2
-  m_PositionOffset:
-    setup: 0
-    min: {x: 0, y: 0, z: 0}
-    max: {x: 0, y: 0, z: 0}
-    randomX: 0
-    randomY: 0
-    randomZ: 0
-    space: 0
-  m_RotationOffset:
-    setup: 0
-    min: {x: 0, y: 0, z: 0}
-    max: {x: 0, y: 0, z: 0}
-    randomX: 0
-    randomY: 0
-    randomZ: 0
-    space: 0
-  m_ScaleOffset:
-    setup: 0
-    min: {x: 0.2, y: 0.2, z: 0.2}
-    max: {x: 0.5, y: 0.5, z: 5}
-    randomX: 0
-    randomY: 0
-    randomZ: 0
-    space: 0
-  m_DeprecatedInstances: []
-  m_AutoRefresh: 1
-  m_Seed: -1749501025
---- !u!114 &711281448
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 711281446}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dab5c7d4c32e743048dfca98e2d5914f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Splines::UnityEngine.Splines.SplineContainer
-  m_Spline:
-    m_EditModeType: 1
-    m_Knots: []
-    m_MetaData: []
-    m_Closed: 0
-    m_IntData:
-      m_Data: []
-    m_FloatData:
-      m_Data: []
-    m_Float4Data:
-      m_Data: []
-    m_ObjectData:
-      m_Data: []
-  m_Splines:
-  - m_EditModeType: 1
-    m_Knots:
-    - Position:
-        x: 0
-        y: 0
-        z: 0
-      TangentIn:
-        x: -0
-        y: -0
-        z: -44.72136
-      TangentOut:
-        x: 0
-        y: 0
-        z: 44.72136
-      Rotation:
-        value:
-          x: 0.5256053
-          y: -0.011499995
-          z: 0.018607384
-          w: 0.8504473
-    - Position:
-        x: 0
-        y: -400
-        z: 200
-      TangentIn:
-        x: -0
-        y: -0
-        z: -66.66667
-      TangentOut:
-        x: 0
-        y: 0
-        z: 66.66667
-      Rotation:
-        value:
-          x: 0
-          y: 0
-          z: 0.00070065976
-          w: 0.99999976
-    - Position:
-        x: 0
-        y: 0
-        z: 400
-      TangentIn:
-        x: -0
-        y: -0
-        z: -44.72136
-      TangentOut:
-        x: 0
-        y: 0
-        z: 44.72136
-      Rotation:
-        value:
-          x: -0.5253327
-          y: -0.020463498
-          z: -0.033110637
-          w: 0.8500061
-    m_MetaData:
-    - Mode: 0
-      Tension: 0.5
-    - Mode: 0
-      Tension: 0.5
-    - Mode: 0
-      Tension: 0.5
-    m_Closed: 0
-    m_IntData:
-      m_Data: []
-    m_FloatData:
-      m_Data: []
-    m_Float4Data:
-      m_Data: []
-    m_ObjectData:
-      m_Data: []
-  m_Knots:
-    m_KnotsLink: []
---- !u!4 &711281449
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 711281446}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 163, y: -0, z: 516}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &717428654
 Mesh:
   m_ObjectHideFlags: 0
@@ -45660,7 +45461,7 @@ PrefabInstance:
       objectReference: {fileID: 1540086606}
     - target: {fileID: 621599320001383830, guid: 328691ff1b636b743ab78bd34865ded0, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 627053159447644038, guid: 328691ff1b636b743ab78bd34865ded0, type: 3}
       propertyPath: m_Mesh
@@ -46152,7 +45953,7 @@ PrefabInstance:
       objectReference: {fileID: 1240737675}
     - target: {fileID: 1592791939984431708, guid: 328691ff1b636b743ab78bd34865ded0, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1594856990748086334, guid: 328691ff1b636b743ab78bd34865ded0, type: 3}
       propertyPath: m_Mesh
@@ -47788,7 +47589,7 @@ PrefabInstance:
       objectReference: {fileID: 1754081754}
     - target: {fileID: 5582884168960041734, guid: 328691ff1b636b743ab78bd34865ded0, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5621005128858358113, guid: 328691ff1b636b743ab78bd34865ded0, type: 3}
       propertyPath: m_Mesh
@@ -48032,7 +47833,7 @@ PrefabInstance:
       objectReference: {fileID: 1054196090}
     - target: {fileID: 6267184669041780074, guid: 328691ff1b636b743ab78bd34865ded0, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6268715990131992974, guid: 328691ff1b636b743ab78bd34865ded0, type: 3}
       propertyPath: m_Mesh
@@ -49406,4 +49207,3 @@ SceneRoots:
   - {fileID: 416125157}
   - {fileID: 578441704}
   - {fileID: 4201310923002327298}
-  - {fileID: 711281449}
