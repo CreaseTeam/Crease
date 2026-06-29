@@ -66,15 +66,18 @@ namespace Crease.Folding.Decals
                     out Vector3 localTangent,
                     previewCache))
             {
-                if (placement.LocalNormal.sqrMagnitude > 0.0001f)
+                if (previewCache != null)
                 {
-                    localPos = placement.LocalPoint;
-                    localNormal = placement.LocalNormal;
-                    localTangent = DecalSurfaceQuery.InterpolateTangent(authoringGraph, placement, localNormal);
-                }
-                else if (previewCache != null)
-                {
-                    return;
+                    if (placement.LocalNormal.sqrMagnitude > 0.0001f)
+                    {
+                        localPos = placement.LocalPoint;
+                        localNormal = placement.LocalNormal;
+                        localTangent = DecalSurfaceQuery.InterpolateTangent(authoringGraph, placement, localNormal);
+                    }
+                    else
+                    {
+                        return;
+                    }
                 }
                 else
                 {

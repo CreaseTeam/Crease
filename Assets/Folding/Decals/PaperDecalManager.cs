@@ -62,6 +62,12 @@ namespace Crease.Folding.Decals
                 Controller.ClearPreview();
 
             EnsureSurfaceQuery();
+
+            if (!_attachedToFlight && _placements.Count > 0)
+            {
+                InvalidatePreviewCaches();
+                RefreshAfterMeshUpdate(reanchorAuthoring: false, trackPreviewSurface: false);
+            }
         }
 
         public void EnsureSurfaceQuery()
@@ -93,11 +99,10 @@ namespace Crease.Folding.Decals
         }
 
         /// <summary>
-        /// Re-anchors sticker data on the authoring graph when topology changes, then redisplays
-        /// every decal on the preview surface (authoring + current fold). Preview matches authoring
-        /// when no fold is in progress.
+        /// Re-anchors sticker data on the authoring graph when topology changes, then redisplays decals.
+        /// Use <paramref name="trackPreviewSurface"/> during active fold preview so stickers follow the deforming mesh.
         /// </summary>
-        public void RefreshAfterMeshUpdate(bool reanchorAuthoring = true)
+        public void RefreshAfterMeshUpdate(bool reanchorAuthoring = true, bool trackPreviewSurface = false)
         {
             if (_attachedToFlight) return;
 
@@ -116,7 +121,7 @@ namespace Crease.Folding.Decals
                 }
 
                 if (i < _quads.Count && _quads[i] != null)
-                    ApplyDecalDisplay(_placements[i], _quads[i], _previewCaches[i], i);
+                    ApplyDecalDisplay(_placements[i], _quads[i], _previewCaches[i], i, trackPreviewSurface: trackPreviewSurface);
             }
 
             RefreshGuideDisplay();
@@ -238,11 +243,31 @@ namespace Crease.Folding.Decals
         {
             if (flightMeshRoot == null || _authoringGraph == null) return;
 
+            HideFoldGuide();
+
+            // Resolve stickers on the authoring graph in folding space, then reparent without
+            // recomputing flight locals. That keeps the same world pose the player saw on the paper.
+            for (int i = 0; i < _placements.Count; i++)
+            {
+                if (i >= _quads.Count || _quads[i] == null) continue;
+                ApplyDecalDisplay(
+                    _placements[i],
+                    _quads[i],
+                    _previewCaches[i],
+                    i,
+                    trackPreviewSurface: false,
+                    meshVertexRotation: Quaternion.identity);
+            }
+
             _flightMeshRoot = flightMeshRoot;
             _flightVertexRotation = meshVertexRotation;
             _attachedToFlight = true;
-            HideFoldGuide();
-            ApplyAllPlacementsToQuads();
+
+            for (int i = 0; i < _quads.Count; i++)
+            {
+                if (_quads[i] == null) continue;
+                _quads[i].transform.SetParent(flightMeshRoot, worldPositionStays: true);
+            }
         }
 
         public void RestoreToFolding()
@@ -280,7 +305,7 @@ namespace Crease.Folding.Decals
             _ghostQuad.SetTexture(texture);
             _ghostQuad.gameObject.SetActive(true);
             DecalPlacement temp = DecalPlacementUtility.FromSurfaceHit(texture, hit, scale, rotationUv);
-            ApplyDecalDisplay(temp, _ghostQuad, _ghostPreviewCache, _placements.Count + _guideQuads.Count);
+            ApplyDecalDisplay(temp, _ghostQuad, _ghostPreviewCache, _placements.Count + _guideQuads.Count, trackPreviewSurface: true);
         }
 
         public void HideGhost()
@@ -358,7 +383,7 @@ namespace Crease.Folding.Decals
             DecalQuad quad = quadObj.AddComponent<DecalQuad>();
             quad.Initialize(texture, isGhost: false);
             _quads.Add(quad);
-            ApplyDecalDisplay(placement, quad, previewCache, _placements.Count - 1);
+            ApplyDecalDisplay(placement, quad, previewCache, _placements.Count - 1, trackPreviewSurface: false);
             _ghostQuad?.SetLayerOrder(_placements.Count + _guideQuads.Count);
 
             return true;
@@ -399,14 +424,15 @@ namespace Crease.Folding.Decals
         }
 
         /// <summary>
-        /// Displays a decal on the preview mesh using authoring placement data.
-        /// Preview is authoring plus the current fold, so stickers and guides follow folds.
+        /// Positions a decal quad from placement data. Stickers use authoring anchors by default so
+        /// flight reparenting matches the saved mesh; enable preview tracking during fold animation.
         /// </summary>
         private void ApplyDecalDisplay(
             DecalPlacement placement,
             DecalQuad quad,
             PreviewAnchorCache previewCache,
             int renderOrder,
+            bool trackPreviewSurface = false,
             Quaternion meshVertexRotation = default)
         {
             if (quad == null || _authoringGraph == null)
@@ -417,7 +443,7 @@ namespace Crease.Folding.Decals
 
             GraphMesh surfaceGraph = null;
             PreviewAnchorCache cache = null;
-            if (!_attachedToFlight && Controller?.PreviewGraph != null)
+            if (!_attachedToFlight && trackPreviewSurface && Controller?.PreviewGraph != null)
             {
                 surfaceGraph = Controller.PreviewGraph;
                 cache = previewCache;
@@ -442,7 +468,7 @@ namespace Crease.Folding.Decals
             for (int i = 0; i < _placements.Count; i++)
             {
                 if (i >= _quads.Count || _quads[i] == null) continue;
-                ApplyDecalDisplay(_placements[i], _quads[i], _previewCaches[i], i);
+                ApplyDecalDisplay(_placements[i], _quads[i], _previewCaches[i], i, trackPreviewSurface: false);
             }
 
             RefreshGuideDisplay();
@@ -465,7 +491,7 @@ namespace Crease.Folding.Decals
                     continue;
                 }
 
-                ApplyDecalDisplay(_placements[i], _quads[i], _previewCaches[i], i);
+                ApplyDecalDisplay(_placements[i], _quads[i], _previewCaches[i], i, trackPreviewSurface: false);
             }
 
             if (refreshTransforms)
@@ -485,7 +511,8 @@ namespace Crease.Folding.Decals
                     _guidePlacements[i],
                     _guideQuads[i],
                     _guidePreviewCaches[i],
-                    _placements.Count + i);
+                    _placements.Count + i,
+                    trackPreviewSurface: true);
             }
         }
 
@@ -522,7 +549,8 @@ namespace Crease.Folding.Decals
                     _guidePlacements[i],
                     tickQuad,
                     _guidePreviewCaches[i],
-                    _placements.Count + i);
+                    _placements.Count + i,
+                    trackPreviewSurface: true);
             }
 
             for (int i = _guideQuads.Count - 1; i >= nextPlacements.Count; i--)
