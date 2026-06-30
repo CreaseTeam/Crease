@@ -17,11 +17,19 @@ namespace Crease.Flying.Player
         [FormerlySerializedAs("currentStats")]
         private FlightSettings _currentStats;
 
-        private List<FlightSettings> _activeModifiers = new List<FlightSettings>();
+        private readonly List<FlightStatModifier> _activeModifiers = new List<FlightStatModifier>();
         private FlightSettings _initialBaseSettings;
         private KinematicBody _body;
+        private bool _isDirty;
 
-        public FlightSettings CurrentStats => _currentStats;
+        public FlightSettings CurrentStats
+        {
+            get
+            {
+                FlushIfDirty();
+                return _currentStats;
+            }
+        }
 
         private void Awake()
         {
@@ -63,10 +71,25 @@ namespace Crease.Flying.Player
             RecalculateStats();
         }
 
+        internal void MarkDirty()
+        {
+            _isDirty = true;
+        }
+
+        internal void FlushIfDirty()
+        {
+            if (!_isDirty)
+                return;
+
+            _isDirty = false;
+            RecalculateStats();
+        }
+
         public void SetBaseSettings(FlightSettings newSettings)
         {
             _baseSettings = newSettings;
-            RecalculateStats();
+            MarkDirty();
+            FlushIfDirty();
         }
 
         public void RevertToBaseStats()
@@ -77,47 +100,45 @@ namespace Crease.Flying.Player
 
         public void ClearAllModifications()
         {
-            foreach (var mod in _activeModifiers)
-            {
-                if (mod != null) Destroy(mod);
-            }
+            foreach (FlightStatModifier modifier in _activeModifiers)
+                modifier.RevokeInternal();
+
             _activeModifiers.Clear();
-            RecalculateStats();
+            MarkDirty();
+            FlushIfDirty();
         }
 
-        public void AddModifier(FlightSettings modifier)
+        public void RemoveModifier(FlightStatModifier modifier)
         {
-            if (modifier != null && !_activeModifiers.Contains(modifier))
-            {
-                _activeModifiers.Add(modifier);
-                RecalculateStats();
-            }
+            if (modifier == null || modifier.IsRevoked || !_activeModifiers.Contains(modifier))
+                return;
+
+            _activeModifiers.Remove(modifier);
+            modifier.RevokeInternal();
+            MarkDirty();
+            FlushIfDirty();
         }
 
-        public void RemoveModifier(FlightSettings modifier)
+        public FlightStatModifier ApplySettingsAsModifier(FlightSettings settingsAsset)
         {
-            if (modifier != null && _activeModifiers.Contains(modifier))
-            {
-                _activeModifiers.Remove(modifier);
-                RecalculateStats();
-            }
-        }
-
-        public FlightSettings ApplySettingsAsModifier(FlightSettings settingsAsset)
-        {
-            if (settingsAsset == null) return null;
+            if (settingsAsset == null)
+                return null;
 
             FlightSettings mod = ScriptableObject.Instantiate(settingsAsset);
             mod.name = $"Modifier_From_{settingsAsset.name}";
             mod.hideFlags = HideFlags.DontSave;
 
-            AddModifier(mod);
-            return mod;
+            FlightStatModifier handle = RegisterModifier(mod);
+            FlushIfDirty();
+            return handle;
         }
 
-        public FlightSettings MatchSettings(FlightSettings targetSettings)
+        public FlightStatModifier MatchSettings(FlightSettings targetSettings)
         {
-            if (targetSettings == null) return null;
+            if (targetSettings == null)
+                return null;
+
+            FlushIfDirty();
 
             FlightSettings mod = ScriptableObject.CreateInstance<FlightSettings>();
             mod.name = $"Modifier_Match_{targetSettings.name}";
@@ -125,32 +146,45 @@ namespace Crease.Flying.Player
 
             FlightStatAccessor.ComputeDelta(targetSettings, _currentStats, mod);
 
-            AddModifier(mod);
-            return mod;
+            FlightStatModifier handle = RegisterModifier(mod);
+            FlushIfDirty();
+            return handle;
         }
 
-        public FlightSettings AddModifierToValue(FlightStatType statType, float modifierValue)
+        public FlightStatModifier AddModifierToValue(FlightStatType statType, float modifierValue)
         {
             FlightSettings mod = ScriptableObject.CreateInstance<FlightSettings>();
-            mod.name = $"Modifier_{statType}_{modifierValue}";
+            mod.name = $"Modifier_{statType}";
             mod.hideFlags = HideFlags.DontSave;
             FlightStatAccessor.SetAllZero(mod);
             FlightStatAccessor.Set(mod, statType, modifierValue);
 
-            AddModifier(mod);
-            return mod;
+            FlightStatModifier handle = RegisterModifier(mod);
+            FlushIfDirty();
+            return handle;
         }
 
-        public FlightSettings SetSpecificValue(FlightStatType statType, float targetValue)
+        public FlightStatModifier SetSpecificValue(FlightStatType statType, float targetValue)
         {
+            FlushIfDirty();
+
             float currentValue = FlightStatAccessor.Get(_currentStats, statType);
             float delta = targetValue - currentValue;
             return AddModifierToValue(statType, delta);
         }
 
+        private FlightStatModifier RegisterModifier(FlightSettings settings)
+        {
+            FlightStatModifier handle = new FlightStatModifier(this, settings);
+            _activeModifiers.Add(handle);
+            MarkDirty();
+            return handle;
+        }
+
         private void EnsureCurrentStatsInstance()
         {
-            if (_currentStats != null) return;
+            if (_currentStats != null)
+                return;
 
             _currentStats = ScriptableObject.CreateInstance<FlightSettings>();
             _currentStats.name = "CurrentStats_Runtime";
@@ -159,13 +193,17 @@ namespace Crease.Flying.Player
 
         private void RecalculateStats()
         {
-            if (_baseSettings == null || _currentStats == null) return;
+            if (_baseSettings == null || _currentStats == null)
+                return;
 
             FlightStatAccessor.CopyFrom(_baseSettings, _currentStats);
 
-            foreach (FlightSettings mod in _activeModifiers)
+            foreach (FlightStatModifier modifier in _activeModifiers)
             {
-                if (mod == null) continue;
+                FlightSettings mod = modifier.Settings;
+                if (mod == null)
+                    continue;
+
                 FlightStatAccessor.AddInto(mod, _currentStats);
             }
 
@@ -174,7 +212,8 @@ namespace Crease.Flying.Player
 
         private void ApplyMassToBody()
         {
-            if (_body == null || _currentStats == null) return;
+            if (_body == null || _currentStats == null)
+                return;
 
             _body.Mass = _currentStats.Mass;
         }

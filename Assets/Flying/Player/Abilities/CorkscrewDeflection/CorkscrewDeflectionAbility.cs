@@ -26,7 +26,7 @@ namespace Crease.Flying.Player.CorkscrewDeflection
         private class CorkscrewDeflectionRuntime : Runtime
         {
             private readonly CorkscrewDeflectionAbility _def;
-            private FlightSettings _damageTakenModifier;
+            private FlightStatModifier _damageTakenModifier;
             private float _activeTimer;
             private float _recharge;
             private bool _canUse = true;
@@ -108,10 +108,10 @@ namespace Crease.Flying.Player.CorkscrewDeflection
 
             private void RevokeDamageReduction()
             {
-                if (_damageTakenModifier == null || C.FlightStats == null)
+                if (_damageTakenModifier == null)
                     return;
 
-                C.FlightStats.RemoveModifier(_damageTakenModifier);
+                _damageTakenModifier.Revoke();
                 _damageTakenModifier = null;
             }
 

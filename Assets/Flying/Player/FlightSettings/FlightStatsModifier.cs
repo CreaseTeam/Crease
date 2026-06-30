@@ -15,16 +15,13 @@ namespace Crease.Flying.Player
         [FormerlySerializedAs("modifierValue")]
         public float ModifierValue;
 
-        private FlightSettings _appliedModifier;
+        private FlightStatModifier _appliedModifier;
 
         public void ApplyModifier()
         {
             if (FlightStats.Instance != null)
             {
-                if (_appliedModifier != null)
-                {
-                    FlightStats.Instance.RemoveModifier(_appliedModifier);
-                }
+                _appliedModifier?.Revoke();
 
                 _appliedModifier = FlightStats.Instance.AddModifierToValue(StatType, ModifierValue);
             }
@@ -36,21 +33,18 @@ namespace Crease.Flying.Player
 
         public void RemoveModifier()
         {
-            if (FlightStats.Instance != null && _appliedModifier != null)
-            {
-                FlightStats.Instance.RemoveModifier(_appliedModifier);
-                _appliedModifier = null;
-            }
+            if (_appliedModifier == null)
+                return;
+
+            _appliedModifier.Revoke();
+            _appliedModifier = null;
         }
 
         public void SetSpecificValue()
         {
             if (FlightStats.Instance != null)
             {
-                if (_appliedModifier != null)
-                {
-                    FlightStats.Instance.RemoveModifier(_appliedModifier);
-                }
+                _appliedModifier?.Revoke();
 
                 _appliedModifier = FlightStats.Instance.SetSpecificValue(StatType, ModifierValue);
             }
@@ -64,10 +58,7 @@ namespace Crease.Flying.Player
         {
             if (FlightStats.Instance != null && settingsAsset != null)
             {
-                if (_appliedModifier != null)
-                {
-                    FlightStats.Instance.RemoveModifier(_appliedModifier);
-                }
+                _appliedModifier?.Revoke();
                 _appliedModifier = FlightStats.Instance.ApplySettingsAsModifier(settingsAsset);
             }
             else if (settingsAsset == null)
@@ -80,10 +71,7 @@ namespace Crease.Flying.Player
         {
             if (FlightStats.Instance != null && targetSettingsAsset != null)
             {
-                if (_appliedModifier != null)
-                {
-                    FlightStats.Instance.RemoveModifier(_appliedModifier);
-                }
+                _appliedModifier?.Revoke();
                 _appliedModifier = FlightStats.Instance.MatchSettings(targetSettingsAsset);
             }
             else if (targetSettingsAsset == null)
