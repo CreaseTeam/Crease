@@ -209,6 +209,17 @@ namespace Crease.Folding.PaperGraph
         }
 
         public void EnterFoldingMode() {
+            EnterFoldingMode(levelEnd: false);
+        }
+
+        /// <summary>
+        /// Switches from flying back to folding mode with a camera transition.
+        /// When <paramref name="levelEnd"/> is true this is the goal/level-end path:
+        /// the minimal LevelEndUI is shown instead of the folding UI, and the normal
+        /// folding-phase restoration (decals + sticker/instruction UI) is skipped so
+        /// only the LevelEndUI remains visible.
+        /// </summary>
+        public void EnterFoldingMode(bool levelEnd) {
             if (IsFolding || IsTransitioning || _isAligningPaper) return;
 
             IsFolding = true;
@@ -216,8 +227,12 @@ namespace Crease.Folding.PaperGraph
             if (InputManager.Instance != null)
                 InputManager.Instance.SwitchToFolding();
 
-            if (HUDCanvas.Instance != null)
-                HUDCanvas.Instance.ShowFoldingUI(true);
+            if (HUDCanvas.Instance != null) {
+                if (levelEnd)
+                    HUDCanvas.Instance.ShowLevelEndUI(true);
+                else
+                    HUDCanvas.Instance.ShowFoldingUI(true);
+            }
 
             if (PaperGraph != null) PaperGraph.gameObject.SetActive(true);
 
@@ -226,12 +241,48 @@ namespace Crease.Folding.PaperGraph
                 Player.SetActive(false);
             }
 
-            RestoreDecalsToFoldingPaper();
-            RestoreFoldingPhaseUi();
+            if (!levelEnd) {
+                RestoreDecalsToFoldingPaper();
+                RestoreFoldingPhaseUi();
+            }
+
             if (FlyingCamera != null) FlyingCamera.gameObject.SetActive(false);
             if (FoldingCamera != null) FoldingCamera.gameObject.SetActive(true);
 
             BeginTransition(FlyingCamera, FoldingCamera);
+        }
+
+        /// <summary>
+        /// Level-end sequence fired by a Goal when the player reaches it: returns to
+        /// folding mode (camera pan), reveals the clear letter material on the front of
+        /// the folding preview paper, and resets the paper. Only the LevelEndUI is shown.
+        /// </summary>
+        public void TriggerLevelEnd(Material letterFront) {
+            if (IsFolding || IsTransitioning || _isAligningPaper) return;
+
+            EnterFoldingMode(levelEnd: true);
+
+            // Reveal the clear letter on the front of the folding preview paper
+            // (swaps out the blurry material assigned in the scene).
+            if (letterFront != null)
+                SetPreviewFrontMaterial(letterFront);
+
+            // Flatten the paper into a clean, non-interactive level-end pose: flat sheet
+            // at the base (unfolded) orientation, with the drag handle and fold guide
+            // line hidden. This is the instant stand-in for the animated reveal.
+            // SEAM (end-flow step 5): replace this with an animated Unfold() later.
+            GetFoldInstructionRunner()?.EnterLevelEndState();
+        }
+
+        private void SetPreviewFrontMaterial(Material material) {
+            if (PaperGraph == null) return;
+            PaperGraphController controller = PaperGraph.GetComponent<PaperGraphController>();
+            if (controller != null)
+                controller.SetPreviewFrontMaterial(material);
+        }
+
+        private FoldInstructionRunner GetFoldInstructionRunner() {
+            return PaperGraph != null ? PaperGraph.GetComponent<FoldInstructionRunner>() : null;
         }
 
         public void EnterFlyingMode() {

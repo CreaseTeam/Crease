@@ -41,8 +41,7 @@ namespace Crease.UI
         [FormerlySerializedAs("flyingUI")]
         private GameObject _flyingUI;
         [SerializeField]
-        [FormerlySerializedAs("checkpointUI")]
-        private GameObject _checkpointUI;
+        private GameObject _levelEndUI;
 
         [SerializeField]
         [FormerlySerializedAs("stickerUI")]
@@ -205,9 +204,21 @@ namespace Crease.UI
             _foldingUI.SetActive(!show);
         }
 
-        public void ShowCheckpointUI(bool show)
+        /// <summary>
+        /// Shows the minimal level-end UI (return-to-menu button) and hides the
+        /// folding, flying, and sticker HUD groups. Used by the goal/level-end flow.
+        /// </summary>
+        public void ShowLevelEndUI(bool show)
         {
-            _checkpointUI.SetActive(show);
+            if (_levelEndUI != null)
+                _levelEndUI.SetActive(show);
+
+            if (show)
+            {
+                if (_foldingUI != null) _foldingUI.SetActive(false);
+                if (_flyingUI != null) _flyingUI.SetActive(false);
+                if (_stickerUI != null) _stickerUI.SetActive(false);
+            }
         }
 
         public void ShowStickerUI(bool show)

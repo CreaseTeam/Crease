@@ -660,6 +660,50 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
     }
 
     /// <summary>
+    /// Instantly puts the paper into the flat, non-interactive state used for the
+    /// level-end reveal: stops any fold animation, flattens the sheet, orients it to the
+    /// base (unfolded) world rotation, and hides the drag handle and fold guide line.
+    /// Unlike <see cref="InstantResetPaper"/> this does NOT re-arm fold step 0, so the
+    /// handle and guide line stay hidden (no fold interaction behind the end screen).
+    /// </summary>
+    public void EnterLevelEndState() {
+        StopAllCoroutines();
+        _isUnfolding = false;
+        _isAutoFolding = false;
+        _isCreaseAnimating = false;
+        _isExecutingStepAnimation = false;
+
+        ExitStickerPhase(clearStickers: true);
+        ClearSavedCreases();
+
+        _hasSavedFoldAxis = false;
+        _totalAccuracy = 0f;
+        _foldCount = 0;
+
+        if (Controller != null) {
+            Controller.HasFoldAxisLock = false;
+            Controller.ResetSheet();
+            Controller.ClearPreview();
+        }
+
+        // The unfolded base orientation is world identity (Unfold() returns here), which
+        // is the flat pose the folding camera frames. Stop the rotation lerp so
+        // LateUpdate leaves the paper at this orientation.
+        CurrentPaperRotation = Vector3.zero;
+        _isPaperLerping = false;
+        if (Controller != null)
+            Controller.transform.rotation = Quaternion.identity;
+
+        // Terminal state: no active fold step, so LateUpdate stops redrawing the fold
+        // guide line and re-arming the handle.
+        _currentStepIndex = -1;
+        HideGuideLine();
+
+        if (DragHandle != null)
+            DragHandle.gameObject.SetActive(false);
+    }
+
+    /// <summary>
     /// Compares the actual drag handle position (where the player dragged) against
     /// the ideal drag position defined in the step. Returns a 0–100 accuracy score.
     /// </summary>
