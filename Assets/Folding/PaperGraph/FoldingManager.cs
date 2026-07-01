@@ -86,6 +86,7 @@ namespace Crease.Folding.PaperGraph
         private float _paperAlignElapsed;
         private bool _pendingUseSavedMesh;
         private bool _pendingFlyingSwitch;
+        private bool _pendingLevelEndUnfold;
 
         private void Awake() {
             if (Instance != null && Instance != this) {
@@ -196,6 +197,13 @@ namespace Crease.Folding.PaperGraph
 
                     if (!_isAligningPaper && _pendingFlyingSwitch)
                         ExecuteFlyingSwitch(_pendingUseSavedMesh);
+
+                    // Level-end: now that the camera has settled on the folding view,
+                    // play the unfold animation that reveals the flat letter.
+                    if (_pendingLevelEndUnfold) {
+                        _pendingLevelEndUnfold = false;
+                        GetFoldInstructionRunner()?.UnfoldForLevelEnd();
+                    }
                 }
             }
         }
@@ -263,15 +271,14 @@ namespace Crease.Folding.PaperGraph
             EnterFoldingMode(levelEnd: true);
 
             // Reveal the clear letter on the front of the folding preview paper
-            // (swaps out the blurry material assigned in the scene).
+            // (swaps out the blurry material assigned in the scene). Do this now so the
+            // letter is already showing on the folded plane as the camera pans in.
             if (letterFront != null)
                 SetPreviewFrontMaterial(letterFront);
 
-            // Flatten the paper into a clean, non-interactive level-end pose: flat sheet
-            // at the base (unfolded) orientation, with the drag handle and fold guide
-            // line hidden. This is the instant stand-in for the animated reveal.
-            // SEAM (end-flow step 5): replace this with an animated Unfold() later.
-            GetFoldInstructionRunner()?.EnterLevelEndState();
+            // End-flow step 5: the plane unfolds itself. Defer the unfold animation until
+            // the camera pan finishes (handled in Update) so the flow is pan -> unfold.
+            _pendingLevelEndUnfold = true;
         }
 
         private void SetPreviewFrontMaterial(Material material) {

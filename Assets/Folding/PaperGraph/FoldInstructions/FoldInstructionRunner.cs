@@ -676,23 +676,49 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         ExitStickerPhase(clearStickers: true);
         ClearSavedCreases();
 
-        _hasSavedFoldAxis = false;
-        _totalAccuracy = 0f;
-        _foldCount = 0;
-
         if (Controller != null) {
-            Controller.HasFoldAxisLock = false;
             Controller.ResetSheet();
             Controller.ClearPreview();
         }
 
+        SettleIntoLevelEndState();
+    }
+
+    /// <summary>
+    /// Animated level-end reveal: plays the same fold-by-fold unfold as <see cref="Unfold"/>,
+    /// then finishes in the flat, non-interactive level-end state (rather than re-arming
+    /// fold step 0). Falls back to an instant flatten when there is nothing to animate.
+    /// </summary>
+    public void UnfoldForLevelEnd() {
+        if (Instruction == null || Controller == null) {
+            EnterLevelEndState();
+            return;
+        }
+        if (_isUnfolding) return;
+
+        ExitStickerPhase(clearStickers: true);
+        StartCoroutine(UnfoldAllRoutine(preserveStickers: false, levelEnd: true));
+    }
+
+    /// <summary>
+    /// Shared terminal state for the level-end reveal: orients the paper to the base
+    /// (unfolded) world rotation and hides the drag handle and fold guide line so no fold
+    /// interaction remains behind the end screen.
+    /// </summary>
+    private void SettleIntoLevelEndState() {
+        _hasSavedFoldAxis = false;
+        _totalAccuracy = 0f;
+        _foldCount = 0;
+
         // The unfolded base orientation is world identity (Unfold() returns here), which
-        // is the flat pose the folding camera frames. Stop the rotation lerp so
-        // LateUpdate leaves the paper at this orientation.
+        // is the flat pose the folding camera frames. Stop the rotation lerp so LateUpdate
+        // leaves the paper at this orientation.
         CurrentPaperRotation = Vector3.zero;
         _isPaperLerping = false;
-        if (Controller != null)
+        if (Controller != null) {
+            Controller.HasFoldAxisLock = false;
             Controller.transform.rotation = Quaternion.identity;
+        }
 
         // Terminal state: no active fold step, so LateUpdate stops redrawing the fold
         // guide line and re-arming the handle.
@@ -979,7 +1005,7 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         Controller.UpdatePreview(); 
     }
 
-    private System.Collections.IEnumerator UnfoldAllRoutine(bool preserveStickers = false) {
+    private System.Collections.IEnumerator UnfoldAllRoutine(bool preserveStickers = false, bool levelEnd = false) {
         _isUnfolding = true;
         PrepareForAnimation();
 
@@ -1023,7 +1049,10 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             yield return new WaitForSeconds(0.2f);
         }
 
-        RestartFoldInstructionsAfterUnfold(preserveStickers);
+        if (levelEnd)
+            SettleIntoLevelEndState();
+        else
+            RestartFoldInstructionsAfterUnfold(preserveStickers);
         _isUnfolding = false;
     }
 
