@@ -2,61 +2,58 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(PaperGraphController))]
-public class PaperGraphControllerEditor : Editor
+namespace Crease.Folding.PaperGraph.Editor
 {
-    public override void OnInspectorGUI() {
-        DrawDefaultInspector();
+    [CustomEditor(typeof(PaperGraphController))]
+    public class PaperGraphControllerEditor : UnityEditor.Editor
+    {
+        public override void OnInspectorGUI() {
+            DrawDefaultInspector();
 
-        PaperGraphController controller = (PaperGraphController)target;
+            PaperGraphController controller = (PaperGraphController)target;
 
-        // Filter-by-tag dropdown
-        PaperGraph graph = controller.GetComponent<PaperGraph>();
-        if (graph != null && graph.tags != null && graph.tags.Count > 0) {
-            EditorGUILayout.Space(5);
-            EditorGUILayout.LabelField("Filter by Tag", EditorStyles.boldLabel);
+            PaperGraph graph = controller.GetComponent<PaperGraph>();
+            if (graph != null && graph.Tags != null && graph.Tags.Count > 0) {
+                EditorGUILayout.Space(5);
+                EditorGUILayout.LabelField("Filter by Tag", EditorStyles.boldLabel);
 
-            List<string> tagKeys = new List<string>(graph.tags.Keys);
-            List<string> options = new List<string> { "(None)" };
-            options.AddRange(tagKeys);
+                List<string> availableTags = FilterTagDropdown.CollectAvailableTags(graph);
+                FilterTagDropdown.DrawLayout(
+                    controller.SelectedFilterTags,
+                    availableTags,
+                    nextTags => {
+                        Undo.RecordObject(controller, "Change Filter Tags");
+                        controller.SelectedFilterTags = nextTags ?? new List<string>();
+                        EditorUtility.SetDirty(controller);
+                    });
+            } else if (controller.SelectedFilterTags != null && controller.SelectedFilterTags.Count > 0) {
+                controller.SelectedFilterTags.Clear();
+            }
 
-            if (controller.selectedFilterTagIndex >= options.Count)
-                controller.selectedFilterTagIndex = 0;
+            EditorGUILayout.Space(10);
 
-            int newIndex = EditorGUILayout.Popup("Filter Tag", controller.selectedFilterTagIndex, options.ToArray());
-            if (newIndex != controller.selectedFilterTagIndex) {
-                Undo.RecordObject(controller, "Change Filter Tag");
-                controller.selectedFilterTagIndex = newIndex;
+            if (GUILayout.Button("Snap to Outside", GUILayout.Height(30))) {
+                Undo.RecordObject(controller, "Snap to Outside");
+                controller.SnapDragHandleToOutside();
                 EditorUtility.SetDirty(controller);
             }
-        } else {
-            controller.selectedFilterTagIndex = 0;
-        }
 
-        EditorGUILayout.Space(10);
+            if (GUILayout.Button("Execute Fold", GUILayout.Height(30))) {
+                controller.ExecuteFoldAction();
+            }
 
-        if (GUILayout.Button("Snap to Outside", GUILayout.Height(30))) {
-            Undo.RecordObject(controller, "Snap to Outside");
-            controller.SnapDragHandleToOutside();
-            EditorUtility.SetDirty(controller);
-        }
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Undo", GUILayout.Height(25))) {
+                controller.UndoFold();
+            }
+            if (GUILayout.Button("Redo", GUILayout.Height(25))) {
+                controller.RedoFold();
+            }
+            EditorGUILayout.EndHorizontal();
 
-        if (GUILayout.Button("Execute Fold", GUILayout.Height(30))) {
-            controller.ExecuteFoldAction();
-        }
-
-        EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Undo", GUILayout.Height(25))) {
-            controller.UndoFold();
-        }
-        if (GUILayout.Button("Redo", GUILayout.Height(25))) {
-            controller.RedoFold();
-        }
-        EditorGUILayout.EndHorizontal();
-
-        if (GUILayout.Button("Reset Sheet", GUILayout.Height(30))) {
-            controller.ResetSheet();
+            if (GUILayout.Button("Reset Sheet", GUILayout.Height(30))) {
+                controller.ResetSheet();
+            }
         }
     }
 }
-

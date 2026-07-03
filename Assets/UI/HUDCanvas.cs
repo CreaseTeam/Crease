@@ -1,303 +1,506 @@
 using System.Collections.Generic;
+using Crease.Flying.Player.Abilities;
+using Crease.Flying.Player.Loadouts;
+using Crease.Flying.Player.Health;
+using PlayerHealth = Crease.Flying.Player.Health.Health;
+using Crease.Folding.PaperGraph;
+using Crease.Managers.Input;
+using Crease.UI.Flying;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class HUDCanvas : MonoBehaviour
+namespace Crease.UI
 {
-    [SerializeField] private DashController dashController;
-    [SerializeField] private Image rechargeBar;
-    [SerializeField] private GameObject dashBarBorder;
-    [SerializeField] private TextMeshProUGUI collectibleText;
-    // [SerializeField] private List<Heart> hearts;
-    [SerializeField] private HealthBar healthBar;
-    [SerializeField] private Health playerHealth;
-
-    [SerializeField] private GameObject foldingUI;
-    [SerializeField] private GameObject flyingUI;
-    [SerializeField] private GameObject checkpointUI;
-
-    [Header("Fold Accuracy")]
-    [SerializeField] private TextMeshProUGUI foldAccuracyText;
-    [SerializeField] private TextMeshProUGUI overallAccuracyText;
-    [SerializeField] private TextMeshProUGUI timerText;
-
-    private float foldingTimer = 0f;
-    private bool isFoldingTimerRunning = false;
-
-    [Header("Menus")]
-    [SerializeField] private GameObject pauseMenuUI;
-    private bool isPaused = false;
-
-
-    public static HUDCanvas Instance { get; private set; }
-
-    private int collectibleCount = 0;
-
-    public int Collect()
+    public class HUDCanvas : MonoBehaviour
     {
-        collectibleCount++;
-        collectibleText.text = $"{collectibleCount}";
-        return collectibleCount;
-    }
+        [SerializeField]
+        private AbilityController _abilityController;
+        [SerializeField]
+        private Image _abilityRechargeBar;
+        [SerializeField]
+        private GameObject _abilityReadyBorder;
+        [SerializeField]
+        [FormerlySerializedAs("collectibleText")]
+        private TextMeshProUGUI _collectibleText;
+        // [SerializeField] private List<Heart> hearts;
+        [SerializeField]
+        [FormerlySerializedAs("healthBar")]
+        private HealthBar _healthBar;
+        [SerializeField]
+        [FormerlySerializedAs("playerHealth")]
+        private PlayerHealth _playerHealth;
 
-    /* 
-    Legacy Heart System 
-    private int maxHealth = 5;
-    private int health = 5;
+        [SerializeField]
+        [FormerlySerializedAs("foldingUI")]
+        private GameObject _foldingUI;
+        [SerializeField]
+        [FormerlySerializedAs("flyingUI")]
+        private GameObject _flyingUI;
+        [SerializeField]
+        [FormerlySerializedAs("checkpointUI")]
+        private GameObject _checkpointUI;
 
-    public void TakeDamage()
-    {
-        if (health > 0)
+        [SerializeField]
+        [FormerlySerializedAs("stickerUI")]
+        private GameObject _stickerUI;
+
+        [Header("Fold Accuracy")]
+        [SerializeField]
+        [FormerlySerializedAs("foldAccuracyText")]
+        private TextMeshProUGUI _foldAccuracyText;
+        [SerializeField]
+        [FormerlySerializedAs("overallAccuracyText")]
+        private TextMeshProUGUI _overallAccuracyText;
+        [SerializeField]
+        [FormerlySerializedAs("timerText")]
+        private TextMeshProUGUI _timerText;
+
+        private float _foldingTimer = 0f;
+        private bool _isFoldingTimerRunning = false;
+
+        [Header("Menus")]
+        [SerializeField]
+        [FormerlySerializedAs("pauseMenuUI")]
+        private GameObject _pauseMenuUI;
+        private bool _isPaused = false;
+
+        [Header("Folding")]
+        [SerializeField]
+        [FormerlySerializedAs("planeTypeDropdown")]
+        private TMP_Dropdown _planeTypeDropdown;
+        [SerializeField]
+        private PlaneLoadoutLibrary _loadoutLibrary;
+        [SerializeField]
+        private PlaneLoadoutApplier _loadoutApplier;
+        [SerializeField]
+        private FoldInstructionRunner _foldInstructionRunner;
+
+        [Header("Folding Debug")]
+        [SerializeField]
+        private Toggle _debugModeToggle;
+        [SerializeField]
+        private PaperGraphVisualizer[] _paperGraphVisualizers;
+
+        public static HUDCanvas Instance { get; private set; }
+
+        public bool DebugMode { get; private set; }
+
+        private int _collectibleCount = 0;
+        private int _selectedLoadoutIndex;
+        private bool _isUpdatingLoadoutDropdown;
+        private PaperGraphVisualizer[] _resolvedPaperGraphVisualizers = System.Array.Empty<PaperGraphVisualizer>();
+
+        public int Collect()
         {
-            health--;
-            UpdateHearts();
-        }
-    }
-
-    private void UpdateHearts()
-    {
-        for (int i = 0; i < hearts.Count; i++)
-        {
-            hearts[i].SetHealth(i < health);
-        }
-    }
-    */
-
-    void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Debug.LogWarning("HUDCanvas Awake: Instance already exists, destroying duplicate");
-            Destroy(gameObject);
-        }
-    }
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        collectibleText.text = $"{collectibleCount}";
-        rechargeBar.fillAmount = dashController.CurrentRecharge / dashController.MaxRecharge;
-
-        // maxHealth = hearts.Count;
-        // health = maxHealth;
-        // Debug.Log($"HUDCanvas Start: collectible={collectibleCount}");
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (isFoldingTimerRunning && timerText != null)
-        {
-            foldingTimer += Time.deltaTime;
-            UpdateTimerDisplay();
+            _collectibleCount++;
+            _collectibleText.text = $"{_collectibleCount}";
+            return _collectibleCount;
         }
 
-        rechargeBar.fillAmount = dashController.CurrentRecharge / dashController.MaxRecharge;
+        /* 
+        Legacy Heart System 
+        private int maxHealth = 5;
+        private int health = 5;
 
-        if (dashBarBorder != null)
+        public void TakeDamage()
         {
-            bool isFullyCharged = dashController.CurrentRecharge >= dashController.MaxRecharge;
-            if (isFullyCharged)
+            if (health > 0)
             {
-                bool flip = Mathf.PingPong(Time.time * 2f, 1f) > 0.5f;
-                dashBarBorder.SetActive(flip);
+                health--;
+                UpdateHearts();
+            }
+        }
+
+        private void UpdateHearts()
+        {
+            for (int i = 0; i < hearts.Count; i++)
+            {
+                hearts[i].SetHealth(i < health);
+            }
+        }
+        */
+
+        void Awake()
+        {
+            if (Instance == null)
+            {
+                Instance = this;
             }
             else
             {
-                dashBarBorder.SetActive(false);
+                Debug.LogWarning("HUDCanvas Awake: Instance already exists, destroying duplicate");
+                Destroy(gameObject);
             }
         }
-    }
 
-    public void ShowFoldingUI(bool show)
-    {
-        foldingUI.SetActive(show);
-        flyingUI.SetActive(!show);
-    }
-
-    public void ShowFlyingUI(bool show)
-    {
-        flyingUI.SetActive(show);
-        foldingUI.SetActive(!show);
-    }
-
-    public void ShowCheckpointUI(bool show)
-    {
-        checkpointUI.SetActive(show);
-    }
-
-    /// <summary>
-    /// Called by the health system to update the flying health bar segments visually.
-    /// </summary>
-    public void VisualDamage(DamageType type, float normalizedDamage)
-    {
-        if (healthBar != null)
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        void Start()
         {
-            healthBar.HandleDamage(type, normalizedDamage);
-        }
-    }
+            _collectibleText.text = $"{_collectibleCount}";
+            if (_abilityRechargeBar != null && _abilityController != null)
+                _abilityRechargeBar.fillAmount = _abilityController.RechargeNormalized;
 
-    /// <summary>
-    /// Called by the health system to update the flying health bar segments down on heal.
-    /// </summary>
-    public void VisualHeal(float normalizedDamage, DamageType? type = null)
-    {
-        if (healthBar != null)
-        {
-            healthBar.HandleHeal(normalizedDamage, type);
-        }
-    }
+            PopulateLoadoutDropdown();
+            if (_planeTypeDropdown != null)
+                _planeTypeDropdown.onValueChanged.AddListener(OnLoadoutDropdownChanged);
+            ApplySelectedLoadout();
 
-    /// <summary>
-    /// Called by UI / other systems to request damage on the player health (absolute amount).
-    /// This delegates gameplay logic to the `Health` component.
-    /// </summary>
-    public void Damage(DamageType type, float absoluteDamage)
-    {
-        if (playerHealth == null)
-        {
-            Debug.LogWarning("HUDCanvas.Damage: playerHealth is not assigned");
-            return;
+            _resolvedPaperGraphVisualizers = ResolvePaperGraphVisualizers();
+            if (_debugModeToggle != null)
+            {
+                _debugModeToggle.onValueChanged.AddListener(OnDebugModeToggleChanged);
+                OnDebugModeToggleChanged(_debugModeToggle.isOn);
+            }
+
+            // maxHealth = hearts.Count;
+            // health = maxHealth;
+            // Debug.Log($"HUDCanvas Start: collectible={_collectibleCount}");
         }
 
-        Debug.Log($"HUDCanvas.Damage delegating to playerHealth: type={type}, absolute={absoluteDamage}");
-        playerHealth.TakeDamage(absoluteDamage, type);
-    }
-
-    /// <summary>
-    /// Called by UI / other systems to request healing on the player health.
-    /// Delegates to the `Health` component.
-    /// </summary>
-    public void Heal(float absoluteAmount, DamageType? type = null)
-    {
-        if (playerHealth == null)
+        private void OnEnable()
         {
-            Debug.LogWarning("HUDCanvas.Heal: playerHealth is not assigned");
-            return;
+            PopulateLoadoutDropdown();
         }
 
-        Debug.Log($"HUDCanvas.Heal delegating to playerHealth: absolute={absoluteAmount}, type={type}");
-        playerHealth.Heal(absoluteAmount, type);
-    }
-
-    /// <summary>
-    /// Updates the fold accuracy text to show the latest fold's accuracy.
-    /// </summary>
-    public void UpdateFoldAccuracy(float accuracy)
-    {
-        if (foldAccuracyText != null)
-            foldAccuracyText.text = $"Fold: {accuracy:F0}%";
-    }
-
-    /// <summary>
-    /// Updates the overall accuracy text to show the running average.
-    /// </summary>
-    public void UpdateOverallAccuracy(float accuracy)
-    {
-        if (overallAccuracyText != null)
-            overallAccuracyText.text = $"Overall: {accuracy:F0}%";
-    }
-
-    /// <summary>
-    /// Resets both accuracy displays to their default state.
-    /// </summary>
-    public void ResetAccuracyDisplay()
-    {
-        if (foldAccuracyText != null)
-            foldAccuracyText.text = "Fold: --";
-        if (overallAccuracyText != null)
-            overallAccuracyText.text = "Overall: --";
-    }
-
-    private void UpdateTimerDisplay()
-    {
-        if (timerText != null)
+        // Update is called once per frame
+        void Update()
         {
-            int minutes = Mathf.FloorToInt(foldingTimer / 60F);
-            int seconds = Mathf.FloorToInt(foldingTimer % 60F);
-            int milliseconds = Mathf.FloorToInt((foldingTimer * 100F) % 100F);
-            timerText.text = $"{minutes:00}:{seconds:00}.{milliseconds:00}";
+            if (_isFoldingTimerRunning && _timerText != null)
+            {
+                _foldingTimer += Time.deltaTime;
+                UpdateTimerDisplay();
+            }
+
+            if (_abilityRechargeBar != null && _abilityController != null)
+                _abilityRechargeBar.fillAmount = _abilityController.RechargeNormalized;
+
+            if (_abilityReadyBorder != null && _abilityController != null)
+            {
+                bool canUse = _abilityController.CanActivate;
+                if (canUse)
+                {
+                    bool flip = Mathf.PingPong(Time.time * 2f, 1f) > 0.5f;
+                    _abilityReadyBorder.SetActive(flip);
+                }
+                else
+                {
+                    _abilityReadyBorder.SetActive(false);
+                }
+            }
         }
-    }
 
-    public void StartFoldingTimer()
-    {
-        foldingTimer = 0f;
-        isFoldingTimerRunning = true;
-        UpdateTimerDisplay();
-    }
-
-    public void StopFoldingTimer()
-    {
-        isFoldingTimerRunning = false;
-    }
-
-    /// <summary>
-    /// Toggles the pause state, showing the pause menu and freezing time.
-    /// </summary>
-    public void TogglePause()
-    {
-        isPaused = !isPaused;
-
-        if (pauseMenuUI != null)
-            pauseMenuUI.SetActive(isPaused);
-
-        Time.timeScale = isPaused ? 0f : 1f;
-
-        if (isPaused)
+        public void ShowFoldingUI(bool show)
         {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
+            _foldingUI.SetActive(show);
+            _flyingUI.SetActive(!show);
         }
-        else
+
+        public void ShowFlyingUI(bool show)
         {
-            // Restore cursor state based on active UI
-            if (foldingUI != null && foldingUI.activeSelf)
+            _flyingUI.SetActive(show);
+            _foldingUI.SetActive(!show);
+        }
+
+        public void ShowCheckpointUI(bool show)
+        {
+            _checkpointUI.SetActive(show);
+        }
+
+        public void ShowStickerUI(bool show)
+        {
+            if (_stickerUI != null)
+                _stickerUI.SetActive(show);
+        }
+
+        /// <summary>
+        /// Called by the health system to update the flying health bar segments visually.
+        /// </summary>
+        public void VisualDamage(DamageType type, float normalizedDamage)
+        {
+            if (_healthBar != null)
+            {
+                _healthBar.HandleDamage(type, normalizedDamage);
+            }
+        }
+
+        /// <summary>
+        /// Called by the health system to update the flying health bar segments down on heal.
+        /// </summary>
+        public void VisualHeal(float normalizedDamage, DamageType? type = null)
+        {
+            if (_healthBar != null)
+            {
+                _healthBar.HandleHeal(normalizedDamage, type);
+            }
+        }
+
+        /// <summary>
+        /// Called by UI / other systems to request damage on the player health (absolute amount).
+        /// This delegates gameplay logic to the `Health` component.
+        /// </summary>
+        public void Damage(DamageType type, float absoluteDamage)
+        {
+            if (_playerHealth == null)
+            {
+                Debug.LogWarning("HUDCanvas.Damage: playerHealth is not assigned");
+                return;
+            }
+
+            Debug.Log($"HUDCanvas.Damage delegating to playerHealth: type={type}, absolute={absoluteDamage}");
+            _playerHealth.TakeDamage(absoluteDamage, type);
+        }
+
+        /// <summary>
+        /// Called by UI / other systems to request healing on the player health.
+        /// Delegates to the `Health` component.
+        /// </summary>
+        public void Heal(float absoluteAmount, DamageType? type = null)
+        {
+            if (_playerHealth == null)
+            {
+                Debug.LogWarning("HUDCanvas.Heal: playerHealth is not assigned");
+                return;
+            }
+
+            Debug.Log($"HUDCanvas.Heal delegating to playerHealth: absolute={absoluteAmount}, type={type}");
+            _playerHealth.Heal(absoluteAmount, type);
+        }
+
+        /// <summary>
+        /// Updates the fold accuracy text to show the latest fold's accuracy.
+        /// </summary>
+        public void UpdateFoldAccuracy(float accuracy)
+        {
+            if (_foldAccuracyText != null)
+                _foldAccuracyText.text = $"Fold: {accuracy:F0}%";
+        }
+
+        /// <summary>
+        /// Updates the overall accuracy text to show the running average.
+        /// </summary>
+        public void UpdateOverallAccuracy(float accuracy)
+        {
+            if (_overallAccuracyText != null)
+                _overallAccuracyText.text = $"Overall: {accuracy:F0}%";
+        }
+
+        /// <summary>
+        /// Resets both accuracy displays to their default state.
+        /// </summary>
+        public void ResetAccuracyDisplay()
+        {
+            if (_foldAccuracyText != null)
+                _foldAccuracyText.text = "Fold: --";
+            if (_overallAccuracyText != null)
+                _overallAccuracyText.text = "Overall: --";
+        }
+
+        private void UpdateTimerDisplay()
+        {
+            if (_timerText != null)
+            {
+                int minutes = Mathf.FloorToInt(_foldingTimer / 60F);
+                int seconds = Mathf.FloorToInt(_foldingTimer % 60F);
+                int milliseconds = Mathf.FloorToInt((_foldingTimer * 100F) % 100F);
+                _timerText.text = $"{minutes:00}:{seconds:00}.{milliseconds:00}";
+            }
+        }
+
+        public void StartFoldingTimer()
+        {
+            _foldingTimer = 0f;
+            _isFoldingTimerRunning = true;
+            UpdateTimerDisplay();
+        }
+
+        public void StopFoldingTimer()
+        {
+            _isFoldingTimerRunning = false;
+        }
+
+        /// <summary>
+        /// Toggles the pause state, showing the pause menu and freezing time.
+        /// </summary>
+        public void TogglePause()
+        {
+            _isPaused = !_isPaused;
+
+            if (_pauseMenuUI != null)
+                _pauseMenuUI.SetActive(_isPaused);
+
+            Time.timeScale = _isPaused ? 0f : 1f;
+
+            if (_isPaused)
             {
                 Cursor.visible = true;
                 Cursor.lockState = CursorLockMode.None;
             }
             else
             {
-                Cursor.visible = false;
-                Cursor.lockState = CursorLockMode.Confined;
+                // Restore cursor state based on active UI
+                if (_foldingUI != null && _foldingUI.activeSelf)
+                {
+                    Cursor.visible = true;
+                    Cursor.lockState = CursorLockMode.None;
+                }
+                else
+                {
+                    Cursor.visible = false;
+                    Cursor.lockState = CursorLockMode.Confined;
+                }
             }
         }
-    }
 
-    /// <summary>
-    /// Unpauses the game and returns to the main menu.
-    /// </summary>
-    public void ReturnToMainMenu()
-    {
-        Time.timeScale = 1f;
-        UnityEngine.SceneManagement.SceneManager.LoadScene("StartScene");
-    }
-
-    /// <summary>
-    /// Instructs the InputManager to toggle the pilot controls setting (inverting Y for W/S flight).
-    /// Used by Unity UI Dropdown events (0 = Pilot, 1 = Arcade).
-    /// </summary>
-    public void TogglePilotControls(int controlModeIndex)
-    {
-        if (InputManager.Instance != null)
+        /// <summary>
+        /// Unpauses the game and returns to the main menu.
+        /// </summary>
+        public void ReturnToMainMenu()
         {
-            // 0 is Pilot Controls, 1 is Arcade Controls
-            InputManager.Instance.PilotControlsEnabled = (controlModeIndex == 0);
+            Time.timeScale = 1f;
+            SceneManager.LoadScene("StartScene");
         }
-    }
 
-    public void RefreshDash()
-    {
-        if (dashController != null)
+        /// <summary>
+        /// Instructs the InputManager to toggle the pilot controls setting (inverting Y for W/S flight).
+        /// Used by Unity UI Dropdown events (0 = Pilot, 1 = Arcade).
+        /// </summary>
+        public void TogglePilotControls(int controlModeIndex)
         {
-            dashController.RefreshDash();
+            if (InputManager.Instance != null)
+            {
+                // 0 is Pilot Controls, 1 is Arcade Controls
+                InputManager.Instance.PilotControlsEnabled = (controlModeIndex == 0);
+            }
+        }
+
+        public void RefreshAbility()
+        {
+            if (_abilityController != null)
+                _abilityController.Refresh();
+        }
+
+        public void PopulateLoadoutDropdown()
+        {
+            if (_planeTypeDropdown == null || _loadoutLibrary == null)
+                return;
+
+            _planeTypeDropdown.ClearOptions();
+            var options = new List<string>();
+            foreach (PlaneLoadout loadout in _loadoutLibrary.Loadouts)
+                options.Add(loadout != null ? loadout.name : "Missing");
+
+            if (options.Count == 0)
+                options.Add("No loadouts");
+
+            _isUpdatingLoadoutDropdown = true;
+            _planeTypeDropdown.AddOptions(options);
+            SyncLoadoutDropdownToRunner();
+            _isUpdatingLoadoutDropdown = false;
+        }
+
+        public void OnLoadoutDropdownChanged(int index)
+        {
+            if (_isUpdatingLoadoutDropdown)
+                return;
+
+            _selectedLoadoutIndex = index;
+            ApplySelectedLoadout();
+        }
+
+        private void ApplySelectedLoadout()
+        {
+            PlaneLoadout loadout = GetSelectedLoadout();
+            if (loadout == null)
+                return;
+
+            if (_loadoutApplier == null)
+            {
+                Debug.LogWarning("HUDCanvas: LoadoutApplier is not assigned.");
+                return;
+            }
+
+            _loadoutApplier.ApplyLoadout(loadout);
+        }
+
+        private void SyncLoadoutDropdownToRunner()
+        {
+            if (_planeTypeDropdown == null || _loadoutLibrary == null || _loadoutLibrary.Loadouts.Count == 0)
+                return;
+
+            int index = 0;
+            FoldInstruction currentInstruction = _foldInstructionRunner != null
+                ? _foldInstructionRunner.Instruction
+                : null;
+
+            if (currentInstruction != null)
+            {
+                for (int i = 0; i < _loadoutLibrary.Loadouts.Count; i++)
+                {
+                    PlaneLoadout loadout = _loadoutLibrary.Loadouts[i];
+                    if (loadout != null && loadout.FoldInstruction == currentInstruction)
+                    {
+                        index = i;
+                        break;
+                    }
+                }
+            }
+
+            _selectedLoadoutIndex = index;
+            _planeTypeDropdown.SetValueWithoutNotify(index);
+            _planeTypeDropdown.RefreshShownValue();
+        }
+
+        private PlaneLoadout GetSelectedLoadout()
+        {
+            if (_loadoutLibrary == null || _loadoutLibrary.Loadouts.Count == 0)
+                return null;
+
+            int index = _planeTypeDropdown != null ? _planeTypeDropdown.value : _selectedLoadoutIndex;
+            index = Mathf.Clamp(index, 0, _loadoutLibrary.Loadouts.Count - 1);
+            return _loadoutLibrary.Loadouts[index];
+        }
+
+        /// <summary>
+        /// Called when the debug mode toggle changes. Can also be wired directly from the toggle's OnValueChanged event.
+        /// </summary>
+        public void OnDebugModeToggleChanged(bool enabled)
+        {
+            DebugMode = enabled;
+
+            foreach (PaperGraphVisualizer visualizer in _resolvedPaperGraphVisualizers)
+            {
+                if (visualizer != null)
+                    visualizer.SetDebugMode(enabled);
+            }
+        }
+
+        private PaperGraphVisualizer[] ResolvePaperGraphVisualizers()
+        {
+            if (_paperGraphVisualizers != null && _paperGraphVisualizers.Length > 0)
+                return _paperGraphVisualizers;
+
+            if (_foldInstructionRunner == null || _foldInstructionRunner.Controller == null)
+                return System.Array.Empty<PaperGraphVisualizer>();
+
+            PaperGraphController controller = _foldInstructionRunner.Controller;
+            var visualizers = new List<PaperGraphVisualizer>(2);
+
+            PaperGraphVisualizer authoringVisualizer = controller.GetComponent<PaperGraphVisualizer>();
+            if (authoringVisualizer != null)
+                visualizers.Add(authoringVisualizer);
+
+            if (controller.PreviewGraph != null)
+            {
+                PaperGraphVisualizer previewVisualizer = controller.PreviewGraph.GetComponent<PaperGraphVisualizer>();
+                if (previewVisualizer != null)
+                    visualizers.Add(previewVisualizer);
+            }
+
+            return visualizers.ToArray();
         }
     }
 }
