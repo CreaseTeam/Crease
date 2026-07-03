@@ -234,6 +234,10 @@ PrefabInstance:
       value: FrustumWindZone_1
       objectReference: {fileID: 0}
     - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
+      propertyPath: WindStrength
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: windStrength
       value: 300
       objectReference: {fileID: 0}
@@ -541,11 +545,23 @@ PrefabInstance:
     m_TransformParent: {fileID: 1770705139}
     m_Modifications:
     - target: {fileID: 833541508558576192, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
+      propertyPath: Height
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 833541508558576192, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: height
       value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 833541508558576192, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
+      propertyPath: TopRadius
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 833541508558576192, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: topRadius
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 833541508558576192, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
+      propertyPath: BottomRadius
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 833541508558576192, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
@@ -595,6 +611,10 @@ PrefabInstance:
     - target: {fileID: 7577508088859911764, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: m_Name
       value: FrustumWindZone_4 (4)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
+      propertyPath: WindStrength
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: windStrength
@@ -657,99 +677,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
---- !u!1 &192228332
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 192228335}
-  - component: {fileID: 192228334}
-  - component: {fileID: 192228333}
-  m_Layer: 0
-  m_Name: Grass Terrain
-  m_TagString: Ground
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
-  m_IsActive: 0
---- !u!154 &192228333
-TerrainCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 192228332}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_TerrainData: {fileID: 15600000, guid: d83345635a840b748b5a24c498993929, type: 2}
-  m_EnableTreeColliders: 1
---- !u!218 &192228334
-Terrain:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 192228332}
-  m_Enabled: 1
-  serializedVersion: 6
-  m_TerrainData: {fileID: 15600000, guid: d83345635a840b748b5a24c498993929, type: 2}
-  m_TreeDistance: 5000
-  m_TreeBillboardDistance: 50
-  m_TreeCrossFadeLength: 5
-  m_TreeMaximumFullLODCount: 50
-  m_DetailObjectDistance: 80
-  m_DetailObjectDensity: 1
-  m_HeightmapPixelError: 5
-  m_SplatMapDistance: 1000
-  m_HeightmapMinimumLODSimplification: 0
-  m_HeightmapMaximumLOD: 0
-  m_ShadowCastingMode: 2
-  m_DrawHeightmap: 1
-  m_DrawInstanced: 0
-  m_DrawTreesAndFoliage: 1
-  m_StaticShadowCaster: 0
-  m_IgnoreQualitySettings: 0
-  m_ReflectionProbeUsage: 1
-  m_MaterialTemplate: {fileID: 2100000, guid: 0c6e26bda2bf36943bf5f4e551fa8fe6, type: 2}
-  m_BakeLightProbesForTrees: 1
-  m_PreserveTreePrototypeLayers: 0
-  m_DeringLightProbesForTrees: 1
-  m_ReceiveGI: 1
-  m_ScaleInLightmap: 0.0256
-  m_LightmapParameters: {fileID: 15203, guid: 0000000000000000f000000000000000, type: 0}
-  m_GroupingID: 0
-  m_RenderingLayerMask: 1
-  m_AllowAutoConnect: 1
-  m_EnableHeightmapRayTracing: 1
-  m_EnableTreesAndDetailsRayTracing: 0
-  m_TreeMotionVectorModeOverride: 3
---- !u!4 &192228335
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 192228332}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -58.1, y: -26.5, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &206769234 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8424490050691201794, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
@@ -977,6 +904,10 @@ PrefabInstance:
     - target: {fileID: 7577508088859911764, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: m_Name
       value: FrustumWindZone_5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
+      propertyPath: WindStrength
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: windStrength
@@ -1333,6 +1264,10 @@ PrefabInstance:
       value: FrustumWindZone_1 (2)
       objectReference: {fileID: 0}
     - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
+      propertyPath: WindStrength
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: windStrength
       value: 300
       objectReference: {fileID: 0}
@@ -1677,6 +1612,10 @@ PrefabInstance:
     - target: {fileID: 7577508088859911764, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: m_Name
       value: FrustumWindZone_7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
+      propertyPath: WindStrength
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: windStrength
@@ -2279,6 +2218,10 @@ PrefabInstance:
     - target: {fileID: 7577508088859911764, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: m_Name
       value: FrustumWindZone_4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
+      propertyPath: WindStrength
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: windStrength
@@ -2995,6 +2938,10 @@ PrefabInstance:
     - target: {fileID: 7577508088859911764, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: m_Name
       value: FrustumWindZone_7 (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
+      propertyPath: WindStrength
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: windStrength
@@ -3773,6 +3720,10 @@ PrefabInstance:
       value: FrustumWindZone_6
       objectReference: {fileID: 0}
     - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
+      propertyPath: WindStrength
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: windStrength
       value: 300
       objectReference: {fileID: 0}
@@ -4235,6 +4186,10 @@ PrefabInstance:
     - target: {fileID: 7577508088859911764, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: m_Name
       value: FrustumWindZone_3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
+      propertyPath: WindStrength
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: windStrength
@@ -5432,6 +5387,10 @@ PrefabInstance:
       value: FrustumWindZone_2
       objectReference: {fileID: 0}
     - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
+      propertyPath: WindStrength
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: windStrength
       value: 300
       objectReference: {fileID: 0}
@@ -5600,6 +5559,10 @@ PrefabInstance:
       value: FrustumWindZone_6 (1)
       objectReference: {fileID: 0}
     - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
+      propertyPath: WindStrength
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: windStrength
       value: 300
       objectReference: {fileID: 0}
@@ -5687,6 +5650,10 @@ PrefabInstance:
     - target: {fileID: 7577508088859911764, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: m_Name
       value: FrustumWindZone_1 (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
+      propertyPath: WindStrength
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: windStrength
@@ -5777,7 +5744,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 1882181517}
   - {fileID: 1030530893}
-  - {fileID: 192228335}
   - {fileID: 1008933732}
   - {fileID: 2042488352}
   - {fileID: 1770705139}
