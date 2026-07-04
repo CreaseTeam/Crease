@@ -276,6 +276,12 @@ namespace Crease.Folding.PaperGraph
             if (letterFront != null)
                 SetPreviewFrontMaterial(letterFront);
 
+            // Fold the plane up now (off-screen during the pan) so there is a folded plane
+            // to reveal. For a hand-folded plane this is a no-op; for the default plane
+            // (never folded by hand) it snaps the paper into its folded shape so the unfold
+            // animation below actually has something to reverse.
+            GetFoldInstructionRunner()?.PrepareLevelEndFold();
+
             // End-flow step 5: the plane unfolds itself. Defer the unfold animation until
             // the camera pan finishes (handled in Update) so the flow is pan -> unfold.
             _pendingLevelEndUnfold = true;
