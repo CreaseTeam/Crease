@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Linux" BasePlatform="Linux" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="2412228321" Type="User" GUID="{E57FE327-2DEC-491F-8BDE-6C23EE143398}" Language="SFX" Hash="{A047A694-2BB4-D349-AC60-DA2FF7FE47A2}">
+			<ObjectPath>\SoundBanks\Default Work Unit\level_1_sfx</ObjectPath>
+			<ShortName>level_1_sfx</ShortName>
+			<Path>level_1_sfx.bnk</Path>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{69F52D51-43B2-0F4C-1D61-BB0E26A8CE87}</FileHash>
+</SoundBanksInfo>

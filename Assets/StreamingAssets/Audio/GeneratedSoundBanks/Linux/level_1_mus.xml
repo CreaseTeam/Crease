@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Linux" BasePlatform="Linux" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="2968846937" Type="User" GUID="{7EFBB1C0-8EED-4660-9AE9-FD3D7195B4AF}" Language="SFX" Hash="{DDB37FF4-B4A5-2FC7-ED1F-AA56E022ABF1}">
+			<ObjectPath>\SoundBanks\Default Work Unit\level_1_mus</ObjectPath>
+			<ShortName>level_1_mus</ShortName>
+			<Path>level_1_mus.bnk</Path>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{041947C9-D6C3-1711-5E12-E16A11B313D3}</FileHash>
+</SoundBanksInfo>
