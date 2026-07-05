@@ -218,6 +218,27 @@ namespace Crease.Folding.PaperGraph
             UpdateMesh();
         }
 
+        /// <summary>
+        /// Swaps the FRONT submesh material (submesh 0 — see PaperGraph.GenerateMesh)
+        /// and re-applies it. If the material array isn't sized for both faces yet,
+        /// it is normalized to [front, back] so the swap actually takes effect.
+        /// </summary>
+        public void SetFrontMaterial(Material material) {
+            if (material == null) return;
+
+            const int subMeshCount = 2; // front + back
+            if (MeshMaterials == null || MeshMaterials.Length < subMeshCount) {
+                Material back = (MeshMaterials != null && MeshMaterials.Length > 1) ? MeshMaterials[1]
+                              : (MeshMaterials != null && MeshMaterials.Length == 1) ? MeshMaterials[0]
+                              : MeshMaterial;
+                MeshMaterials = new[] { material, back };
+            } else {
+                MeshMaterials[0] = material;
+            }
+
+            UpdateMesh();
+        }
+
         public void UpdateMesh() {
             if (Graph == null || _meshFilter == null || _meshRenderer == null) return;
 

@@ -421,6 +421,15 @@ namespace Crease.Folding.PaperGraph
             }
         }
 
+        /// <summary>
+        /// Swaps the front material on the preview paper (the mesh seen during folding).
+        /// Used by the level-end flow to reveal the clear letter in place of the blurry material.
+        /// </summary>
+        public void SetPreviewFrontMaterial(Material material) {
+            if (_previewVisualizer != null)
+                _previewVisualizer.SetFrontMaterial(material);
+        }
+
         public void ClearPreview() {
             if (_paperGraph == null || PreviewGraph == null) return;
 

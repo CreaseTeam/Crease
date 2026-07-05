@@ -86,6 +86,7 @@ namespace Crease.Folding.PaperGraph
         private float _paperAlignElapsed;
         private bool _pendingUseSavedMesh;
         private bool _pendingFlyingSwitch;
+        private bool _pendingLevelEndUnfold;
 
         private void Awake() {
             if (Instance != null && Instance != this) {
@@ -196,6 +197,13 @@ namespace Crease.Folding.PaperGraph
 
                     if (!_isAligningPaper && _pendingFlyingSwitch)
                         ExecuteFlyingSwitch(_pendingUseSavedMesh);
+
+                    // Level-end: now that the camera has settled on the folding view,
+                    // play the unfold animation that reveals the flat letter.
+                    if (_pendingLevelEndUnfold) {
+                        _pendingLevelEndUnfold = false;
+                        GetFoldInstructionRunner()?.UnfoldForLevelEnd();
+                    }
                 }
             }
         }
@@ -209,6 +217,17 @@ namespace Crease.Folding.PaperGraph
         }
 
         public void EnterFoldingMode() {
+            EnterFoldingMode(levelEnd: false);
+        }
+
+        /// <summary>
+        /// Switches from flying back to folding mode with a camera transition.
+        /// When <paramref name="levelEnd"/> is true this is the goal/level-end path:
+        /// the minimal LevelEndUI is shown instead of the folding UI, and the normal
+        /// folding-phase restoration (decals + sticker/instruction UI) is skipped so
+        /// only the LevelEndUI remains visible.
+        /// </summary>
+        public void EnterFoldingMode(bool levelEnd) {
             if (IsFolding || IsTransitioning || _isAligningPaper) return;
 
             IsFolding = true;
@@ -216,8 +235,12 @@ namespace Crease.Folding.PaperGraph
             if (InputManager.Instance != null)
                 InputManager.Instance.SwitchToFolding();
 
-            if (HUDCanvas.Instance != null)
-                HUDCanvas.Instance.ShowFoldingUI(true);
+            if (HUDCanvas.Instance != null) {
+                if (levelEnd)
+                    HUDCanvas.Instance.ShowLevelEndUI(true);
+                else
+                    HUDCanvas.Instance.ShowFoldingUI(true);
+            }
 
             if (PaperGraph != null) PaperGraph.gameObject.SetActive(true);
 
@@ -226,12 +249,53 @@ namespace Crease.Folding.PaperGraph
                 Player.SetActive(false);
             }
 
-            RestoreDecalsToFoldingPaper();
-            RestoreFoldingPhaseUi();
+            if (!levelEnd) {
+                RestoreDecalsToFoldingPaper();
+                RestoreFoldingPhaseUi();
+            }
+
             if (FlyingCamera != null) FlyingCamera.gameObject.SetActive(false);
             if (FoldingCamera != null) FoldingCamera.gameObject.SetActive(true);
 
             BeginTransition(FlyingCamera, FoldingCamera);
+        }
+
+        /// <summary>
+        /// Level-end sequence fired by a Goal when the player reaches it: returns to
+        /// folding mode (camera pan), reveals the clear letter material on the front of
+        /// the folding preview paper, and resets the paper. Only the LevelEndUI is shown.
+        /// </summary>
+        public void TriggerLevelEnd(Material letterFront) {
+            if (IsFolding || IsTransitioning || _isAligningPaper) return;
+
+            EnterFoldingMode(levelEnd: true);
+
+            // Reveal the clear letter on the front of the folding preview paper
+            // (swaps out the blurry material assigned in the scene). Do this now so the
+            // letter is already showing on the folded plane as the camera pans in.
+            if (letterFront != null)
+                SetPreviewFrontMaterial(letterFront);
+
+            // Fold the plane up now (off-screen during the pan) so there is a folded plane
+            // to reveal. For a hand-folded plane this is a no-op; for the default plane
+            // (never folded by hand) it snaps the paper into its folded shape so the unfold
+            // animation below actually has something to reverse.
+            GetFoldInstructionRunner()?.PrepareLevelEndFold();
+
+            // End-flow step 5: the plane unfolds itself. Defer the unfold animation until
+            // the camera pan finishes (handled in Update) so the flow is pan -> unfold.
+            _pendingLevelEndUnfold = true;
+        }
+
+        private void SetPreviewFrontMaterial(Material material) {
+            if (PaperGraph == null) return;
+            PaperGraphController controller = PaperGraph.GetComponent<PaperGraphController>();
+            if (controller != null)
+                controller.SetPreviewFrontMaterial(material);
+        }
+
+        private FoldInstructionRunner GetFoldInstructionRunner() {
+            return PaperGraph != null ? PaperGraph.GetComponent<FoldInstructionRunner>() : null;
         }
 
         public void EnterFlyingMode() {

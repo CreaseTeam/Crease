@@ -668,6 +668,101 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
     }
 
     /// <summary>
+    /// Instantly puts the paper into the flat, non-interactive state used for the
+    /// level-end reveal: stops any fold animation, flattens the sheet, orients it to the
+    /// base (unfolded) world rotation, and hides the drag handle and fold guide line.
+    /// Unlike <see cref="InstantResetPaper"/> this does NOT re-arm fold step 0, so the
+    /// handle and guide line stay hidden (no fold interaction behind the end screen).
+    /// </summary>
+    public void EnterLevelEndState() {
+        StopAllCoroutines();
+        _isUnfolding = false;
+        _isAutoFolding = false;
+        _isCreaseAnimating = false;
+        _isExecutingStepAnimation = false;
+
+        ExitStickerPhase(clearStickers: true);
+        ClearSavedCreases();
+
+        if (Controller != null) {
+            Controller.ResetSheet();
+            Controller.ClearPreview();
+        }
+
+        SettleIntoLevelEndState();
+    }
+
+    /// <summary>
+    /// Folds the paper up to its fully folded shape without any visible animation. Used at
+    /// level end for the default plane (which the player never folded by hand) so there is a
+    /// folded plane to unfold; folds happen off-screen during the camera pan. A no-op when
+    /// the plane is already fully folded (the hand-folded case).
+    /// </summary>
+    public void PrepareLevelEndFold() {
+        if (Instruction == null || Controller == null) return;
+        if (_isUnfolding || _isAutoFolding) return;
+        if (_currentStepIndex >= Instruction.Steps.Count) return; // already fully folded
+
+        ExitStickerPhase(clearStickers: true);
+        StartCoroutine(AutoFoldAllRoutine(fast: true, enterStickerPhase: false));
+    }
+
+    /// <summary>
+    /// Animated level-end reveal: plays the same fold-by-fold unfold as <see cref="Unfold"/>,
+    /// then finishes in the flat, non-interactive level-end state (rather than re-arming
+    /// fold step 0). Falls back to an instant flatten when there is nothing to animate.
+    /// Waits for any in-progress silent fold-up (see <see cref="PrepareLevelEndFold"/>) so
+    /// the default plane unfolds just like a hand-folded one.
+    /// </summary>
+    public void UnfoldForLevelEnd() {
+        if (Instruction == null || Controller == null) {
+            EnterLevelEndState();
+            return;
+        }
+        if (_isUnfolding) return;
+
+        ExitStickerPhase(clearStickers: true);
+        StartCoroutine(UnfoldForLevelEndRoutine());
+    }
+
+    private System.Collections.IEnumerator UnfoldForLevelEndRoutine() {
+        // If the plane is still folding up silently, let it finish first.
+        while (_isAutoFolding)
+            yield return null;
+
+        yield return UnfoldAllRoutine(preserveStickers: false, levelEnd: true);
+    }
+
+    /// <summary>
+    /// Shared terminal state for the level-end reveal: orients the paper to the base
+    /// (unfolded) world rotation and hides the drag handle and fold guide line so no fold
+    /// interaction remains behind the end screen.
+    /// </summary>
+    private void SettleIntoLevelEndState() {
+        _hasSavedFoldAxis = false;
+        _totalAccuracy = 0f;
+        _foldCount = 0;
+
+        // The unfolded base orientation is world identity (Unfold() returns here), which
+        // is the flat pose the folding camera frames. Stop the rotation lerp so LateUpdate
+        // leaves the paper at this orientation.
+        CurrentPaperRotation = Vector3.zero;
+        _isPaperLerping = false;
+        if (Controller != null) {
+            Controller.HasFoldAxisLock = false;
+            Controller.transform.rotation = Quaternion.identity;
+        }
+
+        // Terminal state: no active fold step, so LateUpdate stops redrawing the fold
+        // guide line and re-arming the handle.
+        _currentStepIndex = -1;
+        HideGuideLine();
+
+        if (DragHandle != null)
+            DragHandle.gameObject.SetActive(false);
+    }
+
+    /// <summary>
     /// Compares the actual drag handle position (where the player dragged) against
     /// the ideal drag position defined in the step. Returns a 0–100 accuracy score.
     /// </summary>
@@ -943,7 +1038,7 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         Controller.UpdatePreview(); 
     }
 
-    private System.Collections.IEnumerator UnfoldAllRoutine(bool preserveStickers = false) {
+    private System.Collections.IEnumerator UnfoldAllRoutine(bool preserveStickers = false, bool levelEnd = false) {
         _isUnfolding = true;
         PrepareForAnimation();
 
@@ -987,7 +1082,10 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             yield return new WaitForSeconds(0.2f);
         }
 
-        RestartFoldInstructionsAfterUnfold(preserveStickers);
+        if (levelEnd)
+            SettleIntoLevelEndState();
+        else
+            RestartFoldInstructionsAfterUnfold(preserveStickers);
         _isUnfolding = false;
     }
 
@@ -1079,9 +1177,30 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         StartCoroutine(AutoFoldAllRoutine());
     }
 
-    private System.Collections.IEnumerator AutoFoldAllRoutine() {
+    /// <summary>
+    /// Folds every remaining instruction step onto the paper.
+    /// When <paramref name="fast"/> is true the fold animations, paper rotations and
+    /// inter-step pauses are collapsed to near-instant so the paper snaps to its fully
+    /// folded shape in a handful of frames (used to fold the default plane up off-screen
+    /// during the level-end camera pan, before the unfold reveal). When
+    /// <paramref name="enterStickerPhase"/> is false the sticker/timer wrap-up is skipped.
+    /// </summary>
+    private System.Collections.IEnumerator AutoFoldAllRoutine(bool fast = false, bool enterStickerPhase = true) {
         _isAutoFolding = true;
         PrepareForAnimation();
+
+        // Temporarily crank the animation speeds so every sub-routine (fold, crease,
+        // accordion, vertex rotation, paper lerp) resolves in ~1 frame.
+        float origFoldSpeed = FoldAnimationSpeed;
+        float origUnfoldSpeed = UnfoldAnimationSpeed;
+        float origVertexSpeed = VertexRotationSpeed;
+        float origPaperLerpSpeed = PaperLerpSpeed;
+        float origAccordionDuration = AccordionCollapseDuration;
+        if (fast) {
+            FoldAnimationSpeed = UnfoldAnimationSpeed = VertexRotationSpeed = 100000f;
+            PaperLerpSpeed = 100000f;
+            AccordionCollapseDuration = 0f;
+        }
 
         int startIdx = Mathf.Max(0, _currentStepIndex);
 
@@ -1113,7 +1232,7 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
 
                 Controller.ClearPreview();
 
-                if (AudioManager.Instance != null)
+                if (!fast && AudioManager.Instance != null)
                     AudioManager.Instance.Play("fold");
             } else {
                 yield return AnimateFoldDegreesRoutine(0f, step.FoldDegrees, FoldAnimationSpeed);
@@ -1122,7 +1241,7 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
                 Controller.ClearPreview();
                 ApplyLockFoldAxisIfNeeded(step);
 
-                if (AudioManager.Instance != null)
+                if (!fast && AudioManager.Instance != null)
                     AudioManager.Instance.Play("fold");
             }
 
@@ -1130,16 +1249,29 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
 
             _currentStepIndex = i + 1;
 
-            yield return new WaitForSeconds(0.2f);
+            // Short pause between folds (skipped when folding up silently).
+            if (!fast)
+                yield return new WaitForSeconds(0.2f);
+        }
+
+        if (fast) {
+            FoldAnimationSpeed = origFoldSpeed;
+            UnfoldAnimationSpeed = origUnfoldSpeed;
+            VertexRotationSpeed = origVertexSpeed;
+            PaperLerpSpeed = origPaperLerpSpeed;
+            AccordionCollapseDuration = origAccordionDuration;
         }
 
         // All steps done
         PrepareForAnimation();
 
-        if (HUDCanvas.Instance != null)
-            HUDCanvas.Instance.StopFoldingTimer();
+        if (enterStickerPhase) {
+            if (HUDCanvas.Instance != null)
+                HUDCanvas.Instance.StopFoldingTimer();
 
-        EnterStickerPhase();
+            EnterStickerPhase();
+        }
+
         _isAutoFolding = false;
     }
 
