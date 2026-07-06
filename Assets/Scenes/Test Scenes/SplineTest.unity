@@ -5378,17 +5378,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 599884683186278681, guid: 090e8a18593f1614693e70e354281060, type: 3}
-      propertyPath: _emissionRate
-      value: 16
-      objectReference: {fileID: 0}
     - target: {fileID: 971442111681154991, guid: 090e8a18593f1614693e70e354281060, type: 3}
       propertyPath: m_Name
       value: SplineWindZone
-      objectReference: {fileID: 0}
-    - target: {fileID: 2157813350161059041, guid: 090e8a18593f1614693e70e354281060, type: 3}
-      propertyPath: Radius
-      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 4253195539861809588, guid: 090e8a18593f1614693e70e354281060, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5429,10 +5421,6 @@ PrefabInstance:
     - target: {fileID: 4253195539861809588, guid: 090e8a18593f1614693e70e354281060, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8432195866415094785, guid: 090e8a18593f1614693e70e354281060, type: 3}
-      propertyPath: BoostStrength
-      value: 100
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

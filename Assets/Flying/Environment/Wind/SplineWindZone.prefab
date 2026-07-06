@@ -317,7 +317,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c64ae20035f4f014dbe6dd1d20463f8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Environment.Wind.SplineTube.SplineWindZone
-  BoostStrength: 200
+  BoostStrength: 10
+  SidewaysStrength: 70
+  CenteringStrength: 150
   AlignmentCurve:
     serializedVersion: 2
     m_Curve:
@@ -365,7 +367,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 007c7c09592abec46b0b0c869db95e30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Environment.Wind.SplineTube.SplineTubeTrigger
-  Radius: 1.5
+  Radius: 10
   RadiusCurve:
     serializedVersion: 2
     m_Curve:
@@ -414,7 +416,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Environment.Wind.SplineTube.SplineWindParticles
   _startSpeed: 50
   _startLifetime: 0.3
-  _emissionRate: 8
+  _emissionRate: 16
   _particleMaterial: {fileID: 2100000, guid: c29106e97ecad6f44a544a7e173cb6df, type: 2}
   _stretchVelocityScale: 0
   _stretchLengthScale: 50

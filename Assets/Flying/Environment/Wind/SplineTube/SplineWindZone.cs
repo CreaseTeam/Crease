@@ -1,6 +1,7 @@
 using Crease.Audio;
 // using Crease.Flying.Environment.Wind;
 using Crease.Flying.Player;
+using Crease.Managers.Input;
 using UnityEngine;
 
 namespace Crease.Flying.Environment.Wind.SplineTube
@@ -10,11 +11,11 @@ namespace Crease.Flying.Environment.Wind.SplineTube
     {
         [Header("Wind Settings")]
         [Tooltip("The maximum strength of the boost force, applied when the player is fully aligned with the tube (dot product = 1).")]
-        public float BoostStrength = 100f;
+        public float BoostStrength = 10f;
         [Tooltip("The maximum strength of the sideways boost force, applied when the player is fully perpendicular to the tube (dot product = 0).")]
-        public float SidewaysStrength = 50f;
+        public float SidewaysStrength = 70f;
         [Tooltip("The maximum strength of the centering force, applied to gently pull the player towards the center of the wind tube.")]
-        public float CenteringStrength = 50f;
+        public float CenteringStrength = 150f;
 
         [Tooltip(
             "Maps alignment between the player's forward vector and the tube's tangent (dot product, -1 to 1) " +
@@ -32,6 +33,7 @@ namespace Crease.Flying.Environment.Wind.SplineTube
 
         private SplineTubeTrigger _shape;
         private Transform _cachedPlayerTransform;
+        private KinematicBody _cachedPlayerBody;
 
         [Header("Debug")]
         public bool DebugLog = false;
@@ -74,6 +76,7 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             {
                 receiver.AddWindZone(this);
                 _cachedPlayerTransform = receiver.transform;
+                _cachedPlayerBody = receiver.GetComponent<KinematicBody>();
             }
         }
 
@@ -89,6 +92,7 @@ namespace Crease.Flying.Environment.Wind.SplineTube
                 if (_cachedPlayerTransform == receiver.transform)
                 {
                     _cachedPlayerTransform = null;
+                    _cachedPlayerBody = null;
                 }
             }
         }
@@ -108,7 +112,15 @@ namespace Crease.Flying.Environment.Wind.SplineTube
                 return Vector3.zero;
             }
             Vector3 toCenter = (nearestPoint - worldPosition);
-            Vector3 centeringForce = toCenter.normalized * CenteringStrength * (distanceFromCenter / radiusAtPoint);
+            
+            // Player is considered "idling" / "passive" if FlightController detects no input, and centeringForce is activated
+            // Player can freely escape the wind tube once input is detected and centeringForce no longer applies
+            float playerSpeed = _cachedPlayerBody != null ? _cachedPlayerBody.Speed : 0f;
+            float passiveAmount = Mathf.Clamp01(1f - InputManager.Instance.MoveInput.magnitude);
+            
+            float towardsCenterVelocity = Vector3.Dot(_cachedPlayerBody.Velocity, toCenter.normalized);
+            float dampening = Mathf.Clamp01(1f - (towardsCenterVelocity / CenteringStrength));
+            Vector3 centeringForce = toCenter.normalized * CenteringStrength * (distanceFromCenter / radiusAtPoint) * passiveAmount * dampening;
 
             float dot = Vector3.Dot(_cachedPlayerTransform.forward, tubeTangent);
             float boostMultiplier = AlignmentCurve.Evaluate(dot);
@@ -136,10 +148,8 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             // forcibly carrying them along its path regardless of their heading.
             // The closer to the center the bigger the boost, as opposed to the edges of the tube.
             Vector3 finalForce = (_cachedPlayerTransform.forward * strength) + sidewaysForce + centeringForce;
-            // if (DebugLog) Debug.Log($"dot={dot:F2} | boostMult={boostMultiplier:F2} | wind={finalForce.magnitude:F1}");
             return finalForce;
         }
-
         /// <summary>
         /// Finds the two nearest cached rings to worldPosition and interpolates between them
         /// to approximate the nearest point on the tube's spline. This reuses the ring data
