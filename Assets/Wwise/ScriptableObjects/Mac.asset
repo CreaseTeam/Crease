@@ -80,7 +80,7 @@ MonoBehaviour:
   UserSettings:
     m_BasePath: Audio/GeneratedSoundBanks
     m_StartupLanguage: English(US)
-    m_EngineLogging: 1
+    m_EngineLogging: 0
     m_IsDecodedBankEnabled: 0
     m_IsAutoBankEnabled: 1
     m_DefaultListenerScalingFactor: 1
