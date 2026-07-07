@@ -151,11 +151,14 @@ public class FoldInstructionRunner : MonoBehaviour
             _paperGraph = Controller.GetComponent<PaperGraph>();
 
         MigrateLegacyLineStyles();
+        RefreshDragHandleVisibility();
     }
 
     private void Start() {
-        if (HUDCanvas.Instance != null)
+        if (HUDCanvas.Instance != null) {
+            RefreshDragHandleVisibility();
             return;
+        }
 
         if (Instruction != null)
             LoadInstruction(Instruction);
@@ -243,13 +246,10 @@ public class FoldInstructionRunner : MonoBehaviour
         // Reset the paper to a fresh sheet
         Controller.ResetSheet();
 
-        // Re-enable the drag handle
-        if (DragHandle != null)
-            DragHandle.gameObject.SetActive(true);
-
         // Load the first step
         _currentStepIndex = 0;
         ApplyStepToController(Instruction.Steps[0]);
+        RefreshDragHandleVisibility();
 
         if (!clearDecals && Controller?.DecalManager != null) {
             Controller.DecalManager.InvalidatePreviewCaches();
@@ -308,6 +308,7 @@ public class FoldInstructionRunner : MonoBehaviour
 
     private System.Collections.IEnumerator ExecuteStandardFoldStepRoutine(FoldStep step) {
         _isExecutingStepAnimation = true;
+        RefreshDragHandleVisibility();
 
         Controller.ExecuteFoldAction();
         AudioManager.Instance.Play("fold");
@@ -318,10 +319,12 @@ public class FoldInstructionRunner : MonoBehaviour
         AdvanceToNextStep();
 
         _isExecutingStepAnimation = false;
+        RefreshDragHandleVisibility();
     }
 
     private System.Collections.IEnumerator ExecuteAccordionFoldStepRoutine(FoldStep step) {
         _isExecutingStepAnimation = true;
+        RefreshDragHandleVisibility();
 
         Controller.CommitAccordionAction();
         Controller.EndAccordionDragStep();
@@ -334,10 +337,12 @@ public class FoldInstructionRunner : MonoBehaviour
         AdvanceToNextStep();
 
         _isExecutingStepAnimation = false;
+        RefreshDragHandleVisibility();
     }
 
     private System.Collections.IEnumerator ExecuteCreaseStepRoutine(FoldStep executedStep, bool animateFoldInFirst = false, bool advanceStep = true) {
         _isCreaseAnimating = true;
+        RefreshDragHandleVisibility();
 
         if (animateFoldInFirst) {
             yield return AnimateFoldDegreesRoutine(0f, executedStep.FoldDegrees, FoldAnimationSpeed);
@@ -387,6 +392,7 @@ public class FoldInstructionRunner : MonoBehaviour
             AdvanceToNextStep();
 
         _isCreaseAnimating = false;
+        RefreshDragHandleVisibility();
     }
 
     private bool TrySetupAccordionStep(FoldStep step) {
@@ -500,9 +506,7 @@ public class FoldInstructionRunner : MonoBehaviour
         } else {
             Controller.ClearPreview();
             HideGuideLine();
-
-            if (DragHandle != null)
-                DragHandle.gameObject.SetActive(false);
+            RefreshDragHandleVisibility();
 
             if (HUDCanvas.Instance != null)
                 HUDCanvas.Instance.StopFoldingTimer();
@@ -617,6 +621,8 @@ public class FoldInstructionRunner : MonoBehaviour
             ReenterStickerPhaseFromFlight();
         else if (_phase == FoldingRunPhase.Stickers)
             ExitStickerPhase(clearStickers: false);
+
+        RefreshDragHandleVisibility();
     }
 
     private void EnterStickerPhase() {
@@ -631,8 +637,7 @@ public class FoldInstructionRunner : MonoBehaviour
             Controller.DecalManager?.PreparePlacement();
         }
 
-        if (DragHandle != null)
-            DragHandle.gameObject.SetActive(false);
+        RefreshDragHandleVisibility();
 
         HideGuideLine();
 
@@ -649,8 +654,7 @@ public class FoldInstructionRunner : MonoBehaviour
         if (Controller != null)
             Controller.DecalManager?.PreparePlacement(syncPreviewFromAuthoring: false);
 
-        if (DragHandle != null)
-            DragHandle.gameObject.SetActive(false);
+        RefreshDragHandleVisibility();
 
         HideGuideLine();
 
@@ -706,6 +710,7 @@ public class FoldInstructionRunner : MonoBehaviour
         }
 
         SettleIntoLevelEndState();
+        RefreshDragHandleVisibility();
     }
 
     /// <summary>
@@ -774,8 +779,33 @@ public class FoldInstructionRunner : MonoBehaviour
         _currentStepIndex = -1;
         HideGuideLine();
 
-        if (DragHandle != null)
-            DragHandle.gameObject.SetActive(false);
+        RefreshDragHandleVisibility();
+    }
+
+    bool ShouldShowDragHandle() {
+        if (DragHandle == null)
+            return false;
+
+        if (HUDCanvas.Instance != null && !HUDCanvas.Instance.HasStartedFolding)
+            return false;
+
+        if (_phase != FoldingRunPhase.Folding)
+            return false;
+
+        if (_isUnfolding || _isAutoFolding || _isCreaseAnimating || _isExecutingStepAnimation)
+            return false;
+
+        if (Instruction == null || _currentStepIndex < 0 || _currentStepIndex >= Instruction.Steps.Count)
+            return false;
+
+        return true;
+    }
+
+    void RefreshDragHandleVisibility() {
+        if (DragHandle == null)
+            return;
+
+        DragHandle.gameObject.SetActive(ShouldShowDragHandle());
     }
 
     /// <summary>
@@ -1031,7 +1061,7 @@ public class FoldInstructionRunner : MonoBehaviour
 
     private void PrepareForAnimation() {
         HideGuideLine();
-        if (DragHandle != null) DragHandle.gameObject.SetActive(false);
+        RefreshDragHandleVisibility();
         if (Controller != null) {
             Controller.ClearPreview();
             Controller.DecalManager?.InvalidatePreviewCaches();
@@ -1123,6 +1153,7 @@ public class FoldInstructionRunner : MonoBehaviour
         else
             RestartFoldInstructionsAfterUnfold(preserveStickers);
         _isUnfolding = false;
+        RefreshDragHandleVisibility();
         onComplete?.Invoke();
         HUDCanvas.Instance?.RefreshStickerUiVisibility();
     }
@@ -1136,8 +1167,7 @@ public class FoldInstructionRunner : MonoBehaviour
             Controller.HasFoldAxisLock = false;
 
         HideGuideLine();
-        if (DragHandle != null)
-            DragHandle.gameObject.SetActive(false);
+        RefreshDragHandleVisibility();
 
         Controller?.ClearPreview();
 
@@ -1167,9 +1197,8 @@ public class FoldInstructionRunner : MonoBehaviour
         _currentStepIndex = 0;
         if (Instruction != null && Instruction.Steps.Count > 0) {
             ApplyStepToController(Instruction.Steps[0]);
-            if (DragHandle != null)
-                DragHandle.gameObject.SetActive(true);
         }
+        RefreshDragHandleVisibility();
 
         if (preserveStickers && Controller?.DecalManager != null) {
             Controller.DecalManager.InvalidatePreviewCaches();
@@ -1334,6 +1363,7 @@ public class FoldInstructionRunner : MonoBehaviour
         }
 
         _isAutoFolding = false;
+        RefreshDragHandleVisibility();
     }
 
     /// <summary>

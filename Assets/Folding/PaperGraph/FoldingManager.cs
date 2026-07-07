@@ -1,6 +1,9 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using Crease.Flying.Player;
 using Crease.Folding.Decals;
+using Crease.Folding.PaperWriting;
 using Crease.Managers.Input;
 using Crease.UI;
 using UnityEngine;
@@ -87,6 +90,7 @@ namespace Crease.Folding.PaperGraph
         private bool _pendingUseSavedMesh;
         private bool _pendingFlyingSwitch;
         private bool _pendingLevelEndUnfold;
+        private readonly Queue<string> _queuedLetterSections = new Queue<string>();
 
         private void Awake() {
             if (Instance != null && Instance != this) {
@@ -202,7 +206,7 @@ namespace Crease.Folding.PaperGraph
                     // play the unfold animation that reveals the flat letter.
                     if (_pendingLevelEndUnfold) {
                         _pendingLevelEndUnfold = false;
-                        GetFoldInstructionRunner()?.UnfoldForLevelEnd();
+                        StartCoroutine(UnfoldForLevelEndThenPlayQueuedSections());
                     }
                 }
             }
@@ -269,6 +273,8 @@ namespace Crease.Folding.PaperGraph
         public void TriggerLevelEnd(Material letterFront) {
             if (IsFolding || IsTransitioning || _isAligningPaper) return;
 
+            QueueLetterSection("End");
+
             EnterFoldingMode(levelEnd: true);
 
             // Reveal the clear letter on the front of the folding preview paper
@@ -286,6 +292,49 @@ namespace Crease.Folding.PaperGraph
             // End-flow step 5: the plane unfolds itself. Defer the unfold animation until
             // the camera pan finishes (handled in Update) so the flow is pan -> unfold.
             _pendingLevelEndUnfold = true;
+        }
+
+        public void QueueLetterSection(string sectionName) {
+            if (string.IsNullOrEmpty(sectionName))
+                return;
+
+            _queuedLetterSections.Enqueue(sectionName);
+        }
+
+        public void UnfoldForRefold(Action onComplete = null) {
+            FoldInstructionRunner runner = GetFoldInstructionRunner();
+            if (runner == null) {
+                OnPaperFullyUnfolded(onComplete);
+                return;
+            }
+
+            runner.UnfoldForRefold(() => OnPaperFullyUnfolded(onComplete));
+        }
+
+        void OnPaperFullyUnfolded(Action onComplete = null) {
+            StartCoroutine(PlayQueuedLetterSectionsRoutine(onComplete));
+        }
+
+        IEnumerator UnfoldForLevelEndThenPlayQueuedSections() {
+            FoldInstructionRunner runner = GetFoldInstructionRunner();
+            if (runner != null) {
+                runner.UnfoldForLevelEnd();
+                yield return new WaitWhile(() => runner.IsUnfolding);
+            }
+
+            yield return PlayQueuedLetterSectionsRoutine(null);
+        }
+
+        IEnumerator PlayQueuedLetterSectionsRoutine(Action onComplete) {
+            LetterController letterController = LetterController.Instance;
+
+            while (_queuedLetterSections.Count > 0) {
+                string sectionName = _queuedLetterSections.Dequeue();
+                if (letterController != null)
+                    yield return letterController.WriteSectionAndWait(sectionName);
+            }
+
+            onComplete?.Invoke();
         }
 
         private void SetPreviewFrontMaterial(Material material) {

@@ -1,9 +1,11 @@
+using System.Collections;
 using System.Collections.Generic;
 using Crease.Flying.Player.Abilities;
 using Crease.Flying.Player.Loadouts;
 using Crease.Flying.Player.Health;
 using PlayerHealth = Crease.Flying.Player.Health.Health;
 using Crease.Folding.PaperGraph;
+using Crease.Folding.PaperWriting;
 using Crease.Managers.Input;
 using Crease.UI.Flying;
 using TMPro;
@@ -297,7 +299,7 @@ namespace Crease.UI
         public void OnEnterNormalFoldingMode()
         {
             ShowFoldingUI(true);
-            PresentPlaneSelectionIfNeeded();
+            StartCoroutine(PresentPlaneSelectionIfNeeded());
         }
 
         public void SetFlyCurrentVisible(bool visible)
@@ -597,6 +599,12 @@ namespace Crease.UI
             _flyCurrentRequestedVisible = false;
             UpdateRefoldUi();
 
+            if (FoldingManager.Instance != null)
+            {
+                FoldingManager.Instance.UnfoldForRefold(BeginRefoldPlaneSelection);
+                return;
+            }
+
             if (_foldInstructionRunner == null)
             {
                 UnityEngine.Debug.LogWarning("HUDCanvas.Refold: FoldInstructionRunner is not assigned.");
@@ -646,10 +654,17 @@ namespace Crease.UI
             _flyCurrentButton.SetActive(visible);
         }
 
-        private void PresentPlaneSelectionIfNeeded()
+        private IEnumerator PresentPlaneSelectionIfNeeded()
         {
             if (!RequiresPlaneSelection || _hasStartedFolding)
-                return;
+                yield break;
+
+            LetterController letterController = LetterController.Instance;
+            if (letterController != null)
+                yield return letterController.WriteSectionAndWait("Intro");
+
+            if (!RequiresPlaneSelection || _hasStartedFolding)
+                yield break;
 
             ShowPlaneSelectionScreen();
         }

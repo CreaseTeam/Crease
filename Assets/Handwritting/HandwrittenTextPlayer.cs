@@ -86,6 +86,8 @@ namespace Crease.Handwritting
             set => _writeSpeed = Mathf.Max(0.01f, value);
         }
 
+        public bool IsPlaying => _playRoutine != null;
+
         void Awake()
         {
             _text = GetComponent<TextMeshPro>();
