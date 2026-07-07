@@ -115,7 +115,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bed25b08ddee80341bd0157f8ed8e6e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.PaperWriting.LetterController
-  _textFieldsPrefab: {fileID: 5662327495566913635, guid: b10c6242c9f9276478f15fd32d37c376, type: 3}
+  _letterPrefab: {fileID: 5662327495566913635, guid: b10c6242c9f9276478f15fd32d37c376, type: 3}
 --- !u!1 &1171905940911883453
 GameObject:
   m_ObjectHideFlags: 0

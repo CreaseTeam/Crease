@@ -1,6 +1,7 @@
 using System.Collections;
 using Crease.Handwritting;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Crease.Folding.PaperWriting
 {
@@ -9,9 +10,10 @@ namespace Crease.Folding.PaperWriting
         public static LetterController Instance { get; private set; }
 
         [SerializeField]
-        GameObject _textFieldsPrefab;
+        [FormerlySerializedAs("_textFieldsPrefab")]
+        GameObject _letterPrefab;
 
-        GameObject _textFields;
+        GameObject _letter;
 
         void Awake()
         {
@@ -26,13 +28,13 @@ namespace Crease.Folding.PaperWriting
 
         void Start()
         {
-            if (_textFieldsPrefab == null)
+            if (_letterPrefab == null)
             {
-                Debug.LogWarning($"{nameof(LetterController)} has no {nameof(_textFieldsPrefab)} assigned.");
+                Debug.LogWarning($"{nameof(LetterController)} has no {nameof(_letterPrefab)} assigned.");
                 return;
             }
 
-            _textFields = Instantiate(_textFieldsPrefab, transform);
+            _letter = Instantiate(_letterPrefab, transform);
         }
 
         void OnDestroy()
@@ -66,9 +68,9 @@ namespace Crease.Folding.PaperWriting
         {
             textPlayer = null;
 
-            if (_textFields == null)
+            if (_letter == null)
             {
-                Debug.LogWarning($"{nameof(LetterController)} has no instantiated text fields.");
+                Debug.LogWarning($"{nameof(LetterController)} has no instantiated letter.");
                 return false;
             }
 
@@ -86,11 +88,11 @@ namespace Crease.Folding.PaperWriting
 
         Transform FindSectionTransform(string name)
         {
-            Transform textFieldsTransform = _textFields.transform;
+            Transform letterTransform = _letter.transform;
 
-            for (int i = 0; i < textFieldsTransform.childCount; i++)
+            for (int i = 0; i < letterTransform.childCount; i++)
             {
-                Transform child = textFieldsTransform.GetChild(i);
+                Transform child = letterTransform.GetChild(i);
                 if (child.name == name)
                     return child;
             }
