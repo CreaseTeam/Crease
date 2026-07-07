@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Crease.Audio;
 using Crease.Folding.Stickers;
@@ -151,6 +152,9 @@ public class FoldInstructionRunner : MonoBehaviour
     }
 
     private void Start() {
+        if (HUDCanvas.Instance != null)
+            return;
+
         if (Instruction != null)
             LoadInstruction(Instruction);
     }
@@ -1003,6 +1007,18 @@ public class FoldInstructionRunner : MonoBehaviour
         StartCoroutine(UnfoldAllRoutine(preserveStickers));
     }
 
+    /// <summary>
+    /// Unfolds the paper for refold/plane re-selection without restarting fold step 0.
+    /// </summary>
+    public void UnfoldForRefold(Action onComplete = null) {
+        if (_isUnfolding || Instruction == null || Controller == null) {
+            onComplete?.Invoke();
+            return;
+        }
+
+        StartCoroutine(UnfoldAllRoutine(preserveStickers: false, levelEnd: false, refold: true, onComplete));
+    }
+
     private void PrepareForAnimation() {
         HideGuideLine();
         if (DragHandle != null) DragHandle.gameObject.SetActive(false);
@@ -1040,7 +1056,11 @@ public class FoldInstructionRunner : MonoBehaviour
         Controller.UpdatePreview(); 
     }
 
-    private System.Collections.IEnumerator UnfoldAllRoutine(bool preserveStickers = false, bool levelEnd = false) {
+    private System.Collections.IEnumerator UnfoldAllRoutine(
+        bool preserveStickers = false,
+        bool levelEnd = false,
+        bool refold = false,
+        Action onComplete = null) {
         _isUnfolding = true;
         PrepareForAnimation();
 
@@ -1086,9 +1106,27 @@ public class FoldInstructionRunner : MonoBehaviour
 
         if (levelEnd)
             SettleIntoLevelEndState();
+        else if (refold)
+            SettleForRefoldSelection();
         else
             RestartFoldInstructionsAfterUnfold(preserveStickers);
         _isUnfolding = false;
+        onComplete?.Invoke();
+    }
+
+    private void SettleForRefoldSelection() {
+        ExitStickerPhase(clearStickers: true);
+
+        _currentStepIndex = -1;
+        _hasSavedFoldAxis = false;
+        if (Controller != null)
+            Controller.HasFoldAxisLock = false;
+
+        HideGuideLine();
+        if (DragHandle != null)
+            DragHandle.gameObject.SetActive(false);
+
+        Controller?.ClearPreview();
     }
 
     private void RestartFoldInstructionsAfterUnfold(bool preserveStickers) {

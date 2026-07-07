@@ -79,6 +79,10 @@ namespace Crease.UI
         private PlaneLoadoutApplier _loadoutApplier;
         [SerializeField]
         private FoldInstructionRunner _foldInstructionRunner;
+        [SerializeField]
+        private PlaneSelectionScreen _planeSelectionScreen;
+        [SerializeField]
+        private GameObject _refoldButton;
 
         [Header("Folding Debug Paper Texture")]
         [SerializeField]
@@ -89,6 +93,8 @@ namespace Crease.UI
 
         public static HUDCanvas Instance { get; private set; }
 
+        public PlaneSelectionScreen PlaneSelectionScreen => _planeSelectionScreen;
+
         private const string DebugPrefsKey = "Debug";
 
         public bool Debug { get; private set; }
@@ -97,7 +103,14 @@ namespace Crease.UI
         private int _collectibleCount = 0;
         private int _selectedLoadoutIndex;
         private bool _isUpdatingLoadoutDropdown;
+        private bool _hasStartedFolding;
+        private bool _refoldAvailable;
+        private bool _flyCurrentRequestedVisible;
         private PaperGraphVisualizer[] _resolvedPaperGraphVisualizers = System.Array.Empty<PaperGraphVisualizer>();
+
+        public bool RequiresPlaneSelection => _planeSelectionScreen != null;
+        public bool HasStartedFolding => _hasStartedFolding;
+        public bool RefoldAvailable => _refoldAvailable;
 
         public int Collect()
         {
@@ -134,6 +147,7 @@ namespace Crease.UI
             if (Instance == null)
             {
                 Instance = this;
+                _hasStartedFolding = _planeSelectionScreen == null;
             }
             else
             {
@@ -150,7 +164,9 @@ namespace Crease.UI
                 _abilityRechargeBar.fillAmount = _abilityController.RechargeNormalized;
 
             PopulateLoadoutDropdown();
-            ApplySelectedLoadout();
+
+            if (_hasStartedFolding)
+                ApplySelectedLoadout();
 
             _resolvedPaperGraphVisualizers = ResolvePaperGraphVisualizers();
             if (_debugPaperTextureToggle != null)
@@ -158,6 +174,7 @@ namespace Crease.UI
 
             Debug = PlayerPrefs.GetInt(DebugPrefsKey, 0) == 1;
             ApplyDebugVisibility();
+            UpdateRefoldUi();
 
             SetFlyCurrentVisible(false);
 
@@ -215,16 +232,29 @@ namespace Crease.UI
             _flyingUI.SetActive(!show);
         }
 
+        /// <summary>
+        /// Called when entering normal folding mode. Shows folding HUD and, if configured,
+        /// the plane selection screen before any loadout is applied.
+        /// </summary>
+        public void OnEnterNormalFoldingMode()
+        {
+            ShowFoldingUI(true);
+            PresentPlaneSelectionIfNeeded();
+        }
+
         public void SetFlyCurrentVisible(bool visible)
         {
-            if (_flyCurrentButton != null)
-                _flyCurrentButton.SetActive(visible);
+            _flyCurrentRequestedVisible = visible;
+            ApplyFlyCurrentVisibility();
         }
 
         public void ShowFlyingUI(bool show)
         {
             _flyingUI.SetActive(show);
             _foldingUI.SetActive(!show);
+
+            if (show)
+                HidePlaneSelectionScreen();
         }
 
         /// <summary>
@@ -238,6 +268,7 @@ namespace Crease.UI
 
             if (show)
             {
+                HidePlaneSelectionScreen();
                 if (_foldingUI != null) _foldingUI.SetActive(false);
                 if (_flyingUI != null) _flyingUI.SetActive(false);
                 if (_stickerUI != null) _stickerUI.SetActive(false);
@@ -425,7 +456,14 @@ namespace Crease.UI
             _planeTypeDropdown.ClearOptions();
             var options = new List<string>();
             foreach (PlaneLoadout loadout in _loadoutLibrary.Loadouts)
-                options.Add(loadout != null ? loadout.name : "Missing");
+            {
+                if (loadout == null)
+                    options.Add("Missing");
+                else if (!string.IsNullOrEmpty(loadout.DisplayName))
+                    options.Add(loadout.DisplayName);
+                else
+                    options.Add(loadout.name);
+            }
 
             if (options.Count == 0)
                 options.Add("No loadouts");
@@ -442,7 +480,119 @@ namespace Crease.UI
                 return;
 
             _selectedLoadoutIndex = index;
+            _hasStartedFolding = true;
+            ApplyFlyCurrentVisibility();
             ApplySelectedLoadout();
+        }
+
+        public void SelectLoadoutFromCard(PlaneLoadout loadout)
+        {
+            if (loadout == null)
+                return;
+
+            if (_loadoutApplier == null)
+            {
+                UnityEngine.Debug.LogWarning("HUDCanvas: LoadoutApplier is not assigned.");
+                return;
+            }
+
+            _hasStartedFolding = true;
+            ApplyFlyCurrentVisibility();
+            _loadoutApplier.ApplyLoadout(loadout);
+            SyncDropdownToLoadout(loadout);
+            HidePlaneSelectionScreen();
+        }
+
+        public void ShowLoadoutDetails(PlaneLoadout loadout)
+        {
+            if (_planeSelectionScreen != null)
+                _planeSelectionScreen.ShowDetails(loadout);
+        }
+
+        public void ShowPlaneSelectionScreen()
+        {
+            if (_planeSelectionScreen != null)
+                _planeSelectionScreen.Show();
+        }
+
+        public void HidePlaneSelectionScreen()
+        {
+            if (_planeSelectionScreen != null)
+                _planeSelectionScreen.Hide();
+        }
+
+        public void SetRefoldAvailable(bool available)
+        {
+            _refoldAvailable = available;
+            UpdateRefoldUi();
+        }
+
+        public void Refold()
+        {
+            _refoldAvailable = false;
+            _hasStartedFolding = false;
+            _flyCurrentRequestedVisible = false;
+            UpdateRefoldUi();
+
+            if (_foldInstructionRunner == null)
+            {
+                UnityEngine.Debug.LogWarning("HUDCanvas.Refold: FoldInstructionRunner is not assigned.");
+                BeginRefoldPlaneSelection();
+                return;
+            }
+
+            _foldInstructionRunner.UnfoldForRefold(BeginRefoldPlaneSelection);
+        }
+
+        private void BeginRefoldPlaneSelection()
+        {
+            _hasStartedFolding = false;
+            StopFoldingTimer();
+            ResetAccuracyDisplay();
+            ShowStickerUI(false);
+            SetFlyCurrentVisible(false);
+            ShowPlaneSelectionScreen();
+        }
+
+        private void UpdateRefoldUi()
+        {
+            if (_refoldButton != null)
+                _refoldButton.SetActive(_refoldAvailable);
+
+            ApplyFlyCurrentVisibility();
+        }
+
+        private void ApplyFlyCurrentVisibility()
+        {
+            if (_flyCurrentButton == null)
+                return;
+
+            bool visible = _flyCurrentRequestedVisible && !_refoldAvailable && _hasStartedFolding;
+            _flyCurrentButton.SetActive(visible);
+        }
+
+        private void PresentPlaneSelectionIfNeeded()
+        {
+            if (!RequiresPlaneSelection || _hasStartedFolding)
+                return;
+
+            ShowPlaneSelectionScreen();
+        }
+
+        private void SyncDropdownToLoadout(PlaneLoadout loadout)
+        {
+            if (_planeTypeDropdown == null || _loadoutLibrary == null)
+                return;
+
+            int index = _loadoutLibrary.Loadouts.IndexOf(loadout);
+            if (index < 0)
+                return;
+
+            _selectedLoadoutIndex = index;
+            _isUpdatingLoadoutDropdown = true;
+            _planeTypeDropdown.SetValueWithoutNotify(index);
+            _planeTypeDropdown.RefreshShownValue();
+            _isUpdatingLoadoutDropdown = false;
         }
 
         private void ApplySelectedLoadout()

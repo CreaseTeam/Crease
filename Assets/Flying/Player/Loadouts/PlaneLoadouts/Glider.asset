@@ -15,3 +15,14 @@ MonoBehaviour:
   FoldInstruction: {fileID: 11400000, guid: 5a814e82956a4534f9069b16cf7169ad, type: 2}
   FlightSettings: {fileID: 11400000, guid: 204397c0df06b994a97bdd15b29c59df, type: 2}
   Ability: {fileID: 11400000, guid: aabbccdd11223344556677889900a002, type: 2}
+  DisplayName: Glider
+  Image: {fileID: 21300000, guid: 87f9e65d8ac44a949bf360783a736926, type: 3}
+  Description: A plane that specializes in gliding and maintaining altitude. Its
+    larger and longer wingspan makes interacting with objects and wind frustrums
+    easier.
+  Speed: 2
+  Control: 4
+  Durability: 3
+  WindResistance: 5
+  AbilityDescription: 'Frenzy: Hold down to steadily increase speed; the faster,
+    the less control you will have. Let go to slowly deactivate.  '

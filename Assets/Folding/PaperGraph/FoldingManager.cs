@@ -128,7 +128,7 @@ namespace Crease.Folding.PaperGraph
                     InputManager.Instance.SwitchToFolding();
 
                 if (HUDCanvas.Instance != null)
-                    HUDCanvas.Instance.ShowFoldingUI(true);
+                    HUDCanvas.Instance.OnEnterNormalFoldingMode();
 
                 if (Player != null) {
                     TeleportPaperToPlayer();
@@ -239,7 +239,7 @@ namespace Crease.Folding.PaperGraph
                 if (levelEnd)
                     HUDCanvas.Instance.ShowLevelEndUI(true);
                 else
-                    HUDCanvas.Instance.ShowFoldingUI(true);
+                    HUDCanvas.Instance.OnEnterNormalFoldingMode();
             }
 
             if (PaperGraph != null) PaperGraph.gameObject.SetActive(true);
