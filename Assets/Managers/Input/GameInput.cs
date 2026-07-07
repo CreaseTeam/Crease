@@ -120,9 +120,18 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""ActivateAbility"",
+                    ""name"": ""PrimaryAbility"",
                     ""type"": ""Button"",
                     ""id"": ""500b201b-64ed-4710-b93e-ea7869be9473"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SecondaryAbility"",
+                    ""type"": ""Button"",
+                    ""id"": ""452b5353-8254-4316-88db-b0c2d527a31c"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -283,7 +292,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""ActivateAbility"",
+                    ""action"": ""PrimaryAbility"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -294,7 +303,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Gamepad"",
-                    ""action"": ""ActivateAbility"",
+                    ""action"": ""PrimaryAbility"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -440,6 +449,28 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""action"": ""CenterCamera"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""97db6bca-e3af-4a32-ba2e-37d0fc5cf541"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""SecondaryAbility"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""86ed051e-7bea-40eb-8755-fa267923f43b"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""SecondaryAbility"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -479,7 +510,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""a2ff8831-7274-4a55-b9d6-9b0ff4d8c0f6"",
-                    ""path"": ""<Keyboard>/shift"",
+                    ""path"": ""<Keyboard>/capsLock"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
@@ -490,7 +521,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""78c89886-fd1b-4ef5-bc9f-58cca709771e"",
-                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Gamepad"",
@@ -948,7 +979,8 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_CameraZoom = m_Player.FindAction("CameraZoom", throwIfNotFound: true);
         m_Player_Drop = m_Player.FindAction("Drop", throwIfNotFound: true);
-        m_Player_ActivateAbility = m_Player.FindAction("ActivateAbility", throwIfNotFound: true);
+        m_Player_PrimaryAbility = m_Player.FindAction("PrimaryAbility", throwIfNotFound: true);
+        m_Player_SecondaryAbility = m_Player.FindAction("SecondaryAbility", throwIfNotFound: true);
         m_Player_Return = m_Player.FindAction("Return", throwIfNotFound: true);
         m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
         m_Player_CameraPan = m_Player.FindAction("CameraPan", throwIfNotFound: true);
@@ -1052,7 +1084,8 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_CameraZoom;
     private readonly InputAction m_Player_Drop;
-    private readonly InputAction m_Player_ActivateAbility;
+    private readonly InputAction m_Player_PrimaryAbility;
+    private readonly InputAction m_Player_SecondaryAbility;
     private readonly InputAction m_Player_Return;
     private readonly InputAction m_Player_Pause;
     private readonly InputAction m_Player_CameraPan;
@@ -1081,9 +1114,13 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Drop => m_Wrapper.m_Player_Drop;
         /// <summary>
-        /// Provides access to the underlying input action "Player/ActivateAbility".
+        /// Provides access to the underlying input action "Player/PrimaryAbility".
         /// </summary>
-        public InputAction @ActivateAbility => m_Wrapper.m_Player_ActivateAbility;
+        public InputAction @PrimaryAbility => m_Wrapper.m_Player_PrimaryAbility;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/SecondaryAbility".
+        /// </summary>
+        public InputAction @SecondaryAbility => m_Wrapper.m_Player_SecondaryAbility;
         /// <summary>
         /// Provides access to the underlying input action "Player/Return".
         /// </summary>
@@ -1135,9 +1172,12 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @Drop.started += instance.OnDrop;
             @Drop.performed += instance.OnDrop;
             @Drop.canceled += instance.OnDrop;
-            @ActivateAbility.started += instance.OnActivateAbility;
-            @ActivateAbility.performed += instance.OnActivateAbility;
-            @ActivateAbility.canceled += instance.OnActivateAbility;
+            @PrimaryAbility.started += instance.OnPrimaryAbility;
+            @PrimaryAbility.performed += instance.OnPrimaryAbility;
+            @PrimaryAbility.canceled += instance.OnPrimaryAbility;
+            @SecondaryAbility.started += instance.OnSecondaryAbility;
+            @SecondaryAbility.performed += instance.OnSecondaryAbility;
+            @SecondaryAbility.canceled += instance.OnSecondaryAbility;
             @Return.started += instance.OnReturn;
             @Return.performed += instance.OnReturn;
             @Return.canceled += instance.OnReturn;
@@ -1170,9 +1210,12 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @Drop.started -= instance.OnDrop;
             @Drop.performed -= instance.OnDrop;
             @Drop.canceled -= instance.OnDrop;
-            @ActivateAbility.started -= instance.OnActivateAbility;
-            @ActivateAbility.performed -= instance.OnActivateAbility;
-            @ActivateAbility.canceled -= instance.OnActivateAbility;
+            @PrimaryAbility.started -= instance.OnPrimaryAbility;
+            @PrimaryAbility.performed -= instance.OnPrimaryAbility;
+            @PrimaryAbility.canceled -= instance.OnPrimaryAbility;
+            @SecondaryAbility.started -= instance.OnSecondaryAbility;
+            @SecondaryAbility.performed -= instance.OnSecondaryAbility;
+            @SecondaryAbility.canceled -= instance.OnSecondaryAbility;
             @Return.started -= instance.OnReturn;
             @Return.performed -= instance.OnReturn;
             @Return.canceled -= instance.OnReturn;
@@ -1553,12 +1596,19 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnDrop(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "ActivateAbility" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "PrimaryAbility" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnActivateAbility(InputAction.CallbackContext context);
+        void OnPrimaryAbility(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SecondaryAbility" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSecondaryAbility(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Return" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

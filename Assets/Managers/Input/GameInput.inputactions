@@ -34,9 +34,18 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "ActivateAbility",
+                    "name": "PrimaryAbility",
                     "type": "Button",
                     "id": "500b201b-64ed-4710-b93e-ea7869be9473",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SecondaryAbility",
+                    "type": "Button",
+                    "id": "452b5353-8254-4316-88db-b0c2d527a31c",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -197,7 +206,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "ActivateAbility",
+                    "action": "PrimaryAbility",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -208,7 +217,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
-                    "action": "ActivateAbility",
+                    "action": "PrimaryAbility",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -354,6 +363,28 @@
                     "action": "CenterCamera",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "97db6bca-e3af-4a32-ba2e-37d0fc5cf541",
+                    "path": "<Keyboard>/leftShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "SecondaryAbility",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "86ed051e-7bea-40eb-8755-fa267923f43b",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "SecondaryAbility",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -393,7 +424,7 @@
                 {
                     "name": "",
                     "id": "a2ff8831-7274-4a55-b9d6-9b0ff4d8c0f6",
-                    "path": "<Keyboard>/shift",
+                    "path": "<Keyboard>/capsLock",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
@@ -404,7 +435,7 @@
                 {
                     "name": "",
                     "id": "78c89886-fd1b-4ef5-bc9f-58cca709771e",
-                    "path": "<Gamepad>/leftTrigger",
+                    "path": "<Gamepad>/leftShoulder",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",

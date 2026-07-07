@@ -30,7 +30,8 @@ namespace Crease.Managers.Input
         public bool BoostPressed => Actions.Debug.Boost.IsPressed() || _micBoostActive;
         public bool BoostTriggered => Actions.Debug.Boost.WasPerformedThisFrame();
         public bool ResetTriggered => Actions.Debug.Reset.WasPerformedThisFrame();
-        public bool ActivateAbilityPressed => Actions.Player.ActivateAbility.WasPerformedThisFrame();
+        public bool PrimaryAbilityPressed => Actions.Player.PrimaryAbility.WasPerformedThisFrame();
+        public bool SecondaryAbilityPressed => Actions.Player.SecondaryAbility.WasPerformedThisFrame();
         public bool DropTriggered => Actions.Player.Drop.WasPerformedThisFrame();
         public bool ReturnTriggered => Actions.Player.Return.WasPerformedThisFrame();
         public bool PauseTriggered =>

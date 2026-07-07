@@ -22,8 +22,8 @@ namespace Crease.Flying.Player.Loadouts
             if (loadout.FlightSettings != null && _flightStats != null)
                 _flightStats.SetBaseSettings(loadout.FlightSettings);
 
-            if (loadout.Ability != null && _abilityController != null)
-                _abilityController.Equip(loadout.Ability);
+            if (_abilityController != null)
+                _abilityController.Equip(loadout.PrimaryAbility, loadout.SecondaryAbility);
         }
     }
 }

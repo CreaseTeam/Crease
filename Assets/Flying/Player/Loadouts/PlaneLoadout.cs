@@ -2,6 +2,7 @@ using Crease.Flying.Player;
 using Crease.Flying.Player.Abilities;
 using Crease.Folding.PaperGraph;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Crease.Flying.Player.Loadouts
 {
@@ -11,7 +12,9 @@ namespace Crease.Flying.Player.Loadouts
         [Header("Gameplay")]
         public FoldInstruction FoldInstruction;
         public FlightSettings FlightSettings;
-        public Ability Ability;
+        [FormerlySerializedAs("Ability")]
+        public Ability PrimaryAbility;
+        public Ability SecondaryAbility;
 
         [Header("UI")]
         public string DisplayName;

@@ -17,12 +17,23 @@ namespace Crease.UI
 {
     public class HUDCanvas : MonoBehaviour
     {
+        [Header("Ability UI")]
         [SerializeField]
         private AbilityController _abilityController;
         [SerializeField]
-        private Image _abilityRechargeBar;
+        private GameObject _primaryAbilityUI;
+        [FormerlySerializedAs("_abilityRechargeBar")]
         [SerializeField]
-        private GameObject _abilityReadyBorder;
+        private Image _primaryAbilityRechargeBar;
+        [FormerlySerializedAs("_abilityReadyBorder")]
+        [SerializeField]
+        private GameObject _primaryAbilityReadyBorder;
+        [SerializeField]
+        private GameObject _secondaryAbilityUI;
+        [SerializeField]
+        private Image _secondaryAbilityRechargeBar;
+        [SerializeField]
+        private GameObject _secondaryAbilityReadyBorder;
         [SerializeField]
         [FormerlySerializedAs("collectibleText")]
         private TextMeshProUGUI _collectibleText;
@@ -160,8 +171,7 @@ namespace Crease.UI
         void Start()
         {
             _collectibleText.text = $"{_collectibleCount}";
-            if (_abilityRechargeBar != null && _abilityController != null)
-                _abilityRechargeBar.fillAmount = _abilityController.RechargeNormalized;
+            UpdateAbilityUI();
 
             PopulateLoadoutDropdown();
 
@@ -208,21 +218,61 @@ namespace Crease.UI
                 UpdateTimerDisplay();
             }
 
-            if (_abilityRechargeBar != null && _abilityController != null)
-                _abilityRechargeBar.fillAmount = _abilityController.RechargeNormalized;
+            UpdateAbilityUI();
+        }
 
-            if (_abilityReadyBorder != null && _abilityController != null)
+        private void UpdateAbilityUI()
+        {
+            if (_abilityController == null)
+                return;
+
+            bool hasPrimary = _abilityController.PrimaryEquippedAbility != null;
+            bool hasSecondary = _abilityController.SecondaryEquippedAbility != null;
+
+            if (_primaryAbilityUI != null)
+                _primaryAbilityUI.SetActive(hasPrimary);
+
+            if (_secondaryAbilityUI != null)
+                _secondaryAbilityUI.SetActive(hasSecondary);
+
+            if (hasPrimary)
             {
-                bool canUse = _abilityController.CanActivate;
-                if (canUse)
-                {
-                    bool flip = Mathf.PingPong(Time.time * 2f, 1f) > 0.5f;
-                    _abilityReadyBorder.SetActive(flip);
-                }
-                else
-                {
-                    _abilityReadyBorder.SetActive(false);
-                }
+                if (_primaryAbilityRechargeBar != null)
+                    _primaryAbilityRechargeBar.fillAmount = _abilityController.RechargeNormalized;
+
+                UpdateReadyBorder(_primaryAbilityReadyBorder, _abilityController.CanActivate);
+            }
+            else if (_primaryAbilityReadyBorder != null)
+            {
+                _primaryAbilityReadyBorder.SetActive(false);
+            }
+
+            if (hasSecondary)
+            {
+                if (_secondaryAbilityRechargeBar != null)
+                    _secondaryAbilityRechargeBar.fillAmount = _abilityController.SecondaryRechargeNormalized;
+
+                UpdateReadyBorder(_secondaryAbilityReadyBorder, _abilityController.SecondaryCanActivate);
+            }
+            else if (_secondaryAbilityReadyBorder != null)
+            {
+                _secondaryAbilityReadyBorder.SetActive(false);
+            }
+        }
+
+        private static void UpdateReadyBorder(GameObject readyBorder, bool canActivate)
+        {
+            if (readyBorder == null)
+                return;
+
+            if (canActivate)
+            {
+                bool flip = Mathf.PingPong(Time.time * 2f, 1f) > 0.5f;
+                readyBorder.SetActive(flip);
+            }
+            else
+            {
+                readyBorder.SetActive(false);
             }
         }
 
