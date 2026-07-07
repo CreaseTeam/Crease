@@ -339,7 +339,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4320280547167195683}
-  - component: {fileID: 7272863901505637445}
+  - component: {fileID: 721198495420501857}
   m_Layer: 0
   m_Name: WwiseGlobal
   m_TagString: Untagged
@@ -362,7 +362,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1398608402334919048}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7272863901505637445
+--- !u!114 &721198495420501857
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -736,6 +736,18 @@ PrefabInstance:
       propertyPath: _followTarget
       value: 
       objectReference: {fileID: 3457921035169475244}
+    - target: {fileID: 8157645738106086519, guid: a4588b9aacd5bcf4798bd5590377fe4d, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 5000
+      objectReference: {fileID: 0}
+    - target: {fileID: 8157645738106086519, guid: a4588b9aacd5bcf4798bd5590377fe4d, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 5000
+      objectReference: {fileID: 0}
+    - target: {fileID: 8157645738106086519, guid: a4588b9aacd5bcf4798bd5590377fe4d, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 5000
+      objectReference: {fileID: 0}
     - target: {fileID: 8157645738106086519, guid: a4588b9aacd5bcf4798bd5590377fe4d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
