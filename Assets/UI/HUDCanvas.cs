@@ -97,6 +97,8 @@ namespace Crease.UI
 
         [Header("Folding Debug Paper Texture")]
         [SerializeField]
+        private Toggle _debugToggle;
+        [SerializeField]
         [FormerlySerializedAs("_debugModeToggle")]
         private Toggle _debugPaperTextureToggle;
         [SerializeField]
@@ -183,7 +185,11 @@ namespace Crease.UI
                 SetDebugPaperTexture(_debugPaperTextureToggle.isOn);
 
             Debug = PlayerPrefs.GetInt(DebugPrefsKey, 0) == 1;
+            if (_debugToggle != null)
+                _debugToggle.SetIsOnWithoutNotify(Debug);
             ApplyDebugVisibility();
+            if (InputManager.Instance != null)
+                InputManager.Instance.SyncDebugControls();
             UpdateRefoldUi();
 
             SetFlyCurrentVisible(false);
@@ -711,6 +717,8 @@ namespace Crease.UI
             PlayerPrefs.SetInt(DebugPrefsKey, enabled ? 1 : 0);
             PlayerPrefs.Save();
             ApplyDebugVisibility();
+            if (InputManager.Instance != null)
+                InputManager.Instance.SyncDebugControls();
         }
 
         /// <summary>

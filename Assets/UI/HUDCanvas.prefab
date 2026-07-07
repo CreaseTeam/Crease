@@ -1697,6 +1697,7 @@ MonoBehaviour:
   _foldInstructionRunner: {fileID: 0}
   _planeSelectionScreen: {fileID: 8945671234567890123}
   _refoldButton: {fileID: 7662486894370017309}
+  _debugToggle: {fileID: 4584439000508022805}
   _debugPaperTextureToggle: {fileID: 7105462068740072999}
   _paperGraphVisualizers: []
 --- !u!1 &1425510533676349599
