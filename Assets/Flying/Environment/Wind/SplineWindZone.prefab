@@ -354,6 +354,8 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   FeatherEdges: 1
+  ApplyTorqueFromWindForce: 1
+  TorqueStrength: 1
   DebugLog: 0
 --- !u!114 &2157813350161059041
 MonoBehaviour:

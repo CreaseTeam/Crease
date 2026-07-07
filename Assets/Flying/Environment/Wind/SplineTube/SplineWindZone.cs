@@ -31,6 +31,38 @@ namespace Crease.Flying.Environment.Wind.SplineTube
         [Tooltip("If true, boost strength fades out near the edges of the tube radius, same as FrustumWindZone's FeatherEdges.")]
         public bool FeatherEdges = true;
 
+        [Header("Torque")]
+        [Tooltip("If true, wind force can rotate the plane toward its direction when the plane is pointed away from the spline center.")]
+        public bool ApplyTorqueFromWindForce = true;
+
+        [Tooltip("How strongly wind force rotates the plane toward its direction.")]
+        public float TorqueStrength = 1.5f;
+
+        public override bool AppliesTorqueFromForce => ApplyTorqueFromWindForce;
+        public override float WindTorqueStrength => TorqueStrength;
+
+        public override bool ShouldApplyTorqueAtPoint(Vector3 worldPosition)
+        {
+            if (!ApplyTorqueFromWindForce || _shape == null || _cachedPlayerTransform == null)
+            {
+                return false;
+            }
+
+            if (!TryGetNearestTubeSample(worldPosition, out _, out float radiusAtPoint, out float distanceFromCenter, out Vector3 nearestPoint))
+            {
+                return false;
+            }
+
+            if (distanceFromCenter > radiusAtPoint || distanceFromCenter < 0.001f)
+            {
+                return false;
+            }
+
+            Vector3 toCenter = nearestPoint - worldPosition;
+            float facingCenter = Vector3.Dot(_cachedPlayerTransform.forward, toCenter.normalized);
+            return facingCenter < 0f;
+        }
+
         private SplineTubeTrigger _shape;
         private Transform _cachedPlayerTransform;
         private KinematicBody _cachedPlayerBody;

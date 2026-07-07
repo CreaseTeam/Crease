@@ -160,21 +160,36 @@ namespace Crease.Flying.Player
             float speedFactor = Mathf.Clamp01(speed / _stats.CurrentStats.StabilityReferenceSpeed);
             if (speedFactor <= 0f) return;
 
-            Vector3 velocityDirection = velocity / speed;
+            float inputSuppression = _stats.CurrentStats.StabilityInputSuppression * _inputMagnitude;
+            float stabilityScale = speedFactor * (1f - inputSuppression);
+            if (stabilityScale <= 0f) return;
+
+            ApplyTorqueTowardDirection(
+                velocity / speed,
+                _stats.CurrentStats.StabilityStrength * stabilityScale);
+        }
+
+        /// <summary>
+        /// Rotates pitch and yaw toward a world-space direction. Used by wind and stability systems.
+        /// </summary>
+        public void ApplyTorqueTowardDirection(Vector3 worldDirection, float strength)
+        {
+            if (IsFlightControlLocked || strength <= 0f) return;
+
+            float directionMagnitude = worldDirection.magnitude;
+            if (directionMagnitude < 0.001f) return;
+
+            Vector3 targetDirection = worldDirection / directionMagnitude;
             Vector3 forward = GetLookDirection();
 
-            Vector3 misalignmentAxis = Vector3.Cross(forward, velocityDirection);
+            Vector3 misalignmentAxis = Vector3.Cross(forward, targetDirection);
             float sinAngle = misalignmentAxis.magnitude;
             if (sinAngle < 0.001f) return;
 
             float angleDegrees = Mathf.Asin(Mathf.Clamp(sinAngle, 0f, 1f)) * Mathf.Rad2Deg;
             Vector3 correctionAxis = misalignmentAxis / sinAngle;
 
-            float inputSuppression = _stats.CurrentStats.StabilityInputSuppression * _inputMagnitude;
-            float stabilityScale = speedFactor * (1f - inputSuppression);
-            if (stabilityScale <= 0f) return;
-
-            float correctionRate = angleDegrees * _stats.CurrentStats.StabilityStrength * stabilityScale;
+            float correctionRate = angleDegrees * strength;
             Vector3 worldAngularVelocity = correctionAxis * correctionRate;
 
             float pitchRate = Vector3.Dot(worldAngularVelocity, transform.right);
@@ -183,6 +198,9 @@ namespace Crease.Flying.Player
             float dt = ScaledDeltaTime;
             _pitch += pitchRate * dt;
             _yaw += yawRate * dt;
+
+            ClampOrientation();
+            UpdateRotation();
         }
 
         private void UpdateRotation()
