@@ -366,8 +366,7 @@ namespace Crease.Folding.PaperGraph
             else
                 ApplyDefaultMeshToPlayer();
 
-            if (useSavedMesh)
-                AttachDecalsToPlayerMesh();
+            AttachDecalsToPlayerMesh();
 
             if (PaperGraph != null) PaperGraph.gameObject.SetActive(false);
 
@@ -464,7 +463,7 @@ namespace Crease.Folding.PaperGraph
 
         private void AttachDecalsToPlayerMesh() {
             PaperDecalManager decalManager = GetDecalManager();
-            if (decalManager == null || decalManager.Placements.Count == 0) return;
+            if (decalManager == null) return;
 
             CachePlayerMeshReferences();
             Transform flightMeshRoot = GetPlayerMeshTransform();

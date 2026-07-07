@@ -9,6 +9,9 @@ namespace Crease.Flying.Player.Health
 {
     public class Health : MonoBehaviour
     {
+        public static event Action<float, DamageType> OnDamageTaken;
+        public static event Action<float, DamageType> OnDamageHealed;
+
         public float MaxHealth = 100f;
 
         public float CurrentHealth { get; private set; }
@@ -22,6 +25,7 @@ namespace Crease.Flying.Player.Health
         }
 
         private readonly List<DamageRecord> _damageLog = new();
+        private readonly int[] _damageDecalCountByType = new int[5];
 
         void Start() => CurrentHealth = MaxHealth;
 
@@ -61,6 +65,50 @@ namespace Crease.Flying.Player.Health
             {
                 HUDCanvas.Instance.VisualDamage(type, record.Amount / MaxHealth);
             }
+
+            OnDamageTaken?.Invoke(amount, type);
+        }
+
+        public int GetDamageDecalCount(DamageType type)
+        {
+            int typeIndex = (int)type;
+            if (typeIndex < 0 || typeIndex >= _damageDecalCountByType.Length)
+                return 0;
+
+            return _damageDecalCountByType[typeIndex];
+        }
+
+        public void RegisterDamageDecal(DamageType type)
+        {
+            int typeIndex = (int)type;
+            if (typeIndex < 0 || typeIndex >= _damageDecalCountByType.Length)
+                return;
+
+            _damageDecalCountByType[typeIndex]++;
+        }
+
+        public void UnregisterDamageDecal(DamageType type)
+        {
+            int typeIndex = (int)type;
+            if (typeIndex < 0 || typeIndex >= _damageDecalCountByType.Length)
+                return;
+
+            if (_damageDecalCountByType[typeIndex] > 0)
+                _damageDecalCountByType[typeIndex]--;
+        }
+
+        public void ClearDamageDecalTracking()
+        {
+            for (int i = 0; i < _damageDecalCountByType.Length; i++)
+                _damageDecalCountByType[i] = 0;
+        }
+
+        private void NotifyDamageHealed(float healAmount, DamageType type)
+        {
+            if (healAmount <= 0f)
+                return;
+
+            OnDamageHealed?.Invoke(healAmount, type);
         }
 
         public void Heal(float amount, DamageType? targetType = null)
@@ -85,6 +133,8 @@ namespace Crease.Flying.Player.Health
                         HUDCanvas.Instance.VisualHeal(record.Amount / MaxHealth, record.Type);
                     }
 
+                    NotifyDamageHealed(healAmount, record.Type);
+
                     if (record.Amount <= 0f)
                     {
                         _damageLog.RemoveAt(index);
@@ -106,6 +156,8 @@ namespace Crease.Flying.Player.Health
                     {
                         HUDCanvas.Instance.VisualHeal(record.Amount / MaxHealth, record.Type);
                     }
+
+                    NotifyDamageHealed(healAmount, record.Type);
 
                     if (record.Amount <= 0f)
                     {

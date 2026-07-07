@@ -49,6 +49,16 @@ namespace Crease.Folding.Decals
         /// When empty, culling falls back to the full visible paper surface on <see cref="Side"/>.
         /// </summary>
         public Vector2[][] CullRegionSheetUvPolygons;
+
+        /// <summary>
+        /// When true, this decal was placed by damage and is preserved through refold.
+        /// </summary>
+        public bool IsDamageDecal;
+
+        /// <summary>
+        /// <see cref="Crease.Flying.Player.Health.DamageType"/> ordinal when <see cref="IsDamageDecal"/> is true; otherwise -1.
+        /// </summary>
+        public int DamageSourceType = -1;
     }
 
     public static class DecalPlacementUtility

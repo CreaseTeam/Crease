@@ -14,6 +14,10 @@ namespace Crease.Folding.Decals
         [FormerlySerializedAs("foldingCamera")]
         public Camera FoldingCamera;
 
+        [Header("Rendering")]
+        [Tooltip("Material template for all decal quads. Configure surface type, blending, culling, and shading in the asset.")]
+        public Material DecalMaterial;
+
         [Header("Surface Offset")]
         [Tooltip("Base lift along the surface normal so decals sit above the paper mesh.")]
         [Min(0f)]
@@ -34,6 +38,7 @@ namespace Crease.Folding.Decals
         private readonly PreviewAnchorCache _ghostPreviewCache = new PreviewAnchorCache();
         private Transform _flightMeshRoot;
         private Quaternion _flightVertexRotation = Quaternion.identity;
+        private Matrix4x4 _graphToFlightMeshLocal = Matrix4x4.identity;
         private bool _attachedToFlight;
 
         private static Texture2D _guideTickTexture;
@@ -261,7 +266,9 @@ namespace Crease.Folding.Decals
 
             _flightMeshRoot = flightMeshRoot;
             _flightVertexRotation = meshVertexRotation;
+            _graphToFlightMeshLocal = flightMeshRoot.worldToLocalMatrix * _authoringGraph.transform.localToWorldMatrix;
             _attachedToFlight = true;
+            RemoveStrayFlightMeshCollider();
 
             for (int i = 0; i < _quads.Count; i++)
             {
@@ -277,6 +284,7 @@ namespace Crease.Folding.Decals
             _attachedToFlight = false;
             _flightMeshRoot = null;
             _flightVertexRotation = Quaternion.identity;
+            _graphToFlightMeshLocal = Matrix4x4.identity;
             ApplyAllPlacementsToQuads();
         }
 
@@ -343,6 +351,19 @@ namespace Crease.Folding.Decals
             return true;
         }
 
+        public bool TryRemoveNewestDamageDecalOfType(int damageSourceType)
+        {
+            for (int i = _placements.Count - 1; i >= 0; i--)
+            {
+                if (!_placements[i].IsDamageDecal || _placements[i].DamageSourceType != damageSourceType)
+                    continue;
+
+                return TryRemoveDecalAt(i, out _);
+            }
+
+            return false;
+        }
+
         private bool TryPickDecalAtScreen(Vector2 screenPosition, out int index)
         {
             index = -1;
@@ -355,6 +376,9 @@ namespace Crease.Folding.Decals
 
             for (int i = _placements.Count - 1; i >= 0; i--)
             {
+                if (_placements[i].IsDamageDecal)
+                    continue;
+
                 if (DecalSurfaceQuery.TrySurfaceHitOverlapsPlacement(_authoringGraph, _placements[i], surfaceHit))
                 {
                     index = i;
@@ -365,15 +389,27 @@ namespace Crease.Folding.Decals
             return false;
         }
 
-        public bool PlaceDecal(Texture2D texture, DecalSurfaceQuery.SurfaceHit hit, float scale, float rotationUv = 0f)
+        public bool PlaceDecal(
+            Texture2D texture,
+            DecalSurfaceQuery.SurfaceHit hit,
+            float scale,
+            float rotationUv = 0f,
+            bool isDamageDecal = false,
+            int damageSourceType = -1)
         {
             if (!hit.Hit || texture == null || _authoringGraph == null) return false;
 
-            DecalPlacement placement = DecalPlacementUtility.FromSurfaceHit(texture, hit, scale, rotationUv);
-            _placements.Add(placement);
-
             Transform meshRoot = GetActiveMeshRoot();
             if (meshRoot == null) return false;
+
+            DecalPlacement placement = isDamageDecal
+                ? DecalPlacementUtility.FromSurfaceHit(texture, hit, scale, rotationUv, cullOverhang: true)
+                : DecalPlacementUtility.FromSurfaceHit(texture, hit, scale, rotationUv);
+            placement.IsDamageDecal = isDamageDecal;
+            placement.DamageSourceType = isDamageDecal ? damageSourceType : -1;
+            if (isDamageDecal)
+                placement.CullRegionSheetUvPolygons = null;
+            _placements.Add(placement);
 
             var previewCache = new PreviewAnchorCache();
             _previewCaches.Add(previewCache);
@@ -381,12 +417,46 @@ namespace Crease.Folding.Decals
             GameObject quadObj = new GameObject($"Decal_{_placements.Count}");
             quadObj.transform.SetParent(meshRoot, false);
             DecalQuad quad = quadObj.AddComponent<DecalQuad>();
-            quad.Initialize(texture, isGhost: false);
+            quad.Initialize(texture, isGhost: false, DecalMaterial);
             _quads.Add(quad);
             ApplyDecalDisplay(placement, quad, previewCache, _placements.Count - 1, trackPreviewSurface: false);
             _ghostQuad?.SetLayerOrder(_placements.Count + _guideQuads.Count);
 
             return true;
+        }
+
+        public bool PlaceDecalAtRandomOuterSurface(
+            Texture2D texture,
+            float scale,
+            float rotationUv = 0f,
+            bool isDamageDecal = false,
+            int damageSourceType = -1)
+        {
+            if (texture == null || _authoringGraph == null)
+                return false;
+
+            if (!TryGetRandomVisibleSurfaceHit(out DecalSurfaceQuery.SurfaceHit hit))
+                return false;
+
+            return PlaceDecal(texture, hit, scale, rotationUv, isDamageDecal, damageSourceType);
+        }
+
+        private bool TryGetRandomVisibleSurfaceHit(out DecalSurfaceQuery.SurfaceHit hit)
+        {
+            return DecalSurfaceQuery.TryGetRandomVisibleSurfaceOnGraph(_authoringGraph, out hit);
+        }
+
+        /// <summary>
+        /// Removes any runtime MeshCollider left on the player mesh from older builds.
+        /// </summary>
+        private void RemoveStrayFlightMeshCollider()
+        {
+            if (_flightMeshRoot == null)
+                return;
+
+            MeshCollider collider = _flightMeshRoot.GetComponent<MeshCollider>();
+            if (collider != null)
+                Destroy(collider);
         }
 
         public void ClearDecals()
@@ -398,6 +468,30 @@ namespace Crease.Folding.Decals
                 if (quad != null) Destroy(quad.gameObject);
             }
             _quads.Clear();
+            HideGhost();
+            OnDecalsCleared?.Invoke();
+        }
+
+        public event System.Action OnDecalsCleared;
+
+        public void ClearUserStickers()
+        {
+            for (int i = _placements.Count - 1; i >= 0; i--)
+            {
+                if (_placements[i].IsDamageDecal)
+                    continue;
+
+                _placements.RemoveAt(i);
+
+                if (i < _previewCaches.Count)
+                    _previewCaches.RemoveAt(i);
+
+                if (i < _quads.Count && _quads[i] != null)
+                    Destroy(_quads[i].gameObject);
+                _quads.RemoveAt(i);
+            }
+
+            ApplyDecalLayerOrder(refreshTransforms: true);
             HideGhost();
         }
 
@@ -454,11 +548,13 @@ namespace Crease.Folding.Decals
                 placement,
                 GetActiveMeshRoot(),
                 _authoringGraph,
-                meshVertexRotation,
+                meshVertexRotation: _attachedToFlight ? Quaternion.identity : meshVertexRotation,
                 surfaceGraph,
                 cache,
                 BaseSurfaceOffset,
-                LayerOffsetStep);
+                LayerOffsetStep,
+                useGraphToMeshLocalTransform: _attachedToFlight,
+                graphToMeshLocal: _graphToFlightMeshLocal);
         }
 
         private void ApplyAllPlacementsToQuads()
@@ -537,7 +633,7 @@ namespace Crease.Folding.Decals
                     GameObject quadObj = new GameObject($"FoldGuideTick_{i}");
                     quadObj.transform.SetParent(meshRoot, false);
                     DecalQuad quad = quadObj.AddComponent<DecalQuad>();
-                    quad.Initialize(nextPlacements[i].Texture, isGhost: false);
+                    quad.Initialize(nextPlacements[i].Texture, isGhost: false, DecalMaterial);
                     _guideQuads.Add(quad);
                 }
 
@@ -636,7 +732,7 @@ namespace Crease.Folding.Decals
             GameObject ghostObj = new GameObject("DecalGhost");
             ghostObj.transform.SetParent(meshRoot != null ? meshRoot : transform, false);
             _ghostQuad = ghostObj.AddComponent<DecalQuad>();
-            _ghostQuad.Initialize(isGhost: true);
+            _ghostQuad.Initialize(isGhost: true, materialTemplate: DecalMaterial);
         }
     }
 }

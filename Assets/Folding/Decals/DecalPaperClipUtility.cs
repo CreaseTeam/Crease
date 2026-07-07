@@ -29,7 +29,9 @@ namespace Crease.Folding.Decals
             Vector2 quadScale,
             out Mesh mesh,
             Mesh reuseMesh = null,
-            Quaternion vertexRotation = default)
+            Quaternion vertexRotation = default,
+            bool useGraphToDisplayLocalTransform = false,
+            Matrix4x4 graphToDisplayLocal = default)
         {
             mesh = null;
             if (vertexRotation == default)
@@ -55,7 +57,17 @@ namespace Crease.Folding.Decals
             };
 
             var clipTriangles = new List<Triangle2D>();
-            CollectVisibleTriangles(graph, placement, center, surfaceNormal, axisU, axisV, vertexRotation, clipTriangles);
+            CollectVisibleTriangles(
+                graph,
+                placement,
+                center,
+                surfaceNormal,
+                axisU,
+                axisV,
+                vertexRotation,
+                useGraphToDisplayLocalTransform,
+                graphToDisplayLocal,
+                clipTriangles);
             if (clipTriangles.Count == 0)
                 return false;
 
@@ -85,6 +97,7 @@ namespace Crease.Folding.Decals
             mesh.SetVertices(vertices);
             mesh.SetUVs(0, uvs);
             mesh.SetTriangles(triangles, 0);
+            mesh.RecalculateNormals();
             mesh.RecalculateBounds();
             return true;
         }
@@ -97,6 +110,8 @@ namespace Crease.Folding.Decals
             Vector3 axisU,
             Vector3 axisV,
             Quaternion vertexRotation,
+            bool useGraphToDisplayLocalTransform,
+            Matrix4x4 graphToDisplayLocal,
             List<Triangle2D> output)
         {
             output.Clear();
@@ -111,9 +126,9 @@ namespace Crease.Folding.Decals
                     Vertex v1 = face.Vertices[i];
                     Vertex v2 = face.Vertices[i + 1];
 
-                    Vector3 p0 = vertexRotation * anchor.Position;
-                    Vector3 p1 = vertexRotation * v2.Position;
-                    Vector3 p2 = vertexRotation * v1.Position;
+                    Vector3 p0 = TransformGraphPoint(anchor.Position, vertexRotation, useGraphToDisplayLocalTransform, graphToDisplayLocal);
+                    Vector3 p1 = TransformGraphPoint(v2.Position, vertexRotation, useGraphToDisplayLocalTransform, graphToDisplayLocal);
+                    Vector3 p2 = TransformGraphPoint(v1.Position, vertexRotation, useGraphToDisplayLocalTransform, graphToDisplayLocal);
 
                     Vector3 edgeA = p2 - p0;
                     Vector3 edgeB = p1 - p0;
@@ -139,6 +154,18 @@ namespace Crease.Folding.Decals
                     output.Add(new Triangle2D { A = a, B = b, C = c });
                 }
             }
+        }
+
+        private static Vector3 TransformGraphPoint(
+            Vector3 graphPoint,
+            Quaternion vertexRotation,
+            bool useGraphToDisplayLocalTransform,
+            Matrix4x4 graphToDisplayLocal)
+        {
+            if (useGraphToDisplayLocalTransform)
+                return graphToDisplayLocal.MultiplyPoint3x4(graphPoint);
+
+            return vertexRotation * graphPoint;
         }
 
         private static bool TriangleMatchesCullRegion(
@@ -304,9 +331,10 @@ namespace Crease.Folding.Decals
 
             for (int i = 1; i < polygon.Count - 1; i++)
             {
+                // Match DecalQuad shared mesh winding (0, 2, 1) for negative Z scale + Lit shading.
                 triangles.Add(baseIndex);
-                triangles.Add(baseIndex + i);
                 triangles.Add(baseIndex + i + 1);
+                triangles.Add(baseIndex + i);
             }
         }
     }

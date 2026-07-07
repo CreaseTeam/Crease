@@ -652,17 +652,20 @@ public class FoldInstructionRunner : MonoBehaviour
             stickerUi.PopulateDropdown();
     }
 
-    private void ExitStickerPhase(bool clearStickers) {
+    private void ExitStickerPhase(bool clearStickers, bool includeDamageDecals = true) {
         _phase = FoldingRunPhase.Folding;
         if (clearStickers)
-            ClearStickersOnPaper();
+            ClearStickersOnPaper(includeDamageDecals);
         if (HUDCanvas.Instance != null)
             HUDCanvas.Instance.ShowStickerUI(false);
     }
 
-    private void ClearStickersOnPaper() {
+    private void ClearStickersOnPaper(bool includeDamageDecals = true) {
         if (Controller == null || Controller.DecalManager == null) return;
-        Controller.DecalManager.ClearDecals();
+        if (includeDamageDecals)
+            Controller.DecalManager.ClearDecals();
+        else
+            Controller.DecalManager.ClearUserStickers();
     }
 
     /// <summary>
@@ -1115,7 +1118,7 @@ public class FoldInstructionRunner : MonoBehaviour
     }
 
     private void SettleForRefoldSelection() {
-        ExitStickerPhase(clearStickers: true);
+        ExitStickerPhase(clearStickers: true, includeDamageDecals: false);
 
         _currentStepIndex = -1;
         _hasSavedFoldAxis = false;

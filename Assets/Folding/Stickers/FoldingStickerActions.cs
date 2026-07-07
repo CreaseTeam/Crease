@@ -39,7 +39,7 @@ namespace Crease.Folding.Stickers
                 Debug.LogError("FoldingStickerActions: PaperDecalManager not assigned.");
                 return;
             }
-            _decalManager.ClearDecals();
+            _decalManager.ClearUserStickers();
         }
     }
 }

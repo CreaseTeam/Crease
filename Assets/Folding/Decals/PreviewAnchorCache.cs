@@ -2,10 +2,11 @@ using UnityEngine;
 
 namespace Crease.Folding.Decals
 {
-    /// <summary>
-    /// Preview-graph anchor indices for one sticker during fold/unfold animation.
-    /// Topology is stable while only fold degrees change, so barycentric tracking avoids per-frame UV searches.
-    /// </summary>
+        /// <summary>
+        /// Preview-graph anchor indices for one sticker during fold/unfold animation.
+        /// During active preview the surface is re-resolved each frame; the cache holds the
+        /// latest triangle for fast interpolation within that frame.
+        /// </summary>
     public class PreviewAnchorCache
     {
         public bool IsValid;

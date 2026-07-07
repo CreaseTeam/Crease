@@ -42,6 +42,7 @@ namespace Crease.Folding.Decals
         private readonly GraphMesh _surfaceGraph;
         private readonly Transform _meshSurfaceRoot;
         private readonly MeshCollider _meshCollider;
+        private readonly Quaternion _meshVertexRotation;
         private readonly List<MeshTriangle> _triangles = new List<MeshTriangle>();
         private int _frontTriangleCount;
 
@@ -57,12 +58,14 @@ namespace Crease.Folding.Decals
             GraphMesh authoringGraph,
             GraphMesh surfaceGraph,
             Transform meshSurfaceRoot,
-            MeshCollider meshCollider)
+            MeshCollider meshCollider,
+            Quaternion meshVertexRotation = default)
         {
             _authoringGraph = authoringGraph;
             _surfaceGraph = surfaceGraph;
             _meshSurfaceRoot = meshSurfaceRoot;
             _meshCollider = meshCollider;
+            _meshVertexRotation = meshVertexRotation == default ? Quaternion.identity : meshVertexRotation;
         }
 
         public void RebuildTriangleMap()
@@ -130,8 +133,8 @@ namespace Crease.Folding.Decals
                 return miss;
 
             Ray worldRay = camera.ScreenPointToRay(screenPosition);
-            Vector3 rayOriginLocal = _meshSurfaceRoot.InverseTransformPoint(worldRay.origin);
-            Vector3 rayDirLocal = _meshSurfaceRoot.InverseTransformDirection(worldRay.direction).normalized;
+            Vector3 rayOriginLocal = MeshLocalToGraph(_meshSurfaceRoot.InverseTransformPoint(worldRay.origin));
+            Vector3 rayDirLocal = MeshLocalDirectionToGraph(_meshSurfaceRoot.InverseTransformDirection(worldRay.direction).normalized);
             return RaycastAlongRay(worldRay, rayOriginLocal, rayDirLocal, null);
         }
 
@@ -178,6 +181,260 @@ namespace Crease.Folding.Decals
             var triangles = new List<MeshTriangle>();
             BuildTriangleListWithBackFaces(authoringGraph, triangles);
             return RaycastTrianglesAnalyticOnGraph(authoringGraph, triangles, rayOriginLocal, rayDirLocal, allowedFaces);
+        }
+
+        /// <summary>
+        /// Analytic raycast against front and back triangles on the authoring graph.
+        /// Returns the nearest hit along the ray (outermost visible surface from that direction).
+        /// </summary>
+        public static SurfaceHit RaycastOuterSurfaceOnGraph(
+            GraphMesh graph,
+            Vector3 rayOriginLocal,
+            Vector3 rayDirLocal,
+            HashSet<Face> allowedFaces = null)
+        {
+            SurfaceHit miss = new SurfaceHit { Hit = false };
+            if (graph == null || rayDirLocal.sqrMagnitude < 0.0001f)
+                return miss;
+
+            var triangles = new List<MeshTriangle>();
+            BuildTriangleListWithBackFaces(graph, triangles);
+            return RaycastTrianglesAnalyticOnGraph(graph, triangles, rayOriginLocal, rayDirLocal.normalized, allowedFaces);
+        }
+
+        /// <summary>
+        /// Analytic raycast that only accepts triangles facing the ray origin, matching the
+        /// visible outer surface a camera/sticker placement ray would hit.
+        /// </summary>
+        public static SurfaceHit RaycastVisibleSurfaceOnGraph(
+            GraphMesh graph,
+            Vector3 rayOriginLocal,
+            Vector3 rayDirLocal,
+            HashSet<Face> allowedFaces = null)
+        {
+            SurfaceHit miss = new SurfaceHit { Hit = false };
+            if (graph == null || rayDirLocal.sqrMagnitude < 0.0001f)
+                return miss;
+
+            var triangles = new List<MeshTriangle>();
+            BuildTriangleListWithBackFaces(graph, triangles);
+
+            rayDirLocal = rayDirLocal.normalized;
+            bool found = false;
+            float bestT = float.MaxValue;
+            MeshTriangle bestTri = default;
+            Vector3 bestBary = default;
+            PaperSide bestSide = PaperSide.Front;
+
+            for (int t = 0; t < triangles.Count; t++)
+            {
+                MeshTriangle tri = triangles[t];
+                if (allowedFaces != null && (tri.Face == null || !allowedFaces.Contains(tri.Face)))
+                    continue;
+
+                if (!IsValidIndex(graph, tri.V0Index)
+                    || !IsValidIndex(graph, tri.V1Index)
+                    || !IsValidIndex(graph, tri.V2Index))
+                    continue;
+
+                Vertex v0 = graph.Vertices[tri.V0Index];
+                Vertex v1 = graph.Vertices[tri.V1Index];
+                Vertex v2 = graph.Vertices[tri.V2Index];
+                Vector3 p0 = v0.Position;
+                Vector3 p1 = v1.Position;
+                Vector3 p2 = v2.Position;
+
+                if (!TryRayIntersectTriangle(rayOriginLocal, rayDirLocal, p0, p1, p2, out float tHit, out Vector3 bary))
+                    continue;
+
+                PaperSide side = ResolveCameraFacingSide(p0, p1, p2, rayDirLocal);
+                Vector3 outwardNormal = OutwardNormalForSide(p0, p1, p2, side);
+                if (Vector3.Dot(outwardNormal, rayDirLocal) >= -FacingEpsilon)
+                    continue;
+
+                if (tHit >= bestT - DepthEpsilon)
+                    continue;
+
+                bestT = tHit;
+                bestTri = tri;
+                bestBary = bary;
+                bestSide = side;
+                found = true;
+            }
+
+            if (!found)
+                return miss;
+
+            return BuildGraphSurfaceHit(graph, bestTri, bestBary, bestSide, rayOriginLocal, rayDirLocal);
+        }
+
+        /// <summary>
+        /// Picks random on-screen points and raycasts from the camera, using the same
+        /// view-facing surface rules as sticker placement.
+        /// </summary>
+        public static bool TryRaycastVisibleFromCamera(
+            GraphMesh graph,
+            Camera camera,
+            Transform surfaceRoot,
+            Quaternion graphSpaceRotation,
+            Vector2 screenPosition,
+            out SurfaceHit hit)
+        {
+            hit = new SurfaceHit { Hit = false };
+            if (graph == null || camera == null || surfaceRoot == null)
+                return false;
+
+            Ray worldRay = camera.ScreenPointToRay(screenPosition);
+            Vector3 rayOriginLocal = surfaceRoot.InverseTransformPoint(worldRay.origin);
+            Vector3 rayDirLocal = surfaceRoot.InverseTransformDirection(worldRay.direction).normalized;
+            if (graphSpaceRotation != Quaternion.identity)
+            {
+                Quaternion inverseRotation = Quaternion.Inverse(graphSpaceRotation);
+                rayOriginLocal = inverseRotation * rayOriginLocal;
+                rayDirLocal = inverseRotation * rayDirLocal;
+            }
+
+            hit = RaycastVisibleSurfaceOnGraph(graph, rayOriginLocal, rayDirLocal);
+            return hit.Hit;
+        }
+
+        public static bool TryGetRandomVisibleSurfaceFromCamera(
+            GraphMesh graph,
+            Camera camera,
+            Transform surfaceRoot,
+            Quaternion graphSpaceRotation,
+            out SurfaceHit hit,
+            int maxAttempts = 16,
+            float screenMargin = 0.15f)
+        {
+            hit = new SurfaceHit { Hit = false };
+            if (graph == null || camera == null || surfaceRoot == null)
+                return false;
+
+            float minX = screenMargin * camera.pixelWidth;
+            float maxX = (1f - screenMargin) * camera.pixelWidth;
+            float minY = screenMargin * camera.pixelHeight;
+            float maxY = (1f - screenMargin) * camera.pixelHeight;
+
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            {
+                var screenPosition = new Vector2(
+                    Random.Range(minX, maxX),
+                    Random.Range(minY, maxY));
+
+                if (!TryRaycastVisibleFromCamera(
+                        graph,
+                        camera,
+                        surfaceRoot,
+                        graphSpaceRotation,
+                        screenPosition,
+                        out SurfaceHit candidate))
+                    continue;
+
+                hit = candidate;
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Picks a random visible outer-surface point by casting from random exterior directions
+        /// into the graph. Only camera-facing hits are accepted, so folded interior faces are skipped.
+        /// </summary>
+        public static bool TryGetRandomVisibleSurfaceOnGraph(
+            GraphMesh graph,
+            out SurfaceHit hit,
+            int maxAttempts = 32)
+        {
+            hit = new SurfaceHit { Hit = false };
+            if (graph == null || graph.Vertices.Count == 0)
+                return false;
+
+            ComputeGraphBounds(graph, out Vector3 center, out Vector3 min, out Vector3 max, out float enclosingRadius);
+
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            {
+                Vector3 target = new Vector3(
+                    Random.Range(min.x, max.x),
+                    Random.Range(min.y, max.y),
+                    Random.Range(min.z, max.z));
+                Vector3 outward = Random.onUnitSphere;
+                Vector3 rayOriginLocal = target + outward * enclosingRadius;
+                Vector3 rayDirLocal = -outward;
+                hit = RaycastVisibleSurfaceOnGraph(graph, rayOriginLocal, rayDirLocal);
+                if (hit.Hit)
+                    return true;
+            }
+
+            Vector3 fallbackOrigin = center + Vector3.up * enclosingRadius;
+            hit = RaycastVisibleSurfaceOnGraph(graph, fallbackOrigin, -Vector3.up);
+            return hit.Hit;
+        }
+
+        /// <summary>
+        /// Axis-aligned bounds plus a sphere that encloses every graph vertex from the centroid.
+        /// </summary>
+        private static void ComputeGraphBounds(
+            GraphMesh graph,
+            out Vector3 center,
+            out Vector3 min,
+            out Vector3 max,
+            out float enclosingRadius)
+        {
+            min = graph.Vertices[0].Position;
+            max = min;
+            Vector3 sum = min;
+            for (int i = 1; i < graph.Vertices.Count; i++)
+            {
+                Vector3 position = graph.Vertices[i].Position;
+                min = Vector3.Min(min, position);
+                max = Vector3.Max(max, position);
+                sum += position;
+            }
+
+            center = sum / graph.Vertices.Count;
+            enclosingRadius = 0f;
+            for (int i = 0; i < graph.Vertices.Count; i++)
+            {
+                float distance = (graph.Vertices[i].Position - center).magnitude;
+                if (distance > enclosingRadius)
+                    enclosingRadius = distance;
+            }
+
+            enclosingRadius += 0.5f;
+        }
+
+        private static SurfaceHit BuildGraphSurfaceHit(
+            GraphMesh graph,
+            MeshTriangle tri,
+            Vector3 bary,
+            PaperSide side,
+            Vector3 viewOriginLocal,
+            Vector3 viewDirLocal)
+        {
+            Vertex hitV0 = graph.Vertices[tri.V0Index];
+            Vertex hitV1 = graph.Vertices[tri.V1Index];
+            Vertex hitV2 = graph.Vertices[tri.V2Index];
+            Vector3 localPoint = bary.x * hitV0.Position + bary.y * hitV1.Position + bary.z * hitV2.Position;
+            Vector3 authBary = ComputeBarycentric(hitV0.Position, hitV1.Position, hitV2.Position, localPoint);
+            Vector3 localNormal = OutwardNormalForSide(hitV0.Position, hitV1.Position, hitV2.Position, side);
+
+            return new SurfaceHit
+            {
+                Hit = true,
+                Anchor0Index = tri.V0Index,
+                Anchor1Index = tri.V1Index,
+                Anchor2Index = tri.V2Index,
+                Barycentric = authBary,
+                LocalPoint = localPoint,
+                LocalNormal = localNormal,
+                SheetUv = BarycentricInterpolateSheetUv(hitV0, hitV1, hitV2, side, authBary),
+                Side = side,
+                HitFace = tri.Face,
+                ViewRayOriginLocal = viewOriginLocal,
+                ViewRayDirLocal = viewDirLocal
+            };
         }
 
         public SurfaceHit RaycastPlanarTop(
@@ -251,29 +508,17 @@ namespace Crease.Folding.Decals
             if (!found)
                 return miss;
 
-            Vertex hitV0 = graph.Vertices[bestTri.V0Index];
-            Vertex hitV1 = graph.Vertices[bestTri.V1Index];
-            Vertex hitV2 = graph.Vertices[bestTri.V2Index];
-            Vector3 localPoint = bestBary.x * hitV0.Position + bestBary.y * hitV1.Position + bestBary.z * hitV2.Position;
-            Vector3 authBary = ComputeBarycentric(hitV0.Position, hitV1.Position, hitV2.Position, localPoint);
-            PaperSide side = ResolveCameraFacingSide(hitV0.Position, hitV1.Position, hitV2.Position, rayDirLocal);
-            Vector3 localNormal = OutwardNormalForSide(hitV0.Position, hitV1.Position, hitV2.Position, side);
-
-            return new SurfaceHit
-            {
-                Hit = true,
-                Anchor0Index = bestTri.V0Index,
-                Anchor1Index = bestTri.V1Index,
-                Anchor2Index = bestTri.V2Index,
-                Barycentric = authBary,
-                LocalPoint = localPoint,
-                LocalNormal = localNormal,
-                SheetUv = BarycentricInterpolateSheetUv(hitV0, hitV1, hitV2, side, authBary),
-                Side = side,
-                HitFace = bestTri.Face,
-                ViewRayOriginLocal = rayOriginLocal,
-                ViewRayDirLocal = rayDirLocal
-            };
+            return BuildGraphSurfaceHit(
+                graph,
+                bestTri,
+                bestBary,
+                ResolveCameraFacingSide(
+                    graph.Vertices[bestTri.V0Index].Position,
+                    graph.Vertices[bestTri.V1Index].Position,
+                    graph.Vertices[bestTri.V2Index].Position,
+                    rayDirLocal),
+                rayOriginLocal,
+                rayDirLocal);
         }
 
         private SurfaceHit RaycastTrianglesAnalytic(
@@ -450,11 +695,26 @@ namespace Crease.Folding.Decals
             return _triangles[logicalIndex].Face;
         }
 
+        private Vector3 MeshLocalToGraph(Vector3 meshLocalPoint)
+        {
+            if (_meshVertexRotation == Quaternion.identity)
+                return meshLocalPoint;
+            return Quaternion.Inverse(_meshVertexRotation) * meshLocalPoint;
+        }
+
+        private Vector3 MeshLocalDirectionToGraph(Vector3 meshLocalDirection)
+        {
+            if (_meshVertexRotation == Quaternion.identity)
+                return meshLocalDirection;
+            return Quaternion.Inverse(_meshVertexRotation) * meshLocalDirection;
+        }
+
         private SurfaceHit BuildSurfaceHit(RaycastHit physicsHit, Vector3 viewOriginLocal, Vector3 viewDirLocal)
         {
             SurfaceHit miss = new SurfaceHit { Hit = false };
-            Vector3 localPoint = _meshSurfaceRoot.InverseTransformPoint(physicsHit.point);
-            Vector3 localNormal = _meshSurfaceRoot.InverseTransformDirection(physicsHit.normal).normalized;
+            Vector3 localPoint = MeshLocalToGraph(_meshSurfaceRoot.InverseTransformPoint(physicsHit.point));
+            Vector3 localNormal = MeshLocalDirectionToGraph(
+                _meshSurfaceRoot.InverseTransformDirection(physicsHit.normal).normalized);
 
             int i0;
             int i1;
@@ -757,40 +1017,34 @@ namespace Crease.Folding.Decals
 
             if (previewCache != null)
             {
-                if (previewCache.IsValid
-                    && TryInterpolateFromCache(graph, placement, previewCache, out position, out normal, out tangent))
-                    return true;
-
+                // Re-resolve every preview frame so decals follow deforming geometry and stay on the
+                // view-facing layer. Caching only the latest triangle avoids sticking to static crease
+                // vertices after ExecuteFold duplicates geometry on the preview graph.
                 if (TryResolveSurfaceFrame(graph, placement, out ResolvedSurfaceFrame frame))
                 {
                     previewCache.SeedFrom(frame);
                     return TryInterpolateFromCache(graph, placement, previewCache, out position, out normal, out tangent);
                 }
 
-                if (IsValidIndex(graph, placement.Anchor0Index)
-                    && IsValidIndex(graph, placement.Anchor1Index)
-                    && IsValidIndex(graph, placement.Anchor2Index))
+                if (TryInterpolateFromPlacementAnchors(graph, placement, out position, out normal, out tangent))
                 {
                     previewCache.Anchor0Index = placement.Anchor0Index;
                     previewCache.Anchor1Index = placement.Anchor1Index;
                     previewCache.Anchor2Index = placement.Anchor2Index;
                     previewCache.Barycentric = placement.Barycentric;
                     previewCache.IsValid = true;
-                    return TryInterpolateFromCache(graph, placement, previewCache, out position, out normal, out tangent);
+                    return true;
                 }
+
+                if (previewCache.IsValid
+                    && TryInterpolateFromCache(graph, placement, previewCache, out position, out normal, out tangent))
+                    return true;
 
                 return false;
             }
 
-            if (TryGetAnchorVertices(graph, placement, out Vertex v0, out Vertex v1, out Vertex v2))
-            {
-                position = placement.Barycentric.x * v0.Position
-                         + placement.Barycentric.y * v1.Position
-                         + placement.Barycentric.z * v2.Position;
-                normal = OutwardNormalForSide(v0.Position, v1.Position, v2.Position, placement.Side);
-                tangent = InterpolateTangent(graph, placement, normal);
+            if (TryInterpolateFromPlacementAnchors(graph, placement, out position, out normal, out tangent))
                 return true;
-            }
 
             if (!TryResolveSurfaceFrame(graph, placement, out ResolvedSurfaceFrame resolved))
                 return false;
@@ -809,6 +1063,28 @@ namespace Crease.Folding.Decals
                 Side = placement.Side
             };
             tangent = InterpolateTangent(graph, tempPlacement, normal);
+            return true;
+        }
+
+        public static bool TryInterpolateFromPlacementAnchors(
+            GraphMesh graph,
+            DecalPlacement placement,
+            out Vector3 position,
+            out Vector3 normal,
+            out Vector3 tangent)
+        {
+            position = placement.LocalPoint;
+            normal = placement.LocalNormal.sqrMagnitude > 0.01f ? placement.LocalNormal : Vector3.up;
+            tangent = Vector3.right;
+
+            if (!TryGetAnchorVertices(graph, placement, out Vertex v0, out Vertex v1, out Vertex v2))
+                return false;
+
+            position = placement.Barycentric.x * v0.Position
+                     + placement.Barycentric.y * v1.Position
+                     + placement.Barycentric.z * v2.Position;
+            normal = OutwardNormalForSide(v0.Position, v1.Position, v2.Position, placement.Side);
+            tangent = InterpolateTangent(graph, placement, normal);
             return true;
         }
 

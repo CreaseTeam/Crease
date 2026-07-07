@@ -53,6 +53,8 @@ namespace Crease.Folding.Stickers
         private readonly StickerEntry _pickedUpEntry = new StickerEntry();
         private float _heldScale;
         private float _heldRotationUv;
+        private bool _heldIsDamageDecal;
+        private int _heldDamageSourceType = -1;
         private Sprite _previewSprite;
         private Sprite _cursorFollowerSprite;
         private Canvas _rootCanvas;
@@ -184,6 +186,8 @@ namespace Crease.Folding.Stickers
             _heldEntry = entry;
             _isHoldingSticker = true;
             _holdingPickedUpSticker = false;
+            _heldIsDamageDecal = false;
+            _heldDamageSourceType = -1;
             ResetHeldTransform();
             UpdateHoldVisuals(eventData.position);
         }
@@ -196,6 +200,8 @@ namespace Crease.Folding.Stickers
             _isHoldingSticker = false;
             _holdingPickedUpSticker = false;
             _heldEntry = null;
+            _heldIsDamageDecal = false;
+            _heldDamageSourceType = -1;
             DecalManager?.HideGhost();
             HideCursorFollower();
         }
@@ -203,7 +209,7 @@ namespace Crease.Folding.Stickers
         public void OnResetStickersClicked()
         {
             ClearHeldSticker();
-            DecalManager?.ClearDecals();
+            DecalManager?.ClearUserStickers();
         }
 
         private void ApplyHeldStickerAdjustments(float deltaTime)
@@ -229,7 +235,13 @@ namespace Crease.Folding.Stickers
             if (!hit.Hit)
                 return;
 
-            DecalManager.PlaceDecal(_heldEntry.Texture, hit, _heldScale, _heldRotationUv);
+            DecalManager.PlaceDecal(
+                _heldEntry.Texture,
+                hit,
+                _heldScale,
+                _heldRotationUv,
+                isDamageDecal: _heldIsDamageDecal,
+                damageSourceType: _heldDamageSourceType);
             ClearHeldSticker();
         }
 
@@ -244,6 +256,8 @@ namespace Crease.Folding.Stickers
             _heldEntry = _pickedUpEntry;
             _heldScale = placement.Scale;
             _heldRotationUv = placement.RotationUv;
+            _heldIsDamageDecal = placement.IsDamageDecal;
+            _heldDamageSourceType = placement.DamageSourceType;
             _isHoldingSticker = true;
             _holdingPickedUpSticker = true;
             UpdateHoldVisuals(screenPosition);

@@ -16,11 +16,11 @@ namespace Crease.Folding.Decals
         private bool _isGhost;
         private int _layerOrder;
 
-        public void Initialize(Texture2D texture = null, bool isGhost = false)
+        public void Initialize(Texture2D texture = null, bool isGhost = false, Material materialTemplate = null)
         {
             _isGhost = isGhost;
             EnsureQuadMesh();
-            EnsureRenderer();
+            EnsureRenderer(materialTemplate);
             if (texture != null)
                 SetTexture(texture);
         }
@@ -52,7 +52,9 @@ namespace Crease.Folding.Decals
             GraphMesh surfaceGraph = null,
             PreviewAnchorCache previewCache = null,
             float baseSurfaceOffset = 0.0005f,
-            float layerOffsetStep = 0.0001f)
+            float layerOffsetStep = 0.0001f,
+            bool useGraphToMeshLocalTransform = false,
+            Matrix4x4 graphToMeshLocal = default)
         {
             if (meshVertexRotation == default)
                 meshVertexRotation = Quaternion.identity;
@@ -66,7 +68,13 @@ namespace Crease.Folding.Decals
                     out Vector3 localTangent,
                     previewCache))
             {
-                if (previewCache != null)
+                if (previewCache != null
+                    && surfaceGraph != null
+                    && DecalSurfaceQuery.TryInterpolateFromPlacementAnchors(surfaceGraph, placement, out localPos, out localNormal, out localTangent))
+                {
+                    // Resolved via placement anchors on the preview graph.
+                }
+                else if (previewCache != null)
                 {
                     if (placement.LocalNormal.sqrMagnitude > 0.0001f)
                     {
@@ -87,7 +95,17 @@ namespace Crease.Folding.Decals
                 }
             }
 
-            if (meshVertexRotation != Quaternion.identity)
+            if (useGraphToMeshLocalTransform)
+            {
+                localPos = graphToMeshLocal.MultiplyPoint3x4(localPos);
+                localNormal = graphToMeshLocal.MultiplyVector(localNormal);
+                localTangent = graphToMeshLocal.MultiplyVector(localTangent);
+                if (localNormal.sqrMagnitude > 0.0001f)
+                    localNormal.Normalize();
+                if (localTangent.sqrMagnitude > 0.0001f)
+                    localTangent.Normalize();
+            }
+            else if (meshVertexRotation != Quaternion.identity)
             {
                 localPos = meshVertexRotation * localPos;
                 localNormal = meshVertexRotation * localNormal;
@@ -118,7 +136,9 @@ namespace Crease.Folding.Decals
                 axisU,
                 axisV,
                 quadScale,
-                meshVertexRotation);
+                meshVertexRotation,
+                useGraphToMeshLocalTransform,
+                graphToMeshLocal);
         }
 
         private void ApplyMeshForPlacement(
@@ -129,7 +149,9 @@ namespace Crease.Folding.Decals
             Vector3 axisU,
             Vector3 axisV,
             Vector2 quadScale,
-            Quaternion meshVertexRotation)
+            Quaternion meshVertexRotation,
+            bool useGraphToDisplayLocalTransform = false,
+            Matrix4x4 graphToDisplayLocal = default)
         {
             MeshFilter filter = GetComponent<MeshFilter>();
             if (filter == null)
@@ -156,7 +178,9 @@ namespace Crease.Folding.Decals
                     quadScale,
                     out Mesh clippedMesh,
                     _clippedMesh,
-                    meshVertexRotation))
+                    meshVertexRotation,
+                    useGraphToDisplayLocalTransform,
+                    graphToDisplayLocal))
             {
                 filter.sharedMesh = clippedMesh;
                 if (_renderer != null)
@@ -232,7 +256,7 @@ namespace Crease.Folding.Decals
             _sharedQuadMesh.RecalculateBounds();
         }
 
-        private void EnsureRenderer()
+        private void EnsureRenderer(Material materialTemplate = null)
         {
             MeshFilter filter = GetComponent<MeshFilter>();
             if (filter == null) filter = gameObject.AddComponent<MeshFilter>();
@@ -243,40 +267,33 @@ namespace Crease.Folding.Decals
 
             if (_materialInstance != null) return;
 
-            _materialInstance = CreateTransparentMaterial();
+            _materialInstance = materialTemplate != null
+                ? new Material(materialTemplate)
+                : new Material(GetUrpLitShader());
+
+            if (materialTemplate == null)
+                Debug.LogWarning("DecalQuad: No DecalMaterial assigned on PaperDecalManager. Assign a configured transparent material in the inspector.");
+
+            if (_isGhost)
+            {
+                Color baseColor = _materialInstance.GetColor("_BaseColor");
+                baseColor.a = 0.5f;
+                _materialInstance.SetColor("_BaseColor", baseColor);
+            }
+
+            _materialInstance.renderQueue = (int)RenderQueue.Transparent + _layerOrder;
             _renderer.sharedMaterial = _materialInstance;
         }
 
-        private Material CreateTransparentMaterial()
+        private static Shader GetUrpLitShader()
         {
             if (_urpLitShader == null)
                 _urpLitShader = Shader.Find("Universal Render Pipeline/Lit");
 
             if (_urpLitShader == null)
-            {
                 Debug.LogError("DecalQuad: Universal Render Pipeline/Lit shader not found.");
-                return null;
-            }
 
-            Material material = new Material(_urpLitShader);
-            Color tint = _isGhost ? new Color(1f, 1f, 1f, 0.5f) : Color.white;
-            material.SetColor("_BaseColor", tint);
-            material.SetFloat("_Surface", 1f);
-            material.SetFloat("_Blend", 0f);
-            material.SetFloat("_AlphaClip", 0f);
-            material.SetFloat("_Metallic", 0f);
-            material.SetFloat("_Smoothness", 0.5f);
-            material.SetFloat("_ReceiveShadows", 1f);
-            material.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
-            material.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
-            material.SetFloat("_ZWrite", 0f);
-            material.SetFloat("_Cull", (float)CullMode.Off);
-            material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-            material.EnableKeyword("_BLENDMODE_ALPHA");
-            material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-            material.SetOverrideTag("RenderType", "Transparent");
-            material.renderQueue = (int)RenderQueue.Transparent;
-            return material;
+            return _urpLitShader;
         }
 
         private void OnDestroy()

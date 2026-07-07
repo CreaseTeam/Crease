@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.Stickers.StickerLibrary
   Stickers:
   - DisplayName: Sunflower
-    Texture: {fileID: 2800000, guid: 637346724d622a040a56ad9738a23238, type: 3}
+    Texture: {fileID: 2800000, guid: d01f427504d91ad40b236c6ec2599327, type: 3}
     DefaultScale: 0.1
   - DisplayName: Heart
     Texture: {fileID: 2800000, guid: fc05250e87c19dd4dbeb7d800d5830a6, type: 3}
