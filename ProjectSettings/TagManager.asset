@@ -9,6 +9,7 @@ TagManager:
   - MainPaper
   - PlayerMesh
   - Fire
+  - Debug
   layers:
   - Default
   - TransparentFX

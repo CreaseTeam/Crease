@@ -78,15 +78,19 @@ namespace Crease.UI
         [SerializeField]
         private FoldInstructionRunner _foldInstructionRunner;
 
-        [Header("Folding Debug")]
+        [Header("Folding Debug Paper Texture")]
         [SerializeField]
-        private Toggle _debugModeToggle;
+        [FormerlySerializedAs("_debugModeToggle")]
+        private Toggle _debugPaperTextureToggle;
         [SerializeField]
         private PaperGraphVisualizer[] _paperGraphVisualizers;
 
         public static HUDCanvas Instance { get; private set; }
 
-        public bool DebugMode { get; private set; }
+        private const string DebugPrefsKey = "Debug";
+
+        public bool Debug { get; private set; }
+        public bool DebugPaperTexture { get; private set; }
 
         private int _collectibleCount = 0;
         private int _selectedLoadoutIndex;
@@ -131,7 +135,7 @@ namespace Crease.UI
             }
             else
             {
-                Debug.LogWarning("HUDCanvas Awake: Instance already exists, destroying duplicate");
+                UnityEngine.Debug.LogWarning("HUDCanvas Awake: Instance already exists, destroying duplicate");
                 Destroy(gameObject);
             }
         }
@@ -144,16 +148,14 @@ namespace Crease.UI
                 _abilityRechargeBar.fillAmount = _abilityController.RechargeNormalized;
 
             PopulateLoadoutDropdown();
-            if (_planeTypeDropdown != null)
-                _planeTypeDropdown.onValueChanged.AddListener(OnLoadoutDropdownChanged);
             ApplySelectedLoadout();
 
             _resolvedPaperGraphVisualizers = ResolvePaperGraphVisualizers();
-            if (_debugModeToggle != null)
-            {
-                _debugModeToggle.onValueChanged.AddListener(OnDebugModeToggleChanged);
-                OnDebugModeToggleChanged(_debugModeToggle.isOn);
-            }
+            if (_debugPaperTextureToggle != null)
+                SetDebugPaperTexture(_debugPaperTextureToggle.isOn);
+
+            Debug = PlayerPrefs.GetInt(DebugPrefsKey, 0) == 1;
+            ApplyDebugVisibility();
 
             // maxHealth = hearts.Count;
             // health = maxHealth;
@@ -162,7 +164,18 @@ namespace Crease.UI
 
         private void OnEnable()
         {
+            SceneManager.sceneLoaded += OnSceneLoaded;
             PopulateLoadoutDropdown();
+        }
+
+        private void OnDisable()
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            ApplyDebugVisibility();
         }
 
         // Update is called once per frame
@@ -257,11 +270,11 @@ namespace Crease.UI
         {
             if (_playerHealth == null)
             {
-                Debug.LogWarning("HUDCanvas.Damage: playerHealth is not assigned");
+                UnityEngine.Debug.LogWarning("HUDCanvas.Damage: playerHealth is not assigned");
                 return;
             }
 
-            Debug.Log($"HUDCanvas.Damage delegating to playerHealth: type={type}, absolute={absoluteDamage}");
+            UnityEngine.Debug.Log($"HUDCanvas.Damage delegating to playerHealth: type={type}, absolute={absoluteDamage}");
             _playerHealth.TakeDamage(absoluteDamage, type);
         }
 
@@ -273,11 +286,11 @@ namespace Crease.UI
         {
             if (_playerHealth == null)
             {
-                Debug.LogWarning("HUDCanvas.Heal: playerHealth is not assigned");
+                UnityEngine.Debug.LogWarning("HUDCanvas.Heal: playerHealth is not assigned");
                 return;
             }
 
-            Debug.Log($"HUDCanvas.Heal delegating to playerHealth: absolute={absoluteAmount}, type={type}");
+            UnityEngine.Debug.Log($"HUDCanvas.Heal delegating to playerHealth: absolute={absoluteAmount}, type={type}");
             _playerHealth.Heal(absoluteAmount, type);
         }
 
@@ -413,7 +426,7 @@ namespace Crease.UI
             _isUpdatingLoadoutDropdown = false;
         }
 
-        public void OnLoadoutDropdownChanged(int index)
+        public void SetLoadout(int index)
         {
             if (_isUpdatingLoadoutDropdown)
                 return;
@@ -430,7 +443,7 @@ namespace Crease.UI
 
             if (_loadoutApplier == null)
             {
-                Debug.LogWarning("HUDCanvas: LoadoutApplier is not assigned.");
+                UnityEngine.Debug.LogWarning("HUDCanvas: LoadoutApplier is not assigned.");
                 return;
             }
 
@@ -476,16 +489,57 @@ namespace Crease.UI
         }
 
         /// <summary>
-        /// Called when the debug mode toggle changes. Can also be wired directly from the toggle's OnValueChanged event.
+        /// Enables or disables debug visibility for all GameObjects tagged "Debug".
+        /// Persists the setting in PlayerPrefs.
         /// </summary>
-        public void OnDebugModeToggleChanged(bool enabled)
+        public void SetDebug(bool enabled)
         {
-            DebugMode = enabled;
+            if (Debug == enabled)
+                return;
+
+            Debug = enabled;
+            PlayerPrefs.SetInt(DebugPrefsKey, enabled ? 1 : 0);
+            PlayerPrefs.Save();
+            ApplyDebugVisibility();
+        }
+
+        /// <summary>
+        /// Toggles debug visibility for all GameObjects tagged "Debug".
+        /// </summary>
+        public void ToggleDebug()
+        {
+            SetDebug(!Debug);
+        }
+
+        private void ApplyDebugVisibility()
+        {
+            GameObject[] sceneObjects = FindObjectsByType<GameObject>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+
+            foreach (GameObject obj in sceneObjects)
+            {
+                if (!obj.CompareTag("Debug"))
+                    continue;
+
+                if (!obj.scene.IsValid() || !obj.scene.isLoaded)
+                    continue;
+
+                obj.SetActive(Debug);
+            }
+        }
+
+        /// <summary>
+        /// Enables or disables the debug paper texture on paper graph visualizers.
+        /// </summary>
+        public void SetDebugPaperTexture(bool enabled)
+        {
+            DebugPaperTexture = enabled;
 
             foreach (PaperGraphVisualizer visualizer in _resolvedPaperGraphVisualizers)
             {
                 if (visualizer != null)
-                    visualizer.SetDebugMode(enabled);
+                    visualizer.SetDebugPaperTexture(enabled);
             }
         }
 

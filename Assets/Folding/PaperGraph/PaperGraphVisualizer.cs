@@ -70,7 +70,7 @@ namespace Crease.Folding.PaperGraph
         /// <summary>When true, mesh collider is not updated (avoids PhysX errors during animated preview).</summary>
         public bool SkipColliderUpdate = false;
 
-        public bool DebugMode { get; private set; }
+        public bool DebugPaperTexture { get; private set; }
 
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
@@ -210,11 +210,11 @@ namespace Crease.Folding.PaperGraph
 #endif
         }
 
-        public void SetDebugMode(bool enabled) {
-            if (DebugMode == enabled)
+        public void SetDebugPaperTexture(bool enabled) {
+            if (DebugPaperTexture == enabled)
                 return;
 
-            DebugMode = enabled;
+            DebugPaperTexture = enabled;
             UpdateMesh();
         }
 
@@ -247,8 +247,8 @@ namespace Crease.Folding.PaperGraph
                 _meshFilter.sharedMesh = generatedMesh;
                 _meshRenderer.enabled = true;
 
-                Material[] meshMaterials = DebugMode ? DebugMeshMaterials : MeshMaterials;
-                Material meshMaterial = DebugMode ? DebugMeshMaterial : MeshMaterial;
+                Material[] meshMaterials = DebugPaperTexture ? DebugMeshMaterials : MeshMaterials;
+                Material meshMaterial = DebugPaperTexture ? DebugMeshMaterial : MeshMaterial;
 
                 if (meshMaterials != null && meshMaterials.Length >= generatedMesh.subMeshCount) {
                     _meshRenderer.sharedMaterials = meshMaterials;
