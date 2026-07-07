@@ -33,7 +33,9 @@ namespace Crease.Managers.Input
         public bool ActivateAbilityPressed => Actions.Player.ActivateAbility.WasPerformedThisFrame();
         public bool DropTriggered => Actions.Player.Drop.WasPerformedThisFrame();
         public bool ReturnTriggered => Actions.Player.Return.WasPerformedThisFrame();
-        public bool PauseTriggered => Actions.Player.Pause.WasPerformedThisFrame();
+        public bool PauseTriggered =>
+            Actions.Player.Pause.WasPerformedThisFrame()
+            || Actions.Folding.Pause.WasPerformedThisFrame();
 
         // ── Folding convenience accessors ───────────────────────────────
         public bool RecenterTriggered => Actions.Folding.Recenter.WasPerformedThisFrame();
@@ -65,6 +67,7 @@ namespace Crease.Managers.Input
 
             Actions = new GameInput();
             Actions.Player.Pause.performed += OnPausePerformed;
+            Actions.Folding.Pause.performed += OnPausePerformed;
             Actions.Player.Enable();
 
             Actions.Debug.Enable();
@@ -76,7 +79,10 @@ namespace Crease.Managers.Input
             {
                 StopMic();
                 if (Actions != null)
+                {
                     Actions.Player.Pause.performed -= OnPausePerformed;
+                    Actions.Folding.Pause.performed -= OnPausePerformed;
+                }
                 Actions?.Player.Disable();
                 Actions?.Debug.Disable();
                 Actions?.Folding.Disable();
