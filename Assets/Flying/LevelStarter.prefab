@@ -114,7 +114,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70f59b5c7009197428e078ab8694f410, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoldingBridge
-  DefaultMode: 1
+  DefaultMode: 0
   FoldingCamera: {fileID: 4955118115950875819}
   FlyingCamera: {fileID: 3936584405265759272}
   TransitionDuration: 2
