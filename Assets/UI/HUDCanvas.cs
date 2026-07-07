@@ -119,6 +119,8 @@ namespace Crease.UI
         private bool _hasStartedFolding;
         private bool _refoldAvailable;
         private bool _flyCurrentRequestedVisible;
+        private bool _stickerUiRequestedVisible;
+        private bool _preserveDecalsForNextLoadout;
         private PaperGraphVisualizer[] _resolvedPaperGraphVisualizers = System.Array.Empty<PaperGraphVisualizer>();
 
         public bool RequiresPlaneSelection => _planeSelectionScreen != null;
@@ -327,15 +329,18 @@ namespace Crease.UI
                 HidePlaneSelectionScreen();
                 if (_foldingUI != null) _foldingUI.SetActive(false);
                 if (_flyingUI != null) _flyingUI.SetActive(false);
+                _stickerUiRequestedVisible = false;
                 if (_stickerUI != null) _stickerUI.SetActive(false);
             }
         }
 
         public void ShowStickerUI(bool show)
         {
-            if (_stickerUI != null)
-                _stickerUI.SetActive(show);
+            _stickerUiRequestedVisible = show;
+            ApplyStickerUiVisibility();
         }
+
+        public void RefreshStickerUiVisibility() => ApplyStickerUiVisibility();
 
         /// <summary>
         /// Called by the health system to update the flying health bar segments visually.
@@ -554,7 +559,8 @@ namespace Crease.UI
 
             _hasStartedFolding = true;
             ApplyFlyCurrentVisibility();
-            _loadoutApplier.ApplyLoadout(loadout);
+            _loadoutApplier.ApplyLoadout(loadout, _preserveDecalsForNextLoadout);
+            _preserveDecalsForNextLoadout = false;
             SyncDropdownToLoadout(loadout);
             HidePlaneSelectionScreen();
         }
@@ -585,6 +591,7 @@ namespace Crease.UI
 
         public void Refold()
         {
+            ShowStickerUI(false);
             _refoldAvailable = false;
             _hasStartedFolding = false;
             _flyCurrentRequestedVisible = false;
@@ -602,6 +609,7 @@ namespace Crease.UI
 
         private void BeginRefoldPlaneSelection()
         {
+            _preserveDecalsForNextLoadout = true;
             _hasStartedFolding = false;
             StopFoldingTimer();
             ResetAccuracyDisplay();
@@ -616,6 +624,17 @@ namespace Crease.UI
                 _refoldButton.SetActive(_refoldAvailable);
 
             ApplyFlyCurrentVisibility();
+            ApplyStickerUiVisibility();
+        }
+
+        private void ApplyStickerUiVisibility()
+        {
+            if (_stickerUI == null)
+                return;
+
+            bool unfolding = _foldInstructionRunner != null && _foldInstructionRunner.IsUnfolding;
+            bool visible = _stickerUiRequestedVisible && !_refoldAvailable && !unfolding;
+            _stickerUI.SetActive(visible);
         }
 
         private void ApplyFlyCurrentVisibility()
@@ -663,7 +682,8 @@ namespace Crease.UI
                 return;
             }
 
-            _loadoutApplier.ApplyLoadout(loadout);
+            _loadoutApplier.ApplyLoadout(loadout, _preserveDecalsForNextLoadout);
+            _preserveDecalsForNextLoadout = false;
         }
 
         private void SyncLoadoutDropdownToRunner()

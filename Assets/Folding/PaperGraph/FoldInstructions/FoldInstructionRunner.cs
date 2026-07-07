@@ -127,6 +127,8 @@ public class FoldInstructionRunner : MonoBehaviour
 
     public bool IsInStickerPhase => _phase == FoldingRunPhase.Stickers;
 
+    public bool IsUnfolding => _isUnfolding;
+
     public bool IsFoldingComplete =>
         Instruction != null
         && Instruction.Steps.Count > 0
@@ -210,9 +212,9 @@ public class FoldInstructionRunner : MonoBehaviour
     /// <summary>
     /// Resets the paper and loads the first step of the given instruction set.
     /// </summary>
-    public void LoadInstruction(FoldInstruction newInstruction) {
+    public void LoadInstruction(FoldInstruction newInstruction, bool clearDecals = true) {
         Instruction = newInstruction;
-        ExitStickerPhase(clearStickers: true);
+        ExitStickerPhase(clearStickers: clearDecals);
 
         if (HUDCanvas.Instance != null)
             HUDCanvas.Instance.SetFlyCurrentVisible(false);
@@ -248,6 +250,11 @@ public class FoldInstructionRunner : MonoBehaviour
         // Load the first step
         _currentStepIndex = 0;
         ApplyStepToController(Instruction.Steps[0]);
+
+        if (!clearDecals && Controller?.DecalManager != null) {
+            Controller.DecalManager.InvalidatePreviewCaches();
+            Controller.DecalManager.RefreshAfterMeshUpdate(reanchorAuthoring: true);
+        }
 
         // Debug.Log($"FoldInstructionRunner: Loaded instruction with {Instruction.Steps.Count} step(s). Press ExecuteFold to execute step 1.");
     }
@@ -690,7 +697,7 @@ public class FoldInstructionRunner : MonoBehaviour
         _isCreaseAnimating = false;
         _isExecutingStepAnimation = false;
 
-        ExitStickerPhase(clearStickers: true);
+        ExitStickerPhase(clearStickers: false);
         ClearSavedCreases();
 
         if (Controller != null) {
@@ -712,7 +719,7 @@ public class FoldInstructionRunner : MonoBehaviour
         if (_isUnfolding || _isAutoFolding) return;
         if (_currentStepIndex >= Instruction.Steps.Count) return; // already fully folded
 
-        ExitStickerPhase(clearStickers: true);
+        ExitStickerPhase(clearStickers: false);
         StartCoroutine(AutoFoldAllRoutine(fast: true, enterStickerPhase: false));
     }
 
@@ -730,7 +737,7 @@ public class FoldInstructionRunner : MonoBehaviour
         }
         if (_isUnfolding) return;
 
-        ExitStickerPhase(clearStickers: true);
+        ExitStickerPhase(clearStickers: false);
         StartCoroutine(UnfoldForLevelEndRoutine());
     }
 
@@ -739,7 +746,7 @@ public class FoldInstructionRunner : MonoBehaviour
         while (_isAutoFolding)
             yield return null;
 
-        yield return UnfoldAllRoutine(preserveStickers: false, levelEnd: true);
+        yield return UnfoldAllRoutine(preserveStickers: true, levelEnd: true);
     }
 
     /// <summary>
@@ -1065,6 +1072,8 @@ public class FoldInstructionRunner : MonoBehaviour
         bool refold = false,
         Action onComplete = null) {
         _isUnfolding = true;
+        if (HUDCanvas.Instance != null)
+            HUDCanvas.Instance.ShowStickerUI(false);
         PrepareForAnimation();
 
         int executedCount = _currentStepIndex >= 0 ? 
@@ -1115,10 +1124,11 @@ public class FoldInstructionRunner : MonoBehaviour
             RestartFoldInstructionsAfterUnfold(preserveStickers);
         _isUnfolding = false;
         onComplete?.Invoke();
+        HUDCanvas.Instance?.RefreshStickerUiVisibility();
     }
 
     private void SettleForRefoldSelection() {
-        ExitStickerPhase(clearStickers: true, includeDamageDecals: false);
+        ExitStickerPhase(clearStickers: false);
 
         _currentStepIndex = -1;
         _hasSavedFoldAxis = false;
@@ -1130,6 +1140,11 @@ public class FoldInstructionRunner : MonoBehaviour
             DragHandle.gameObject.SetActive(false);
 
         Controller?.ClearPreview();
+
+        if (Controller?.DecalManager != null) {
+            Controller.DecalManager.InvalidatePreviewCaches();
+            Controller.DecalManager.RefreshAfterMeshUpdate(reanchorAuthoring: true);
+        }
     }
 
     private void RestartFoldInstructionsAfterUnfold(bool preserveStickers) {

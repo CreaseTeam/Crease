@@ -11,13 +11,13 @@ namespace Crease.Flying.Player.Loadouts
         [SerializeField] private FlightStats _flightStats;
         [SerializeField] private AbilityController _abilityController;
 
-        public void ApplyLoadout(PlaneLoadout loadout)
+        public void ApplyLoadout(PlaneLoadout loadout, bool preserveDecals = false)
         {
             if (loadout == null)
                 return;
 
             if (loadout.FoldInstruction != null && _foldInstructionRunner != null)
-                _foldInstructionRunner.LoadInstruction(loadout.FoldInstruction);
+                _foldInstructionRunner.LoadInstruction(loadout.FoldInstruction, clearDecals: !preserveDecals);
 
             if (loadout.FlightSettings != null && _flightStats != null)
                 _flightStats.SetBaseSettings(loadout.FlightSettings);

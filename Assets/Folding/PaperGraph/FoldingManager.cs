@@ -250,9 +250,10 @@ namespace Crease.Folding.PaperGraph
             }
 
             if (!levelEnd) {
-                RestoreDecalsToFoldingPaper();
                 RestoreFoldingPhaseUi();
             }
+
+            RestoreDecalsToFoldingPaper();
 
             if (FlyingCamera != null) FlyingCamera.gameObject.SetActive(false);
             if (FoldingCamera != null) FoldingCamera.gameObject.SetActive(true);
