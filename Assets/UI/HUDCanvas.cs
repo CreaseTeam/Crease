@@ -38,6 +38,8 @@ namespace Crease.UI
         [FormerlySerializedAs("foldingUI")]
         private GameObject _foldingUI;
         [SerializeField]
+        private GameObject _flyCurrentButton;
+        [SerializeField]
         [FormerlySerializedAs("flyingUI")]
         private GameObject _flyingUI;
         [SerializeField]
@@ -157,6 +159,8 @@ namespace Crease.UI
             Debug = PlayerPrefs.GetInt(DebugPrefsKey, 0) == 1;
             ApplyDebugVisibility();
 
+            SetFlyCurrentVisible(false);
+
             // maxHealth = hearts.Count;
             // health = maxHealth;
             // Debug.Log($"HUDCanvas Start: collectible={_collectibleCount}");
@@ -209,6 +213,12 @@ namespace Crease.UI
         {
             _foldingUI.SetActive(show);
             _flyingUI.SetActive(!show);
+        }
+
+        public void SetFlyCurrentVisible(bool visible)
+        {
+            if (_flyCurrentButton != null)
+                _flyCurrentButton.SetActive(visible);
         }
 
         public void ShowFlyingUI(bool show)

@@ -30,7 +30,7 @@ public struct SavedCrease
 /// Loads a FoldInstruction asset and runs its steps sequentially.
 /// Uses InputManager for Folding actions (ExecuteFold, Recenter).
 /// </summary>
-public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiver
+public class FoldInstructionRunner : MonoBehaviour
 {
     [Tooltip("The instruction set to run. Assign in the Inspector or call LoadInstruction() at runtime.")]
     [FormerlySerializedAs("instruction")]
@@ -146,6 +146,8 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             Controller = GetComponent<PaperGraphController>();
         if (Controller != null)
             _paperGraph = Controller.GetComponent<PaperGraph>();
+
+        MigrateLegacyLineStyles();
     }
 
     private void Start() {
@@ -153,14 +155,9 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             LoadInstruction(Instruction);
     }
 
-    public void OnBeforeSerialize() { }
-
-    public void OnAfterDeserialize() {
+    private void MigrateLegacyLineStyles() {
         if (_legacyLineStylesMigrated)
             return;
-
-        if (_paperGraph == null && Controller != null)
-            _paperGraph = Controller.GetComponent<PaperGraph>();
 
         if (_paperGraph != null) {
             if (_legacyGuideLineWidth > 0f)
@@ -212,6 +209,9 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
     public void LoadInstruction(FoldInstruction newInstruction) {
         Instruction = newInstruction;
         ExitStickerPhase(clearStickers: true);
+
+        if (HUDCanvas.Instance != null)
+            HUDCanvas.Instance.SetFlyCurrentVisible(false);
 
         if (Instruction == null || Instruction.Steps.Count == 0) {
             Debug.LogWarning("FoldInstructionRunner: Instruction is null or has no steps.");
@@ -610,8 +610,10 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
 
     private void EnterStickerPhase() {
         _phase = FoldingRunPhase.Stickers;
-        if (HUDCanvas.Instance != null)
+        if (HUDCanvas.Instance != null) {
             HUDCanvas.Instance.ShowStickerUI(true);
+            HUDCanvas.Instance.SetFlyCurrentVisible(true);
+        }
 
         if (Controller != null) {
             Controller.ClearPreview();
@@ -1117,6 +1119,9 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             Controller.DecalManager.InvalidatePreviewCaches();
             Controller.DecalManager.RefreshAfterMeshUpdate(reanchorAuthoring: true);
         }
+
+        if (HUDCanvas.Instance != null)
+            HUDCanvas.Instance.SetFlyCurrentVisible(false);
     }
 
     private void ConfigureControllerForStep(FoldStep step) {

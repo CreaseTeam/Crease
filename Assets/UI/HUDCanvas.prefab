@@ -676,7 +676,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4872090880271679697
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1679,6 +1679,7 @@ MonoBehaviour:
   _healthBar: {fileID: 1292078482510752566}
   _playerHealth: {fileID: 0}
   _foldingUI: {fileID: 5380673257305531190}
+  _flyCurrentButton: {fileID: 823060878379654544}
   _flyingUI: {fileID: 6100593597435450280}
   _levelEndUI: {fileID: 7196368493551989395}
   _stickerUI: {fileID: 7673758105332111802}
