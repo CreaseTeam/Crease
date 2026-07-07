@@ -37,6 +37,7 @@ namespace Crease.Flying.Environment.Collectibles
         {
 #if UNITY_EDITOR
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+            Undo.undoRedoPerformed += OnUndoRedoPerformed;
 
             if (!Application.isPlaying)
                 ScheduleEditorPreviewRefresh();
@@ -61,6 +62,8 @@ namespace Crease.Flying.Environment.Collectibles
 
 #if UNITY_EDITOR
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+            Undo.undoRedoPerformed -= OnUndoRedoPerformed;
+            EditorApplication.delayCall -= DelayedRefreshEditorPreview;
 #endif
         }
 
@@ -73,10 +76,18 @@ namespace Crease.Flying.Environment.Collectibles
         }
 
 #if UNITY_EDITOR
+        bool _skipEditorPreviewRefresh;
+
         void ScheduleEditorPreviewRefresh()
         {
             EditorApplication.delayCall -= DelayedRefreshEditorPreview;
             EditorApplication.delayCall += DelayedRefreshEditorPreview;
+        }
+
+        void OnUndoRedoPerformed()
+        {
+            _skipEditorPreviewRefresh = true;
+            EditorApplication.delayCall -= DelayedRefreshEditorPreview;
         }
 
         void OnPlayModeStateChanged(PlayModeStateChange state)
@@ -92,6 +103,12 @@ namespace Crease.Flying.Environment.Collectibles
             if (this == null || Undo.isProcessing)
                 return;
 
+            if (_skipEditorPreviewRefresh)
+            {
+                _skipEditorPreviewRefresh = false;
+                return;
+            }
+
             RefreshEditorPreview();
         }
 
@@ -100,19 +117,45 @@ namespace Crease.Flying.Environment.Collectibles
             if (Application.isPlaying || Undo.isProcessing)
                 return;
 
-            ClearEditorPreview();
-
             if (!isActiveAndEnabled || !_spawnOnStart || _collectiblePrefab == null)
+            {
+                ClearEditorPreview();
                 return;
+            }
+
+            if (TryGetEditorPreview(out Collectible existingPreview) && IsEditorPreviewCurrent(existingPreview))
+            {
+                existingPreview.gameObject.hideFlags = HideFlags.DontSave;
+                return;
+            }
+
+            ClearEditorPreview();
 
             Collectible preview = (Collectible)PrefabUtility.InstantiatePrefab(_collectiblePrefab, transform);
             if (preview == null)
                 return;
 
-            Undo.RegisterCreatedObjectUndo(preview.gameObject, "Create Collectible Preview");
             preview.gameObject.name = PreviewChildName;
+            preview.gameObject.hideFlags = HideFlags.DontSave;
             preview.transform.localPosition = _spawnOffset;
             preview.transform.localRotation = Quaternion.identity;
+        }
+
+        bool TryGetEditorPreview(out Collectible preview)
+        {
+            Transform previewTransform = transform.Find(PreviewChildName);
+            preview = previewTransform != null ? previewTransform.GetComponent<Collectible>() : null;
+            return preview != null;
+        }
+
+        bool IsEditorPreviewCurrent(Collectible preview)
+        {
+            Transform previewTransform = preview.transform;
+            if (previewTransform.localPosition != _spawnOffset
+                || previewTransform.localRotation != Quaternion.identity)
+                return false;
+
+            return PrefabUtility.GetCorrespondingObjectFromOriginalSource(preview) == _collectiblePrefab;
         }
 #endif
 
@@ -125,11 +168,7 @@ namespace Crease.Flying.Environment.Collectibles
 #if UNITY_EDITOR
             if (!Application.isPlaying)
             {
-                if (Undo.isProcessing)
-                    DestroyImmediate(preview.gameObject);
-                else
-                    Undo.DestroyObjectImmediate(preview.gameObject);
-
+                DestroyImmediate(preview.gameObject);
                 return;
             }
 #endif
