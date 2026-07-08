@@ -492,7 +492,7 @@ namespace Crease.Handwritting
             destination.lineSpacing = source.lineSpacing;
             destination.paragraphSpacing = source.paragraphSpacing;
             destination.alignment = source.alignment;
-            destination.enableWordWrapping = false;
+            destination.textWrappingMode = TextWrappingModes.NoWrap;
             destination.overflowMode = TextOverflowModes.Overflow;
         }
 

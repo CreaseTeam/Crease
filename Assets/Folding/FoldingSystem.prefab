@@ -585,9 +585,7 @@ MonoBehaviour:
   ShowFoldGizmo: 1
   GizmoHeight: 0.05
   GizmoColor: {r: 0, g: 1, b: 1, a: 0.3}
-  HasFoldAxisLock: 0
-  FoldAxisLockP1: {x: 0, y: 0, z: 0}
-  FoldAxisLockP2: {x: 0, y: 0, z: 0}
+  FoldAxisLocks: []
   LockedFoldPoint1: {x: 0, y: 0, z: 0}
   LockedFoldPoint2: {x: 0, y: 0, z: 0}
 --- !u!33 &1963187571064873011

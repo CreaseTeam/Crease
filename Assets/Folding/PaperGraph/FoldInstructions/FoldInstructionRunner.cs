@@ -121,9 +121,9 @@ public class FoldInstructionRunner : MonoBehaviour
     private bool _isExecutingStepAnimation = false;
     private FoldingRunPhase _phase = FoldingRunPhase.Folding;
 
-    private readonly Dictionary<string, SavedCrease> _savedCreases = new Dictionary<string, SavedCrease>();
+    private readonly Dictionary<string, SavedCrease> _savedAxes = new Dictionary<string, SavedCrease>();
 
-    public IReadOnlyDictionary<string, SavedCrease> SavedCreases => _savedCreases;
+    public IReadOnlyDictionary<string, SavedCrease> SavedCreases => _savedAxes;
 
     public bool IsInStickerPhase => _phase == FoldingRunPhase.Stickers;
 
@@ -133,12 +133,6 @@ public class FoldInstructionRunner : MonoBehaviour
         Instruction != null
         && Instruction.Steps.Count > 0
         && _currentStepIndex >= Instruction.Steps.Count;
-
-    // Set when a step with LockFoldAxis == true is executed.
-    // Cleared when LoadInstruction is called.
-    private bool _hasSavedFoldAxis = false;
-    private Vector3 _savedFoldAxisP1;
-    private Vector3 _savedFoldAxisP2;
 
     private void OnValidate() {
         RecalculatePaperTarget();
@@ -228,6 +222,8 @@ public class FoldInstructionRunner : MonoBehaviour
             return;
         }
 
+        MigrateInstructionSteps();
+
         // Reset accuracy tracking
         _totalAccuracy = 0f;
         _foldCount = 0;
@@ -236,11 +232,10 @@ public class FoldInstructionRunner : MonoBehaviour
             HUDCanvas.Instance.StartFoldingTimer();
         }
 
-        // Clear any saved fold-axis lock from a previous instruction
-        _hasSavedFoldAxis = false;
-        if (Controller != null) Controller.HasFoldAxisLock = false;
+        if (Controller != null)
+            Controller.ClearFoldAxisLocks();
 
-        ClearSavedCreases();
+        ClearSavedAxes();
         HideGuideLine();
 
         // Reset the paper to a fresh sheet
@@ -314,7 +309,7 @@ public class FoldInstructionRunner : MonoBehaviour
         AudioManager.Instance.Play("fold");
         Debug.Log($"FoldInstructionRunner: Executed step {_currentStepIndex + 1}/{Instruction.Steps.Count}.");
 
-        ApplyLockFoldAxisIfNeeded(step);
+        SaveExecutedAxis(step);
         yield return AnimateVertexRotationIfNeeded(step);
         AdvanceToNextStep();
 
@@ -332,7 +327,7 @@ public class FoldInstructionRunner : MonoBehaviour
         AudioManager.Instance.Play("fold");
         Debug.Log($"FoldInstructionRunner: Executed accordion step {_currentStepIndex + 1}/{Instruction.Steps.Count}.");
 
-        ApplyLockFoldAxisIfNeeded(step);
+        SaveExecutedAxis(step);
         yield return AnimateVertexRotationIfNeeded(step);
         AdvanceToNextStep();
 
@@ -363,15 +358,7 @@ public class FoldInstructionRunner : MonoBehaviour
             AudioManager.Instance.Play("fold");
             Debug.Log($"FoldInstructionRunner: Executed crease step {_currentStepIndex + 1}/{Instruction.Steps.Count}.");
 
-            string creaseLabel = GetCreaseLabel(executedStep);
-            _savedCreases[creaseLabel] = new SavedCrease {
-                Tag = creaseLabel,
-                P1 = Controller.FoldPoint1,
-                P2 = Controller.FoldPoint2,
-                PlaneNormal = executedStep.DragPlaneNormal
-            };
-
-            ApplyLockFoldAxisIfNeeded(executedStep);
+            SaveExecutedAxis(executedStep);
         } else {
             Debug.LogWarning($"FoldInstructionRunner: Crease step {_currentStepIndex + 1} failed — topology was not cut.");
         }
@@ -405,8 +392,8 @@ public class FoldInstructionRunner : MonoBehaviour
             return false;
         }
 
-        if (!_savedCreases.TryGetValue(tagA, out SavedCrease creaseA)
-            || !_savedCreases.TryGetValue(tagB, out SavedCrease creaseB)) {
+        if (!_savedAxes.TryGetValue(tagA, out SavedCrease creaseA)
+            || !_savedAxes.TryGetValue(tagB, out SavedCrease creaseB)) {
             Debug.LogWarning($"FoldInstructionRunner: Accordion crease tags not found (\"{tagA}\", \"{tagB}\").");
             return false;
         }
@@ -464,37 +451,74 @@ public class FoldInstructionRunner : MonoBehaviour
             DragHandle.transform.position = Controller.transform.TransformPoint(Controller.DragHandlePosition);
     }
 
-    /// <summary>
-    /// Finds a previously committed crease whose axis crosses the given fold axis.
-    /// </summary>
-    private bool TryFindCrossingCreaseTag(
-        Vector3 foldP1, Vector3 foldP2, Vector3 planeNormal, string excludeTag, out string crossingTag) {
-        crossingTag = null;
+    private void SaveExecutedAxis(FoldStep step) {
+        string axisTag = GetAxisLabel(step);
+        if (string.IsNullOrEmpty(axisTag))
+            return;
 
-        if (_savedCreases.Count == 0)
-            return false;
-
-        foreach (var kvp in _savedCreases) {
-            if (!string.IsNullOrEmpty(excludeTag) && kvp.Key == excludeTag)
-                continue;
-
-            SavedCrease other = kvp.Value;
-            Vector3 n = planeNormal.sqrMagnitude > 0.0001f ? planeNormal : other.PlaneNormal;
-            if (AccordionCollapse.CreaseAxesCross(foldP1, foldP2, other.P1, other.P2, n)) {
-                crossingTag = kvp.Key;
-                return true;
+        Vector3 p1;
+        Vector3 p2;
+        if (step.IsAccordionFold) {
+            Vector3 dragStart = Controller.AccordionDragStart;
+            Vector3 dragEnd = Controller.AccordionDragEnd;
+            Vector3 dragMidpoint = (dragStart + dragEnd) * 0.5f;
+            p1 = dragEnd;
+            p2 = dragMidpoint;
+            if ((p2 - p1).sqrMagnitude < 0.00001f) {
+                Debug.LogWarning($"FoldInstructionRunner: Accordion step \"{axisTag}\" has no drag path to save as an axis.");
+                return;
             }
+        } else {
+            p1 = Controller.FoldPoint1;
+            p2 = Controller.FoldPoint2;
         }
 
-        return false;
+        _savedAxes[axisTag] = new SavedCrease {
+            Tag = axisTag,
+            P1 = p1,
+            P2 = p2,
+            PlaneNormal = step.DragPlaneNormal
+        };
     }
 
-    private void ApplyLockFoldAxisIfNeeded(FoldStep step) {
-        if (!step.LockFoldAxis) return;
+    private void RemoveSavedAxisForStep(FoldStep step) {
+        string axisTag = GetAxisLabel(step);
+        if (string.IsNullOrEmpty(axisTag))
+            return;
 
-        _hasSavedFoldAxis = true;
-        _savedFoldAxisP1 = SnapToNearestVertex(Controller.FoldPoint1);
-        _savedFoldAxisP2 = SnapToNearestVertex(Controller.FoldPoint2);
+        _savedAxes.Remove(axisTag);
+    }
+
+    private string GetAxisLabel(FoldStep step) {
+        string axisTag = step.GetAxisTagName();
+        if (!string.IsNullOrEmpty(axisTag))
+            return axisTag;
+
+        if (step.IsCrease)
+            return GetCreaseLabel(step);
+
+        return null;
+    }
+
+    private List<SavedCrease> ResolveFreezeAxesForStep(FoldStep step) {
+        List<SavedCrease> axes = new List<SavedCrease>();
+        IReadOnlyList<string> tags = step.FreezeAxisTags?.Tags;
+        if (tags == null || tags.Count == 0)
+            return axes;
+
+        foreach (string tag in tags) {
+            if (string.IsNullOrEmpty(tag))
+                continue;
+
+            if (_savedAxes.TryGetValue(tag, out SavedCrease axis)) {
+                axes.Add(axis);
+                continue;
+            }
+
+            Debug.LogWarning($"FoldInstructionRunner: Freeze axis \"{tag}\" not found among executed folds.");
+        }
+
+        return axes;
     }
 
     private void AdvanceToNextStep() {
@@ -529,8 +553,20 @@ public class FoldInstructionRunner : MonoBehaviour
         return fallback;
     }
 
-    private void ClearSavedCreases() {
-        _savedCreases.Clear();
+    private void MigrateInstructionSteps() {
+        if (Instruction?.Steps == null)
+            return;
+
+        for (int i = 0; i < Instruction.Steps.Count; i++) {
+            FoldStep step = Instruction.Steps[i];
+            step.MigrateLegacyFilterTag();
+            FoldStep nextStep = i + 1 < Instruction.Steps.Count ? Instruction.Steps[i + 1] : null;
+            step.MigrateLegacyLockFoldAxis(nextStep);
+        }
+    }
+
+    private void ClearSavedAxes() {
+        _savedAxes.Clear();
     }
 
     private void UpdateGuideLine(FoldStep step) {
@@ -702,7 +738,7 @@ public class FoldInstructionRunner : MonoBehaviour
         _isExecutingStepAnimation = false;
 
         ExitStickerPhase(clearStickers: false);
-        ClearSavedCreases();
+        ClearSavedAxes();
 
         if (Controller != null) {
             Controller.ResetSheet();
@@ -760,7 +796,6 @@ public class FoldInstructionRunner : MonoBehaviour
     /// interaction remains behind the end screen.
     /// </summary>
     private void SettleIntoLevelEndState() {
-        _hasSavedFoldAxis = false;
         _totalAccuracy = 0f;
         _foldCount = 0;
 
@@ -770,7 +805,7 @@ public class FoldInstructionRunner : MonoBehaviour
         CurrentPaperRotation = Vector3.zero;
         _isPaperLerping = false;
         if (Controller != null) {
-            Controller.HasFoldAxisLock = false;
+            Controller.ClearFoldAxisLocks();
             Controller.transform.rotation = Quaternion.identity;
         }
 
@@ -897,13 +932,7 @@ public class FoldInstructionRunner : MonoBehaviour
 
         Controller.SelectedFilterTags = ResolveFilterTagsForStep(step);
 
-        if (_hasSavedFoldAxis) {
-            Controller.HasFoldAxisLock = true;
-            Controller.FoldAxisLockP1 = _savedFoldAxisP1;
-            Controller.FoldAxisLockP2 = _savedFoldAxisP2;
-        } else {
-            Controller.HasFoldAxisLock = false;
-        }
+        Controller.SetFoldAxisLocks(ResolveFreezeAxesForStep(step));
 
         if (step.RotatePaper && Controller != null) {
             CurrentPaperRotation = step.PaperRotation;
@@ -936,6 +965,7 @@ public class FoldInstructionRunner : MonoBehaviour
         Controller.RecalculateFoldAxis();
         Controller.LockedFoldPoint1 = Controller.FoldPoint1;
         Controller.LockedFoldPoint2 = Controller.FoldPoint2;
+        Controller.BeginFoldStepDrag(Controller.FoldPoint1, Controller.FoldPoint2);
 
         Controller.ClearPreview();
 
@@ -1116,6 +1146,7 @@ public class FoldInstructionRunner : MonoBehaviour
             // Revert authoring topology without snapping decals to the flat mesh.
             Controller.UndoAuthoringFold();
             Controller.DecalManager?.ReanchorPlacementDataOnly();
+            RemoveSavedAxisForStep(step);
 
             ConfigureControllerForStep(step);
 
@@ -1162,9 +1193,8 @@ public class FoldInstructionRunner : MonoBehaviour
         ExitStickerPhase(clearStickers: false);
 
         _currentStepIndex = -1;
-        _hasSavedFoldAxis = false;
         if (Controller != null)
-            Controller.HasFoldAxisLock = false;
+            Controller.ClearFoldAxisLocks();
 
         HideGuideLine();
         RefreshDragHandleVisibility();
@@ -1188,9 +1218,10 @@ public class FoldInstructionRunner : MonoBehaviour
             HUDCanvas.Instance.StartFoldingTimer();
         }
 
-        _hasSavedFoldAxis = false;
         if (Controller != null)
-            Controller.HasFoldAxisLock = false;
+            Controller.ClearFoldAxisLocks();
+
+        ClearSavedAxes();
 
         Controller?.ClearPreview();
 
@@ -1317,7 +1348,7 @@ public class FoldInstructionRunner : MonoBehaviour
                     yield return AnimateAccordionDragRoutine(1f);
                     Controller.CommitAccordionAction();
                     Controller.EndAccordionDragStep();
-                    ApplyLockFoldAxisIfNeeded(step);
+                    SaveExecutedAxis(step);
                 }
 
                 Controller.ClearPreview();
@@ -1329,7 +1360,7 @@ public class FoldInstructionRunner : MonoBehaviour
 
                 Controller.ExecuteFoldAction();
                 Controller.ClearPreview();
-                ApplyLockFoldAxisIfNeeded(step);
+                SaveExecutedAxis(step);
 
                 if (!fast && AudioManager.Instance != null)
                     AudioManager.Instance.Play("fold");
@@ -1364,26 +1395,6 @@ public class FoldInstructionRunner : MonoBehaviour
 
         _isAutoFolding = false;
         RefreshDragHandleVisibility();
-    }
-
-    /// <summary>
-    /// Returns the position of the vertex closest to <paramref name="point"/> in 3D local space.
-    /// Falls back to <paramref name="point"/> itself if the graph is null or empty.
-    /// </summary>
-    private Vector3 SnapToNearestVertex(Vector3 point) {
-        if (_paperGraph == null || _paperGraph.Vertices == null || _paperGraph.Vertices.Count == 0)
-            return point;
-
-        Vector3 best = point;
-        float bestDist = float.PositiveInfinity;
-        foreach (Vertex v in _paperGraph.Vertices) {
-            float d = (v.Position - point).sqrMagnitude;
-            if (d < bestDist) {
-                bestDist = d;
-                best = v.Position;
-            }
-        }
-        return best;
     }
 }
 }

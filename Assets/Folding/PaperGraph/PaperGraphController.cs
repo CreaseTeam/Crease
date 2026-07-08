@@ -54,22 +54,67 @@ namespace Crease.Folding.PaperGraph
         private PaperGraphVisualizer _previewVisualizer;
 
         // When set by FoldInstructionRunner, RecalculateFoldAxis will refuse to move
-        // FoldPoint1/FoldPoint2 to a position whose axis line crosses this segment.
+        // FoldPoint1/FoldPoint2 to a position whose axis line crosses any frozen segment.
+        [System.Serializable]
+        public struct FoldAxisLockSegment
+        {
+            public Vector3 P1;
+            public Vector3 P2;
+        }
+
         [HideInInspector]
-        [FormerlySerializedAs("hasFoldAxisLock")]
-        public bool HasFoldAxisLock = false;
-        [HideInInspector]
-        [FormerlySerializedAs("foldAxisLockP1")]
-        public Vector3 FoldAxisLockP1;
-        [HideInInspector]
-        [FormerlySerializedAs("foldAxisLockP2")]
-        public Vector3 FoldAxisLockP2;
+        public List<FoldAxisLockSegment> FoldAxisLocks = new List<FoldAxisLockSegment>();
         [HideInInspector]
         [FormerlySerializedAs("lockedFoldPoint1")]
         public Vector3 LockedFoldPoint1;
         [HideInInspector]
         [FormerlySerializedAs("lockedFoldPoint2")]
         public Vector3 LockedFoldPoint2;
+
+        private readonly List<float> _lockStartMidpointSide = new List<float>();
+        private Vector3 _foldDragStart;
+        private Vector3 _lastValidDragEnd;
+
+        private const int DragLockSampleCount = 10;
+        private const float ParallelAxisDotThreshold = 0.92f;
+
+        public bool HasFoldAxisLock => FoldAxisLocks != null && FoldAxisLocks.Count > 0;
+
+        public void ClearFoldAxisLocks() {
+            if (FoldAxisLocks == null)
+                FoldAxisLocks = new List<FoldAxisLockSegment>();
+            else
+                FoldAxisLocks.Clear();
+
+            _lockStartMidpointSide.Clear();
+        }
+
+        public void SetFoldAxisLocks(IReadOnlyList<SavedCrease> axes) {
+            ClearFoldAxisLocks();
+            if (axes == null)
+                return;
+
+            foreach (SavedCrease axis in axes) {
+                FoldAxisLocks.Add(new FoldAxisLockSegment {
+                    P1 = axis.P1,
+                    P2 = axis.P2
+                });
+            }
+        }
+
+        public void BeginFoldStepDrag(Vector3 foldP1, Vector3 foldP2) {
+            _foldDragStart = DragHandlePosition;
+            _lastValidDragEnd = DragHandlePosition;
+
+            _lockStartMidpointSide.Clear();
+            if (!HasFoldAxisLock)
+                return;
+
+            Vector3 midpoint = (foldP1 + foldP2) * 0.5f;
+            foreach (FoldAxisLockSegment lockSegment in FoldAxisLocks) {
+                _lockStartMidpointSide.Add(GetSideOfInfiniteLine(midpoint, lockSegment.P1, lockSegment.P2, DragPlaneNormal));
+            }
+        }
 
         public bool IsAccordionDragStep { get; private set; }
         public Vector3 AccordionDragStart { get; private set; }
@@ -153,11 +198,81 @@ namespace Crease.Folding.PaperGraph
         private bool IsFoldCandidateInvalid(Vector3 dragStart, Vector3 dragCurrent, Vector3 candidateP1, Vector3 candidateP2) {
             if (IsPastStartBoundary(dragStart, dragCurrent)) return true;
 
-            if (HasFoldAxisLock) {
-                return FoldAxisCrossesLockSegment(candidateP1, candidateP2, FoldAxisLockP1, FoldAxisLockP2, DragPlaneNormal);
+            return IsFoldAxisBlockedByLocks(dragCurrent, candidateP1, candidateP2);
+        }
+
+        private bool IsFoldAxisBlockedByLocks(Vector3 dragEnd, Vector3 foldP1, Vector3 foldP2) {
+            if (!HasFoldAxisLock)
+                return false;
+
+            if (IsFoldAxisBlockedAtPosition(foldP1, foldP2))
+                return true;
+
+            for (int i = 1; i < DragLockSampleCount; i++) {
+                float t = i / (float)DragLockSampleCount;
+                Vector3 sampledDragEnd = Vector3.Lerp(_lastValidDragEnd, dragEnd, t);
+                if (!TryComputeFoldAxisFromDrag(_foldDragStart, sampledDragEnd, out Vector3 sampleP1, out Vector3 sampleP2))
+                    continue;
+
+                if (IsFoldAxisBlockedAtPosition(sampleP1, sampleP2))
+                    return true;
             }
 
             return false;
+        }
+
+        private bool IsFoldAxisBlockedAtPosition(Vector3 foldP1, Vector3 foldP2) {
+            for (int i = 0; i < FoldAxisLocks.Count; i++) {
+                FoldAxisLockSegment lockSegment = FoldAxisLocks[i];
+                if (FoldAxisCrossesLockSegment(foldP1, foldP2, lockSegment.P1, lockSegment.P2, DragPlaneNormal))
+                    return true;
+
+                if (i < _lockStartMidpointSide.Count
+                    && IsParallelSlidePastLock(foldP1, foldP2, _lockStartMidpointSide[i], lockSegment, DragPlaneNormal))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsParallelSlidePastLock(
+            Vector3 foldP1,
+            Vector3 foldP2,
+            float startMidpointSide,
+            FoldAxisLockSegment lockSegment,
+            Vector3 normal) {
+            if (Mathf.Abs(startMidpointSide) < 0.0001f)
+                return false;
+
+            Vector3 foldDir = Vector3.ProjectOnPlane(foldP2 - foldP1, normal);
+            Vector3 lockDir = Vector3.ProjectOnPlane(lockSegment.P2 - lockSegment.P1, normal);
+            if (foldDir.sqrMagnitude < 0.00001f || lockDir.sqrMagnitude < 0.00001f)
+                return false;
+
+            if (Mathf.Abs(Vector3.Dot(foldDir.normalized, lockDir.normalized)) < ParallelAxisDotThreshold)
+                return false;
+
+            Vector3 midpoint = (foldP1 + foldP2) * 0.5f;
+            float midpointSide = GetSideOfInfiniteLine(midpoint, lockSegment.P1, lockSegment.P2, normal);
+            if (Mathf.Abs(midpointSide) < 0.0001f)
+                return false;
+
+            return midpointSide * startMidpointSide < -0.0001f;
+        }
+
+        private static float GetSideOfInfiniteLine(Vector3 point, Vector3 lineP1, Vector3 lineP2, Vector3 normal) {
+            Vector3 lineDir = Vector3.ProjectOnPlane(lineP2 - lineP1, normal);
+            if (lineDir.sqrMagnitude < 0.00001f)
+                return 0f;
+
+            Vector3 u = lineDir.normalized;
+            Vector3 v = Vector3.Cross(normal, u).normalized;
+
+            Vector2 a = new Vector2(Vector3.Dot(lineP1, u), Vector3.Dot(lineP1, v));
+            Vector2 b = new Vector2(Vector3.Dot(lineP2, u), Vector3.Dot(lineP2, v));
+            Vector2 p = new Vector2(Vector3.Dot(point, u), Vector3.Dot(point, v));
+
+            return (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
         }
 
         public void ExecuteFoldAction() {
@@ -313,18 +428,10 @@ namespace Crease.Folding.PaperGraph
         }
 
         public void RecalculateFoldAxis() {
-            Vector3 dragDelta = DragHandlePosition;
-            if (dragDelta.sqrMagnitude < 0.00001f) return;
+            if (!TryComputeFoldAxisFromDrag(DragHandlePosition, IdealDragPosition, out Vector3 candidateP1, out Vector3 candidateP2))
+                return;
 
-            Vector3 midpoint = DragHandlePosition * 0.5f;
-            Vector3 dragDir = dragDelta.normalized;
-            Vector3 foldAxisDir = Vector3.Cross(DragPlaneNormal, dragDir).normalized;
-            if (foldAxisDir.sqrMagnitude < 0.0001f) return;
-
-            Vector3 candidateP1 = midpoint + foldAxisDir * FoldLineHalfLength;
-            Vector3 candidateP2 = midpoint - foldAxisDir * FoldLineHalfLength;
-
-            if (HasFoldAxisLock && FoldAxisCrossesLockSegment(candidateP1, candidateP2, FoldAxisLockP1, FoldAxisLockP2, DragPlaneNormal)) {
+            if (IsFoldAxisBlockedAtPosition(candidateP1, candidateP2)) {
                 FoldPoint1 = LockedFoldPoint1;
                 FoldPoint2 = LockedFoldPoint2;
                 FoldPlaneVector = DragPlaneNormal;
@@ -334,6 +441,29 @@ namespace Crease.Folding.PaperGraph
             FoldPoint1 = candidateP1;
             FoldPoint2 = candidateP2;
             FoldPlaneVector = DragPlaneNormal;
+        }
+
+        private bool TryComputeFoldAxisFromDrag(
+            Vector3 dragStart,
+            Vector3 dragEnd,
+            out Vector3 foldP1,
+            out Vector3 foldP2) {
+            foldP1 = default;
+            foldP2 = default;
+
+            Vector3 dragDelta = dragEnd - dragStart;
+            if (dragDelta.sqrMagnitude < 0.00001f)
+                return false;
+
+            Vector3 midpoint = (dragStart + dragEnd) * 0.5f;
+            Vector3 dragDir = dragDelta.normalized;
+            Vector3 foldAxisDir = Vector3.Cross(DragPlaneNormal, dragDir).normalized;
+            if (foldAxisDir.sqrMagnitude < 0.0001f)
+                return false;
+
+            foldP1 = midpoint + foldAxisDir * FoldLineHalfLength;
+            foldP2 = midpoint - foldAxisDir * FoldLineHalfLength;
+            return true;
         }
 
         private bool FoldAxisCrossesLockSegment(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Vector3 normal) {
@@ -499,16 +629,8 @@ namespace Crease.Folding.PaperGraph
         }
 
         public void UpdateFoldFromDrag(Vector3 dragStartLocal, Vector3 dragCurrentLocal) {
-            Vector3 dragDelta = dragCurrentLocal - dragStartLocal;
-            if (dragDelta.sqrMagnitude < 0.00001f) return;
-
-            Vector3 midpoint = (dragStartLocal + dragCurrentLocal) * 0.5f;
-            Vector3 dragDir = dragDelta.normalized;
-            Vector3 foldAxisDir = Vector3.Cross(DragPlaneNormal, dragDir).normalized;
-            if (foldAxisDir.sqrMagnitude < 0.0001f) return;
-
-            Vector3 candidateP1 = midpoint + foldAxisDir * FoldLineHalfLength;
-            Vector3 candidateP2 = midpoint - foldAxisDir * FoldLineHalfLength;
+            if (!TryComputeFoldAxisFromDrag(dragStartLocal, dragCurrentLocal, out Vector3 candidateP1, out Vector3 candidateP2))
+                return;
 
             if (IsFoldCandidateInvalid(dragStartLocal, dragCurrentLocal, candidateP1, candidateP2)) {
                 FreezeAtLastValidFold();
@@ -518,6 +640,7 @@ namespace Crease.Folding.PaperGraph
             FoldPoint1 = candidateP1;
             FoldPoint2 = candidateP2;
             FoldPlaneVector = DragPlaneNormal;
+            _lastValidDragEnd = dragCurrentLocal;
             UpdatePreview();
         }
 
@@ -580,20 +703,22 @@ namespace Crease.Folding.PaperGraph
             if (HasFoldAxisLock) {
                 Gizmos.matrix = localToWorld;
 
-                Gizmos.color = Color.cyan;
-                Gizmos.DrawLine(FoldAxisLockP1, FoldAxisLockP2);
+                foreach (FoldAxisLockSegment lockSegment in FoldAxisLocks) {
+                    Gizmos.color = Color.cyan;
+                    Gizmos.DrawLine(lockSegment.P1, lockSegment.P2);
 
-                Gizmos.DrawSphere(FoldAxisLockP1, 0.018f);
-                Gizmos.DrawSphere(FoldAxisLockP2, 0.018f);
+                    Gizmos.DrawSphere(lockSegment.P1, 0.018f);
+                    Gizmos.DrawSphere(lockSegment.P2, 0.018f);
 
-                Vector3 lockMid = (FoldAxisLockP1 + FoldAxisLockP2) * 0.5f;
-                Vector3 lockDir = (FoldAxisLockP2 - FoldAxisLockP1).normalized;
-                Vector3 perpDir = Vector3.Cross(lockDir, FoldPlaneVector).normalized;
-                float diamondSize = 0.03f;
-                Gizmos.DrawLine(lockMid + perpDir * diamondSize, lockMid + lockDir * diamondSize);
-                Gizmos.DrawLine(lockMid + lockDir * diamondSize, lockMid - perpDir * diamondSize);
-                Gizmos.DrawLine(lockMid - perpDir * diamondSize, lockMid - lockDir * diamondSize);
-                Gizmos.DrawLine(lockMid - lockDir * diamondSize, lockMid + perpDir * diamondSize);
+                    Vector3 lockMid = (lockSegment.P1 + lockSegment.P2) * 0.5f;
+                    Vector3 lockDir = (lockSegment.P2 - lockSegment.P1).normalized;
+                    Vector3 perpDir = Vector3.Cross(lockDir, FoldPlaneVector).normalized;
+                    float diamondSize = 0.03f;
+                    Gizmos.DrawLine(lockMid + perpDir * diamondSize, lockMid + lockDir * diamondSize);
+                    Gizmos.DrawLine(lockMid + lockDir * diamondSize, lockMid - perpDir * diamondSize);
+                    Gizmos.DrawLine(lockMid - perpDir * diamondSize, lockMid - lockDir * diamondSize);
+                    Gizmos.DrawLine(lockMid - lockDir * diamondSize, lockMid + perpDir * diamondSize);
+                }
 
                 Gizmos.matrix = Matrix4x4.identity;
             }
