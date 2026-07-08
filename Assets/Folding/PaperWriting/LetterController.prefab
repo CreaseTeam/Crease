@@ -239,7 +239,7 @@ MonoBehaviour:
   _cameraController: {fileID: 0}
   _cameraCaptureTransitionDuration: 0.75
   _cameraCaptureHoldDuration: 3
-  _disappear: 0
+  _disappearMode: 0
   _lingerTime: 2
   _fadeOutDuration: 0.5
 --- !u!1 &7442560463022425886

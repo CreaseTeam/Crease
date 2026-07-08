@@ -1,7 +1,10 @@
 using System.Collections;
+using System.Collections.Generic;
+using Crease.Flying.Player;
 using Crease.Flying.Player.Camera;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Crease.Handwritting
 {
@@ -53,22 +56,28 @@ namespace Crease.Handwritting
         float _cameraCaptureHoldDuration = 3f;
 
         [SerializeField]
-        [Tooltip("Fade out after the text has fully appeared.")]
-        bool _disappear;
+        [FormerlySerializedAs("_disappear")]
+        [Tooltip("How the text disappears after the linger time.")]
+        HandwrittenTextDisappearMode _disappearMode;
 
         [SerializeField]
         [Min(0f)]
-        [Tooltip("Seconds to keep fully visible text on screen before fading out.")]
+        [Tooltip("Seconds to keep fully visible text on screen before disappearing.")]
         float _lingerTime = 2f;
 
         [SerializeField]
         [Min(0.01f)]
-        [Tooltip("Seconds to fade the text out after the linger time.")]
+        [Tooltip("Seconds for the disappear effect. Used for fade out and letter collection.")]
         float _fadeOutDuration = 0.5f;
+
+        [SerializeField]
+        [Tooltip("Destination for collected letters. Uses the first KinematicBody in the scene when unset.")]
+        Transform _letterCollectionTarget;
 
         TextMeshPro _text;
         Material _materialInstance;
         Coroutine _playRoutine;
+        Transform _streamingLettersRoot;
 
         public HandwrittenFontAsset Font
         {
@@ -92,6 +101,7 @@ namespace Crease.Handwritting
         {
             _text = GetComponent<TextMeshPro>();
             ResolveCameraController();
+            ResolveLetterCollectionTarget();
             ApplyFont();
         }
 
@@ -139,8 +149,20 @@ namespace Crease.Handwritting
             if (_cameraController != null)
                 _cameraController.CancelLookCapture();
 
+            ClearStreamingLetters();
+
             if (_materialInstance != null)
                 Destroy(_materialInstance);
+        }
+
+        void ResolveLetterCollectionTarget()
+        {
+            if (_letterCollectionTarget != null)
+                return;
+
+            KinematicBody playerBody = FindFirstObjectByType<KinematicBody>();
+            if (playerBody != null)
+                _letterCollectionTarget = playerBody.transform;
         }
 
         void ResolveCameraController()
@@ -184,7 +206,12 @@ namespace Crease.Handwritting
                 return;
 
             if (_playRoutine != null)
+            {
                 StopCoroutine(_playRoutine);
+                _playRoutine = null;
+            }
+
+            ClearStreamingLetters();
 
             TryStartCameraCapture();
             _playRoutine = StartCoroutine(PlayWriteInRoutine(ResolveText(text)));
@@ -206,12 +233,14 @@ namespace Crease.Handwritting
                 _playRoutine = null;
             }
 
+            ClearStreamingLetters();
+
             SetText(ResolveText(text));
             ResetTextVisibility();
             SetFullyVisible();
             TryStartCameraCapture();
 
-            if (_disappear)
+            if (_disappearMode != HandwrittenTextDisappearMode.None)
                 _playRoutine = StartCoroutine(DisappearAfterLingerRoutine());
         }
 
@@ -330,7 +359,7 @@ namespace Crease.Handwritting
 
             SetFullyVisible();
 
-            if (_disappear)
+            if (_disappearMode != HandwrittenTextDisappearMode.None)
                 yield return DisappearAfterLingerRoutine();
             else
                 _playRoutine = null;
@@ -345,6 +374,21 @@ namespace Crease.Handwritting
                 yield return null;
             }
 
+            switch (_disappearMode)
+            {
+                case HandwrittenTextDisappearMode.FadeOut:
+                    yield return FadeOutRoutine();
+                    break;
+                case HandwrittenTextDisappearMode.LetterCollection:
+                    yield return LetterCollectionRoutine();
+                    break;
+            }
+
+            _playRoutine = null;
+        }
+
+        IEnumerator FadeOutRoutine()
+        {
             float startAlpha = _text.alpha;
             float fadeElapsed = 0f;
             while (fadeElapsed < _fadeOutDuration)
@@ -356,7 +400,122 @@ namespace Crease.Handwritting
             }
 
             _text.alpha = 0f;
-            _playRoutine = null;
+        }
+
+        IEnumerator LetterCollectionRoutine()
+        {
+            ResolveLetterCollectionTarget();
+            if (_letterCollectionTarget == null)
+            {
+                Debug.LogWarning($"{nameof(HandwrittenTextPlayer)} on {name} could not find a letter collection target.");
+                yield return FadeOutRoutine();
+                yield break;
+            }
+
+            HandwrittenTMPMeshModifier.InjectCharacterIndices(_text);
+            TMP_TextInfo textInfo = _text.textInfo;
+            List<int> visibleCharIndices = new List<int>(textInfo.characterCount);
+            for (int i = 0; i < textInfo.characterCount; i++)
+            {
+                if (textInfo.characterInfo[i].isVisible)
+                    visibleCharIndices.Add(i);
+            }
+
+            int visibleCount = visibleCharIndices.Count;
+            if (visibleCount == 0)
+            {
+                _text.alpha = 0f;
+                yield break;
+            }
+
+            float interval = _fadeOutDuration / visibleCount;
+            float flyDuration = Mathf.Max(interval, _fadeOutDuration * 0.35f);
+
+            for (int streamIndex = 0; streamIndex < visibleCount; streamIndex++)
+            {
+                int charIndex = visibleCharIndices[streamIndex];
+                TMP_CharacterInfo charInfo = textInfo.characterInfo[charIndex];
+                SpawnStreamingLetter(charInfo, flyDuration);
+                HandwrittenTMPMeshModifier.SetCharacterVisible(_text, charIndex, false);
+
+                if (streamIndex < visibleCount - 1)
+                    yield return new WaitForSeconds(interval);
+            }
+
+            yield return new WaitForSeconds(flyDuration);
+            _text.alpha = 0f;
+        }
+
+        void SpawnStreamingLetter(TMP_CharacterInfo charInfo, float flyDuration)
+        {
+            EnsureStreamingLettersRoot();
+
+            Vector3 sourceLocalCenter = (charInfo.bottomLeft + charInfo.topRight) * 0.5f;
+
+            GameObject letterObject = new GameObject("StreamingLetter");
+            letterObject.transform.SetParent(_streamingLettersRoot, false);
+
+            TextMeshPro letterText = letterObject.AddComponent<TextMeshPro>();
+            CopyTextMeshSettings(_text, letterText);
+            letterText.text = charInfo.character.ToString();
+            letterText.fontSharedMaterial = new Material(_materialInstance);
+            letterText.ForceMeshUpdate();
+            HandwrittenTMPMeshModifier.InjectCharacterIndices(letterText);
+
+            if (letterText.textInfo.characterCount > 0 && letterText.textInfo.characterInfo[0].isVisible)
+            {
+                TMP_CharacterInfo spawnedCharInfo = letterText.textInfo.characterInfo[0];
+                Vector3 spawnedLocalCenter = (spawnedCharInfo.bottomLeft + spawnedCharInfo.topRight) * 0.5f;
+                letterObject.transform.localPosition = sourceLocalCenter - spawnedLocalCenter;
+            }
+            else
+            {
+                letterObject.transform.localPosition = sourceLocalCenter;
+            }
+
+            HandwrittenStreamingLetter streamingLetter = letterObject.AddComponent<HandwrittenStreamingLetter>();
+            streamingLetter.Begin(
+                _letterCollectionTarget,
+                flyDuration,
+                letterText.fontSharedMaterial,
+                _text.transform.lossyScale);
+        }
+
+        static void CopyTextMeshSettings(TextMeshPro source, TextMeshPro destination)
+        {
+            destination.font = source.font;
+            destination.fontSize = source.fontSize;
+            destination.fontStyle = source.fontStyle;
+            destination.color = source.color;
+            destination.characterSpacing = source.characterSpacing;
+            destination.wordSpacing = source.wordSpacing;
+            destination.lineSpacing = source.lineSpacing;
+            destination.paragraphSpacing = source.paragraphSpacing;
+            destination.alignment = source.alignment;
+            destination.enableWordWrapping = false;
+            destination.overflowMode = TextOverflowModes.Overflow;
+        }
+
+        void EnsureStreamingLettersRoot()
+        {
+            if (_streamingLettersRoot != null)
+                return;
+
+            GameObject rootObject = new GameObject("StreamingLetters");
+            rootObject.transform.SetParent(_text.transform, false);
+            rootObject.transform.localPosition = Vector3.zero;
+            rootObject.transform.localRotation = Quaternion.identity;
+            rootObject.transform.localScale = Vector3.one;
+            _streamingLettersRoot = rootObject.transform;
+        }
+
+        void ClearStreamingLetters()
+        {
+            if (_streamingLettersRoot == null)
+                return;
+
+            Destroy(_streamingLettersRoot.gameObject);
+            _streamingLettersRoot = null;
         }
 
         float GetWriteDurationForCharacter(char character)

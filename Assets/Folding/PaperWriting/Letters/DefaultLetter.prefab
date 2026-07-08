@@ -506,7 +506,7 @@ MonoBehaviour:
   _cameraController: {fileID: 0}
   _cameraCaptureTransitionDuration: 0.75
   _cameraCaptureHoldDuration: 3
-  _disappear: 0
+  _disappearMode: 0
   _lingerTime: 2
   _fadeOutDuration: 0.5
 --- !u!1 &4612138658484736380
@@ -714,7 +714,7 @@ MonoBehaviour:
   _cameraController: {fileID: 0}
   _cameraCaptureTransitionDuration: 0.75
   _cameraCaptureHoldDuration: 3
-  _disappear: 0
+  _disappearMode: 0
   _lingerTime: 2
   _fadeOutDuration: 0.5
 --- !u!1 &5662327495566913635
@@ -957,7 +957,7 @@ MonoBehaviour:
   _cameraController: {fileID: 0}
   _cameraCaptureTransitionDuration: 0.75
   _cameraCaptureHoldDuration: 3
-  _disappear: 0
+  _disappearMode: 0
   _lingerTime: 2
   _fadeOutDuration: 0.5
 --- !u!1 &8425014554971176591
@@ -1164,6 +1164,6 @@ MonoBehaviour:
   _cameraController: {fileID: 0}
   _cameraCaptureTransitionDuration: 0.75
   _cameraCaptureHoldDuration: 3
-  _disappear: 0
+  _disappearMode: 0
   _lingerTime: 2
   _fadeOutDuration: 0.5
