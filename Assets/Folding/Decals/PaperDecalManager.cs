@@ -211,11 +211,12 @@ namespace Crease.Folding.Decals
 
                 float dashCenterAlong = along + dashLength * 0.5f;
                 Vector3 samplePoint = lineStart + axis * dashCenterAlong;
+                Vector3 visiblePlaneNormal = ResolveCameraFacingPlaneNormal(planeNormal, samplePoint);
 
                 DecalSurfaceQuery.SurfaceHit hit = DecalSurfaceQuery.RaycastPlanarTopOnGraph(
                     _authoringGraph,
                     samplePoint,
-                    planeNormal,
+                    visiblePlaneNormal,
                     allowedFaces);
 
                 if (hit.Hit)
@@ -704,6 +705,26 @@ namespace Crease.Folding.Decals
         {
             while (_guidePreviewCaches.Count < _guidePlacements.Count)
                 _guidePreviewCaches.Add(new PreviewAnchorCache());
+        }
+
+        /// <summary>
+        /// Picks the drag-plane normal whose front face points toward the folding camera.
+        /// Needed after instruction-driven paper rotation so guide dashes land on the visible side.
+        /// </summary>
+        private Vector3 ResolveCameraFacingPlaneNormal(Vector3 planeNormal, Vector3 samplePointLocal)
+        {
+            planeNormal = planeNormal.sqrMagnitude > 0.0001f ? planeNormal.normalized : Vector3.up;
+            if (FoldingCamera == null || Controller == null)
+                return planeNormal;
+
+            Vector3 sampleWorld = Controller.transform.TransformPoint(samplePointLocal);
+            Vector3 toCamera = FoldingCamera.transform.position - sampleWorld;
+            if (toCamera.sqrMagnitude < 0.0001f)
+                return planeNormal;
+
+            Vector3 worldPlaneNormal = Controller.transform.TransformDirection(planeNormal);
+            bool frontFacesCamera = Vector3.Dot(worldPlaneNormal, toCamera.normalized) > 0f;
+            return frontFacesCamera ? planeNormal : -planeNormal;
         }
 
         private Transform GetFoldingMeshSurfaceRoot()
