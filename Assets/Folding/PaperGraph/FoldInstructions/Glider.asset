@@ -23,7 +23,9 @@ MonoBehaviour:
     FilterTags:
       _tags: []
     _legacyFilterTag: 
-    LockFoldAxis: 0
+    FreezeAxisTags:
+      _tags: []
+    _legacyLockFoldAxis: 0
     IsCrease: 1
     IsAccordionFold: 0
     AccordionCreaseTagA: 
@@ -43,7 +45,9 @@ MonoBehaviour:
     FilterTags:
       _tags: []
     _legacyFilterTag: 
-    LockFoldAxis: 0
+    FreezeAxisTags:
+      _tags: []
+    _legacyLockFoldAxis: 0
     IsCrease: 1
     IsAccordionFold: 0
     AccordionCreaseTagA: 
@@ -63,7 +67,9 @@ MonoBehaviour:
     FilterTags:
       _tags: []
     _legacyFilterTag: 
-    LockFoldAxis: 0
+    FreezeAxisTags:
+      _tags: []
+    _legacyLockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 1
     AccordionCreaseTagA: accordion1
@@ -84,7 +90,10 @@ MonoBehaviour:
       _tags:
       - accordion_moved
     _legacyFilterTag: 
-    LockFoldAxis: 0
+    FreezeAxisTags:
+      _tags:
+      - accordion
+    _legacyLockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
     AccordionCreaseTagA: 
@@ -105,7 +114,10 @@ MonoBehaviour:
       _tags:
       - accordion_moved
     _legacyFilterTag: 
-    LockFoldAxis: 0
+    FreezeAxisTags:
+      _tags:
+      - accordion
+    _legacyLockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
     AccordionCreaseTagA: 
@@ -126,7 +138,10 @@ MonoBehaviour:
       _tags:
       - accordion_moved
     _legacyFilterTag: 
-    LockFoldAxis: 0
+    FreezeAxisTags:
+      _tags:
+      - accordion
+    _legacyLockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
     AccordionCreaseTagA: 
@@ -147,7 +162,10 @@ MonoBehaviour:
       _tags:
       - accordion_moved
     _legacyFilterTag: 
-    LockFoldAxis: 0
+    FreezeAxisTags:
+      _tags:
+      - accordion
+    _legacyLockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
     AccordionCreaseTagA: 
@@ -167,7 +185,9 @@ MonoBehaviour:
     FilterTags:
       _tags: []
     _legacyFilterTag: 
-    LockFoldAxis: 0
+    FreezeAxisTags:
+      _tags: []
+    _legacyLockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
     AccordionCreaseTagA: 
@@ -187,7 +207,9 @@ MonoBehaviour:
     FilterTags:
       _tags: []
     _legacyFilterTag: 
-    LockFoldAxis: 0
+    FreezeAxisTags:
+      _tags: []
+    _legacyLockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
     AccordionCreaseTagA: 
@@ -207,7 +229,9 @@ MonoBehaviour:
     FilterTags:
       _tags: []
     _legacyFilterTag: 
-    LockFoldAxis: 0
+    FreezeAxisTags:
+      _tags: []
+    _legacyLockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
     AccordionCreaseTagA: 
@@ -227,7 +251,9 @@ MonoBehaviour:
     FilterTags:
       _tags: []
     _legacyFilterTag: 
-    LockFoldAxis: 0
+    FreezeAxisTags:
+      _tags: []
+    _legacyLockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
     AccordionCreaseTagA: 

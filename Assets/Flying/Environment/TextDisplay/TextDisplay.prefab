@@ -63,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b519b0dcf992bd040bcf79986e2f8a14, type: 2}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -110,7 +110,7 @@ MonoBehaviour:
   m_text: Its wings are too small to get its fat little body off the ground.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c001e14fb69aa054d903dcec98110214, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: b519b0dcf992bd040bcf79986e2f8a14, type: 2}
+  m_sharedMaterial: {fileID: 0}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

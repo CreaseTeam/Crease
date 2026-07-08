@@ -456,29 +456,92 @@ public class FoldInstructionRunner : MonoBehaviour
         if (string.IsNullOrEmpty(axisTag))
             return;
 
-        Vector3 p1;
-        Vector3 p2;
+        Vector3 planeNormal = step.DragPlaneNormal;
+        Vector3 clippedP1;
+        Vector3 clippedP2;
+
         if (step.IsAccordionFold) {
             Vector3 dragStart = Controller.AccordionDragStart;
             Vector3 dragEnd = Controller.AccordionDragEnd;
             Vector3 dragMidpoint = (dragStart + dragEnd) * 0.5f;
-            p1 = dragEnd;
-            p2 = dragMidpoint;
-            if ((p2 - p1).sqrMagnitude < 0.00001f) {
-                Debug.LogWarning($"FoldInstructionRunner: Accordion step \"{axisTag}\" has no drag path to save as an axis.");
+            if (!TryClipAccordionDragAxisToPaper(dragEnd, dragMidpoint, planeNormal, out clippedP1, out clippedP2)) {
+                Debug.LogWarning($"FoldInstructionRunner: Could not clip accordion axis \"{axisTag}\" to paper edges.");
                 return;
             }
-        } else {
-            p1 = Controller.FoldPoint1;
-            p2 = Controller.FoldPoint2;
+        } else if (!TryClipAxisToPaperEdges(Controller.FoldPoint1, Controller.FoldPoint2, planeNormal, out clippedP1, out clippedP2)) {
+            Debug.LogWarning($"FoldInstructionRunner: Could not clip axis \"{axisTag}\" to paper edges.");
+            return;
         }
 
         _savedAxes[axisTag] = new SavedCrease {
             Tag = axisTag,
-            P1 = p1,
-            P2 = p2,
-            PlaneNormal = step.DragPlaneNormal
+            P1 = clippedP1,
+            P2 = clippedP2,
+            PlaneNormal = planeNormal
         };
+    }
+
+    private bool TryClipAccordionDragAxisToPaper(
+        Vector3 dragEnd,
+        Vector3 dragMidpoint,
+        Vector3 planeNormal,
+        out Vector3 clippedP1,
+        out Vector3 clippedP2) {
+        clippedP1 = dragEnd;
+        clippedP2 = dragMidpoint;
+
+        Vector3 axisDelta = dragMidpoint - dragEnd;
+        if (axisDelta.sqrMagnitude < 0.00001f)
+            return false;
+
+        if (!TryClipAxisToPaperEdges(dragEnd, dragMidpoint, planeNormal, out Vector3 paperP1, out Vector3 paperP2))
+            return false;
+
+        Vector3 axisDir = axisDelta.normalized;
+        float midpointT = Vector3.Dot(dragMidpoint - dragEnd, axisDir);
+        float paperT1 = Vector3.Dot(paperP1 - dragEnd, axisDir);
+        float paperT2 = Vector3.Dot(paperP2 - dragEnd, axisDir);
+        float minPaperT = Mathf.Min(paperT1, paperT2);
+        float maxPaperT = Mathf.Max(paperT1, paperT2);
+
+        float startT = Mathf.Max(0f, minPaperT);
+        float endT = Mathf.Min(midpointT, maxPaperT);
+        if (endT - startT < 0.00001f)
+            return false;
+
+        clippedP1 = dragEnd + axisDir * startT;
+        clippedP2 = dragEnd + axisDir * endT;
+        return true;
+    }
+
+    private bool TryClipAxisToPaperEdges(
+        Vector3 axisP1,
+        Vector3 axisP2,
+        Vector3 planeNormal,
+        out Vector3 clippedP1,
+        out Vector3 clippedP2) {
+        clippedP1 = axisP1;
+        clippedP2 = axisP2;
+
+        if (_paperGraph == null || _paperGraph.Edges == null || _paperGraph.Edges.Count == 0)
+            return false;
+
+        Vector3 axisDelta = axisP2 - axisP1;
+        if (axisDelta.sqrMagnitude < 0.00001f)
+            return false;
+
+        Vector3 axisDir = axisDelta.normalized;
+        Vector3 axisMidpoint = (axisP1 + axisP2) * 0.5f;
+        return ClipLineToPaperEdges(
+            axisP1,
+            axisP2,
+            axisDir,
+            axisMidpoint,
+            planeNormal,
+            _paperGraph,
+            out clippedP1,
+            out clippedP2,
+            out _);
     }
 
     private void RemoveSavedAxisForStep(FoldStep step) {

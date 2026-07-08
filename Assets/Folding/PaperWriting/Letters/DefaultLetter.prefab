@@ -364,7 +364,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b519b0dcf992bd040bcf79986e2f8a14, type: 2}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -412,7 +412,7 @@ MonoBehaviour:
     able to fly.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c001e14fb69aa054d903dcec98110214, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: b519b0dcf992bd040bcf79986e2f8a14, type: 2}
+  m_sharedMaterial: {fileID: 0}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -509,6 +509,7 @@ MonoBehaviour:
   _disappearMode: 0
   _lingerTime: 2
   _fadeOutDuration: 0.5
+  _letterCollectionTarget: {fileID: 0}
 --- !u!1 &4612138658484736380
 GameObject:
   m_ObjectHideFlags: 0
@@ -572,7 +573,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b519b0dcf992bd040bcf79986e2f8a14, type: 2}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -620,7 +621,7 @@ MonoBehaviour:
     is impossible.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c001e14fb69aa054d903dcec98110214, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: b519b0dcf992bd040bcf79986e2f8a14, type: 2}
+  m_sharedMaterial: {fileID: 0}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -717,6 +718,7 @@ MonoBehaviour:
   _disappearMode: 0
   _lingerTime: 2
   _fadeOutDuration: 0.5
+  _letterCollectionTarget: {fileID: 0}
 --- !u!1 &5662327495566913635
 GameObject:
   m_ObjectHideFlags: 0
@@ -816,7 +818,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b519b0dcf992bd040bcf79986e2f8a14, type: 2}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -863,7 +865,7 @@ MonoBehaviour:
   m_text: 'Its wings are too small to get its fat little body off the ground. '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c001e14fb69aa054d903dcec98110214, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: b519b0dcf992bd040bcf79986e2f8a14, type: 2}
+  m_sharedMaterial: {fileID: 0}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -960,6 +962,7 @@ MonoBehaviour:
   _disappearMode: 0
   _lingerTime: 2
   _fadeOutDuration: 0.5
+  _letterCollectionTarget: {fileID: 0}
 --- !u!1 &8425014554971176591
 GameObject:
   m_ObjectHideFlags: 0
@@ -1023,7 +1026,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b519b0dcf992bd040bcf79986e2f8a14, type: 2}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1070,7 +1073,7 @@ MonoBehaviour:
   m_text: Nov 2, 2007.\nDear dad,
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c001e14fb69aa054d903dcec98110214, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: b519b0dcf992bd040bcf79986e2f8a14, type: 2}
+  m_sharedMaterial: {fileID: 0}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1167,3 +1170,4 @@ MonoBehaviour:
   _disappearMode: 0
   _lingerTime: 2
   _fadeOutDuration: 0.5
+  _letterCollectionTarget: {fileID: 0}
