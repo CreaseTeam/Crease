@@ -259,7 +259,9 @@ MonoBehaviour:
   RulerTickSize: 0.02
   RulerColor: {r: 0.35, g: 0.75, b: 1, a: 0.95}
   MeshMaterial: {fileID: 0}
-  MeshMaterials: []
+  MeshMaterials:
+  - {fileID: 2100000, guid: 377409aa24b01794ab9e6e1b0df8d439, type: 2}
+  - {fileID: 2100000, guid: 55e8a5b07feb4664e9061676f3ecc8a7, type: 2}
   DebugMeshMaterial: {fileID: 0}
   DebugMeshMaterials:
   - {fileID: 2100000, guid: 564122fb4b241c44bb94e1f699be6b34, type: 2}
@@ -550,7 +552,9 @@ MonoBehaviour:
   RulerTickSize: 0.02
   RulerColor: {r: 0.35, g: 0.75, b: 1, a: 0.95}
   MeshMaterial: {fileID: 2100000, guid: 55e8a5b07feb4664e9061676f3ecc8a7, type: 2}
-  MeshMaterials: []
+  MeshMaterials:
+  - {fileID: 2100000, guid: 377409aa24b01794ab9e6e1b0df8d439, type: 2}
+  - {fileID: 2100000, guid: 55e8a5b07feb4664e9061676f3ecc8a7, type: 2}
   DebugMeshMaterial: {fileID: 0}
   DebugMeshMaterials: []
   SelectedTagIndex: 0
