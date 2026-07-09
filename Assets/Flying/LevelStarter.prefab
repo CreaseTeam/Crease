@@ -1578,30 +1578,6 @@ PrefabInstance:
       propertyPath: autoSnapDragHandle
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 1270413128971087771, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
-      propertyPath: MeshMaterials.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1270413128971087771, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
-      propertyPath: meshMaterials.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1270413128971087771, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
-      propertyPath: 'MeshMaterials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: de75e0b141cc47f4ea75467830980a09, type: 2}
-    - target: {fileID: 1270413128971087771, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
-      propertyPath: 'MeshMaterials.Array.data[1]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 55e8a5b07feb4664e9061676f3ecc8a7, type: 2}
-    - target: {fileID: 1270413128971087771, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
-      propertyPath: 'meshMaterials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: de75e0b141cc47f4ea75467830980a09, type: 2}
-    - target: {fileID: 1270413128971087771, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
-      propertyPath: 'meshMaterials.Array.data[1]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 55e8a5b07feb4664e9061676f3ecc8a7, type: 2}
     - target: {fileID: 1700393744000436658, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.032220002
@@ -1646,30 +1622,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: FoldingSystem
       objectReference: {fileID: 0}
-    - target: {fileID: 2936824549558735054, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
-      propertyPath: MeshMaterials.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2936824549558735054, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
-      propertyPath: meshMaterials.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2936824549558735054, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
-      propertyPath: 'MeshMaterials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: de75e0b141cc47f4ea75467830980a09, type: 2}
-    - target: {fileID: 2936824549558735054, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
-      propertyPath: 'MeshMaterials.Array.data[1]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 55e8a5b07feb4664e9061676f3ecc8a7, type: 2}
-    - target: {fileID: 2936824549558735054, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
-      propertyPath: 'meshMaterials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: de75e0b141cc47f4ea75467830980a09, type: 2}
-    - target: {fileID: 2936824549558735054, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
-      propertyPath: 'meshMaterials.Array.data[1]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 55e8a5b07feb4664e9061676f3ecc8a7, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
