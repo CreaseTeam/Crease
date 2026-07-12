@@ -1,23 +1,19 @@
 using System.Collections.Generic;
 using Crease.Folding.PaperGraph;
 using UnityEngine;
-using UnityEngine.Serialization;
 using GraphMesh = Crease.Folding.PaperGraph.PaperGraph;
 
 namespace Crease.Folding.Decals
 {
-    public class PaperDecalManager : MonoBehaviour
+    public class DecalController : MonoBehaviour
     {
-        [FormerlySerializedAs("controller")]
-        public PaperGraphController Controller;
-
-        [FormerlySerializedAs("foldingCamera")]
-        public Camera FoldingCamera;
+        public static DecalController Instance { get; private set; }
 
         [Header("Render Textures")]
         public DecalTextureRenderer TextureRenderer;
 
         private GraphMesh _authoringGraph;
+        private PaperGraphController _controller;
         private DecalSurfaceQuery _surfaceQuery;
         private readonly List<DecalPlacement> _placements = new List<DecalPlacement>();
         private readonly List<DecalPlacement> _guidePlacements = new List<DecalPlacement>();
@@ -30,26 +26,51 @@ namespace Crease.Folding.Decals
 
         private void Awake()
         {
-            if (Controller == null)
-                Controller = GetComponent<PaperGraphController>();
-            if (Controller != null)
+            if (Instance != null && Instance != this)
             {
-                if (Controller.DecalManager == null)
-                    Controller.DecalManager = this;
-                _authoringGraph = Controller.GetComponent<GraphMesh>();
+                Destroy(gameObject);
+                return;
             }
 
+            Instance = this;
+
             if (TextureRenderer == null)
-                TextureRenderer = GetComponentInChildren<DecalTextureRenderer>(true);
+                TextureRenderer = GetComponent<DecalTextureRenderer>();
+
+            RefreshAuthoringGraph();
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+                Instance = null;
+        }
+
+        private PaperGraphController Controller => _controller;
+
+        private void RefreshAuthoringGraph()
+        {
+            _controller = null;
+            _authoringGraph = null;
+
+            FoldingManager foldingManager = FoldingManager.Instance;
+            if (foldingManager?.PaperGraph == null)
+                return;
+
+            _controller = foldingManager.PaperGraph.GetComponent<PaperGraphController>();
+            if (_controller != null)
+                _authoringGraph = _controller.GetComponent<GraphMesh>();
         }
 
         public void PreparePlacement(bool syncPreviewFromAuthoring = true)
         {
-            if (Controller == null || _authoringGraph == null || Controller.PreviewGraph == null)
+            RefreshAuthoringGraph();
+            PaperGraphController controller = Controller;
+            if (controller == null || _authoringGraph == null || controller.PreviewGraph == null)
                 return;
 
             if (syncPreviewFromAuthoring)
-                Controller.ClearPreview();
+                controller.ClearPreview();
 
             OnMeshUpdated();
             RebuildTextures();
@@ -61,16 +82,18 @@ namespace Crease.Folding.Decals
         /// </summary>
         public void OnMeshUpdated()
         {
+            RefreshAuthoringGraph();
             RebuildSurfaceQuery();
             ApplyDecalMapsToAllRenderers();
         }
 
         private void RebuildSurfaceQuery()
         {
-            if (Controller == null || _authoringGraph == null || Controller.PreviewGraph == null)
+            PaperGraphController controller = Controller;
+            if (controller == null || _authoringGraph == null || controller.PreviewGraph == null)
                 return;
 
-            PaperGraphVisualizer previewVisualizer = Controller.PreviewGraph.GetComponent<PaperGraphVisualizer>();
+            PaperGraphVisualizer previewVisualizer = controller.PreviewGraph.GetComponent<PaperGraphVisualizer>();
             if (previewVisualizer == null || !previewVisualizer.ShowMesh)
                 return;
 
@@ -84,7 +107,7 @@ namespace Crease.Folding.Decals
             {
                 _surfaceQuery = new DecalSurfaceQuery(
                     _authoringGraph,
-                    Controller.PreviewGraph,
+                    controller.PreviewGraph,
                     meshSurfaceRoot,
                     collider);
             }
@@ -108,7 +131,8 @@ namespace Crease.Folding.Decals
             IReadOnlyList<string> filterTags,
             GraphMesh styleSource)
         {
-            if (Controller == null || _authoringGraph == null)
+            PaperGraphController controller = Controller;
+            if (controller == null || _authoringGraph == null)
             {
                 HideFoldGuide();
                 return;
@@ -235,17 +259,18 @@ namespace Crease.Folding.Decals
         {
             if (_surfaceQuery == null)
             {
-                Debug.LogError("PaperDecalManager: Surface query not prepared. Enter sticker phase before placing decals.");
+                Debug.LogError("DecalController: Surface query not prepared. Enter sticker phase before placing decals.");
                 return new DecalSurfaceQuery.SurfaceHit { Hit = false };
             }
 
-            if (FoldingCamera == null)
+            Camera foldingCamera = FoldingManager.Instance?.FoldingCamera;
+            if (foldingCamera == null)
             {
-                Debug.LogError("PaperDecalManager: FoldingCamera is not assigned.");
+                Debug.LogError("DecalController: Folding camera is not available.");
                 return new DecalSurfaceQuery.SurfaceHit { Hit = false };
             }
 
-            return _surfaceQuery.Raycast(FoldingCamera, screenPosition);
+            return _surfaceQuery.Raycast(foldingCamera, screenPosition);
         }
 
         public void ShowGhost(Texture2D texture, DecalSurfaceQuery.SurfaceHit hit, float scale, float rotationUv = 0f)
@@ -418,13 +443,14 @@ namespace Crease.Folding.Decals
 
         private void ApplyDecalMapsToAllRenderers()
         {
-            if (Controller == null)
+            PaperGraphController controller = Controller;
+            if (controller == null)
                 return;
 
-            if (Controller.PreviewGraph != null)
+            if (controller.PreviewGraph != null)
             {
-                MeshRenderer previewRenderer = Controller.PreviewGraph.GetComponent<MeshRenderer>();
-                ApplyDecalMapsToRenderer(previewRenderer, Controller.PreviewGraph);
+                MeshRenderer previewRenderer = controller.PreviewGraph.GetComponent<MeshRenderer>();
+                ApplyDecalMapsToRenderer(previewRenderer, controller.PreviewGraph);
             }
 
             if (_authoringGraph != null)
@@ -553,9 +579,10 @@ namespace Crease.Folding.Decals
 
         private Transform GetFoldingMeshSurfaceRoot()
         {
-            if (Controller == null || Controller.PreviewGraph == null)
-                return Controller != null ? Controller.transform : null;
-            return Controller.PreviewGraph.transform;
+            PaperGraphController controller = Controller;
+            if (controller == null || controller.PreviewGraph == null)
+                return controller != null ? controller.transform : null;
+            return controller.PreviewGraph.transform;
         }
     }
 }

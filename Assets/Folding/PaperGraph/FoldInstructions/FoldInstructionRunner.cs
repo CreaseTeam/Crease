@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Crease.Audio;
+using Crease.Folding.Decals;
 using Crease.Folding.Stickers;
 using Crease.Managers.Input;
 using Crease.UI;
@@ -682,10 +683,10 @@ public class FoldInstructionRunner : MonoBehaviour
     }
 
     private void ShowGuideLine(FoldStep step, Vector3 p1, Vector3 p2) {
-        if (Controller?.DecalManager == null || _paperGraph == null || step == null)
+        if (DecalController.Instance == null || _paperGraph == null || step == null)
             return;
 
-        Controller.DecalManager.UpdateFoldGuide(
+        DecalController.Instance.UpdateFoldGuide(
             p1,
             p2,
             step.DragPlaneNormal.normalized,
@@ -695,7 +696,7 @@ public class FoldInstructionRunner : MonoBehaviour
     }
 
     private void HideGuideLine() {
-        Controller?.DecalManager?.HideFoldGuide();
+        DecalController.Instance?.HideFoldGuide();
     }
 
     /// <summary>
@@ -719,7 +720,7 @@ public class FoldInstructionRunner : MonoBehaviour
 
         if (Controller != null) {
             Controller.ClearPreview();
-            Controller.DecalManager?.PreparePlacement();
+            DecalController.Instance?.PreparePlacement();
         }
 
         RefreshDragHandleVisibility();
@@ -737,7 +738,7 @@ public class FoldInstructionRunner : MonoBehaviour
             HUDCanvas.Instance.ShowStickerUI(true);
 
         if (Controller != null)
-            Controller.DecalManager?.PreparePlacement(syncPreviewFromAuthoring: false);
+            DecalController.Instance?.PreparePlacement(syncPreviewFromAuthoring: false);
 
         RefreshDragHandleVisibility();
 
@@ -757,11 +758,11 @@ public class FoldInstructionRunner : MonoBehaviour
     }
 
     private void ClearStickersOnPaper(bool includeDamageDecals = true) {
-        if (Controller == null || Controller.DecalManager == null) return;
+        if (DecalController.Instance == null) return;
         if (includeDamageDecals)
-            Controller.DecalManager.ClearDecals();
+            DecalController.Instance.ClearDecals();
         else
-            Controller.DecalManager.ClearUserStickers();
+            DecalController.Instance.ClearUserStickers();
     }
 
     /// <summary>
@@ -993,7 +994,7 @@ public class FoldInstructionRunner : MonoBehaviour
             if (!TrySetupAccordionStep(step))
                 Controller.ClearPreview();
 
-            Controller.DecalManager?.InvalidateFoldGuideCache();
+            DecalController.Instance?.InvalidateFoldGuideCache();
             UpdateGuideLine(step);
             return;
         }
@@ -1019,7 +1020,7 @@ public class FoldInstructionRunner : MonoBehaviour
 
         Controller.ClearPreview();
 
-        Controller.DecalManager?.InvalidateFoldGuideCache();
+        DecalController.Instance?.InvalidateFoldGuideCache();
         UpdateGuideLine(step);
     }
 

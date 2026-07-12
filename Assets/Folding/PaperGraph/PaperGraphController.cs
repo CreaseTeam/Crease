@@ -37,10 +37,6 @@ namespace Crease.Folding.PaperGraph
         [FormerlySerializedAs("previewGraph")]
         public PaperGraph PreviewGraph;
 
-        [Header("Decals")]
-        [FormerlySerializedAs("stickerManager")]
-        public PaperDecalManager DecalManager;
-
         [Header("Gizmo")]
         [FormerlySerializedAs("showFoldGizmo")]
         public bool ShowFoldGizmo = true;
@@ -135,8 +131,6 @@ namespace Crease.Folding.PaperGraph
             _authoringVisualizer = GetComponent<PaperGraphVisualizer>();
             if (PreviewGraph != null)
                 _previewVisualizer = PreviewGraph.GetComponent<PaperGraphVisualizer>();
-            if (DecalManager == null)
-                DecalManager = GetComponent<PaperDecalManager>();
             CacheFoldValues();
         }
 
@@ -647,7 +641,7 @@ namespace Crease.Folding.PaperGraph
         private void RefreshVisualizers() {
             _authoringVisualizer?.UpdateMesh();
             _previewVisualizer?.UpdateMesh();
-            DecalManager?.OnMeshUpdated();
+            DecalController.Instance?.OnMeshUpdated();
         }
 
         private void OnDrawGizmos() {

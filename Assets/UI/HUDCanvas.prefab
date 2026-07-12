@@ -6075,7 +6075,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 003bc96ace99bbb4eb5008971e65f94a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.Stickers.StickerUIController
-  DecalManager: {fileID: 0}
   Library: {fileID: 11400000, guid: c825bb68eea2e6442a3477025bc81d8e, type: 2}
   Dropdown: {fileID: 6723116954663085489}
   PreviewImage: {fileID: 1152949529590775900}

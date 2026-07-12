@@ -473,7 +473,6 @@ GameObject:
   - component: {fileID: 6591481184047634249}
   - component: {fileID: 6991035767176078}
   - component: {fileID: 1584305669687720572}
-  - component: {fileID: 4502290895782083903}
   m_Layer: 0
   m_Name: PaperGraph
   m_TagString: MainPaper
@@ -585,7 +584,6 @@ MonoBehaviour:
   DragPlaneNormal: {x: 0, y: 1, z: 0}
   FoldLineHalfLength: 1
   PreviewGraph: {fileID: 5559411859718704963}
-  DecalManager: {fileID: 4502290895782083903}
   ShowFoldGizmo: 1
   GizmoHeight: 0.05
   GizmoColor: {r: 0, g: 1, b: 1, a: 0.3}
@@ -693,18 +691,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PaperRotationHandle
   RotationSpeed: 0.3
   _trackedCamera: {fileID: 4105214768651930174}
---- !u!114 &4502290895782083903
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8247833909943875533}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 55d497f5ea4591446a57d2504231fefd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.Decals.PaperDecalManager
-  Controller: {fileID: 3367760010211513509}
-  FoldingCamera: {fileID: 4105214768651930174}
-  TextureRenderer: {fileID: 0}

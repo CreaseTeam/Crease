@@ -11,7 +11,6 @@ namespace Crease.Flying.Player.Health
     public class DamageDecalApplier : MonoBehaviour
     {
         [SerializeField] private DamageDecalLibrary _library;
-        [SerializeField] private PaperDecalManager _decalManager;
         [SerializeField] private Health _health;
         [SerializeField] private float _decalCooldown = 0.75f;
         [SerializeField] private float _randomRotationRange = 180f;
@@ -32,9 +31,8 @@ namespace Crease.Flying.Player.Health
             Health.OnDamageTaken += HandleDamageTaken;
             Health.OnDamageHealed += HandleDamageHealed;
 
-            PaperDecalManager decalManager = ResolveDecalManager();
-            if (decalManager != null)
-                decalManager.OnDecalsCleared += HandleDecalsCleared;
+            if (DecalController.Instance != null)
+                DecalController.Instance.OnDecalsCleared += HandleDecalsCleared;
         }
 
         private void OnDisable()
@@ -42,9 +40,8 @@ namespace Crease.Flying.Player.Health
             Health.OnDamageTaken -= HandleDamageTaken;
             Health.OnDamageHealed -= HandleDamageHealed;
 
-            PaperDecalManager decalManager = ResolveDecalManager();
-            if (decalManager != null)
-                decalManager.OnDecalsCleared -= HandleDecalsCleared;
+            if (DecalController.Instance != null)
+                DecalController.Instance.OnDecalsCleared -= HandleDecalsCleared;
         }
 
         private void HandleDamageTaken(float amount, DamageType type)
@@ -56,8 +53,8 @@ namespace Crease.Flying.Player.Health
             if (foldingManager == null || foldingManager.IsFolding)
                 return;
 
-            PaperDecalManager decalManager = ResolveDecalManager();
-            if (decalManager == null)
+            DecalController decalController = DecalController.Instance;
+            if (decalController == null)
                 return;
 
             int typeIndex = (int)type;
@@ -71,7 +68,7 @@ namespace Crease.Flying.Player.Health
                 return;
 
             float rotationUv = Random.Range(-_randomRotationRange, _randomRotationRange);
-            if (!decalManager.PlaceDecalAtRandomOuterSurface(
+            if (!decalController.PlaceDecalAtRandomOuterSurface(
                     entry.Texture,
                     entry.DefaultScale,
                     rotationUv,
@@ -88,11 +85,11 @@ namespace Crease.Flying.Player.Health
             if (amount <= 0f)
                 return;
 
-            PaperDecalManager decalManager = ResolveDecalManager();
-            if (decalManager == null)
+            DecalController decalController = DecalController.Instance;
+            if (decalController == null)
                 return;
 
-            if (!decalManager.TryRemoveNewestDamageDecalOfType((int)type))
+            if (!decalController.TryRemoveNewestDamageDecalOfType((int)type))
                 return;
 
             _health?.UnregisterDamageDecal(type);
@@ -101,19 +98,6 @@ namespace Crease.Flying.Player.Health
         private void HandleDecalsCleared()
         {
             _health?.ClearDamageDecalTracking();
-        }
-
-        private PaperDecalManager ResolveDecalManager()
-        {
-            if (_decalManager != null)
-                return _decalManager;
-
-            FoldingManager foldingManager = FoldingManager.Instance;
-            if (foldingManager?.PaperGraph == null)
-                return null;
-
-            PaperGraphController controller = foldingManager.PaperGraph.GetComponent<PaperGraphController>();
-            return controller?.DecalManager;
         }
     }
 }

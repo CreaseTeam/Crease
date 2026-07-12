@@ -773,7 +773,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Player.Health.DamageDecalApplier
   _library: {fileID: 11400000, guid: d6a1b2c3d4e5678901234abcd1234569, type: 2}
-  _decalManager: {fileID: 0}
   _decalCooldown: 0.75
   _randomRotationRange: 180
 --- !u!1 &8300377221380386037

@@ -510,20 +510,20 @@ namespace Crease.Folding.PaperGraph
         }
 
         private void AttachDecalMapsToPlayerMesh() {
-            PaperDecalManager decalManager = GetDecalManager();
-            if (decalManager == null) return;
+            DecalController decalController = DecalController.Instance;
+            if (decalController == null) return;
 
             CachePlayerMeshReferences();
             if (_playerMeshRenderer == null) return;
 
-            if (decalManager.TextureRenderer == null)
+            if (decalController.TextureRenderer == null)
                 return;
 
             PaperShading.ApplyRendererShading(
                 _playerMeshRenderer,
                 PaperGraph,
-                decalManager.TextureRenderer.FrontTexture,
-                decalManager.TextureRenderer.BackTexture,
+                decalController.TextureRenderer.FrontTexture,
+                decalController.TextureRenderer.BackTexture,
                 GetFlightSegmentTransform());
         }
 
@@ -531,14 +531,6 @@ namespace Crease.Folding.PaperGraph
             if (PaperGraph == null) return;
             FoldInstructionRunner runner = PaperGraph.GetComponent<FoldInstructionRunner>();
             runner?.OnEnterFoldingMode();
-        }
-
-        private PaperDecalManager GetDecalManager() {
-            if (PaperGraph == null) return null;
-            PaperGraphController controller = PaperGraph.GetComponent<PaperGraphController>();
-            if (controller != null && controller.DecalManager != null)
-                return controller.DecalManager;
-            return PaperGraph.GetComponent<PaperDecalManager>();
         }
 
         private void ApplyDefaultMeshToPlayer() {

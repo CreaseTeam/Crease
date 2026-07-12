@@ -10,7 +10,6 @@ namespace Crease.Folding.Stickers
     public class FoldingStickerActions : MonoBehaviour
     {
         [SerializeField] private FoldInstructionRunner _foldInstructionRunner;
-        [SerializeField] private PaperDecalManager _decalManager;
 
         public void InstantResetPaper()
         {
@@ -34,12 +33,12 @@ namespace Crease.Folding.Stickers
 
         public void ClearStickers()
         {
-            if (_decalManager == null)
+            if (DecalController.Instance == null)
             {
-                Debug.LogError("FoldingStickerActions: PaperDecalManager not assigned.");
+                Debug.LogError("FoldingStickerActions: DecalController is not available.");
                 return;
             }
-            _decalManager.ClearUserStickers();
+            DecalController.Instance.ClearUserStickers();
         }
     }
 }

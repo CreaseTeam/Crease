@@ -405,6 +405,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8461874029670729759}
   - component: {fileID: 3617209755905732574}
+  - component: {fileID: 7823419056789012345}
   m_Layer: 0
   m_Name: DecalController
   m_TagString: Untagged
@@ -451,6 +452,19 @@ MonoBehaviour:
   UnitQuadMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   FrontTexture: {fileID: 8400000, guid: 051209a3ee49d1a44874b5a44a909cb4, type: 2}
   BackTexture: {fileID: 8400000, guid: fc5b54bc64f3ebd4a8af2633c5e6fc41, type: 2}
+--- !u!114 &7823419056789012345
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3380112128638786727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55d497f5ea4591446a57d2504231fefd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.Decals.DecalController
+  TextureRenderer: {fileID: 3617209755905732574}
 --- !u!1 &3735003899357687892
 GameObject:
   m_ObjectHideFlags: 0
@@ -1784,10 +1798,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6734461145872148287, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
-      propertyPath: DecalManager
-      value: 
-      objectReference: {fileID: 4776035585895015338}
-    - target: {fileID: 6734461145872148287, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
       propertyPath: FoldInstructionRunner
       value: 
       objectReference: {fileID: 8945394571852309787}
@@ -1896,10 +1906,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8677428535215635374, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
-      propertyPath: DecalManager
-      value: 
-      objectReference: {fileID: 4776035585895015338}
-    - target: {fileID: 8677428535215635374, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
       propertyPath: FoldInstructionRunner
       value: 
       objectReference: {fileID: 8945394571852309787}
@@ -1919,10 +1925,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8867977678249691970, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
-      propertyPath: DecalManager
-      value: 
-      objectReference: {fileID: 4776035585895015338}
     - target: {fileID: 8867977678249691970, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
       propertyPath: FoldInstructionRunner
       value: 
@@ -2005,10 +2007,6 @@ PrefabInstance:
       propertyPath: 'MeshMaterials.Array.data[1]'
       value: 
       objectReference: {fileID: 2100000, guid: d9b0171f8f6e4bd4da9a146da35c7549, type: 2}
-    - target: {fileID: 4502290895782083903, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
-      propertyPath: TextureRenderer
-      value: 
-      objectReference: {fileID: 3617209755905732574}
     - target: {fileID: 5559411859718704963, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
       propertyPath: GuideLineWidth
       value: 0.15
@@ -2018,17 +2016,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
---- !u!114 &4776035585895015338 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4502290895782083903, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}
-  m_PrefabInstance: {fileID: 8952235461921037973}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 55d497f5ea4591446a57d2504231fefd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.Decals.PaperDecalManager
 --- !u!20 &4955118115950875819 stripped
 Camera:
   m_CorrespondingSourceObject: {fileID: 4105214768651930174, guid: d22d02c5ad9be4049891a6585036b6be, type: 3}

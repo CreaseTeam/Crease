@@ -13,9 +13,6 @@ namespace Crease.Folding.Stickers
 {
     public class StickerUIController : MonoBehaviour, IPointerClickHandler
     {
-        [FormerlySerializedAs("stickerManager")]
-        public PaperDecalManager DecalManager;
-
         [FormerlySerializedAs("library")]
         public StickerLibrary Library;
 
@@ -95,7 +92,7 @@ namespace Crease.Folding.Stickers
         {
             if (_mouse == null)
                 _mouse = Mouse.current;
-            if (_mouse == null || !IsStickerPhaseActive() || DecalManager == null)
+            if (_mouse == null || !IsStickerPhaseActive() || DecalController.Instance == null)
                 return;
 
             Vector2 screenPosition = _mouse.position.ReadValue();
@@ -176,7 +173,7 @@ namespace Crease.Folding.Stickers
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (!IsStickerPhaseActive() || DecalManager == null)
+            if (!IsStickerPhaseActive() || DecalController.Instance == null)
                 return;
 
             StickerEntry entry = GetSelectedEntry();
@@ -202,14 +199,14 @@ namespace Crease.Folding.Stickers
             _heldEntry = null;
             _heldIsDamageDecal = false;
             _heldDamageSourceType = -1;
-            DecalManager?.HideGhost();
+            DecalController.Instance?.HideGhost();
             HideCursorFollower();
         }
 
         public void OnResetStickersClicked()
         {
             ClearHeldSticker();
-            DecalManager?.ClearUserStickers();
+            DecalController.Instance?.ClearUserStickers();
         }
 
         private void ApplyHeldStickerAdjustments(float deltaTime)
@@ -228,14 +225,14 @@ namespace Crease.Folding.Stickers
 
         private void TryPlaceHeldSticker(Vector2 screenPosition)
         {
-            if (DecalManager == null || _heldEntry?.Texture == null)
+            if (DecalController.Instance == null || _heldEntry?.Texture == null)
                 return;
 
-            DecalSurfaceQuery.SurfaceHit hit = DecalManager.RaycastScreen(screenPosition);
+            DecalSurfaceQuery.SurfaceHit hit = DecalController.Instance.RaycastScreen(screenPosition);
             if (!hit.Hit)
                 return;
 
-            DecalManager.PlaceDecal(
+            DecalController.Instance.PlaceDecal(
                 _heldEntry.Texture,
                 hit,
                 _heldScale,
@@ -247,7 +244,7 @@ namespace Crease.Folding.Stickers
 
         private void TryPickUpPlacedSticker(Vector2 screenPosition)
         {
-            if (!DecalManager.TryLiftDecalAtScreen(screenPosition, out DecalPlacement placement)
+            if (!DecalController.Instance.TryLiftDecalAtScreen(screenPosition, out DecalPlacement placement)
                 || placement.Texture == null)
                 return;
 
@@ -274,15 +271,15 @@ namespace Crease.Folding.Stickers
 
         private void UpdateHoldVisuals(Vector2 screenPosition)
         {
-            DecalSurfaceQuery.SurfaceHit hit = DecalManager.RaycastScreen(screenPosition);
+            DecalSurfaceQuery.SurfaceHit hit = DecalController.Instance.RaycastScreen(screenPosition);
             if (hit.Hit)
             {
-                DecalManager.ShowGhost(_heldEntry.Texture, hit, _heldScale, _heldRotationUv);
+                DecalController.Instance.ShowGhost(_heldEntry.Texture, hit, _heldScale, _heldRotationUv);
                 HideCursorFollower();
             }
             else
             {
-                DecalManager.HideGhost();
+                DecalController.Instance.HideGhost();
                 ShowCursorFollower(screenPosition);
             }
         }
