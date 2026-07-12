@@ -1,6 +1,7 @@
 using Crease.Folding.PaperSurface.Decals;
 using UnityEngine;
 using UnityEngine.Serialization;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Crease.Folding.PaperGraph
@@ -34,8 +35,15 @@ namespace Crease.Folding.PaperGraph
         public float FoldLineHalfLength = 1f;
 
         [Header("Preview")]
+        [Tooltip("Show the fold-preview mesh while dragging or animating folds.")]
+        public bool ShowPreviewMesh = true;
+        [Tooltip("Draw vertex/edge gizmos on the preview graph. Authoring gizmos stay on the parent.")]
+        public bool ShowPreviewGraphGizmos = false;
+
+        [FormerlySerializedAs("PreviewGraph")]
         [FormerlySerializedAs("previewGraph")]
-        public PaperGraph PreviewGraph;
+        [SerializeField, HideInInspector]
+        private PaperGraph _legacyPreviewGraph;
 
         [Header("Gizmo")]
         [FormerlySerializedAs("showFoldGizmo")]
@@ -46,8 +54,23 @@ namespace Crease.Folding.PaperGraph
         public Color GizmoColor = new Color(1f, 0.5f, 0f, 0.25f);
 
         private PaperGraph _paperGraph;
+        private PaperGraph _previewGraph;
         private PaperGraphVisualizer _authoringVisualizer;
         private PaperGraphVisualizer _previewVisualizer;
+
+        private const string PreviewObjectName = "Preview";
+
+        public PaperGraph AuthoringGraph => _paperGraph;
+        public PaperGraph PreviewGraph => _previewGraph;
+        public PaperGraphVisualizer AuthoringVisualizer => _authoringVisualizer;
+        public PaperGraphVisualizer PreviewVisualizer => _previewVisualizer;
+        public Transform PreviewMeshRoot => _previewGraph != null ? _previewGraph.transform : null;
+
+        public MeshRenderer PreviewMeshRenderer =>
+            _previewGraph != null ? _previewGraph.GetComponent<MeshRenderer>() : null;
+
+        public MeshCollider PreviewMeshCollider =>
+            _previewGraph != null ? _previewGraph.GetComponent<MeshCollider>() : null;
 
         // When set by FoldInstructionRunner, RecalculateFoldAxis will refuse to move
         // FoldPoint1/FoldPoint2 to a position whose axis line crosses any frozen segment.
@@ -127,15 +150,114 @@ namespace Crease.Folding.PaperGraph
         private float _prevFoldDegrees;
 
         private void Awake() {
-            _paperGraph = GetComponent<PaperGraph>();
-            _authoringVisualizer = GetComponent<PaperGraphVisualizer>();
-            if (PreviewGraph != null)
-                _previewVisualizer = PreviewGraph.GetComponent<PaperGraphVisualizer>();
+            EnsurePreviewInfrastructure();
             CacheFoldValues();
         }
 
+        private void Start() {
+            StartCoroutine(InitializeDisplayMeshAfterGraphReady());
+        }
+
+        private IEnumerator InitializeDisplayMeshAfterGraphReady() {
+            yield return null;
+            InitializeDisplayMesh();
+        }
+
+        /// <summary>
+        /// Ensures the authoring sheet and preview mesh are visible without waiting for a loadout.
+        /// </summary>
+        public void InitializeDisplayMesh() {
+            EnsurePreviewInfrastructure();
+            EnsureAuthoringSheet();
+            ClearPreview();
+        }
+
+        private void EnsureAuthoringSheet() {
+            if (_paperGraph == null)
+                return;
+
+            if (_paperGraph.Faces.Count == 0)
+                _paperGraph.CreateSheet(_paperGraph.Width, _paperGraph.Height);
+        }
+
         private void OnValidate() {
-            UpdatePreview();
+            EnsurePreviewInfrastructure();
+            SyncPreviewVisualizerSettings();
+            if (_paperGraph != null && _paperGraph.Faces.Count > 0)
+                UpdatePreview();
+            else
+                RefreshVisualizers();
+        }
+
+        private void EnsurePreviewInfrastructure() {
+            _paperGraph = GetComponent<PaperGraph>();
+            _authoringVisualizer = GetComponent<PaperGraphVisualizer>();
+            if (_authoringVisualizer != null && _authoringVisualizer.Graph == null)
+                _authoringVisualizer.Graph = _paperGraph;
+
+            Transform previewTransform = transform.Find(PreviewObjectName);
+            GameObject previewObject = previewTransform != null ? previewTransform.gameObject : null;
+
+            if (previewObject == null && _legacyPreviewGraph != null)
+            {
+                previewObject = _legacyPreviewGraph.gameObject;
+                previewObject.name = PreviewObjectName;
+                previewObject.transform.SetParent(transform, false);
+            }
+
+#if UNITY_EDITOR
+            if (previewObject == null && !Application.isPlaying)
+            {
+                previewObject = new GameObject(PreviewObjectName);
+                UnityEditor.Undo.RegisterCreatedObjectUndo(previewObject, "Create Paper Preview");
+                previewObject.transform.SetParent(transform, false);
+            }
+#endif
+            if (previewObject == null)
+            {
+                previewObject = new GameObject(PreviewObjectName);
+                previewObject.transform.SetParent(transform, false);
+            }
+
+            if (previewObject.GetComponent<PaperGraphPreviewRoot>() == null)
+                previewObject.AddComponent<PaperGraphPreviewRoot>();
+
+            _previewGraph = previewObject.GetComponent<PaperGraph>();
+            if (_previewGraph == null)
+                _previewGraph = previewObject.AddComponent<PaperGraph>();
+
+            _previewVisualizer = previewObject.GetComponent<PaperGraphVisualizer>();
+            if (_previewVisualizer == null)
+                _previewVisualizer = previewObject.AddComponent<PaperGraphVisualizer>();
+
+            _previewVisualizer.Graph = _previewGraph;
+            _legacyPreviewGraph = null;
+            SyncPreviewVisualizerSettings();
+        }
+
+        private void SyncPreviewVisualizerSettings() {
+            if (_authoringVisualizer == null || _previewVisualizer == null)
+                return;
+
+            _previewVisualizer.MeshMaterial = _authoringVisualizer.MeshMaterial;
+            _previewVisualizer.MeshMaterials = _authoringVisualizer.MeshMaterials;
+            _previewVisualizer.DebugMeshMaterial = _authoringVisualizer.DebugMeshMaterial;
+            _previewVisualizer.DebugMeshMaterials = _authoringVisualizer.DebugMeshMaterials;
+            _previewVisualizer.VertexColor = _authoringVisualizer.VertexColor;
+            _previewVisualizer.EdgeColor = _authoringVisualizer.EdgeColor;
+            _previewVisualizer.FoldedEdgeColor = _authoringVisualizer.FoldedEdgeColor;
+            _previewVisualizer.VertexSize = _authoringVisualizer.VertexSize;
+            _previewVisualizer.EdgeThickness = _authoringVisualizer.EdgeThickness;
+            _previewVisualizer.TagHighlightColor = _authoringVisualizer.TagHighlightColor;
+            _previewVisualizer.TagHighlightSize = _authoringVisualizer.TagHighlightSize;
+            _previewVisualizer.SelectedTagIndex = _authoringVisualizer.SelectedTagIndex;
+
+            _previewVisualizer.ShowMesh = ShowPreviewMesh;
+            _previewVisualizer.DrawGraphStructure = ShowPreviewGraphGizmos;
+            _previewVisualizer.ShowVertexLabels = ShowPreviewGraphGizmos;
+            _previewVisualizer.ShowFoldAngles = ShowPreviewGraphGizmos;
+            _previewVisualizer.ShowCoordinateRulers = false;
+            _previewVisualizer.SetDebugPaperTexture(_authoringVisualizer.DebugPaperTexture);
         }
 
         private void CacheFoldValues() {
@@ -146,18 +268,20 @@ namespace Crease.Folding.PaperGraph
         }
 
         public void UpdatePreview() {
-            if (_paperGraph == null || PreviewGraph == null) return;
+            if (_paperGraph == null || _previewGraph == null) return;
+
+            SyncPreviewVisualizerSettings();
 
             PaperGraphSnapshot snapshot = _paperGraph.CreateSnapshot();
-            PreviewGraph.RestoreSnapshot(snapshot);
+            _previewGraph.RestoreSnapshot(snapshot);
             string tag = string.IsNullOrEmpty(FoldTagName) ? null : FoldTagName;
-            bool valid = PreviewGraph.ExecuteFold(FoldPoint1, FoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTags, FoldOffset);
+            bool valid = _previewGraph.ExecuteFold(FoldPoint1, FoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTags, FoldOffset);
 
             if (!valid) {
                 FoldPoint1 = LockedFoldPoint1;
                 FoldPoint2 = LockedFoldPoint2;
-                PreviewGraph.RestoreSnapshot(snapshot);
-                PreviewGraph.ExecuteFold(LockedFoldPoint1, LockedFoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTags, FoldOffset);
+                _previewGraph.RestoreSnapshot(snapshot);
+                _previewGraph.ExecuteFold(LockedFoldPoint1, LockedFoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTags, FoldOffset);
             } else {
                 LockedFoldPoint1 = FoldPoint1;
                 LockedFoldPoint2 = FoldPoint2;
@@ -325,10 +449,10 @@ namespace Crease.Folding.PaperGraph
         }
 
         private void SyncPreviewFromAuthoring() {
-            if (_paperGraph == null || PreviewGraph == null)
+            if (_paperGraph == null || _previewGraph == null)
                 return;
 
-            PreviewGraph.RestoreSnapshot(_paperGraph.CreateSnapshot());
+            _previewGraph.RestoreSnapshot(_paperGraph.CreateSnapshot());
         }
 
         public bool PrepareAccordionAction(
@@ -357,15 +481,15 @@ namespace Crease.Folding.PaperGraph
         }
 
         public void UpdateAccordionPreview(float collapseT) {
-            if (_paperGraph == null || PreviewGraph == null || !_paperGraph.HasAccordionData) return;
+            if (_paperGraph == null || _previewGraph == null || !_paperGraph.HasAccordionData) return;
 
             if (_previewVisualizer != null)
                 _previewVisualizer.SkipColliderUpdate = true;
 
             AccordionCollapseData data = _paperGraph.GetAccordionData();
             PaperGraphSnapshot snapshot = _paperGraph.CreateSnapshot();
-            PreviewGraph.RestoreSnapshot(snapshot);
-            AccordionCollapse.ApplyPose(PreviewGraph, data, collapseT, FoldOffset);
+            _previewGraph.RestoreSnapshot(snapshot);
+            AccordionCollapse.ApplyPose(_previewGraph, data, collapseT, FoldOffset);
             RefreshVisualizers();
         }
 
@@ -555,16 +679,16 @@ namespace Crease.Folding.PaperGraph
         }
 
         public void ClearPreview() {
-            if (_paperGraph == null || PreviewGraph == null) return;
+            if (_paperGraph == null || _previewGraph == null) return;
 
             if (_previewVisualizer != null)
                 _previewVisualizer.SkipColliderUpdate = false;
 
             PaperGraphSnapshot snapshot = _paperGraph.CreateSnapshot();
-            PreviewGraph.RestoreSnapshot(snapshot);
+            _previewGraph.RestoreSnapshot(snapshot);
 
             if (IsAccordionDragStep && _paperGraph.HasAccordionData)
-                AccordionCollapse.ApplyPose(PreviewGraph, _paperGraph.GetAccordionData(), AccordionCollapseT, FoldOffset);
+                AccordionCollapse.ApplyPose(_previewGraph, _paperGraph.GetAccordionData(), AccordionCollapseT, FoldOffset);
 
             RefreshVisualizers();
         }
@@ -622,6 +746,10 @@ namespace Crease.Folding.PaperGraph
             RefreshVisualizers();
         }
 
+        public void RefreshDisplayMeshes() {
+            RefreshVisualizers();
+        }
+
         public void UpdateFoldFromDrag(Vector3 dragStartLocal, Vector3 dragCurrentLocal) {
             if (!TryComputeFoldAxisFromDrag(dragStartLocal, dragCurrentLocal, out Vector3 candidateP1, out Vector3 candidateP2))
                 return;
@@ -639,6 +767,7 @@ namespace Crease.Folding.PaperGraph
         }
 
         private void RefreshVisualizers() {
+            SyncPreviewVisualizerSettings();
             _authoringVisualizer?.UpdateMesh();
             _previewVisualizer?.UpdateMesh();
             DecalController.Instance?.OnMeshUpdated();

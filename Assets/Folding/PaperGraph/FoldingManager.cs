@@ -485,9 +485,9 @@ namespace Crease.Folding.PaperGraph
             if (_playerMeshRenderer == null || mesh == null || PaperGraph == null) return;
 
             PaperGraphController controller = PaperGraph.GetComponent<PaperGraphController>();
-            if (controller == null || controller.PreviewGraph == null) return;
+            if (controller == null) return;
 
-            PaperGraphVisualizer previewVisualizer = controller.PreviewGraph.GetComponent<PaperGraphVisualizer>();
+            PaperGraphVisualizer previewVisualizer = controller.PreviewVisualizer;
             if (previewVisualizer == null) return;
 
             if (previewVisualizer.MeshMaterials != null && previewVisualizer.MeshMaterials.Length >= mesh.subMeshCount) {

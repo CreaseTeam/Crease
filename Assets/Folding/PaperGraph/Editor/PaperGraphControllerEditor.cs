@@ -12,6 +12,13 @@ namespace Crease.Folding.PaperGraph.Editor
 
             PaperGraphController controller = (PaperGraphController)target;
 
+            EditorGUILayout.Space(5);
+            EditorGUILayout.LabelField("Preview Display", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+                "The fold preview mesh is created automatically under this object. "
+                + "Materials and crease/guide settings come from the PaperGraph and PaperGraphVisualizer on this object.",
+                MessageType.None);
+
             PaperGraph graph = controller.GetComponent<PaperGraph>();
             if (graph != null && graph.Tags != null && graph.Tags.Count > 0) {
                 EditorGUILayout.Space(5);

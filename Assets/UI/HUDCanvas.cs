@@ -807,16 +807,11 @@ namespace Crease.UI
             PaperGraphController controller = _foldInstructionRunner.Controller;
             var visualizers = new List<PaperGraphVisualizer>(2);
 
-            PaperGraphVisualizer authoringVisualizer = controller.GetComponent<PaperGraphVisualizer>();
-            if (authoringVisualizer != null)
-                visualizers.Add(authoringVisualizer);
+            if (controller.AuthoringVisualizer != null)
+                visualizers.Add(controller.AuthoringVisualizer);
 
-            if (controller.PreviewGraph != null)
-            {
-                PaperGraphVisualizer previewVisualizer = controller.PreviewGraph.GetComponent<PaperGraphVisualizer>();
-                if (previewVisualizer != null)
-                    visualizers.Add(previewVisualizer);
-            }
+            if (controller.PreviewVisualizer != null)
+                visualizers.Add(controller.PreviewVisualizer);
 
             return visualizers.ToArray();
         }

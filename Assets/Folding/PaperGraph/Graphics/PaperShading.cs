@@ -29,15 +29,40 @@ namespace Crease.Folding.PaperGraph
 
         public static void ApplyCreaseSegments(Renderer renderer, PaperGraph graph)
         {
-            ApplyCreaseSegments(renderer, graph, Matrix4x4.identity);
+            ApplyCreaseSegments(renderer, graph, graph, Matrix4x4.identity);
         }
 
         /// <param name="segmentTransform">
         /// Maps graph-local crease endpoints into the target mesh object space.
         /// </param>
-        public static void ApplyCreaseSegments(Renderer renderer, PaperGraph graph, Matrix4x4 segmentTransform)
+        public static void ApplyCreaseSegments(
+            Renderer renderer,
+            PaperGraph topologyGraph,
+            Matrix4x4 segmentTransform)
         {
-            ApplyRendererShading(renderer, graph, null, null, segmentTransform);
+            ApplyCreaseSegments(renderer, topologyGraph, topologyGraph, segmentTransform);
+        }
+
+        public static void ApplyCreaseSegments(
+            Renderer renderer,
+            PaperGraph topologyGraph,
+            PaperGraph settingsGraph)
+        {
+            ApplyCreaseSegments(renderer, topologyGraph, settingsGraph, Matrix4x4.identity);
+        }
+
+        /// <param name="topologyGraph">Edge topology used to build crease segments.</param>
+        /// <param name="settingsGraph">Crease width/brightness settings. Defaults to topologyGraph.</param>
+        /// <param name="segmentTransform">
+        /// Maps graph-local crease endpoints into the target mesh object space.
+        /// </param>
+        public static void ApplyCreaseSegments(
+            Renderer renderer,
+            PaperGraph topologyGraph,
+            PaperGraph settingsGraph,
+            Matrix4x4 segmentTransform)
+        {
+            ApplyRendererShading(renderer, topologyGraph, settingsGraph, null, null, segmentTransform);
         }
 
         public static void ApplyDecalMaps(Renderer renderer, Texture frontDecalMap, Texture backDecalMap)
@@ -55,7 +80,7 @@ namespace Crease.Folding.PaperGraph
             Texture frontDecalMap,
             Texture backDecalMap)
         {
-            ApplyRendererShading(renderer, graph, frontDecalMap, backDecalMap, Matrix4x4.identity);
+            ApplyRendererShading(renderer, graph, graph, frontDecalMap, backDecalMap, Matrix4x4.identity);
         }
 
         /// <param name="segmentTransform">
@@ -63,7 +88,45 @@ namespace Crease.Folding.PaperGraph
         /// </param>
         public static void ApplyRendererShading(
             Renderer renderer,
-            PaperGraph graph,
+            PaperGraph topologyGraph,
+            Texture frontDecalMap,
+            Texture backDecalMap,
+            Matrix4x4 segmentTransform)
+        {
+            ApplyRendererShading(renderer, topologyGraph, topologyGraph, frontDecalMap, backDecalMap, segmentTransform);
+        }
+
+        public static void ApplyRendererShading(
+            Renderer renderer,
+            PaperGraph topologyGraph,
+            PaperGraph settingsGraph,
+            Texture frontDecalMap,
+            Texture backDecalMap)
+        {
+            ApplyRendererShading(renderer, topologyGraph, settingsGraph, frontDecalMap, backDecalMap, Matrix4x4.identity);
+        }
+
+        /// <param name="topologyGraph">Edge topology used to build crease segments.</param>
+        /// <param name="settingsGraph">Crease width/brightness settings. Defaults to topologyGraph.</param>
+        /// <param name="segmentTransform">
+        /// Maps graph-local crease endpoints into the target mesh object space.
+        /// </param>
+        public static void ApplyRendererShading(
+            Renderer renderer,
+            PaperGraph topologyGraph,
+            PaperGraph settingsGraph,
+            Texture frontDecalMap,
+            Texture backDecalMap,
+            Matrix4x4 segmentTransform)
+        {
+            settingsGraph ??= topologyGraph;
+            ApplyRendererShadingInternal(renderer, topologyGraph, settingsGraph, frontDecalMap, backDecalMap, segmentTransform);
+        }
+
+        private static void ApplyRendererShadingInternal(
+            Renderer renderer,
+            PaperGraph topologyGraph,
+            PaperGraph settingsGraph,
             Texture frontDecalMap,
             Texture backDecalMap,
             Matrix4x4 segmentTransform)
@@ -77,18 +140,18 @@ namespace Crease.Folding.PaperGraph
             float creaseWidth = 0f;
             float creaseMinBrightness = 1f;
 
-            if (graph != null)
+            if (topologyGraph != null)
             {
-                creaseWidth = graph.CreaseDarkenWidth;
-                creaseMinBrightness = graph.CreaseMinBrightness;
+                creaseWidth = settingsGraph.CreaseDarkenWidth;
+                creaseMinBrightness = settingsGraph.CreaseMinBrightness;
 
                 if (creaseWidth > 0f)
                 {
                     Dictionary<Face, int> faceToIndex = new Dictionary<Face, int>();
-                    for (int i = 0; i < graph.Faces.Count; i++)
-                        faceToIndex[graph.Faces[i]] = i;
+                    for (int i = 0; i < topologyGraph.Faces.Count; i++)
+                        faceToIndex[topologyGraph.Faces[i]] = i;
 
-                    foreach (Edge edge in graph.Edges)
+                    foreach (Edge edge in topologyGraph.Edges)
                     {
                         if (!IsFoldCrease(edge))
                             continue;

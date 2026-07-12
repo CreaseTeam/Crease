@@ -93,16 +93,19 @@ namespace Crease.Folding.PaperSurface.Decals
             if (controller == null || _authoringGraph == null || controller.PreviewGraph == null)
                 return;
 
-            PaperGraphVisualizer previewVisualizer = controller.PreviewGraph.GetComponent<PaperGraphVisualizer>();
+            PaperGraphVisualizer previewVisualizer = controller.PreviewVisualizer;
             if (previewVisualizer == null || !previewVisualizer.ShowMesh)
                 return;
 
             previewVisualizer.UpdateMesh();
-            MeshCollider collider = previewVisualizer.GetComponent<MeshCollider>();
+            MeshCollider collider = controller.PreviewMeshCollider;
             if (collider == null || collider.sharedMesh == null)
                 return;
 
-            Transform meshSurfaceRoot = GetFoldingMeshSurfaceRoot();
+            Transform meshSurfaceRoot = controller.PreviewMeshRoot;
+            if (meshSurfaceRoot == null)
+                return;
+
             if (_surfaceQuery == null)
             {
                 _surfaceQuery = new DecalSurfaceQuery(
@@ -410,14 +413,15 @@ namespace Crease.Folding.PaperSurface.Decals
             HideGhost();
         }
 
-        public void ApplyDecalMapsToRenderer(Renderer renderer, GraphMesh graph = null)
+        public void ApplyDecalMapsToRenderer(Renderer renderer, GraphMesh topologyGraph = null, GraphMesh settingsGraph = null)
         {
             if (renderer == null || TextureRenderer == null)
                 return;
 
             PaperShading.ApplyRendererShading(
                 renderer,
-                graph,
+                topologyGraph,
+                settingsGraph,
                 TextureRenderer.FrontTexture,
                 TextureRenderer.BackTexture);
         }
@@ -448,15 +452,12 @@ namespace Crease.Folding.PaperSurface.Decals
                 return;
 
             if (controller.PreviewGraph != null)
-            {
-                MeshRenderer previewRenderer = controller.PreviewGraph.GetComponent<MeshRenderer>();
-                ApplyDecalMapsToRenderer(previewRenderer, controller.PreviewGraph);
-            }
+                ApplyDecalMapsToRenderer(controller.PreviewMeshRenderer, controller.PreviewGraph, _authoringGraph);
 
             if (_authoringGraph != null)
             {
                 MeshRenderer authoringRenderer = _authoringGraph.GetComponent<MeshRenderer>();
-                ApplyDecalMapsToRenderer(authoringRenderer, _authoringGraph);
+                ApplyDecalMapsToRenderer(authoringRenderer, _authoringGraph, _authoringGraph);
             }
         }
 
@@ -580,9 +581,9 @@ namespace Crease.Folding.PaperSurface.Decals
         private Transform GetFoldingMeshSurfaceRoot()
         {
             PaperGraphController controller = Controller;
-            if (controller == null || controller.PreviewGraph == null)
-                return controller != null ? controller.transform : null;
-            return controller.PreviewGraph.transform;
+            if (controller == null)
+                return null;
+            return controller.PreviewMeshRoot ?? controller.transform;
         }
     }
 }

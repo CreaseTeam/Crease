@@ -28,6 +28,8 @@ namespace Crease.Folding.PaperGraph
         public bool ShowFoldAngles = true;
         [FormerlySerializedAs("showMesh")]
         public bool ShowMesh = true;
+        [Tooltip("Draw vertices and edges in the Scene view.")]
+        public bool DrawGraphStructure = true;
 
         [Header("Coordinate Rulers")]
         [Tooltip("Draw local X/Z rulers along the paper edges to help place drag handles.")]
@@ -76,6 +78,23 @@ namespace Crease.Folding.PaperGraph
         private MeshRenderer _meshRenderer;
         private MeshCollider _meshCollider;
         private Mesh _colliderMesh;
+        private PaperGraph _shadingSettingsGraph;
+        private bool _shadingSettingsResolved;
+
+        private PaperGraph ShadingSettingsGraph {
+            get {
+                if (_shadingSettingsResolved)
+                    return _shadingSettingsGraph ?? Graph;
+
+                _shadingSettingsResolved = true;
+                if (GetComponent<PaperGraphPreviewRoot>() != null) {
+                    PaperGraphController controller = GetComponentInParent<PaperGraphController>();
+                    _shadingSettingsGraph = controller != null ? controller.AuthoringGraph : null;
+                }
+
+                return _shadingSettingsGraph ?? Graph;
+            }
+        }
 
         private void Awake() {
             _meshFilter = GetComponent<MeshFilter>();
@@ -105,6 +124,12 @@ namespace Crease.Folding.PaperGraph
             if (Graph == null) return;
 
             UpdateMesh();
+
+            if (!DrawGraphStructure)
+            {
+                Gizmos.matrix = Matrix4x4.identity;
+                return;
+            }
 
             Gizmos.matrix = Graph.transform.localToWorldMatrix;
 
@@ -265,7 +290,7 @@ namespace Crease.Folding.PaperGraph
                     _meshCollider.convex = false;
                 }
 
-                PaperShading.ApplyCreaseSegments(_meshRenderer, Graph);
+                PaperShading.ApplyCreaseSegments(_meshRenderer, Graph, ShadingSettingsGraph);
             } else {
                 _meshFilter.sharedMesh = null;
                 _meshRenderer.enabled = false;

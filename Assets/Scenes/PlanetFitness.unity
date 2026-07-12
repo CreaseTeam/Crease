@@ -13658,6 +13658,14 @@ PrefabInstance:
       value: According to all known laws of aviation, the bee should not be able
         to fly.
       objectReference: {fileID: 0}
+    - target: {fileID: 8671344537949093272, guid: 5d9c36e5264e3aa478d1ba5a8ec7c9d6, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: b519b0dcf992bd040bcf79986e2f8a14, type: 2}
+    - target: {fileID: 9008714206906120957, guid: 5d9c36e5264e3aa478d1ba5a8ec7c9d6, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: b519b0dcf992bd040bcf79986e2f8a14, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -14201,7 +14209,8 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 3690275824100547343, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5167b9f9155799343bc0eb1e1a4edc74, type: 3}

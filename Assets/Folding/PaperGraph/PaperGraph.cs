@@ -47,6 +47,15 @@ public class PaperGraph : MonoBehaviour
     [Tooltip("Offset dashes along the guide line.")]
     public float GuideDashOffset = 0f;
 
+#if UNITY_EDITOR
+    private void OnValidate() {
+        if (GetComponent<PaperGraphPreviewRoot>() != null)
+            return;
+
+        GetComponent<PaperGraphController>()?.RefreshDisplayMeshes();
+    }
+#endif
+
     private List<PaperGraphSnapshot> _undoStack = new List<PaperGraphSnapshot>();
     private List<PaperGraphSnapshot> _redoStack = new List<PaperGraphSnapshot>();
     private AccordionCollapseData _accordionData;
@@ -321,6 +330,9 @@ public class PaperGraph : MonoBehaviour
     }
 
     private void Start() {
+        if (GetComponent<PaperGraphPreviewRoot>() != null)
+            return;
+
         Vertices.Clear();
         Edges.Clear();
         Faces.Clear();
