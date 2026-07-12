@@ -265,7 +265,7 @@ namespace Crease.Folding.PaperGraph
                     _meshCollider.convex = false;
                 }
 
-                PaperEdgeShading.Apply(_meshRenderer, Graph);
+                PaperShading.ApplyCreaseSegments(_meshRenderer, Graph);
             } else {
                 _meshFilter.sharedMesh = null;
                 _meshRenderer.enabled = false;

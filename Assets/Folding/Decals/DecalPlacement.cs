@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Crease.Folding.PaperGraph;
 using UnityEngine;
 
@@ -39,21 +38,14 @@ namespace Crease.Folding.Decals
         public Vector3 AlignAxisLocal;
 
         /// <summary>
-        /// When true, regions of the decal that extend past its placement region are culled.
-        /// See <see cref="CullRegionSheetUvPolygons"/> for the allowed area.
-        /// </summary>
-        public bool CullOverhang;
-
-        /// <summary>
-        /// Sheet-UV polygons describing the paper regions this decal may cover.
-        /// When empty, culling falls back to the full visible paper surface on <see cref="Side"/>.
-        /// </summary>
-        public Vector2[][] CullRegionSheetUvPolygons;
-
-        /// <summary>
         /// When true, this decal was placed by damage and is preserved through refold.
         /// </summary>
         public bool IsDamageDecal;
+
+        /// <summary>
+        /// Tint applied when rendering this decal into the sheet texture.
+        /// </summary>
+        public Color StampColor = Color.white;
 
         /// <summary>
         /// <see cref="Crease.Flying.Player.Health.DamageType"/> ordinal when <see cref="IsDamageDecal"/> is true; otherwise -1.
@@ -70,11 +62,9 @@ namespace Crease.Folding.Decals
             float rotationUv = 0f,
             float heightScale = 0f,
             Vector3 alignAxisLocal = default,
-            bool useAxisAlignment = false,
-            bool cullOverhang = false,
-            IEnumerable<Face> cullFaces = null)
+            bool useAxisAlignment = false)
         {
-            var placement = new DecalPlacement
+            return new DecalPlacement
             {
                 Texture = texture,
                 Anchor0Index = hit.Anchor0Index,
@@ -91,53 +81,8 @@ namespace Crease.Folding.Decals
                 ViewRayOriginLocal = hit.ViewRayOriginLocal,
                 ViewRayDirLocal = hit.ViewRayDirLocal,
                 UseAxisAlignment = useAxisAlignment,
-                AlignAxisLocal = alignAxisLocal,
-                CullOverhang = cullOverhang
+                AlignAxisLocal = alignAxisLocal
             };
-
-            if (cullOverhang)
-                placement.CullRegionSheetUvPolygons = BuildCullRegionPolygons(hit, cullFaces);
-
-            return placement;
-        }
-
-        public static Vector2[][] BuildCullRegionPolygons(
-            DecalSurfaceQuery.SurfaceHit hit,
-            IEnumerable<Face> cullFaces = null)
-        {
-            if (cullFaces != null)
-            {
-                var polygons = new List<Vector2[]>();
-                foreach (Face face in cullFaces)
-                {
-                    if (face == null || face.Vertices.Count < 3)
-                        continue;
-
-                    polygons.Add(BuildFaceSheetUvPolygon(face, hit.Side));
-                }
-
-                return polygons.Count > 0 ? polygons.ToArray() : null;
-            }
-
-            if (hit.HitFace == null || hit.HitFace.Vertices.Count < 3)
-                return null;
-
-            return new[] { BuildFaceSheetUvPolygon(hit.HitFace, hit.Side) };
-        }
-
-        public static Vector2[] BuildFaceSheetUvPolygon(Face face, PaperSide side)
-        {
-            var polygon = new Vector2[face.Vertices.Count];
-            for (int i = 0; i < face.Vertices.Count; i++)
-                polygon[i] = VertexSheetUv(face.Vertices[i], side);
-            return polygon;
-        }
-
-        private static Vector2 VertexSheetUv(Vertex vertex, PaperSide side)
-        {
-            if (side == PaperSide.Back)
-                return new Vector2(1f - vertex.Uv.x, vertex.Uv.y);
-            return vertex.Uv;
         }
     }
 }

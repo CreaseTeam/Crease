@@ -257,8 +257,6 @@ namespace Crease.Folding.PaperGraph
                 RestoreFoldingPhaseUi();
             }
 
-            RestoreDecalsToFoldingPaper();
-
             if (FlyingCamera != null) FlyingCamera.gameObject.SetActive(false);
             if (FoldingCamera != null) FoldingCamera.gameObject.SetActive(true);
 
@@ -416,7 +414,7 @@ namespace Crease.Folding.PaperGraph
             else
                 ApplyDefaultMeshToPlayer();
 
-            AttachDecalsToPlayerMesh();
+            AttachDecalMapsToPlayerMesh();
 
             if (PaperGraph != null) PaperGraph.gameObject.SetActive(false);
 
@@ -501,7 +499,7 @@ namespace Crease.Folding.PaperGraph
                 _playerMeshRenderer.sharedMaterials = materials;
             }
 
-            PaperEdgeShading.Apply(_playerMeshRenderer, PaperGraph, GetFlightSegmentTransform());
+            AttachDecalMapsToPlayerMesh();
         }
 
         private Matrix4x4 GetFlightSegmentTransform() {
@@ -511,23 +509,22 @@ namespace Crease.Folding.PaperGraph
             return Matrix4x4.Rotate(Quaternion.Euler(MeshRotation));
         }
 
-        private void AttachDecalsToPlayerMesh() {
+        private void AttachDecalMapsToPlayerMesh() {
             PaperDecalManager decalManager = GetDecalManager();
             if (decalManager == null) return;
 
             CachePlayerMeshReferences();
-            Transform flightMeshRoot = GetPlayerMeshTransform();
-            if (flightMeshRoot == null) return;
+            if (_playerMeshRenderer == null) return;
 
-            if (PaperGraph != null)
-                flightMeshRoot.SetPositionAndRotation(PaperGraph.transform.position, flightMeshRoot.rotation);
+            if (decalManager.TextureRenderer == null)
+                return;
 
-            decalManager.AttachToFlight(flightMeshRoot, Quaternion.Euler(MeshRotation));
-        }
-
-        private void RestoreDecalsToFoldingPaper() {
-            PaperDecalManager decalManager = GetDecalManager();
-            decalManager?.RestoreToFolding();
+            PaperShading.ApplyRendererShading(
+                _playerMeshRenderer,
+                PaperGraph,
+                decalManager.TextureRenderer.FrontTexture,
+                decalManager.TextureRenderer.BackTexture,
+                GetFlightSegmentTransform());
         }
 
         private void RestoreFoldingPhaseUi() {

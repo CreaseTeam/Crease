@@ -14,37 +14,19 @@ namespace Crease.Folding.Decals
         [FormerlySerializedAs("foldingCamera")]
         public Camera FoldingCamera;
 
-        [Header("Rendering")]
-        [Tooltip("Material template for all decal quads. Configure surface type, blending, culling, and shading in the asset.")]
-        public Material DecalMaterial;
-
-        [Header("Surface Offset")]
-        [Tooltip("Base lift along the surface normal so decals sit above the paper mesh.")]
-        [Min(0f)]
-        public float BaseSurfaceOffset = 0.0005f;
-        [Tooltip("Extra lift per decal layer order step, applied along the surface normal.")]
-        [Min(0f)]
-        public float LayerOffsetStep = 0.0001f;
+        [Header("Render Textures")]
+        public DecalTextureRenderer TextureRenderer;
 
         private GraphMesh _authoringGraph;
         private DecalSurfaceQuery _surfaceQuery;
         private readonly List<DecalPlacement> _placements = new List<DecalPlacement>();
-        private readonly List<DecalQuad> _quads = new List<DecalQuad>();
-        private readonly List<PreviewAnchorCache> _previewCaches = new List<PreviewAnchorCache>();
         private readonly List<DecalPlacement> _guidePlacements = new List<DecalPlacement>();
-        private readonly List<DecalQuad> _guideQuads = new List<DecalQuad>();
-        private readonly List<PreviewAnchorCache> _guidePreviewCaches = new List<PreviewAnchorCache>();
-        private DecalQuad _ghostQuad;
-        private readonly PreviewAnchorCache _ghostPreviewCache = new PreviewAnchorCache();
-        private Transform _flightMeshRoot;
-        private Quaternion _flightVertexRotation = Quaternion.identity;
-        private Matrix4x4 _graphToFlightMeshLocal = Matrix4x4.identity;
-        private bool _attachedToFlight;
+        private DecalPlacement _ghostPlacement;
+        private bool _ghostVisible;
 
         private static Texture2D _guideTickTexture;
 
         public IReadOnlyList<DecalPlacement> Placements => _placements;
-        public bool IsAttachedToFlight => _attachedToFlight;
 
         private void Awake()
         {
@@ -56,6 +38,9 @@ namespace Crease.Folding.Decals
                     Controller.DecalManager = this;
                 _authoringGraph = Controller.GetComponent<GraphMesh>();
             }
+
+            if (TextureRenderer == null)
+                TextureRenderer = GetComponentInChildren<DecalTextureRenderer>(true);
         }
 
         public void PreparePlacement(bool syncPreviewFromAuthoring = true)
@@ -66,18 +51,18 @@ namespace Crease.Folding.Decals
             if (syncPreviewFromAuthoring)
                 Controller.ClearPreview();
 
-            EnsureSurfaceQuery();
-
-            if (!_attachedToFlight && _placements.Count > 0)
-            {
-                InvalidatePreviewCaches();
-                RefreshAfterMeshUpdate(reanchorAuthoring: false, trackPreviewSurface: false);
-            }
+            OnMeshUpdated();
+            RebuildTextures();
         }
 
-        public void EnsureSurfaceQuery()
+        /// <summary>
+        /// Refreshes sticker picking against the current preview mesh and re-binds decal RTs
+        /// after paper topology or pose changes.
+        /// </summary>
+        public void OnMeshUpdated()
         {
             RebuildSurfaceQuery();
+            ApplyDecalMapsToAllRenderers();
         }
 
         private void RebuildSurfaceQuery()
@@ -95,57 +80,50 @@ namespace Crease.Folding.Decals
                 return;
 
             Transform meshSurfaceRoot = GetFoldingMeshSurfaceRoot();
-            _surfaceQuery = new DecalSurfaceQuery(
-                _authoringGraph,
-                Controller.PreviewGraph,
-                meshSurfaceRoot,
-                collider);
+            if (_surfaceQuery == null)
+            {
+                _surfaceQuery = new DecalSurfaceQuery(
+                    _authoringGraph,
+                    Controller.PreviewGraph,
+                    meshSurfaceRoot,
+                    collider);
+            }
+
             _surfaceQuery.RebuildTriangleMap();
         }
 
-        /// <summary>
-        /// Re-anchors sticker data on the authoring graph when topology changes, then redisplays decals.
-        /// Use <paramref name="trackPreviewSurface"/> during active fold preview so stickers follow the deforming mesh.
-        /// </summary>
-        public void RefreshAfterMeshUpdate(bool reanchorAuthoring = true, bool trackPreviewSurface = false)
-        {
-            if (_attachedToFlight) return;
-
-            _surfaceQuery?.RebuildTriangleMap();
-            if (_authoringGraph == null || Controller == null) return;
-
-            EnsurePreviewCacheCount();
-            EnsureGuidePreviewCacheCount();
-
-            for (int i = 0; i < _placements.Count; i++)
-            {
-                if (reanchorAuthoring)
-                {
-                    DecalSurfaceQuery.RefreshPlacementAnchors(_authoringGraph, _placements[i]);
-                    _previewCaches[i].Invalidate();
-                }
-
-                if (i < _quads.Count && _quads[i] != null)
-                    ApplyDecalDisplay(_placements[i], _quads[i], _previewCaches[i], i, trackPreviewSurface: trackPreviewSurface);
-            }
-
-            RefreshGuideDisplay();
-
-            _ghostQuad?.SetLayerOrder(_placements.Count + _guideQuads.Count);
-        }
+        private Vector3 _cachedGuideLineStart;
+        private Vector3 _cachedGuideLineEnd;
+        private Vector3 _cachedGuidePlaneNormal;
+        private Vector3 _cachedGuidePaperRotation;
+        private int _cachedGuideFilterTagHash;
+        private int _cachedGuideStyleHash;
+        private bool _guidePlacementsCached;
 
         public void UpdateFoldGuide(
             Vector3 lineStart,
             Vector3 lineEnd,
             Vector3 planeNormal,
+            Vector3 stepPaperRotation,
             IReadOnlyList<string> filterTags,
             GraphMesh styleSource)
         {
-            if (_attachedToFlight || Controller == null || _authoringGraph == null)
+            if (Controller == null || _authoringGraph == null)
             {
                 HideFoldGuide();
                 return;
             }
+
+            int filterTagHash = ComputeFilterTagHash(filterTags);
+            int styleHash = ComputeGuideStyleHash(styleSource);
+            if (_guidePlacementsCached
+                && _cachedGuideLineStart == lineStart
+                && _cachedGuideLineEnd == lineEnd
+                && _cachedGuidePlaneNormal == planeNormal
+                && _cachedGuidePaperRotation == stepPaperRotation
+                && _cachedGuideFilterTagHash == filterTagHash
+                && _cachedGuideStyleHash == styleHash)
+                return;
 
             if (styleSource == null || !styleSource.GuideDashesEnabled || styleSource.GuideLineWidth <= 0f)
             {
@@ -170,8 +148,9 @@ namespace Crease.Folding.Decals
                 return;
             }
 
-            HashSet<Face> allowedFaces = _authoringGraph.GetFacesSplitByFoldPlane(
+            HashSet<Face> allowedFaces = _authoringGraph.GetFacesForFoldGuide(
                 lineStart,
+                lineEnd,
                 foldSplitPlaneNormal,
                 filterTags);
             if (allowedFaces.Count == 0)
@@ -192,8 +171,9 @@ namespace Crease.Folding.Decals
             Texture2D tickTexture = GetGuideTickTexture();
             Color tickColor = styleSource.GuideLineColor;
             float tickWidth = styleSource.GuideLineWidth;
-            float tickHeight = dashLength;
+            float tickLength = styleSource.GuideDashLength;
             float along = styleSource.GuideDashOffset;
+            Vector3 approachNormal = DecalSurfaceQuery.ResolveGuideApproachNormal(planeNormal, stepPaperRotation);
 
             var nextPlacements = new List<DecalPlacement>();
             const float boundsEpsilon = 0.00001f;
@@ -211,82 +191,44 @@ namespace Crease.Folding.Decals
 
                 float dashCenterAlong = along + dashLength * 0.5f;
                 Vector3 samplePoint = lineStart + axis * dashCenterAlong;
-                Vector3 visiblePlaneNormal = ResolveCameraFacingPlaneNormal(planeNormal, samplePoint);
 
-                DecalSurfaceQuery.SurfaceHit hit = DecalSurfaceQuery.RaycastPlanarTopOnGraph(
-                    _authoringGraph,
+                TryAddGuideDashPlacements(
                     samplePoint,
-                    visiblePlaneNormal,
-                    allowedFaces);
-
-                if (hit.Hit)
-                {
-                    nextPlacements.Add(DecalPlacementUtility.FromSurfaceHit(
-                        tickTexture,
-                        hit,
-                        tickWidth,
-                        heightScale: tickHeight,
-                        alignAxisLocal: axis,
-                        useAxisAlignment: true,
-                        cullOverhang: true,
-                        cullFaces: allowedFaces));
-                }
+                    approachNormal,
+                    allowedFaces,
+                    axis,
+                    tickTexture,
+                    tickLength,
+                    tickWidth,
+                    nextPlacements);
 
                 along += period;
             }
 
             ApplyGuidePlacements(nextPlacements, tickColor);
+
+            _cachedGuideLineStart = lineStart;
+            _cachedGuideLineEnd = lineEnd;
+            _cachedGuidePlaneNormal = planeNormal;
+            _cachedGuidePaperRotation = stepPaperRotation;
+            _cachedGuideFilterTagHash = filterTagHash;
+            _cachedGuideStyleHash = styleHash;
+            _guidePlacementsCached = true;
         }
 
         public void HideFoldGuide()
         {
-            ClearGuideQuads();
+            if (_guidePlacements.Count == 0 && !_guidePlacementsCached)
+                return;
+
+            _guidePlacementsCached = false;
             _guidePlacements.Clear();
-            _guidePreviewCaches.Clear();
+            RebuildTextures();
         }
 
-        public void AttachToFlight(Transform flightMeshRoot, Quaternion meshVertexRotation)
+        public void InvalidateFoldGuideCache()
         {
-            if (flightMeshRoot == null || _authoringGraph == null) return;
-
-            HideFoldGuide();
-
-            // Resolve stickers on the authoring graph in folding space, then reparent without
-            // recomputing flight locals. That keeps the same world pose the player saw on the paper.
-            for (int i = 0; i < _placements.Count; i++)
-            {
-                if (i >= _quads.Count || _quads[i] == null) continue;
-                ApplyDecalDisplay(
-                    _placements[i],
-                    _quads[i],
-                    _previewCaches[i],
-                    i,
-                    trackPreviewSurface: false,
-                    meshVertexRotation: Quaternion.identity);
-            }
-
-            _flightMeshRoot = flightMeshRoot;
-            _flightVertexRotation = meshVertexRotation;
-            _graphToFlightMeshLocal = flightMeshRoot.worldToLocalMatrix * _authoringGraph.transform.localToWorldMatrix;
-            _attachedToFlight = true;
-            RemoveStrayFlightMeshCollider();
-
-            for (int i = 0; i < _quads.Count; i++)
-            {
-                if (_quads[i] == null) continue;
-                _quads[i].transform.SetParent(flightMeshRoot, worldPositionStays: true);
-            }
-        }
-
-        public void RestoreToFolding()
-        {
-            if (!_attachedToFlight || _authoringGraph == null) return;
-
-            _attachedToFlight = false;
-            _flightMeshRoot = null;
-            _flightVertexRotation = Quaternion.identity;
-            _graphToFlightMeshLocal = Matrix4x4.identity;
-            ApplyAllPlacementsToQuads();
+            _guidePlacementsCached = false;
         }
 
         public DecalSurfaceQuery.SurfaceHit RaycastScreen(Vector2 screenPosition)
@@ -308,19 +250,19 @@ namespace Crease.Folding.Decals
 
         public void ShowGhost(Texture2D texture, DecalSurfaceQuery.SurfaceHit hit, float scale, float rotationUv = 0f)
         {
-            if (texture == null) return;
-            EnsureGhost();
-            _ghostPreviewCache.Invalidate();
-            _ghostQuad.SetTexture(texture);
-            _ghostQuad.gameObject.SetActive(true);
-            DecalPlacement temp = DecalPlacementUtility.FromSurfaceHit(texture, hit, scale, rotationUv);
-            ApplyDecalDisplay(temp, _ghostQuad, _ghostPreviewCache, _placements.Count + _guideQuads.Count, trackPreviewSurface: true);
+            if (texture == null)
+                return;
+
+            _ghostPlacement = DecalPlacementUtility.FromSurfaceHit(texture, hit, scale, rotationUv);
+            _ghostVisible = true;
+            RebuildTextures();
         }
 
         public void HideGhost()
         {
-            if (_ghostQuad != null)
-                _ghostQuad.gameObject.SetActive(false);
+            _ghostVisible = false;
+            _ghostPlacement = null;
+            RebuildTextures();
         }
 
         public bool TryLiftDecalAtScreen(Vector2 screenPosition, out DecalPlacement placement)
@@ -340,15 +282,7 @@ namespace Crease.Folding.Decals
 
             placement = _placements[index];
             _placements.RemoveAt(index);
-
-            if (index < _previewCaches.Count)
-                _previewCaches.RemoveAt(index);
-
-            if (index < _quads.Count && _quads[index] != null)
-                Destroy(_quads[index].gameObject);
-            _quads.RemoveAt(index);
-
-            ApplyDecalLayerOrder(refreshTransforms: true);
+            RebuildTextures();
             return true;
         }
 
@@ -368,7 +302,7 @@ namespace Crease.Folding.Decals
         private bool TryPickDecalAtScreen(Vector2 screenPosition, out int index)
         {
             index = -1;
-            if (_quads.Count == 0 || _authoringGraph == null)
+            if (_placements.Count == 0 || _authoringGraph == null)
                 return false;
 
             DecalSurfaceQuery.SurfaceHit surfaceHit = RaycastScreen(screenPosition);
@@ -398,31 +332,14 @@ namespace Crease.Folding.Decals
             bool isDamageDecal = false,
             int damageSourceType = -1)
         {
-            if (!hit.Hit || texture == null || _authoringGraph == null) return false;
+            if (!hit.Hit || texture == null || _authoringGraph == null)
+                return false;
 
-            Transform meshRoot = GetActiveMeshRoot();
-            if (meshRoot == null) return false;
-
-            DecalPlacement placement = isDamageDecal
-                ? DecalPlacementUtility.FromSurfaceHit(texture, hit, scale, rotationUv, cullOverhang: true)
-                : DecalPlacementUtility.FromSurfaceHit(texture, hit, scale, rotationUv);
+            DecalPlacement placement = DecalPlacementUtility.FromSurfaceHit(texture, hit, scale, rotationUv);
             placement.IsDamageDecal = isDamageDecal;
             placement.DamageSourceType = isDamageDecal ? damageSourceType : -1;
-            if (isDamageDecal)
-                placement.CullRegionSheetUvPolygons = null;
             _placements.Add(placement);
-
-            var previewCache = new PreviewAnchorCache();
-            _previewCaches.Add(previewCache);
-
-            GameObject quadObj = new GameObject($"Decal_{_placements.Count}");
-            quadObj.transform.SetParent(meshRoot, false);
-            DecalQuad quad = quadObj.AddComponent<DecalQuad>();
-            quad.Initialize(texture, isGhost: false, DecalMaterial);
-            _quads.Add(quad);
-            ApplyDecalDisplay(placement, quad, previewCache, _placements.Count - 1, trackPreviewSurface: false);
-            _ghostQuad?.SetLayerOrder(_placements.Count + _guideQuads.Count);
-
+            RebuildTextures();
             return true;
         }
 
@@ -436,40 +353,20 @@ namespace Crease.Folding.Decals
             if (texture == null || _authoringGraph == null)
                 return false;
 
-            if (!TryGetRandomVisibleSurfaceHit(out DecalSurfaceQuery.SurfaceHit hit))
+            if (!DecalSurfaceQuery.TryGetRandomVisibleSurfaceOnGraph(_authoringGraph, out DecalSurfaceQuery.SurfaceHit hit))
                 return false;
 
             return PlaceDecal(texture, hit, scale, rotationUv, isDamageDecal, damageSourceType);
         }
 
-        private bool TryGetRandomVisibleSurfaceHit(out DecalSurfaceQuery.SurfaceHit hit)
-        {
-            return DecalSurfaceQuery.TryGetRandomVisibleSurfaceOnGraph(_authoringGraph, out hit);
-        }
-
-        /// <summary>
-        /// Removes any runtime MeshCollider left on the player mesh from older builds.
-        /// </summary>
-        private void RemoveStrayFlightMeshCollider()
-        {
-            if (_flightMeshRoot == null)
-                return;
-
-            MeshCollider collider = _flightMeshRoot.GetComponent<MeshCollider>();
-            if (collider != null)
-                Destroy(collider);
-        }
-
         public void ClearDecals()
         {
             _placements.Clear();
-            _previewCaches.Clear();
-            foreach (DecalQuad quad in _quads)
-            {
-                if (quad != null) Destroy(quad.gameObject);
-            }
-            _quads.Clear();
-            HideGhost();
+            _guidePlacements.Clear();
+            _ghostVisible = false;
+            _ghostPlacement = null;
+            TextureRenderer?.ClearTextures();
+            RebuildTextures();
             OnDecalsCleared?.Invoke();
         }
 
@@ -483,184 +380,71 @@ namespace Crease.Folding.Decals
                     continue;
 
                 _placements.RemoveAt(i);
-
-                if (i < _previewCaches.Count)
-                    _previewCaches.RemoveAt(i);
-
-                if (i < _quads.Count && _quads[i] != null)
-                    Destroy(_quads[i].gameObject);
-                _quads.RemoveAt(i);
             }
 
-            ApplyDecalLayerOrder(refreshTransforms: true);
             HideGhost();
         }
 
-        public void InvalidatePreviewCaches()
+        public void ApplyDecalMapsToRenderer(Renderer renderer, GraphMesh graph = null)
         {
-            for (int i = 0; i < _previewCaches.Count; i++)
-                _previewCaches[i].Invalidate();
-            for (int i = 0; i < _guidePreviewCaches.Count; i++)
-                _guidePreviewCaches[i].Invalidate();
-        }
-
-        public void ReanchorPlacementDataOnly()
-        {
-            if (_attachedToFlight || _authoringGraph == null)
+            if (renderer == null || TextureRenderer == null)
                 return;
 
-            EnsurePreviewCacheCount();
-
-            for (int i = 0; i < _placements.Count; i++)
-            {
-                DecalSurfaceQuery.RefreshPlacementAnchors(_authoringGraph, _placements[i]);
-                _previewCaches[i].Invalidate();
-            }
+            PaperShading.ApplyRendererShading(
+                renderer,
+                graph,
+                TextureRenderer.FrontTexture,
+                TextureRenderer.BackTexture);
         }
 
-        /// <summary>
-        /// Positions a decal quad from placement data. Stickers use authoring anchors by default so
-        /// flight reparenting matches the saved mesh; enable preview tracking during fold animation.
-        /// </summary>
-        private void ApplyDecalDisplay(
-            DecalPlacement placement,
-            DecalQuad quad,
-            PreviewAnchorCache previewCache,
-            int renderOrder,
-            bool trackPreviewSurface = false,
-            Quaternion meshVertexRotation = default)
+        public void ApplyDecalMapsToVisualizers()
         {
-            if (quad == null || _authoringGraph == null)
+            ApplyDecalMapsToAllRenderers();
+        }
+
+        private void RebuildTextures()
+        {
+            if (_authoringGraph == null || TextureRenderer == null)
                 return;
 
-            if (meshVertexRotation == default)
-                meshVertexRotation = GetActiveVertexRotation();
-
-            GraphMesh surfaceGraph = null;
-            PreviewAnchorCache cache = null;
-            if (!_attachedToFlight && trackPreviewSurface && Controller?.PreviewGraph != null)
-            {
-                surfaceGraph = Controller.PreviewGraph;
-                cache = previewCache;
-            }
-
-            quad.SetLayerOrder(renderOrder);
-            quad.UpdateFromPlacement(
-                placement,
-                GetActiveMeshRoot(),
+            TextureRenderer.RequestRebuild(
                 _authoringGraph,
-                meshVertexRotation: _attachedToFlight ? Quaternion.identity : meshVertexRotation,
-                surfaceGraph,
-                cache,
-                BaseSurfaceOffset,
-                LayerOffsetStep,
-                useGraphToMeshLocalTransform: _attachedToFlight,
-                graphToMeshLocal: _graphToFlightMeshLocal);
+                _placements,
+                _guidePlacements,
+                _ghostPlacement,
+                _ghostVisible);
+            ApplyDecalMapsToAllRenderers();
         }
 
-        private void ApplyAllPlacementsToQuads()
+        private void ApplyDecalMapsToAllRenderers()
         {
-            if (GetActiveMeshRoot() == null) return;
-
-            for (int i = 0; i < _placements.Count; i++)
-            {
-                if (i >= _quads.Count || _quads[i] == null) continue;
-                ApplyDecalDisplay(_placements[i], _quads[i], _previewCaches[i], i, trackPreviewSurface: false);
-            }
-
-            RefreshGuideDisplay();
-            _ghostQuad?.SetLayerOrder(_placements.Count + _guideQuads.Count);
-        }
-
-        private void ApplyDecalLayerOrder(bool refreshTransforms = false)
-        {
-            if (GetActiveMeshRoot() == null || _authoringGraph == null)
+            if (Controller == null)
                 return;
 
-            for (int i = 0; i < _quads.Count; i++)
+            if (Controller.PreviewGraph != null)
             {
-                if (_quads[i] == null)
-                    continue;
-
-                if (!refreshTransforms || i >= _placements.Count)
-                {
-                    _quads[i].SetLayerOrder(i);
-                    continue;
-                }
-
-                ApplyDecalDisplay(_placements[i], _quads[i], _previewCaches[i], i, trackPreviewSurface: false);
+                MeshRenderer previewRenderer = Controller.PreviewGraph.GetComponent<MeshRenderer>();
+                ApplyDecalMapsToRenderer(previewRenderer, Controller.PreviewGraph);
             }
 
-            if (refreshTransforms)
-                RefreshGuideDisplay();
-
-            _ghostQuad?.SetLayerOrder(_placements.Count + _guideQuads.Count);
-        }
-
-        private void RefreshGuideDisplay()
-        {
-            for (int i = 0; i < _guideQuads.Count; i++)
+            if (_authoringGraph != null)
             {
-                if (_guideQuads[i] == null || i >= _guidePlacements.Count)
-                    continue;
-
-                ApplyDecalDisplay(
-                    _guidePlacements[i],
-                    _guideQuads[i],
-                    _guidePreviewCaches[i],
-                    _placements.Count + i,
-                    trackPreviewSurface: true);
+                MeshRenderer authoringRenderer = _authoringGraph.GetComponent<MeshRenderer>();
+                ApplyDecalMapsToRenderer(authoringRenderer, _authoringGraph);
             }
         }
 
         private void ApplyGuidePlacements(List<DecalPlacement> nextPlacements, Color tickColor)
         {
-            Transform meshRoot = GetFoldingMeshSurfaceRoot();
-            if (meshRoot == null)
-                return;
-
-            while (_guidePlacements.Count < nextPlacements.Count)
-                _guidePlacements.Add(null);
-            while (_guidePreviewCaches.Count < nextPlacements.Count)
-                _guidePreviewCaches.Add(new PreviewAnchorCache());
-
+            _guidePlacements.Clear();
             for (int i = 0; i < nextPlacements.Count; i++)
             {
-                _guidePlacements[i] = nextPlacements[i];
-                _guidePreviewCaches[i].Invalidate();
-
-                if (i >= _guideQuads.Count)
-                {
-                    GameObject quadObj = new GameObject($"FoldGuideTick_{i}");
-                    quadObj.transform.SetParent(meshRoot, false);
-                    DecalQuad quad = quadObj.AddComponent<DecalQuad>();
-                    quad.Initialize(nextPlacements[i].Texture, isGhost: false, DecalMaterial);
-                    _guideQuads.Add(quad);
-                }
-
-                DecalQuad tickQuad = _guideQuads[i];
-                tickQuad.gameObject.SetActive(true);
-                tickQuad.SetTexture(nextPlacements[i].Texture);
-                tickQuad.SetBaseColor(tickColor);
-                ApplyDecalDisplay(
-                    _guidePlacements[i],
-                    tickQuad,
-                    _guidePreviewCaches[i],
-                    _placements.Count + i,
-                    trackPreviewSurface: true);
+                DecalPlacement placement = nextPlacements[i];
+                placement.StampColor = tickColor;
+                _guidePlacements.Add(placement);
             }
 
-            for (int i = _guideQuads.Count - 1; i >= nextPlacements.Count; i--)
-            {
-                if (_guideQuads[i] != null)
-                    Destroy(_guideQuads[i].gameObject);
-                _guideQuads.RemoveAt(i);
-            }
-
-            if (_guidePlacements.Count > nextPlacements.Count)
-                _guidePlacements.RemoveRange(nextPlacements.Count, _guidePlacements.Count - nextPlacements.Count);
-            if (_guidePreviewCaches.Count > nextPlacements.Count)
-                _guidePreviewCaches.RemoveRange(nextPlacements.Count, _guidePreviewCaches.Count - nextPlacements.Count);
+            RebuildTextures();
         }
 
         private static Texture2D GetGuideTickTexture()
@@ -684,47 +468,87 @@ namespace Crease.Folding.Decals
             return _guideTickTexture;
         }
 
-        private void ClearGuideQuads()
+        private readonly List<DecalSurfaceQuery.SurfaceHit> _guideHitBuffer = new List<DecalSurfaceQuery.SurfaceHit>();
+
+        private void TryAddGuideDashPlacements(
+            Vector3 samplePoint,
+            Vector3 approachNormal,
+            HashSet<Face> allowedFaces,
+            Vector3 guideAxis,
+            Texture2D tickTexture,
+            float tickLength,
+            float tickWidth,
+            List<DecalPlacement> output)
         {
-            foreach (DecalQuad quad in _guideQuads)
+            _guideHitBuffer.Clear();
+            DecalSurfaceQuery.RaycastPlanarTopForGuideVisibleSides(
+                _authoringGraph,
+                _authoringGraph,
+                samplePoint,
+                approachNormal,
+                allowedFaces,
+                _guideHitBuffer);
+
+            for (int i = 0; i < _guideHitBuffer.Count; i++)
             {
-                if (quad != null)
-                    Destroy(quad.gameObject);
+                if (TryCreateGuidePlacement(_guideHitBuffer[i], guideAxis, tickTexture, tickLength, tickWidth, out DecalPlacement placement))
+                    output.Add(placement);
             }
-
-            _guideQuads.Clear();
         }
 
-        private void EnsurePreviewCacheCount()
+        private bool TryCreateGuidePlacement(
+            DecalSurfaceQuery.SurfaceHit hit,
+            Vector3 guideAxis,
+            Texture2D tickTexture,
+            float tickLength,
+            float tickWidth,
+            out DecalPlacement placement)
         {
-            while (_previewCaches.Count < _placements.Count)
-                _previewCaches.Add(new PreviewAnchorCache());
+            placement = null;
+            if (!hit.Hit)
+                return false;
+
+            placement = DecalPlacementUtility.FromSurfaceHit(
+                tickTexture,
+                hit,
+                tickLength,
+                heightScale: tickWidth);
+            placement.Texture = tickTexture;
+            placement.RotationUv = DecalStampClipUtility.ComputeGuideRotationRad(_authoringGraph, hit, guideAxis) * Mathf.Rad2Deg;
+            placement.UseAxisAlignment = false;
+            return true;
         }
 
-        private void EnsureGuidePreviewCacheCount()
+        private static int ComputeFilterTagHash(IReadOnlyList<string> filterTags)
         {
-            while (_guidePreviewCaches.Count < _guidePlacements.Count)
-                _guidePreviewCaches.Add(new PreviewAnchorCache());
+            if (filterTags == null || filterTags.Count == 0)
+                return 0;
+
+            unchecked
+            {
+                int hash = 17;
+                for (int i = 0; i < filterTags.Count; i++)
+                    hash = hash * 31 + (filterTags[i]?.GetHashCode() ?? 0);
+                return hash;
+            }
         }
 
-        /// <summary>
-        /// Picks the drag-plane normal whose front face points toward the folding camera.
-        /// Needed after instruction-driven paper rotation so guide dashes land on the visible side.
-        /// </summary>
-        private Vector3 ResolveCameraFacingPlaneNormal(Vector3 planeNormal, Vector3 samplePointLocal)
+        private static int ComputeGuideStyleHash(GraphMesh styleSource)
         {
-            planeNormal = planeNormal.sqrMagnitude > 0.0001f ? planeNormal.normalized : Vector3.up;
-            if (FoldingCamera == null || Controller == null)
-                return planeNormal;
+            if (styleSource == null)
+                return 0;
 
-            Vector3 sampleWorld = Controller.transform.TransformPoint(samplePointLocal);
-            Vector3 toCamera = FoldingCamera.transform.position - sampleWorld;
-            if (toCamera.sqrMagnitude < 0.0001f)
-                return planeNormal;
-
-            Vector3 worldPlaneNormal = Controller.transform.TransformDirection(planeNormal);
-            bool frontFacesCamera = Vector3.Dot(worldPlaneNormal, toCamera.normalized) > 0f;
-            return frontFacesCamera ? planeNormal : -planeNormal;
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 31 + styleSource.GuideLineWidth.GetHashCode();
+                hash = hash * 31 + styleSource.GuideDashLength.GetHashCode();
+                hash = hash * 31 + styleSource.GuideDashGap.GetHashCode();
+                hash = hash * 31 + styleSource.GuideDashOffset.GetHashCode();
+                hash = hash * 31 + styleSource.GuideDashesEnabled.GetHashCode();
+                hash = hash * 31 + styleSource.GuideLineColor.GetHashCode();
+                return hash;
+            }
         }
 
         private Transform GetFoldingMeshSurfaceRoot()
@@ -732,28 +556,6 @@ namespace Crease.Folding.Decals
             if (Controller == null || Controller.PreviewGraph == null)
                 return Controller != null ? Controller.transform : null;
             return Controller.PreviewGraph.transform;
-        }
-
-        private Transform GetActiveMeshRoot()
-        {
-            if (_attachedToFlight)
-                return _flightMeshRoot;
-            return GetFoldingMeshSurfaceRoot();
-        }
-
-        private Quaternion GetActiveVertexRotation()
-        {
-            return _attachedToFlight ? _flightVertexRotation : Quaternion.identity;
-        }
-
-        private void EnsureGhost()
-        {
-            if (_ghostQuad != null) return;
-            Transform meshRoot = GetFoldingMeshSurfaceRoot();
-            GameObject ghostObj = new GameObject("DecalGhost");
-            ghostObj.transform.SetParent(meshRoot != null ? meshRoot : transform, false);
-            _ghostQuad = ghostObj.AddComponent<DecalQuad>();
-            _ghostQuad.Initialize(isGhost: true, materialTemplate: DecalMaterial);
         }
     }
 }

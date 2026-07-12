@@ -22,16 +22,6 @@ public class PaperGraph : MonoBehaviour
     [FormerlySerializedAs("height")]
     public float Height = 1f;
 
-    [Header("Boundary Edge Shading")]
-    [Tooltip("Object-space falloff for darkening near the outer sheet edges.")]
-    [Min(0f)]
-    [FormerlySerializedAs("EdgeDarkenWidth")]
-    public float BoundaryEdgeDarkenWidth = 0.004f;
-    [Tooltip("Surface brightness at a boundary edge (1 = off).")]
-    [Range(0f, 1f)]
-    [FormerlySerializedAs("EdgeMinBrightness")]
-    public float BoundaryEdgeMinBrightness = 0.55f;
-
     [Header("Crease Line Shading")]
     [Tooltip("Object-space falloff for fold/crease lines left on the paper.")]
     [Min(0f)]
@@ -41,7 +31,7 @@ public class PaperGraph : MonoBehaviour
     public float CreaseMinBrightness = 0.4f;
 
     [Header("Fold Guide Line")]
-    [Tooltip("Object-space width of each guide dash.")]
+    [Tooltip("Thickness of each dash perpendicular to the guide line (object space).")]
     [Min(0f)]
     public float GuideLineWidth = 0.005f;
     [Tooltip("Guide dash color.")]
@@ -179,6 +169,155 @@ public class PaperGraph : MonoBehaviour
         }
 
         return faces;
+    }
+
+    /// <summary>
+    /// Returns faces whose geometry intersects the fold-axis segment, respecting filter tags.
+    /// Complements <see cref="GetFacesSplitByFoldPlane"/> for crease intersections where the
+    /// axis lies on a face that is not split by the fold's perpendicular plane.
+    /// </summary>
+    public HashSet<Face> GetFacesIntersectingFoldAxis(
+        Vector3 axisStart,
+        Vector3 axisEnd,
+        IReadOnlyList<string> filterTags)
+    {
+        HashSet<Face> faces = new HashSet<Face>();
+        if ((axisEnd - axisStart).sqrMagnitude < FoldPlaneEpsilon * FoldPlaneEpsilon)
+            return faces;
+
+        HashSet<Vertex> filterSet = BuildFilterSet(filterTags);
+
+        foreach (Face face in Faces)
+        {
+            if (!FacePassesFilter(face, filterSet))
+                continue;
+
+            if (FoldAxisIntersectsFace(face, axisStart, axisEnd))
+                faces.Add(face);
+        }
+
+        return faces;
+    }
+
+    /// <summary>
+    /// Faces split by the fold plane plus faces the fold axis passes through.
+    /// </summary>
+    public HashSet<Face> GetFacesForFoldGuide(
+        Vector3 axisStart,
+        Vector3 axisEnd,
+        Vector3 foldSplitPlaneNormal,
+        IReadOnlyList<string> filterTags)
+    {
+        HashSet<Face> faces = GetFacesSplitByFoldPlane(axisStart, foldSplitPlaneNormal, filterTags);
+        foreach (Face face in GetFacesIntersectingFoldAxis(axisStart, axisEnd, filterTags))
+            faces.Add(face);
+        return faces;
+    }
+
+    private static bool FacePassesFilter(Face face, HashSet<Vertex> filterSet)
+    {
+        if (filterSet == null)
+            return true;
+
+        foreach (Vertex vertex in face.Vertices)
+        {
+            if (filterSet.Contains(vertex))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool FoldAxisIntersectsFace(Face face, Vector3 segA, Vector3 segB)
+    {
+        int count = face.Vertices.Count;
+        if (count < 3)
+            return false;
+
+        Vector3 anchor = face.Vertices[0].Position;
+        for (int i = 1; i < count - 1; i++)
+        {
+            if (SegmentIntersectsTriangle(
+                    segA,
+                    segB,
+                    anchor,
+                    face.Vertices[i].Position,
+                    face.Vertices[i + 1].Position))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool SegmentIntersectsTriangle(
+        Vector3 segA,
+        Vector3 segB,
+        Vector3 p0,
+        Vector3 p1,
+        Vector3 p2)
+    {
+        if (PointInTriangle(segA, p0, p1, p2) || PointInTriangle(segB, p0, p1, p2))
+            return true;
+
+        if (SegmentsIntersect(segA, segB, p0, p1)
+            || SegmentsIntersect(segA, segB, p1, p2)
+            || SegmentsIntersect(segA, segB, p2, p0))
+            return true;
+
+        Vector3 edgeAB = segB - segA;
+        Vector3 triNormal = Vector3.Cross(p1 - p0, p2 - p0);
+        float denom = Vector3.Dot(triNormal, edgeAB);
+        if (Mathf.Abs(denom) < FoldPlaneEpsilon)
+            return false;
+
+        float t = Vector3.Dot(triNormal, p0 - segA) / denom;
+        if (t < -FoldPlaneEpsilon || t > 1f + FoldPlaneEpsilon)
+            return false;
+
+        return PointInTriangle(segA + edgeAB * t, p0, p1, p2);
+    }
+
+    private static bool PointInTriangle(Vector3 point, Vector3 p0, Vector3 p1, Vector3 p2)
+    {
+        Vector3 bary = ComputeBarycentric(p0, p1, p2, point);
+        return bary.x >= -FoldPlaneEpsilon && bary.y >= -FoldPlaneEpsilon && bary.z >= -FoldPlaneEpsilon;
+    }
+
+    private static Vector3 ComputeBarycentric(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 point)
+    {
+        Vector3 v0 = p1 - p0;
+        Vector3 v1 = p2 - p0;
+        Vector3 v2 = point - p0;
+        float d00 = Vector3.Dot(v0, v0);
+        float d01 = Vector3.Dot(v0, v1);
+        float d11 = Vector3.Dot(v1, v1);
+        float d20 = Vector3.Dot(v2, v0);
+        float d21 = Vector3.Dot(v2, v1);
+        float denom = d00 * d11 - d01 * d01;
+        if (Mathf.Abs(denom) < FoldPlaneEpsilon * FoldPlaneEpsilon)
+            return new Vector3(-1f, -1f, -1f);
+
+        float v = (d11 * d20 - d01 * d21) / denom;
+        float w = (d00 * d21 - d01 * d20) / denom;
+        float u = 1f - v - w;
+        return new Vector3(u, v, w);
+    }
+
+    private static bool SegmentsIntersect(Vector3 a, Vector3 b, Vector3 c, Vector3 d)
+    {
+        Vector3 r = b - a;
+        Vector3 s = d - c;
+        Vector3 crossRs = Vector3.Cross(r, s);
+        float denom = crossRs.sqrMagnitude;
+        if (denom < FoldPlaneEpsilon * FoldPlaneEpsilon)
+            return false;
+
+        float t = Vector3.Dot(Vector3.Cross(c - a, s), crossRs) / denom;
+        float u = Vector3.Dot(Vector3.Cross(c - a, r), crossRs) / denom;
+        return t >= -FoldPlaneEpsilon
+            && t <= 1f + FoldPlaneEpsilon
+            && u >= -FoldPlaneEpsilon
+            && u <= 1f + FoldPlaneEpsilon;
     }
 
     private void Start() {
@@ -1121,8 +1260,8 @@ public class PaperGraph : MonoBehaviour
     /// Each face is fan-triangulated from its first vertex.
     /// Normals are computed per fan triangle so creases stay hard and non-planar poses
     /// (such as mid-accordion collapse) stay visible. Back faces are appended with reversed
-    /// winding and negated normals. UV2 stores a per-face index used by the edge
-    /// darkening shader to select only that face's feature edges at each pixel.
+    /// winding and negated normals. UV2 stores a per-face index used by the crease
+    /// shading shader to select only that face's crease segments at each pixel.
     /// </summary>
     public Mesh GenerateMesh() {
         List<Vector3> positions = new List<Vector3>();

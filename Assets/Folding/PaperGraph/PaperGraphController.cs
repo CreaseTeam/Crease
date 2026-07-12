@@ -170,7 +170,7 @@ namespace Crease.Folding.PaperGraph
             }
 
             CacheFoldValues();
-            RefreshVisualizers(reanchorDecals: false, trackPreviewDecals: true);
+            RefreshVisualizers();
         }
 
         private void FreezeAtLastValidFold() {
@@ -318,7 +318,7 @@ namespace Crease.Folding.PaperGraph
 
             _paperGraph.SetVertexRotationProgress(t);
             SyncPreviewFromAuthoring();
-            RefreshVisualizers(reanchorDecals: false, trackPreviewDecals: true);
+            RefreshVisualizers();
         }
 
         public void CommitVertexRotationAnimation() {
@@ -327,7 +327,7 @@ namespace Crease.Folding.PaperGraph
 
             _paperGraph.CommitVertexRotationAnimation();
             SyncPreviewFromAuthoring();
-            RefreshVisualizers(reanchorDecals: true, trackPreviewDecals: false);
+            RefreshVisualizers();
         }
 
         private void SyncPreviewFromAuthoring() {
@@ -372,7 +372,7 @@ namespace Crease.Folding.PaperGraph
             PaperGraphSnapshot snapshot = _paperGraph.CreateSnapshot();
             PreviewGraph.RestoreSnapshot(snapshot);
             AccordionCollapse.ApplyPose(PreviewGraph, data, collapseT, FoldOffset);
-            RefreshVisualizers(reanchorDecals: false, trackPreviewDecals: true);
+            RefreshVisualizers();
         }
 
         public bool CommitAccordionAction() {
@@ -572,7 +572,7 @@ namespace Crease.Folding.PaperGraph
             if (IsAccordionDragStep && _paperGraph.HasAccordionData)
                 AccordionCollapse.ApplyPose(PreviewGraph, _paperGraph.GetAccordionData(), AccordionCollapseT, FoldOffset);
 
-            RefreshVisualizers(reanchorDecals: false, trackPreviewDecals: IsAccordionDragStep);
+            RefreshVisualizers();
         }
 
         public void UndoFold() {
@@ -644,12 +644,10 @@ namespace Crease.Folding.PaperGraph
             UpdatePreview();
         }
 
-        private void RefreshVisualizers(bool reanchorDecals = true, bool trackPreviewDecals = false) {
+        private void RefreshVisualizers() {
             _authoringVisualizer?.UpdateMesh();
             _previewVisualizer?.UpdateMesh();
-
-            if (DecalManager != null)
-                DecalManager.RefreshAfterMeshUpdate(reanchorDecals, trackPreviewDecals);
+            DecalManager?.OnMeshUpdated();
         }
 
         private void OnDrawGizmos() {

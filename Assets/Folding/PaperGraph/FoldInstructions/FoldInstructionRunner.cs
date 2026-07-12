@@ -167,9 +167,6 @@ public class FoldInstructionRunner : MonoBehaviour
                 _paperGraph.GuideLineWidth = _legacyGuideLineWidth;
             if (_legacyGuideLineColor.a > 0f)
                 _paperGraph.GuideLineColor = _legacyGuideLineColor;
-            if (_legacyCreaseLineColor.a > 0f) {
-                _paperGraph.CreaseMinBrightness = Mathf.Clamp01(_legacyCreaseLineColor.grayscale * 0.5f);
-            }
         }
 
         _legacyLineStylesMigrated = true;
@@ -187,23 +184,16 @@ public class FoldInstructionRunner : MonoBehaviour
     }
 
     private void LateUpdate() {
-        if (Controller != null) {
-            if (_isPaperLerping) {
-                Transform paperTransform = Controller.transform;
-                paperTransform.rotation = Quaternion.Slerp(paperTransform.rotation, _targetPaperRotation, PaperLerpSpeed * Time.deltaTime);
-
-                if (Quaternion.Angle(paperTransform.rotation, _targetPaperRotation) < 0.1f) {
-                    paperTransform.rotation = _targetPaperRotation;
-                    _isPaperLerping = false;
-                }
-            }
-        }
-
-        if (_phase != FoldingRunPhase.Folding || Instruction == null || _currentStepIndex < 0
-            || _currentStepIndex >= Instruction.Steps.Count || _isCreaseAnimating || _isExecutingStepAnimation)
+        if (Controller == null || !_isPaperLerping)
             return;
 
-        UpdateGuideLine(Instruction.Steps[_currentStepIndex]);
+        Transform paperTransform = Controller.transform;
+        paperTransform.rotation = Quaternion.Slerp(paperTransform.rotation, _targetPaperRotation, PaperLerpSpeed * Time.deltaTime);
+
+        if (Quaternion.Angle(paperTransform.rotation, _targetPaperRotation) < 0.1f) {
+            paperTransform.rotation = _targetPaperRotation;
+            _isPaperLerping = false;
+        }
     }
 
     /// <summary>
@@ -245,11 +235,6 @@ public class FoldInstructionRunner : MonoBehaviour
         _currentStepIndex = 0;
         ApplyStepToController(Instruction.Steps[0]);
         RefreshDragHandleVisibility();
-
-        if (!clearDecals && Controller?.DecalManager != null) {
-            Controller.DecalManager.InvalidatePreviewCaches();
-            Controller.DecalManager.RefreshAfterMeshUpdate(reanchorAuthoring: true);
-        }
 
         // Debug.Log($"FoldInstructionRunner: Loaded instruction with {Instruction.Steps.Count} step(s). Press ExecuteFold to execute step 1.");
     }
@@ -704,6 +689,7 @@ public class FoldInstructionRunner : MonoBehaviour
             p1,
             p2,
             step.DragPlaneNormal.normalized,
+            step.PaperRotation,
             ResolveFilterTagsForStep(step),
             _paperGraph);
     }
@@ -1007,6 +993,7 @@ public class FoldInstructionRunner : MonoBehaviour
             if (!TrySetupAccordionStep(step))
                 Controller.ClearPreview();
 
+            Controller.DecalManager?.InvalidateFoldGuideCache();
             UpdateGuideLine(step);
             return;
         }
@@ -1032,6 +1019,7 @@ public class FoldInstructionRunner : MonoBehaviour
 
         Controller.ClearPreview();
 
+        Controller.DecalManager?.InvalidateFoldGuideCache();
         UpdateGuideLine(step);
     }
 
@@ -1157,7 +1145,6 @@ public class FoldInstructionRunner : MonoBehaviour
         RefreshDragHandleVisibility();
         if (Controller != null) {
             Controller.ClearPreview();
-            Controller.DecalManager?.InvalidatePreviewCaches();
         }
     }
 
@@ -1208,7 +1195,6 @@ public class FoldInstructionRunner : MonoBehaviour
 
             // Revert authoring topology without snapping decals to the flat mesh.
             Controller.UndoAuthoringFold();
-            Controller.DecalManager?.ReanchorPlacementDataOnly();
             RemoveSavedAxisForStep(step);
 
             ConfigureControllerForStep(step);
@@ -1234,7 +1220,6 @@ public class FoldInstructionRunner : MonoBehaviour
             yield return AnimateFoldDegreesRoutine(step.FoldDegrees, 0f, UnfoldAnimationSpeed, 0.1f);
             
             Controller.ClearPreview();
-            Controller.DecalManager?.InvalidatePreviewCaches();
 
             // Short pause between folds
             yield return new WaitForSeconds(0.2f);
@@ -1263,11 +1248,6 @@ public class FoldInstructionRunner : MonoBehaviour
         RefreshDragHandleVisibility();
 
         Controller?.ClearPreview();
-
-        if (Controller?.DecalManager != null) {
-            Controller.DecalManager.InvalidatePreviewCaches();
-            Controller.DecalManager.RefreshAfterMeshUpdate(reanchorAuthoring: true);
-        }
     }
 
     private void RestartFoldInstructionsAfterUnfold(bool preserveStickers) {
@@ -1293,11 +1273,6 @@ public class FoldInstructionRunner : MonoBehaviour
             ApplyStepToController(Instruction.Steps[0]);
         }
         RefreshDragHandleVisibility();
-
-        if (preserveStickers && Controller?.DecalManager != null) {
-            Controller.DecalManager.InvalidatePreviewCaches();
-            Controller.DecalManager.RefreshAfterMeshUpdate(reanchorAuthoring: true);
-        }
 
         if (HUDCanvas.Instance != null)
             HUDCanvas.Instance.SetFlyCurrentVisible(false);

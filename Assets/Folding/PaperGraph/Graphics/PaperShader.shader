@@ -1,4 +1,4 @@
-Shader "Crease/Folding/PaperGraph/Graphics/PaperEdgeDarkening"
+Shader "Crease/PaperShader"
 {
     Properties
     {
@@ -6,6 +6,13 @@ Shader "Crease/Folding/PaperGraph/Graphics/PaperEdgeDarkening"
 
         [MainTexture] _BaseMap("Albedo", 2D) = "white" {}
         [MainColor] _BaseColor("Color", Color) = (1, 1, 1, 1)
+
+        _DecalMap("Decal Overlay", 2D) = "black" {}
+
+        [HideInInspector] _CreaseSegmentTex("Crease Segments", 2D) = "black" {}
+        [HideInInspector] _CreaseSegmentCount("Crease Segment Count", Float) = 0
+        [HideInInspector] _CreaseDarkenWidth("Crease Darken Width", Float) = 0
+        [HideInInspector] _CreaseMinBrightness("Crease Min Brightness", Float) = 1
 
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
 

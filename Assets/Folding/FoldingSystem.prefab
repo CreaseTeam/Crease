@@ -707,6 +707,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.Decals.PaperDecalManager
   Controller: {fileID: 3367760010211513509}
   FoldingCamera: {fileID: 4105214768651930174}
-  DecalMaterial: {fileID: 2100000, guid: c6ddece6eb35a444b81c3181f89ddb8f, type: 2}
-  BaseSurfaceOffset: 0.0001
-  LayerOffsetStep: 0.00001
+  TextureRenderer: {fileID: 0}

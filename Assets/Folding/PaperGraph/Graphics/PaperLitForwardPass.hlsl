@@ -1,8 +1,11 @@
 #ifndef PAPER_LIT_FORWARD_PASS_INCLUDED
 #define PAPER_LIT_FORWARD_PASS_INCLUDED
 
-#include "PaperEdgeShading.hlsl"
+#include "PaperCreaseShading.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+
+TEXTURE2D(_DecalMap);
+SAMPLER(sampler_DecalMap);
 
 #if defined(LOD_FADE_CROSSFADE)
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
@@ -30,11 +33,7 @@ struct Attributes
 struct Varyings
 {
     float2 uv                       : TEXCOORD0;
-
-#if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
     float3 positionWS               : TEXCOORD1;
-#endif
-
     float3 normalWS                 : TEXCOORD2;
 #if defined(REQUIRES_WORLD_SPACE_TANGENT_INTERPOLATOR)
     half4 tangentWS                 : TEXCOORD3;
@@ -74,10 +73,7 @@ struct Varyings
 void InitializeInputData(Varyings input, half3 normalTS, out InputData inputData)
 {
     inputData = (InputData)0;
-
-#if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
     inputData.positionWS = input.positionWS;
-#endif
 
 #if defined(DEBUG_DISPLAY)
     inputData.positionCS = input.positionCS;
@@ -195,14 +191,11 @@ Varyings PaperLitPassVertex(Attributes input)
     output.fogFactor = fogFactor;
 #endif
 
-#if defined(REQUIRES_WORLD_SPACE_POS_INTERPOLATOR)
-    output.positionWS = vertexInput.positionWS;
-#endif
-
 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
     output.shadowCoord = GetShadowCoord(vertexInput);
 #endif
 
+    output.positionWS = vertexInput.positionWS;
     output.positionOS = input.positionOS.xyz;
     output.faceIndex = input.faceIndexUV.x;
     output.positionCS = vertexInput.positionCS;
@@ -234,6 +227,9 @@ void PaperLitPassFragment(
     SurfaceData surfaceData;
     InitializeStandardLitSurfaceData(input.uv, surfaceData);
 
+    half4 decalTex = SAMPLE_TEXTURE2D(_DecalMap, sampler_DecalMap, input.uv);
+    surfaceData.albedo.rgb = surfaceData.albedo.rgb * (1.0h - decalTex.a) + decalTex.rgb;
+
 #ifdef LOD_FADE_CROSSFADE
     LODFadeCrossFade(input.positionCS);
 #endif
@@ -248,11 +244,8 @@ void PaperLitPassFragment(
 
     InitializeBakedGIData(input, inputData);
 
-    half edgeBrightness = GetCombinedEdgeBrightness(
-        input.positionOS,
-        TransformWorldToObjectNormal(input.normalWS),
-        input.faceIndex);
-    surfaceData.albedo.rgb *= edgeBrightness;
+    half creaseBrightness = GetCreaseBrightness(input.positionOS, input.faceIndex);
+    surfaceData.albedo.rgb *= creaseBrightness;
 
     half4 color = UniversalFragmentPBR(inputData, surfaceData);
     color.rgb = MixFog(color.rgb, inputData.fogCoord);
