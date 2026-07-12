@@ -1,7 +1,7 @@
 using Crease.Folding.PaperGraph;
 using UnityEngine;
 
-namespace Crease.Folding.PaperWriting
+namespace Crease.Folding.PaperSurface.Writing
 {
     /// <summary>
     /// Simple wrapper with instance methods that delegate to LetterController.Instance

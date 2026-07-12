@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Crease.Folding.Decals;
+using Crease.Folding.PaperSurface.Decals;
 using Crease.Folding.PaperGraph;
 using Crease.Managers.Input;
 using TMPro;
@@ -9,7 +9,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-namespace Crease.Folding.Stickers
+namespace Crease.Folding.PaperSurface.Stickers
 {
     public class StickerUIController : MonoBehaviour, IPointerClickHandler
     {

@@ -1,7 +1,7 @@
 using Crease.Folding.PaperGraph;
 using UnityEngine;
 
-namespace Crease.Folding.Decals
+namespace Crease.Folding.PaperSurface.Decals
 {
     public enum PaperSide
     {

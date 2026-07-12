@@ -2,7 +2,7 @@ using Crease.Folding.PaperGraph;
 using UnityEngine;
 using GraphMesh = Crease.Folding.PaperGraph.PaperGraph;
 
-namespace Crease.Folding.Decals
+namespace Crease.Folding.PaperSurface.Decals
 {
     /// <summary>
     /// Stamp sizing and rotation helpers for the decal capture rig.

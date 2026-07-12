@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e4a8b2c1d3f5678901234abcd5678901, type: 3}
   m_Name: StickerLibrary
-  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.Stickers.StickerLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.PaperSurface.Stickers.StickerLibrary
   Stickers:
   - DisplayName: Sunflower
     Texture: {fileID: 2800000, guid: d01f427504d91ad40b236c6ec2599327, type: 3}

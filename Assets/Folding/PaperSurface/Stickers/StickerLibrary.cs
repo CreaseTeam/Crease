@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Crease.Folding.Stickers
+namespace Crease.Folding.PaperSurface.Stickers
 {
     [Serializable]
     public class StickerEntry

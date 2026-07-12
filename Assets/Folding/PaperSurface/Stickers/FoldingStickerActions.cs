@@ -1,8 +1,8 @@
-using Crease.Folding.Decals;
+using Crease.Folding.PaperSurface.Decals;
 using Crease.Folding.PaperGraph;
 using UnityEngine;
 
-namespace Crease.Folding.Stickers
+namespace Crease.Folding.PaperSurface.Stickers
 {
     /// <summary>
     /// UI button wrappers for sticker-phase and decal actions.

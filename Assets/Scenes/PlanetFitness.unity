@@ -5559,7 +5559,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 209dc3923ec529641a2a6fd74bc61076, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.PaperWriting.LetterActions
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.PaperSurface.Writing.LetterActions
   _sectionName: 
 --- !u!1 &374574377
 GameObject:
@@ -11069,7 +11069,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
       propertyPath: OnTriggerEntered.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: Crease.Folding.PaperWriting.LetterActions, Assembly-CSharp
+      value: Crease.Folding.PaperSurface.Writing.LetterActions, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
       propertyPath: OnTriggerEntered.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
@@ -11173,7 +11173,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 209dc3923ec529641a2a6fd74bc61076, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.PaperWriting.LetterActions
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.PaperSurface.Writing.LetterActions
   _sectionName: 
 --- !u!33 &665587736
 MeshFilter:
@@ -13639,7 +13639,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7099608708518249071, guid: 5d9c36e5264e3aa478d1ba5a8ec7c9d6, type: 3}
       propertyPath: OnTriggerEntered.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
-      value: Crease.Folding.PaperWriting.LetterActions, Assembly-CSharp
+      value: Crease.Folding.PaperSurface.Writing.LetterActions, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 7099608708518249071, guid: 5d9c36e5264e3aa478d1ba5a8ec7c9d6, type: 3}
       propertyPath: OnTriggerEntered.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_StringArgument
@@ -26866,7 +26866,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
       propertyPath: OnTriggerEntered.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: Crease.Folding.PaperWriting.LetterActions, Assembly-CSharp
+      value: Crease.Folding.PaperSurface.Writing.LetterActions, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
       propertyPath: OnTriggerEntered.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
@@ -26970,7 +26970,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 209dc3923ec529641a2a6fd74bc61076, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.PaperWriting.LetterActions
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.PaperSurface.Writing.LetterActions
   _sectionName: 
 --- !u!33 &1499740484
 MeshFilter:

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Crease.Audio;
-using Crease.Folding.Decals;
-using Crease.Folding.Stickers;
+using Crease.Folding.PaperSurface.Decals;
+using Crease.Folding.PaperSurface.Stickers;
 using Crease.Managers.Input;
 using Crease.UI;
 using UnityEngine;

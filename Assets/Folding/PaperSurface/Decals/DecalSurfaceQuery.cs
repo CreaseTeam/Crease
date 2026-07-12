@@ -3,7 +3,7 @@ using Crease.Folding.PaperGraph;
 using UnityEngine;
 using GraphMesh = Crease.Folding.PaperGraph.PaperGraph;
 
-namespace Crease.Folding.Decals
+namespace Crease.Folding.PaperSurface.Decals
 {
     public class DecalSurfaceQuery
     {

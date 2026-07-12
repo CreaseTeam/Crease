@@ -536,7 +536,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8867977678249691970}
-        m_TargetAssemblyTypeName: Crease.Folding.Stickers.StickerUIController, Assembly-CSharp
+        m_TargetAssemblyTypeName: Crease.Folding.PaperSurface.Stickers.StickerUIController, Assembly-CSharp
         m_MethodName: ClearHeldSticker
         m_Mode: 1
         m_Arguments:
@@ -6074,7 +6074,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 003bc96ace99bbb4eb5008971e65f94a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.Stickers.StickerUIController
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.PaperSurface.Stickers.StickerUIController
   Library: {fileID: 11400000, guid: c825bb68eea2e6442a3477025bc81d8e, type: 2}
   Dropdown: {fileID: 6723116954663085489}
   PreviewImage: {fileID: 1152949529590775900}

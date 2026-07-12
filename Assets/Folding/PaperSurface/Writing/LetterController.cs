@@ -3,7 +3,7 @@ using Crease.Handwritting;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Crease.Folding.PaperWriting
+namespace Crease.Folding.PaperSurface.Writing
 {
     public class LetterController : MonoBehaviour
     {

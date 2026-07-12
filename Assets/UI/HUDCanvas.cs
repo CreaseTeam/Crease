@@ -5,7 +5,7 @@ using Crease.Flying.Player.Loadouts;
 using Crease.Flying.Player.Health;
 using PlayerHealth = Crease.Flying.Player.Health.Health;
 using Crease.Folding.PaperGraph;
-using Crease.Folding.PaperWriting;
+using Crease.Folding.PaperSurface.Writing;
 using Crease.Managers.Input;
 using Crease.UI.Flying;
 using TMPro;

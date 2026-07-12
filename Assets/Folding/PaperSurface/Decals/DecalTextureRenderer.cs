@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using GraphMesh = Crease.Folding.PaperGraph.PaperGraph;
 
-namespace Crease.Folding.Decals
+namespace Crease.Folding.PaperSurface.Decals
 {
     /// <summary>
     /// Renders decal placements into front/back sheet-space render textures.
@@ -130,13 +130,13 @@ namespace Crease.Folding.Decals
         {
             if (FrontCamera == null || BackCamera == null || FrontStampRoot == null || BackStampRoot == null)
             {
-                Debug.LogError("DecalTextureRenderer: Assign Front/Back cameras and stamp roots. See Assets/Folding/Decals/DECAL_RT_SETUP.md", this);
+                Debug.LogError("DecalTextureRenderer: Assign Front/Back cameras and stamp roots. See Assets/Folding/PaperSurface/Decals/DECAL_RT_SETUP.md", this);
                 return false;
             }
 
             if (StampMaterial == null || UnitQuadMesh == null)
             {
-                Debug.LogError("DecalTextureRenderer: Assign StampMaterial and UnitQuadMesh. See Assets/Folding/Decals/DECAL_RT_SETUP.md", this);
+                Debug.LogError("DecalTextureRenderer: Assign StampMaterial and UnitQuadMesh. See Assets/Folding/PaperSurface/Decals/DECAL_RT_SETUP.md", this);
                 return false;
             }
 
