@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 224496141144752251}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: TextFields
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 2140139479035178564}
   - component: {fileID: 7053708960548939023}
   - component: {fileID: 7627648848447165703}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -242,6 +242,7 @@ MonoBehaviour:
   _disappearMode: 0
   _lingerTime: 2
   _fadeOutDuration: 0.5
+  _letterCollectionTarget: {fileID: 0}
 --- !u!1 &7442560463022425886
 GameObject:
   m_ObjectHideFlags: 0
@@ -256,7 +257,7 @@ GameObject:
   - component: {fileID: 2523465332082042718}
   - component: {fileID: 786328729623946912}
   - component: {fileID: 4023606360300441753}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: PaperBackground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -555,7 +556,7 @@ GameObject:
   - component: {fileID: 4650069418254615994}
   - component: {fileID: 5567316569230078027}
   - component: {fileID: 4574303938866214898}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: LetterCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -689,7 +690,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1569210606104639788}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: LetterController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
