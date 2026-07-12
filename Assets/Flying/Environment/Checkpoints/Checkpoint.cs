@@ -1,4 +1,4 @@
-using Crease.Folding.PaperGraph;
+using Crease.Folding.Paper;
 using Crease.UI;
 using UnityEngine;
 

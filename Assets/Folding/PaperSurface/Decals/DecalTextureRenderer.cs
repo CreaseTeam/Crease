@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using Crease.Folding.PaperGraph;
+using Crease.Folding.Paper;
 using UnityEngine;
 using UnityEngine.Rendering;
-using GraphMesh = Crease.Folding.PaperGraph.PaperGraph;
 
 namespace Crease.Folding.PaperSurface.Decals
 {
@@ -49,7 +48,7 @@ namespace Crease.Folding.PaperSurface.Decals
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 
         private readonly List<StampObject> _stampPool = new List<StampObject>();
-        private GraphMesh _pendingGraph;
+        private PaperGraph _pendingGraph;
         private IReadOnlyList<DecalPlacement> _pendingPlacements;
         private IReadOnlyList<DecalPlacement> _pendingGuides;
         private DecalPlacement _pendingGhost;
@@ -58,7 +57,7 @@ namespace Crease.Folding.PaperSurface.Decals
         private bool _rebuildQueued;
 
         public void RequestRebuild(
-            GraphMesh graph,
+            PaperGraph graph,
             IReadOnlyList<DecalPlacement> placements,
             IReadOnlyList<DecalPlacement> guides,
             DecalPlacement ghostPlacement,
@@ -149,7 +148,7 @@ namespace Crease.Folding.PaperSurface.Decals
             return true;
         }
 
-        private int PlaceStamp(GraphMesh graph, DecalPlacement placement, int stampIndex, bool isGhost)
+        private int PlaceStamp(PaperGraph graph, DecalPlacement placement, int stampIndex, bool isGhost)
         {
             if (placement == null || placement.Texture == null)
                 return stampIndex;

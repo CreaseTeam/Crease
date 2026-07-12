@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using Crease.Folding.PaperGraph;
+using Crease.Folding.Paper;
 using UnityEngine;
-using GraphMesh = Crease.Folding.PaperGraph.PaperGraph;
 
 namespace Crease.Folding.PaperSurface.Decals
 {
@@ -12,7 +11,7 @@ namespace Crease.Folding.PaperSurface.Decals
         [Header("Render Textures")]
         public DecalTextureRenderer TextureRenderer;
 
-        private GraphMesh _authoringGraph;
+        private PaperGraph _authoringGraph;
         private PaperGraphController _controller;
         private DecalSurfaceQuery _surfaceQuery;
         private readonly List<DecalPlacement> _placements = new List<DecalPlacement>();
@@ -59,7 +58,7 @@ namespace Crease.Folding.PaperSurface.Decals
 
             _controller = foldingManager.PaperGraph.GetComponent<PaperGraphController>();
             if (_controller != null)
-                _authoringGraph = _controller.GetComponent<GraphMesh>();
+                _authoringGraph = _controller.GetComponent<PaperGraph>();
         }
 
         public void PreparePlacement(bool syncPreviewFromAuthoring = true)
@@ -132,7 +131,7 @@ namespace Crease.Folding.PaperSurface.Decals
             Vector3 planeNormal,
             Vector3 stepPaperRotation,
             IReadOnlyList<string> filterTags,
-            GraphMesh styleSource)
+            PaperGraph styleSource)
         {
             PaperGraphController controller = Controller;
             if (controller == null || _authoringGraph == null)
@@ -413,7 +412,7 @@ namespace Crease.Folding.PaperSurface.Decals
             HideGhost();
         }
 
-        public void ApplyDecalMapsToRenderer(Renderer renderer, GraphMesh topologyGraph = null, GraphMesh settingsGraph = null)
+        public void ApplyDecalMapsToRenderer(Renderer renderer, PaperGraph topologyGraph = null, PaperGraph settingsGraph = null)
         {
             if (renderer == null || TextureRenderer == null)
                 return;
@@ -560,7 +559,7 @@ namespace Crease.Folding.PaperSurface.Decals
             }
         }
 
-        private static int ComputeGuideStyleHash(GraphMesh styleSource)
+        private static int ComputeGuideStyleHash(PaperGraph styleSource)
         {
             if (styleSource == null)
                 return 0;

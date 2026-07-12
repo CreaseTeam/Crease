@@ -1,6 +1,6 @@
 using Crease.Flying.Player;
 using Crease.Flying.Player.Abilities;
-using Crease.Folding.PaperGraph;
+using Crease.Folding.Paper;
 using UnityEngine;
 
 namespace Crease.Flying.Player.Loadouts

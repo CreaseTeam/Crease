@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Crease.Folding.PaperGraph
+namespace Crease.Folding.Paper
 {
     [System.Serializable]
     public class FilterTagSet

@@ -1,6 +1,5 @@
-using Crease.Folding.PaperGraph;
+using Crease.Folding.Paper;
 using UnityEngine;
-using GraphMesh = Crease.Folding.PaperGraph.PaperGraph;
 
 namespace Crease.Folding.PaperSurface.Decals
 {
@@ -43,7 +42,7 @@ namespace Crease.Folding.PaperSurface.Decals
         /// correct on folded faces and both front/back RTs (UV is already side-specific).
         /// </summary>
         public static float ComputeGuideRotationRad(
-            GraphMesh graph,
+            PaperGraph graph,
             DecalSurfaceQuery.SurfaceHit hit,
             Vector3 axisLocal,
             float sampleDistance = 0.002f)

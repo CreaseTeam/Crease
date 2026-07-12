@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Crease.Folding.PaperGraph
+namespace Crease.Folding.Paper
 {
 
 public class PaperGraph : MonoBehaviour

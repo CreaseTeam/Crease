@@ -4647,13 +4647,13 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: Crease.Folding.PaperGraph.FoldInstructionRunner,
+        m_TargetAssemblyTypeName: Crease.Folding.Paper.FoldInstructionRunner,
           Assembly-CSharp
         m_MethodName: LoadInstruction
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 11400000, guid: f6614e182e3a7a944b0a8ca13b863877, type: 2}
-          m_ObjectArgumentAssemblyTypeName: Crease.Folding.PaperGraph.FoldInstruction,
+          m_ObjectArgumentAssemblyTypeName: Crease.Folding.Paper.FoldInstruction,
             Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
@@ -5376,13 +5376,13 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: Crease.Folding.PaperGraph.FoldInstructionRunner,
+        m_TargetAssemblyTypeName: Crease.Folding.Paper.FoldInstructionRunner,
           Assembly-CSharp
         m_MethodName: LoadInstruction
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 11400000, guid: f6614e182e3a7a944b0a8ca13b863877, type: 2}
-          m_ObjectArgumentAssemblyTypeName: Crease.Folding.PaperGraph.FoldInstruction,
+          m_ObjectArgumentAssemblyTypeName: Crease.Folding.Paper.FoldInstruction,
             Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0

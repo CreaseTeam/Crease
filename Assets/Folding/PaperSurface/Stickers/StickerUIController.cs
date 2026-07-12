@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Crease.Folding.PaperSurface.Decals;
-using Crease.Folding.PaperGraph;
+using Crease.Folding.Paper;
 using Crease.Managers.Input;
 using TMPro;
 using UnityEngine;

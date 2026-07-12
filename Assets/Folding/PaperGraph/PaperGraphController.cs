@@ -4,7 +4,7 @@ using UnityEngine.Serialization;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Crease.Folding.PaperGraph
+namespace Crease.Folding.Paper
 {
     public class PaperGraphController : MonoBehaviour
     {

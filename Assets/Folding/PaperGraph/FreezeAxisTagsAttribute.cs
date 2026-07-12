@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Crease.Folding.PaperGraph
+namespace Crease.Folding.Paper
 {
     /// <summary>
     /// Marks a tag list as a multi-select freeze-axis field for custom inspector drawing.

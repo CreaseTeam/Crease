@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Crease.Folding.PaperGraph
+namespace Crease.Folding.Paper
 {
     /// <summary>
     /// Pushes crease-line shading and decal overlay textures to paper materials via MaterialPropertyBlock.

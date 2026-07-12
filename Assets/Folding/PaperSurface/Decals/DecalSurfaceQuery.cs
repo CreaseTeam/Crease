@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using Crease.Folding.PaperGraph;
+using Crease.Folding.Paper;
 using UnityEngine;
-using GraphMesh = Crease.Folding.PaperGraph.PaperGraph;
 
 namespace Crease.Folding.PaperSurface.Decals
 {
@@ -30,7 +29,7 @@ namespace Crease.Folding.PaperSurface.Decals
             return -planeNormal;
         }
 
-        public static float ComputeGuideRayOffset(GraphMesh graph, Vector3 samplePointLocal, Vector3 approachNormalLocal)
+        public static float ComputeGuideRayOffset(PaperGraph graph, Vector3 samplePointLocal, Vector3 approachNormalLocal)
         {
             if (graph == null || graph.Vertices.Count == 0 || approachNormalLocal.sqrMagnitude < 0.0001f)
                 return PlanarRayStartOffset;
@@ -48,7 +47,7 @@ namespace Crease.Folding.PaperSurface.Decals
         }
 
         private static void BuildGuideRay(
-            GraphMesh graph,
+            PaperGraph graph,
             Vector3 samplePointLocal,
             Vector3 approachNormalLocal,
             out Vector3 rayOriginLocal,
@@ -76,8 +75,8 @@ namespace Crease.Folding.PaperSurface.Decals
             public Vector3 ViewRayDirLocal;
         }
 
-        private readonly GraphMesh _authoringGraph;
-        private readonly GraphMesh _surfaceGraph;
+        private readonly PaperGraph _authoringGraph;
+        private readonly PaperGraph _surfaceGraph;
         private readonly Transform _meshSurfaceRoot;
         private readonly MeshCollider _meshCollider;
         private readonly Quaternion _meshVertexRotation;
@@ -93,8 +92,8 @@ namespace Crease.Folding.PaperSurface.Decals
         }
 
         public DecalSurfaceQuery(
-            GraphMesh authoringGraph,
-            GraphMesh surfaceGraph,
+            PaperGraph authoringGraph,
+            PaperGraph surfaceGraph,
             Transform meshSurfaceRoot,
             MeshCollider meshCollider,
             Quaternion meshVertexRotation = default)
@@ -129,10 +128,10 @@ namespace Crease.Folding.PaperSurface.Decals
 
         /// <summary>
         /// One entry per mesh fan triangle (matches submesh 0 topology). Back submesh reuses the same indices.
-        /// Must skip degenerate fans the same way <see cref="GraphMesh.GenerateMesh"/> does so
+        /// Must skip degenerate fans the same way <see cref="PaperGraph.GenerateMesh"/> does so
         /// physics triangleIndex aligns with this list.
         /// </summary>
-        private static void BuildTriangleList(GraphMesh graph, List<MeshTriangle> output)
+        private static void BuildTriangleList(PaperGraph graph, List<MeshTriangle> output)
         {
             output.Clear();
             if (graph == null) return;
@@ -181,7 +180,7 @@ namespace Crease.Folding.PaperSurface.Decals
         /// on an allowed face. Uses analytic triangle tests in paper-local space so the query
         /// does not depend on a physics collider (authoring mesh is often not collidable).
         /// </summary>
-        private static int BuildTriangleListWithBackFaces(GraphMesh graph, List<MeshTriangle> output)
+        private static int BuildTriangleListWithBackFaces(PaperGraph graph, List<MeshTriangle> output)
         {
             BuildTriangleList(graph, output);
             int frontCount = output.Count;
@@ -205,7 +204,7 @@ namespace Crease.Folding.PaperSurface.Decals
         /// Used to author fold-guide placements before the current fold is applied.
         /// </summary>
         public static SurfaceHit RaycastPlanarTopOnGraph(
-            GraphMesh authoringGraph,
+            PaperGraph authoringGraph,
             Vector3 samplePointLocal,
             Vector3 planeNormalLocal,
             HashSet<Face> allowedFaces)
@@ -223,8 +222,8 @@ namespace Crease.Folding.PaperSurface.Decals
         /// allowed-face filtering uses authoring-graph face references.
         /// </summary>
         public static SurfaceHit RaycastPlanarTopForGuide(
-            GraphMesh geometryGraph,
-            GraphMesh faceFilterGraph,
+            PaperGraph geometryGraph,
+            PaperGraph faceFilterGraph,
             Vector3 samplePointLocal,
             Vector3 approachNormalLocal,
             HashSet<Face> allowedFaces)
@@ -233,7 +232,7 @@ namespace Crease.Folding.PaperSurface.Decals
             if (geometryGraph == null || approachNormalLocal.sqrMagnitude < 0.0001f)
                 return miss;
 
-            GraphMesh filterGraph = faceFilterGraph ?? geometryGraph;
+            PaperGraph filterGraph = faceFilterGraph ?? geometryGraph;
             BuildGuideRay(geometryGraph, samplePointLocal, approachNormalLocal, out Vector3 rayOriginLocal, out Vector3 rayDirLocal);
 
             var triangles = new List<MeshTriangle>();
@@ -255,8 +254,8 @@ namespace Crease.Folding.PaperSurface.Decals
         /// Picks the outermost hit along the approach ray (furthest from the ray origin).
         /// </summary>
         public static void RaycastPlanarTopForGuideVisibleSides(
-            GraphMesh geometryGraph,
-            GraphMesh faceFilterGraph,
+            PaperGraph geometryGraph,
+            PaperGraph faceFilterGraph,
             Vector3 samplePointLocal,
             Vector3 approachNormalLocal,
             HashSet<Face> allowedFaces,
@@ -266,7 +265,7 @@ namespace Crease.Folding.PaperSurface.Decals
             if (geometryGraph == null || approachNormalLocal.sqrMagnitude < 0.0001f)
                 return;
 
-            GraphMesh filterGraph = faceFilterGraph ?? geometryGraph;
+            PaperGraph filterGraph = faceFilterGraph ?? geometryGraph;
             BuildGuideRay(geometryGraph, samplePointLocal, approachNormalLocal, out Vector3 rayOriginLocal, out Vector3 rayDirLocal);
 
             var triangles = new List<MeshTriangle>();
@@ -283,7 +282,7 @@ namespace Crease.Folding.PaperSurface.Decals
                 results);
         }
 
-        public static Face FindFaceForTriangleIndices(GraphMesh graph, int i0, int i1, int i2)
+        public static Face FindFaceForTriangleIndices(PaperGraph graph, int i0, int i1, int i2)
         {
             if (graph == null)
                 return null;
@@ -318,7 +317,7 @@ namespace Crease.Folding.PaperSurface.Decals
         /// Returns the nearest hit along the ray (outermost visible surface from that direction).
         /// </summary>
         public static SurfaceHit RaycastOuterSurfaceOnGraph(
-            GraphMesh graph,
+            PaperGraph graph,
             Vector3 rayOriginLocal,
             Vector3 rayDirLocal,
             HashSet<Face> allowedFaces = null)
@@ -338,7 +337,7 @@ namespace Crease.Folding.PaperSurface.Decals
         /// visible outer surface a camera/sticker placement ray would hit.
         /// </summary>
         public static SurfaceHit RaycastVisibleSurfaceOnGraph(
-            GraphMesh graph,
+            PaperGraph graph,
             Vector3 rayOriginLocal,
             Vector3 rayDirLocal,
             HashSet<Face> allowedFaces = null)
@@ -358,7 +357,7 @@ namespace Crease.Folding.PaperSurface.Decals
         /// view-facing surface rules as sticker placement.
         /// </summary>
         public static bool TryRaycastVisibleFromCamera(
-            GraphMesh graph,
+            PaperGraph graph,
             Camera camera,
             Transform surfaceRoot,
             Quaternion graphSpaceRotation,
@@ -384,7 +383,7 @@ namespace Crease.Folding.PaperSurface.Decals
         }
 
         public static bool TryGetRandomVisibleSurfaceFromCamera(
-            GraphMesh graph,
+            PaperGraph graph,
             Camera camera,
             Transform surfaceRoot,
             Quaternion graphSpaceRotation,
@@ -428,7 +427,7 @@ namespace Crease.Folding.PaperSurface.Decals
         /// into the graph. Only camera-facing hits are accepted, so folded interior faces are skipped.
         /// </summary>
         public static bool TryGetRandomVisibleSurfaceOnGraph(
-            GraphMesh graph,
+            PaperGraph graph,
             out SurfaceHit hit,
             int maxAttempts = 32)
         {
@@ -461,7 +460,7 @@ namespace Crease.Folding.PaperSurface.Decals
         /// Axis-aligned bounds plus a sphere that encloses every graph vertex from the centroid.
         /// </summary>
         private static void ComputeGraphBounds(
-            GraphMesh graph,
+            PaperGraph graph,
             out Vector3 center,
             out Vector3 min,
             out Vector3 max,
@@ -491,7 +490,7 @@ namespace Crease.Folding.PaperSurface.Decals
         }
 
         private static SurfaceHit BuildGraphSurfaceHit(
-            GraphMesh graph,
+            PaperGraph graph,
             MeshTriangle tri,
             Vector3 bary,
             PaperSide side,
@@ -534,7 +533,7 @@ namespace Crease.Folding.PaperSurface.Decals
             if (approachNormalLocal.sqrMagnitude < 0.0001f)
                 return new SurfaceHit { Hit = false };
 
-            GraphMesh offsetGraph = _surfaceGraph != null ? _surfaceGraph : _authoringGraph;
+            PaperGraph offsetGraph = _surfaceGraph != null ? _surfaceGraph : _authoringGraph;
             BuildGuideRay(offsetGraph, samplePointLocal, approachNormalLocal, out Vector3 rayOriginLocal, out Vector3 rayDirLocal);
 
             if (_meshCollider != null && _meshSurfaceRoot != null)
@@ -567,8 +566,8 @@ namespace Crease.Folding.PaperSurface.Decals
         }
 
         private static SurfaceHit RaycastTrianglesAnalyticOnGraph(
-            GraphMesh graph,
-            GraphMesh faceFilterGraph,
+            PaperGraph graph,
+            PaperGraph faceFilterGraph,
             List<MeshTriangle> triangles,
             int frontTriangleCount,
             Vector3 rayOriginLocal,
@@ -579,7 +578,7 @@ namespace Crease.Folding.PaperSurface.Decals
             if (triangles.Count == 0)
                 return miss;
 
-            GraphMesh filterGraph = faceFilterGraph ?? graph;
+            PaperGraph filterGraph = faceFilterGraph ?? graph;
             rayDirLocal = rayDirLocal.normalized;
             bool found = false;
             float bestT = float.MaxValue;
@@ -652,8 +651,8 @@ namespace Crease.Folding.PaperSurface.Decals
         }
 
         private static void ResolveGuideHitsAtSurfacePoint(
-            GraphMesh graph,
-            GraphMesh faceFilterGraph,
+            PaperGraph graph,
+            PaperGraph faceFilterGraph,
             List<MeshTriangle> triangles,
             int frontTriangleCount,
             Vector3 surfacePoint,
@@ -665,7 +664,7 @@ namespace Crease.Folding.PaperSurface.Decals
             if (triangles.Count == 0)
                 return;
 
-            GraphMesh filterGraph = faceFilterGraph ?? graph;
+            PaperGraph filterGraph = faceFilterGraph ?? graph;
             rayDirLocal = rayDirLocal.normalized;
             bool found = false;
             float bestDepth = float.MinValue;
@@ -1063,7 +1062,7 @@ namespace Crease.Folding.PaperSurface.Decals
         /// Returns true when a paper surface hit lies within a placed sticker's oriented bounds.
         /// </summary>
         public static bool TrySurfaceHitOverlapsPlacement(
-            GraphMesh graph,
+            PaperGraph graph,
             DecalPlacement placement,
             SurfaceHit hit,
             float pickSlop = 1.05f)
@@ -1196,7 +1195,7 @@ namespace Crease.Folding.PaperSurface.Decals
             return bary.x * uv0 + bary.y * uv1 + bary.z * uv2;
         }
 
-        public static bool TryGetAnchorVertices(GraphMesh authoringGraph, DecalPlacement placement, out Vertex v0, out Vertex v1, out Vertex v2)
+        public static bool TryGetAnchorVertices(PaperGraph authoringGraph, DecalPlacement placement, out Vertex v0, out Vertex v1, out Vertex v2)
         {
             v0 = null;
             v1 = null;
@@ -1213,7 +1212,7 @@ namespace Crease.Folding.PaperSurface.Decals
             return true;
         }
 
-        public static Vector2 ResolveSheetUv(GraphMesh authoringGraph, DecalPlacement placement)
+        public static Vector2 ResolveSheetUv(PaperGraph authoringGraph, DecalPlacement placement)
         {
             if (!TryGetAnchorVertices(authoringGraph, placement, out Vertex v0, out Vertex v1, out Vertex v2))
                 return placement.SheetUv;
@@ -1226,7 +1225,7 @@ namespace Crease.Folding.PaperSurface.Decals
         /// side-specific space used by decal RT stamping (back U is already mirrored).
         /// </summary>
         public static bool TryInterpolateSheetUvAlongAxis(
-            GraphMesh graph,
+            PaperGraph graph,
             SurfaceHit hit,
             Vector3 axisLocal,
             float distance,
@@ -1253,7 +1252,7 @@ namespace Crease.Folding.PaperSurface.Decals
             return true;
         }
 
-        private static bool IsValidIndex(GraphMesh graph, int index)
+        private static bool IsValidIndex(PaperGraph graph, int index)
         {
             return index >= 0 && index < graph.Vertices.Count;
         }

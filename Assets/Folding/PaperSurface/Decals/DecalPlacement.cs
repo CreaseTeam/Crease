@@ -1,4 +1,4 @@
-using Crease.Folding.PaperGraph;
+using Crease.Folding.Paper;
 using UnityEngine;
 
 namespace Crease.Folding.PaperSurface.Decals

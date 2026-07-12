@@ -406,7 +406,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ef325bbf05dd354aa330cba63f4240c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.PaperGraph.PaperGraphPreviewRoot
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.Paper.PaperGraphPreviewRoot
 --- !u!114 &8389398031182854560
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -418,7 +418,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bf6c3317140fb084fa3b99ad2f40e435, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.PaperGraph.PaperGraph
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.Paper.PaperGraph
   Width: 1
   Height: 1
   CreaseDarkenWidth: 0.006
@@ -440,7 +440,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1cffdd7f0fe9fe14d8024af722424d7c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.PaperGraph.PaperGraphVisualizer
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.Paper.PaperGraphVisualizer
   Graph: {fileID: 8389398031182854560}
   VertexColor: {r: 0, g: 1, b: 0, a: 1}
   EdgeColor: {r: 1, g: 1, b: 1, a: 1}

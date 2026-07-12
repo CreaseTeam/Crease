@@ -1,5 +1,5 @@
 using Crease.Folding.PaperSurface.Decals;
-using Crease.Folding.PaperGraph;
+using Crease.Folding.Paper;
 using UnityEngine;
 
 namespace Crease.Flying.Player.Health

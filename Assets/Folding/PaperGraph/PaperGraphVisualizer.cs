@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Crease.Folding.PaperGraph
+namespace Crease.Folding.Paper
 {
     public class PaperGraphVisualizer : MonoBehaviour
     {

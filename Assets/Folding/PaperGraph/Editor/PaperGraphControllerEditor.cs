@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace Crease.Folding.PaperGraph.Editor
+namespace Crease.Folding.Paper.Editor
 {
     [CustomEditor(typeof(PaperGraphController))]
     public class PaperGraphControllerEditor : UnityEditor.Editor

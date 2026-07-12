@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Crease.Folding.PaperGraph
+namespace Crease.Folding.Paper
 {
     /// <summary>
     /// Marks a child object as the controller-managed fold preview. Do not configure manually.
