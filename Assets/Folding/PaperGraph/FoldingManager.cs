@@ -587,7 +587,7 @@ namespace Crease.Folding.Paper
                 return;
 
             Quaternion flightOrientation = Quaternion.Euler(GetActiveFlightMeshRotation());
-            PaperShading.ApplyCreaseSegments(
+            PaperShading.ApplyEdgeSegments(
                 _playerMeshRenderer,
                 topologyGraph,
                 settingsGraph,

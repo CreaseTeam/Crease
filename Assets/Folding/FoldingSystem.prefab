@@ -231,8 +231,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.Paper.PaperGraph
   Width: 1
   Height: 1
-  CreaseDarkenWidth: 0.006
-  CreaseMinBrightness: 0.4
+  FoldEdgeDarkenWidth: 0.006
+  FoldEdgeMinBrightness: 0.4
+  CreaseEdgeDarkenWidth: 0.006
+  CreaseEdgeMinBrightness: 0.4
+  EdgeShadowDarkenWidth: 0.012
+  EdgeShadowMinBrightness: 0.55
+  EdgeShadowInnerOffset: 0.003
   GuideLineWidth: 0.005
   GuideLineColor: {r: 1, g: 1, b: 1, a: 0.85}
   GuideDashesEnabled: 1
@@ -463,8 +468,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PaperGraph
   Width: 1
   Height: 1.3
-  CreaseDarkenWidth: 0.025
-  CreaseMinBrightness: 0.65
+  FoldEdgeDarkenWidth: 0.02
+  FoldEdgeMinBrightness: 0.4
+  CreaseEdgeDarkenWidth: 0.025
+  CreaseEdgeMinBrightness: 0.65
+  EdgeShadowDarkenWidth: 0.03
+  EdgeShadowMinBrightness: 0.9
+  EdgeShadowInnerOffset: 0.003
   GuideLineWidth: 0.015
   GuideLineColor: {r: 0, g: 0, b: 0, a: 1}
   GuideDashesEnabled: 1

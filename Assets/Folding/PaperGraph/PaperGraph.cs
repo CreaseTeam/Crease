@@ -22,13 +22,21 @@ public class PaperGraph : MonoBehaviour
     [FormerlySerializedAs("height")]
     public float Height = 1f;
 
-    [Header("Crease Line Shading")]
-    [Tooltip("Object-space falloff for fold/crease lines left on the paper.")]
+    [Header("Fold Edge Shading")]
+    [Tooltip("Object-space falloff for committed fold edges.")]
     [Min(0f)]
-    public float CreaseDarkenWidth = 0.006f;
-    [Tooltip("Surface brightness on a crease line (1 = off).")]
+    public float FoldEdgeDarkenWidth = 0.006f;
+    [Tooltip("Surface brightness on a committed fold edge (1 = off).")]
     [Range(0f, 1f)]
-    public float CreaseMinBrightness = 0.4f;
+    public float FoldEdgeMinBrightness = 0.4f;
+
+    [Header("Crease Edge Shading")]
+    [Tooltip("Object-space falloff for topology-only crease edges.")]
+    [Min(0f)]
+    public float CreaseEdgeDarkenWidth = 0.006f;
+    [Tooltip("Surface brightness on a crease edge (1 = off).")]
+    [Range(0f, 1f)]
+    public float CreaseEdgeMinBrightness = 0.4f;
 
     [Header("Edge Shadow")]
     [Tooltip("Object-space falloff for darkening near the paper's original outer edges.")]
@@ -366,7 +374,7 @@ public class PaperGraph : MonoBehaviour
 
         // Split edges along the fold plane; crease edges produced by SplitFace will carry signedOffset.
         bool splitValid;
-        List<Vertex> splitVertices = SplitEdgesCrossingPlane(foldPoint1, planeNormal, degrees, filterSet, signedOffset, out splitValid);
+        List<Vertex> splitVertices = SplitEdgesCrossingPlane(foldPoint1, planeNormal, degrees, filterSet, signedOffset, false, out splitValid);
 
         // Also invalid if the fold axis doesn't cleanly cross the paper (< 2 intersection points):
         // this means the axis missed the mesh entirely, or only grazed a single corner, and the
@@ -483,7 +491,7 @@ public class PaperGraph : MonoBehaviour
         Vector3 planeNormal = Vector3.Cross(foldAxis, planeVector).normalized;
 
         bool splitValid;
-        List<Vertex> splitVertices = SplitEdgesCrossingPlane(foldPoint1, planeNormal, foldAngle, filterSet, 0f, out splitValid);
+        List<Vertex> splitVertices = SplitEdgesCrossingPlane(foldPoint1, planeNormal, foldAngle, filterSet, 0f, true, out splitValid);
 
         if (!splitValid || splitVertices.Count < 2) {
             PaperGraphSnapshot bad = _undoStack[_undoStack.Count - 1];
@@ -687,6 +695,8 @@ public class PaperGraph : MonoBehaviour
         edgeB.FoldAngle = edge.FoldAngle;
         edgeA.FoldOffset = edge.FoldOffset;
         edgeB.FoldOffset = edge.FoldOffset;
+        edgeA.IsCreaseEdge = edge.IsCreaseEdge;
+        edgeB.IsCreaseEdge = edge.IsCreaseEdge;
         edgeA.Face1 = edge.Face1;
         edgeA.Face2 = edge.Face2;
         edgeB.Face1 = edge.Face1;
@@ -736,6 +746,8 @@ public class PaperGraph : MonoBehaviour
         edgeB.FoldAngle = edge.FoldAngle;
         edgeA.FoldOffset = edge.FoldOffset;
         edgeB.FoldOffset = edge.FoldOffset;
+        edgeA.IsCreaseEdge = edge.IsCreaseEdge;
+        edgeB.IsCreaseEdge = edge.IsCreaseEdge;
         edgeA.Face1 = edge.Face1;
         edgeA.Face2 = edge.Face2;
         edgeB.Face1 = edge.Face1;
@@ -755,7 +767,7 @@ public class PaperGraph : MonoBehaviour
         return split;
     }
 
-    public List<Vertex> SplitEdgesCrossingPlane(Vector3 planePoint, Vector3 planeNormal, float foldAngle, HashSet<Vertex> filterSet, float foldOffset, out bool isValid) {
+    public List<Vertex> SplitEdgesCrossingPlane(Vector3 planePoint, Vector3 planeNormal, float foldAngle, HashSet<Vertex> filterSet, float foldOffset, bool isCreaseEdge, out bool isValid) {
         isValid = true;
         List<Edge> edgeSnapshot = new List<Edge>(Edges);
         Dictionary<Face, List<Vertex>> faceSplitVertices = new Dictionary<Face, List<Vertex>>();
@@ -798,6 +810,8 @@ public class PaperGraph : MonoBehaviour
             Edge edgeB = new Edge(vNew, oldEdge.V2);
             edgeA.FoldAngle = oldEdge.FoldAngle;
             edgeB.FoldAngle = oldEdge.FoldAngle;
+            edgeA.IsCreaseEdge = oldEdge.IsCreaseEdge;
+            edgeB.IsCreaseEdge = oldEdge.IsCreaseEdge;
             edgeA.Face1 = oldEdge.Face1;
             edgeA.Face2 = oldEdge.Face2;
             edgeB.Face1 = oldEdge.Face1;
@@ -855,7 +869,7 @@ public class PaperGraph : MonoBehaviour
         // Split any face that had exactly two edges cut by the plane
         foreach (var kvp in faceSplitVertices) {
             if (kvp.Value.Count == 2)
-                SplitFace(kvp.Value[0], kvp.Value[1], kvp.Key, foldAngle, foldOffset);
+                SplitFace(kvp.Value[0], kvp.Value[1], kvp.Key, foldAngle, foldOffset, isCreaseEdge);
             else if (kvp.Value.Count > 2)
                 isValid = false;
         }
@@ -863,7 +877,7 @@ public class PaperGraph : MonoBehaviour
         return newSplitVertices;
     }
 
-    public void SplitFace(Vertex vA, Vertex vB, Face face, float foldAngle = 180f, float foldOffset = 0f) {
+    public void SplitFace(Vertex vA, Vertex vB, Face face, float foldAngle = 180f, float foldOffset = 0f, bool isCreaseEdge = false) {
         int idxA = face.Vertices.IndexOf(vA);
         int idxB = face.Vertices.IndexOf(vB);
 
@@ -881,6 +895,7 @@ public class PaperGraph : MonoBehaviour
         Edge splitEdge = new Edge(vA, vB);
         splitEdge.FoldAngle = foldAngle;
         splitEdge.FoldOffset = foldOffset;
+        splitEdge.IsCreaseEdge = isCreaseEdge;
         Edges.Add(splitEdge);
 
         // --- Build face1: vertices[idxA..idxB], closed by splitEdge ---
@@ -1228,6 +1243,7 @@ public class PaperGraph : MonoBehaviour
             Edge clone = new Edge(vertexMap[e.V1], vertexMap[e.V2]);
             clone.FoldAngle = e.FoldAngle;
             clone.FoldOffset = e.FoldOffset;
+            clone.IsCreaseEdge = e.IsCreaseEdge;
             edgeMap[e] = clone;
             clonedEdges.Add(clone);
         }
@@ -1418,6 +1434,8 @@ public class Edge {
     public float FoldAngle = 180f;
     /// <summary>Hinge thickness offset stored on crease edges during flat folds. Zero for non-hinge edges.</summary>
     public float FoldOffset = 0f;
+    /// <summary>True for topology-only crease edges from <see cref="PaperGraph.ExecuteCrease"/>.</summary>
+    public bool IsCreaseEdge = false;
     public Face Face1;  // One adjacent face
     public Face Face2;  // Other adjacent face (null for boundary)
 

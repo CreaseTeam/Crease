@@ -246,9 +246,10 @@ void PaperLitPassFragment(
 
     InitializeBakedGIData(input, inputData);
 
-    half creaseBrightness = GetCreaseBrightness(input.positionOS, input.faceIndex);
+    half foldEdgeBrightness = GetFoldEdgeBrightness(input.positionOS, input.faceIndex);
+    half creaseEdgeBrightness = GetCreaseEdgeBrightness(input.positionOS, input.faceIndex);
     half edgeShadowBrightness = GetEdgeShadowBrightness(input.positionOS, normalize(input.normalOS), input.faceIndex);
-    surfaceData.albedo.rgb *= creaseBrightness * edgeShadowBrightness;
+    surfaceData.albedo.rgb *= foldEdgeBrightness * creaseEdgeBrightness * edgeShadowBrightness;
 
     half4 color = UniversalFragmentPBR(inputData, surfaceData);
     color.rgb = MixFog(color.rgb, inputData.fogCoord);

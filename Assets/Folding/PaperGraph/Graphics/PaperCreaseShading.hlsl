@@ -1,14 +1,19 @@
 #ifndef PAPER_CREASE_SHADING_INCLUDED
 #define PAPER_CREASE_SHADING_INCLUDED
 
-TEXTURE2D_FLOAT(_CreaseSegmentTex);
-float _CreaseSegmentCount;
-float _CreaseDarkenWidth;
-float _CreaseMinBrightness;
+TEXTURE2D_FLOAT(_FoldEdgeSegmentTex);
+float _FoldEdgeSegmentCount;
+float _FoldEdgeDarkenWidth;
+float _FoldEdgeMinBrightness;
 
-float4 LoadCreaseSegmentPixel(int segmentIndex, int pixelOffset)
+TEXTURE2D_FLOAT(_CreaseEdgeSegmentTex);
+float _CreaseEdgeSegmentCount;
+float _CreaseEdgeDarkenWidth;
+float _CreaseEdgeMinBrightness;
+
+float4 LoadEdgeSegmentPixel(Texture2D segmentTex, int segmentIndex, int pixelOffset)
 {
-    return LOAD_TEXTURE2D(_CreaseSegmentTex, int2(segmentIndex * 3 + pixelOffset, 0));
+    return LOAD_TEXTURE2D(segmentTex, int2(segmentIndex * 3 + pixelOffset, 0));
 }
 
 float DistancePointToSegment(float3 pos, float3 a, float3 b)
@@ -43,7 +48,7 @@ float BrightnessFromDistance(float distance, float width, float minBrightness)
     return lerp(minBrightness, 1.0, t);
 }
 
-bool CreaseSegmentMatchesFace(float2 facePair, int faceId)
+bool EdgeSegmentMatchesFace(float2 facePair, int faceId)
 {
     if (facePair.x >= 0.0 && (int)facePair.x == faceId)
         return true;
@@ -54,32 +59,60 @@ bool CreaseSegmentMatchesFace(float2 facePair, int faceId)
     return false;
 }
 
-float GetCreaseBrightness(float3 positionOS, float faceIndex)
+float GetSegmentEdgeBrightness(
+    float3 positionOS,
+    float faceIndex,
+    Texture2D segmentTex,
+    float segmentCount,
+    float darkenWidth,
+    float minBrightness)
 {
-    if (_CreaseSegmentCount <= 0 || _CreaseDarkenWidth <= 0.0)
+    if (segmentCount <= 0 || darkenWidth <= 0.0)
         return 1.0;
 
     int faceId = (int)(faceIndex + 0.5);
-    float creaseDistance = 1e6;
-    bool hasCrease = false;
+    float edgeDistance = 1e6;
+    bool hasEdge = false;
 
-    int segmentCount = (int)(_CreaseSegmentCount + 0.5);
-    for (int i = 0; i < segmentCount; i++)
+    int count = (int)(segmentCount + 0.5);
+    for (int i = 0; i < count; i++)
     {
-        float4 faceData = LoadCreaseSegmentPixel(i, 2);
-        if (!CreaseSegmentMatchesFace(faceData.xy, faceId))
+        float4 faceData = LoadEdgeSegmentPixel(segmentTex, i, 2);
+        if (!EdgeSegmentMatchesFace(faceData.xy, faceId))
             continue;
 
-        float3 a = LoadCreaseSegmentPixel(i, 0).xyz;
-        float3 b = LoadCreaseSegmentPixel(i, 1).xyz;
-        creaseDistance = min(creaseDistance, DistancePointToSegment(positionOS, a, b));
-        hasCrease = true;
+        float3 a = LoadEdgeSegmentPixel(segmentTex, i, 0).xyz;
+        float3 b = LoadEdgeSegmentPixel(segmentTex, i, 1).xyz;
+        edgeDistance = min(edgeDistance, DistancePointToSegment(positionOS, a, b));
+        hasEdge = true;
     }
 
-    if (!hasCrease)
+    if (!hasEdge)
         return 1.0;
 
-    return BrightnessFromDistance(creaseDistance, _CreaseDarkenWidth, _CreaseMinBrightness);
+    return BrightnessFromDistance(edgeDistance, darkenWidth, minBrightness);
+}
+
+float GetFoldEdgeBrightness(float3 positionOS, float faceIndex)
+{
+    return GetSegmentEdgeBrightness(
+        positionOS,
+        faceIndex,
+        _FoldEdgeSegmentTex,
+        _FoldEdgeSegmentCount,
+        _FoldEdgeDarkenWidth,
+        _FoldEdgeMinBrightness);
+}
+
+float GetCreaseEdgeBrightness(float3 positionOS, float faceIndex)
+{
+    return GetSegmentEdgeBrightness(
+        positionOS,
+        faceIndex,
+        _CreaseEdgeSegmentTex,
+        _CreaseEdgeSegmentCount,
+        _CreaseEdgeDarkenWidth,
+        _CreaseEdgeMinBrightness);
 }
 
 TEXTURE2D_FLOAT(_BoundaryEdgeSegmentTex);
