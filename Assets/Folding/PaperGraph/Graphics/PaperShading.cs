@@ -421,9 +421,7 @@ namespace Crease.Folding.Paper
 
         public static void ApplyFlightShadingData(
             Renderer renderer,
-            FlightShadingData data,
-            Texture frontDecalMap,
-            Texture backDecalMap)
+            FlightShadingData data)
         {
             if (renderer == null || data == null)
                 return;
@@ -449,8 +447,8 @@ namespace Crease.Folding.Paper
                 data.EdgeShadowInnerOffset,
                 data.EdgeShadowMinBrightness,
                 data.BoundarySegmentCount,
-                frontDecalMap,
-                backDecalMap);
+                null,
+                null);
         }
 
         private static void ApplyRendererShadingInternal(

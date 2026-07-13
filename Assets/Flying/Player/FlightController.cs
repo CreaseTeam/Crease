@@ -20,25 +20,22 @@ namespace Crease.Flying.Player
         [SerializeField] private Transform _meshTransform;
         public Transform MeshTransform => _meshTransform;
 
-        private Vector3 _meshRotation;
-        private Vector3 _prefabMeshRotation;
         private float _yaw = 0f;
 
         private float _roll = 0f;
         public float Roll => _roll;
 
-        [FormerlySerializedAs("rollOffset")]
-        [SerializeField] private float _rollOffset = 0f;
-        public float RollOffset
-        {
-            get => _rollOffset;
-            set => _rollOffset = value;
-        }
-
         [FormerlySerializedAs("stats")]
         [SerializeField] private FlightStats _stats;
 
         private float _inputMagnitude;
+        private bool _transitionFrozen;
+
+        public void SetTransitionFrozen(bool frozen) {
+            _transitionFrozen = frozen;
+            if (frozen && _body != null)
+                _body.Velocity = Vector3.zero;
+        }
 
         private void Awake()
         {
@@ -61,23 +58,6 @@ namespace Crease.Flying.Player
             }
 
             _body.Velocity = transform.forward * _stats.CurrentStats.InitialSpeed;
-
-            _prefabMeshRotation = _meshTransform.localEulerAngles;
-            _meshRotation = _prefabMeshRotation;
-        }
-
-        public void ApplySavedMeshOrientation(Vector3 additionalEuler) {
-            if (_meshTransform == null)
-                return;
-
-            Quaternion baseRotation = Quaternion.Euler(_prefabMeshRotation);
-            _meshRotation = (baseRotation * Quaternion.Euler(additionalEuler)).eulerAngles;
-            UpdateRotation();
-        }
-
-        public void RestoreDefaultMeshOrientation() {
-            _meshRotation = _prefabMeshRotation;
-            UpdateRotation();
         }
 
         private bool IsFlightControlLocked =>
@@ -85,6 +65,9 @@ namespace Crease.Flying.Player
 
         void FixedUpdate()
         {
+            if (_transitionFrozen)
+                return;
+
             _body.SimulationSpeed = _flightModifiers != null ? _flightModifiers.SimulationSpeed : 1f;
 
             if (!IsFlightControlLocked)
@@ -224,9 +207,7 @@ namespace Crease.Flying.Player
             _body.MoveRotation(Quaternion.Euler(_pitch, _yaw, 0f));
 
             if (_meshTransform != null)
-            {
-                _meshTransform.localRotation = Quaternion.Euler(_roll + _rollOffset + _meshRotation.x, _meshRotation.y, _meshRotation.z);
-            }
+                _meshTransform.localRotation = Quaternion.Euler(0f, 0f, -_roll);
         }
 
         private void ProcessInput()

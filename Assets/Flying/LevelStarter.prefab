@@ -119,9 +119,7 @@ MonoBehaviour:
   FlyingCamera: {fileID: 3936584405265759272}
   TransitionDuration: 2
   PaperAlignDuration: 0.6
-  DefaultPlayerMesh: {fileID: 4300000, guid: 3d07862ae155a79468790d1c9c3e87c5, type: 2}
-  MeshRotation: {x: -90, y: 0, z: 0}
-  PaperToPlayerRotationOffset: {x: -90, y: 0, z: 0}
+  DefaultPlayerMesh: {fileID: 4300000, guid: 91d3c4548297db94c9f3d0b97561c32e, type: 2}
   PaperGraph: {fileID: 6770765525342464528}
   Player: {fileID: 8819344863044188461}
 --- !u!1 &1701402546751780122
@@ -1352,6 +1350,18 @@ PrefabInstance:
       propertyPath: FoldInstructionRunner
       value: 
       objectReference: {fileID: 8945394571852309787}
+    - target: {fileID: 9024431747453565516, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9024431747453565516, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 6770765525342464528}
+    - target: {fileID: 9024431747453565516, guid: cda26bfef4ee1834ca7a5b4a00ee51a3, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Crease.Folding.Paper.PaperGraph, Assembly-CSharp
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

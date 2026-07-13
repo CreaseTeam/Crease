@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Spinner
   m_EditorClassIdentifier: Assembly-CSharp::FoldInstruction
   Offset: {x: 0, y: 0}
+  FlightMeshRotation: {x: 90, y: -90, z: 101}
   Steps:
   - DragHandlePosition: {x: 0.5, y: 0, z: 0.65}
     IdealDragPosition: {x: -0.5, y: 0, z: -0.35}

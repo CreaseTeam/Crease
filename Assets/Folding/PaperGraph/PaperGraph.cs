@@ -1366,10 +1366,16 @@ public class PaperGraph : MonoBehaviour
 #if UNITY_EDITOR
     /// <summary>
     /// Saves the current mesh as an asset file in the project natively using a timestamp.
+    /// Bakes the active fold instruction's <see cref="FoldInstruction.FlightMeshRotation"/> so +Z is model front.
     /// </summary>
     public void SaveCurrentMeshAsAsset()
     {
-        Mesh mesh = GenerateMesh();
+        Mesh rawMesh = GenerateMesh();
+        Quaternion flightOrientation = GetActiveFlightMeshRotation();
+        Mesh mesh = FlightMeshBaker.BakeFlightMesh(rawMesh, flightOrientation);
+
+        if (rawMesh != mesh)
+            DestroyImmediate(rawMesh);
         
         string timestamp = System.DateTime.Now.ToString("yyyyMMdd_HHmmss");
         string filename = $"Assets/Folding/SavedAssets/PaperMesh_{timestamp}.asset";
@@ -1382,7 +1388,17 @@ public class PaperGraph : MonoBehaviour
 
         UnityEditor.AssetDatabase.CreateAsset(mesh, filename);
         UnityEditor.AssetDatabase.SaveAssets();
-        Debug.Log($"PaperGraph: Saved current mesh to {filename}");
+        Debug.Log($"PaperGraph: Saved current mesh to {filename} (flight rotation {flightOrientation.eulerAngles})");
+    }
+
+    private Quaternion GetActiveFlightMeshRotation()
+    {
+        FoldInstructionRunner runner = GetComponentInParent<FoldInstructionRunner>();
+        if (runner?.Instruction != null)
+            return Quaternion.Euler(runner.Instruction.FlightMeshRotation);
+
+        Debug.LogWarning("PaperGraph: No FoldInstructionRunner/Instruction found — saving mesh without flight rotation.");
+        return Quaternion.identity;
     }
 #endif
 }

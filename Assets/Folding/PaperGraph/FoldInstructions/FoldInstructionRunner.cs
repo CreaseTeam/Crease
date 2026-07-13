@@ -114,6 +114,7 @@ public class FoldInstructionRunner : MonoBehaviour
 
     // Paper rotation lerp state
     private bool _isPaperLerping = false;
+    private bool _paperRotationLerpPaused;
     private Quaternion _targetPaperRotation;
 
     private bool _isUnfolding = false;
@@ -185,7 +186,7 @@ public class FoldInstructionRunner : MonoBehaviour
     }
 
     private void LateUpdate() {
-        if (Controller == null || !_isPaperLerping)
+        if (_paperRotationLerpPaused || Controller == null || !_isPaperLerping)
             return;
 
         Transform paperTransform = Controller.transform;
@@ -1107,6 +1108,44 @@ public class FoldInstructionRunner : MonoBehaviour
 
         CurrentPaperRotation = step.PaperRotation;
         RecalculatePaperTarget();
+    }
+
+    public void SetPaperRotationLerpPaused(bool paused) {
+        _paperRotationLerpPaused = paused;
+    }
+
+    /// <summary>
+    /// World rotation for the current fold step's folding view.
+    /// </summary>
+    public Quaternion GetFoldingViewRotation() {
+        if (Instruction == null || Instruction.Steps.Count == 0 || Controller == null)
+            return Controller != null ? Controller.transform.rotation : Quaternion.identity;
+
+        int idx = Mathf.Clamp(_currentStepIndex, 0, Instruction.Steps.Count - 1);
+        return Quaternion.Euler(Instruction.Steps[idx].PaperRotation);
+    }
+
+    /// <summary>
+    /// Keeps the runner's paper rotation state in sync after an external transform change.
+    /// </summary>
+    public void SyncPaperRotationToTransform() {
+        if (Controller == null) return;
+
+        CurrentPaperRotation = Controller.transform.rotation.eulerAngles;
+        _targetPaperRotation = Controller.transform.rotation;
+        _isPaperLerping = false;
+    }
+
+    /// <summary>
+    /// Snaps the paper to the current step's folding view rotation.
+    /// </summary>
+    public void RestoreFoldingViewRotation() {
+        if (Instruction == null || Instruction.Steps.Count == 0 || Controller == null) return;
+
+        CurrentPaperRotation = Instruction.Steps[Mathf.Clamp(_currentStepIndex, 0, Instruction.Steps.Count - 1)].PaperRotation;
+        _targetPaperRotation = Quaternion.Euler(CurrentPaperRotation);
+        Controller.transform.rotation = _targetPaperRotation;
+        _isPaperLerping = false;
     }
 
     /// <summary>
