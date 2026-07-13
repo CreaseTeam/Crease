@@ -1,17 +1,24 @@
-public enum DamageType
-{
-    Impact,
-    Tear,
-    Fire,
-    Water,
-    Nasty,
-}
+using UnityEngine.Serialization;
 
-
-[System.Serializable]
-public struct DamageSegment
+namespace Crease.Flying.Player.Health
 {
-    public float amount;
-    public DamageType type;
-    public float normalizedSize;
+    public enum DamageType
+    {
+        Impact,
+        Tear,
+        Fire,
+        Water,
+        Nasty,
+    }
+
+    [System.Serializable]
+    public struct DamageSegment
+    {
+        [FormerlySerializedAs("amount")]
+        public float Amount;
+        [FormerlySerializedAs("type")]
+        public DamageType Type;
+        [FormerlySerializedAs("normalizedSize")]
+        public float NormalizedSize;
+    }
 }

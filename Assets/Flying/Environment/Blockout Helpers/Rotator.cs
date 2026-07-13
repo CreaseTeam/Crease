@@ -1,10 +1,12 @@
 using UnityEngine;
 using DG.Tweening;
 
-/// <summary>
-/// Rotates an object from its starting rotation to an end rotation using DOTween.
-/// </summary>
-public class Rotator : MonoBehaviour
+namespace Crease.Flying.Environment.BlockoutHelpers
+{
+    /// <summary>
+    /// Rotates an object from its starting rotation to an end rotation using DOTween.
+    /// </summary>
+    public class Rotator : MonoBehaviour
 {
     [Header("Rotation Settings")]
     [Tooltip("Rotation offset from starting rotation")]
@@ -38,14 +40,14 @@ public class Rotator : MonoBehaviour
     [SerializeField] private int arcSegments = 20;
     [SerializeField] private float gizmoSize = 10f;
     
-    private Quaternion startRotation;
-    private Quaternion endRotation;
-    private Tweener rotationTween;
+    private Quaternion _startRotation;
+    private Quaternion _endRotation;
+    private Tweener _rotationTween;
     
     private void Awake()
     {
-        startRotation = transform.localRotation;
-        endRotation = startRotation * Quaternion.Euler(endRotationOffset);
+        _startRotation = transform.localRotation;
+        _endRotation = _startRotation * Quaternion.Euler(endRotationOffset);
     }
     
     private void Start()
@@ -59,19 +61,18 @@ public class Rotator : MonoBehaviour
     private void OnDestroy()
     {
         // Kill tween on destroy to prevent errors
-        rotationTween?.Kill();
+        _rotationTween?.Kill();
     }
     
     public void TriggerRotation()
     {
         // Kill existing tween
-        rotationTween?.Kill();
+        _rotationTween?.Kill();
         
         // Reset to start rotation
-        transform.localRotation = startRotation;
-        
-        // Create new tween
-        rotationTween = transform.DOLocalRotate(endRotationOffset, duration, rotateMode)
+        transform.localRotation = _startRotation;
+
+        _rotationTween = transform.DOLocalRotate(endRotationOffset, duration, rotateMode)
             .SetRelative(true)
             .SetEase(easeType)
             .SetLoops(loops, loopType)
@@ -81,31 +82,31 @@ public class Rotator : MonoBehaviour
     
     public void StopRotation()
     {
-        rotationTween?.Kill();
+        _rotationTween?.Kill();
     }
     
     public void PauseRotation()
     {
-        rotationTween?.Pause();
+        _rotationTween?.Pause();
     }
     
     public void ResumeRotation()
     {
-        rotationTween?.Play();
+        _rotationTween?.Play();
     }
     
     public void ResetRotation()
     {
-        rotationTween?.Kill();
-        transform.localRotation = startRotation;
+        _rotationTween?.Kill();
+        transform.localRotation = _startRotation;
     }
     
     private void OnDrawGizmosSelected()
     {
         if (!showGizmos) return;
         
-        Quaternion gizmoStartRot = Application.isPlaying ? startRotation : transform.localRotation;
-        Quaternion gizmoEndRot = Application.isPlaying ? endRotation : (transform.localRotation * Quaternion.Euler(endRotationOffset));
+        Quaternion gizmoStartRot = Application.isPlaying ? _startRotation : transform.localRotation;
+        Quaternion gizmoEndRot = Application.isPlaying ? _endRotation : (transform.localRotation * Quaternion.Euler(endRotationOffset));
         
         Vector3 position = transform.position;
         
@@ -166,4 +167,5 @@ public class Rotator : MonoBehaviour
             previousPoint = currentPoint;
         }
     }
+}
 }

@@ -1,432 +1,848 @@
+using Crease.Folding.PaperSurface.Decals;
 using UnityEngine;
+using UnityEngine.Serialization;
+using System.Collections;
+using System.Collections.Generic;
 
-public class PaperGraphController : MonoBehaviour
+namespace Crease.Folding.Paper
 {
-    [Header("Fold")]
-    public Vector3 foldPoint1 = new Vector3(-0.5f, 0, 0);
-    public Vector3 foldPoint2 = new Vector3(0.5f, 0, 0);
-    public Vector3 foldPlaneVector = Vector3.forward;
-    public float foldDegrees = 180f;
-    public float foldOffset = 0f;
-    public string foldTagName = "";
-    [HideInInspector] public int selectedFilterTagIndex = 0;
+    public class PaperGraphController : MonoBehaviour
+    {
+        [Header("Fold")]
+        [FormerlySerializedAs("foldPoint1")]
+        public Vector3 FoldPoint1 = new Vector3(-0.5f, 0, 0);
+        [FormerlySerializedAs("foldPoint2")]
+        public Vector3 FoldPoint2 = new Vector3(0.5f, 0, 0);
+        [FormerlySerializedAs("foldPlaneVector")]
+        public Vector3 FoldPlaneVector = Vector3.forward;
+        [FormerlySerializedAs("foldDegrees")]
+        public float FoldDegrees = 180f;
+        [FormerlySerializedAs("foldOffset")]
+        public float FoldOffset = 0f;
+        [FormerlySerializedAs("foldTagName")]
+        public string FoldTagName = "";
+        [HideInInspector]
+        public List<string> SelectedFilterTags = new List<string>();
 
-    [Header("Drag Handle")]
-    public Vector3 dragHandlePosition = Vector3.zero;
-    public Vector3 dragPlaneNormal = Vector3.up;
-    public float foldLineHalfLength = 1f;
+        [Header("Drag Handle")]
+        [FormerlySerializedAs("dragHandlePosition")]
+        public Vector3 DragHandlePosition = Vector3.zero;
+        [HideInInspector]
+        public Vector3 IdealDragPosition = Vector3.zero;
+        [FormerlySerializedAs("dragPlaneNormal")]
+        public Vector3 DragPlaneNormal = Vector3.up;
+        [FormerlySerializedAs("foldLineHalfLength")]
+        public float FoldLineHalfLength = 1f;
 
-    [Header("Preview")]
-    public PaperGraph previewGraph;
+        [Header("Preview")]
+        [Tooltip("Show the fold-preview mesh while dragging or animating folds.")]
+        public bool ShowPreviewMesh = true;
+        [Tooltip("Draw vertex/edge gizmos on the preview graph. Authoring gizmos stay on the parent.")]
+        public bool ShowPreviewGraphGizmos = false;
 
-    [Header("Gizmo")]
-    public bool showFoldGizmo = true;
-    public float gizmoHeight = 2f;
-    public Color gizmoColor = new Color(1f, 0.5f, 0f, 0.25f);
+        [FormerlySerializedAs("PreviewGraph")]
+        [FormerlySerializedAs("previewGraph")]
+        [SerializeField, HideInInspector]
+        private PaperGraph _legacyPreviewGraph;
 
-    private PaperGraph paperGraph;
+        [Header("Gizmo")]
+        [FormerlySerializedAs("showFoldGizmo")]
+        public bool ShowFoldGizmo = true;
+        [FormerlySerializedAs("gizmoHeight")]
+        public float GizmoHeight = 2f;
+        [FormerlySerializedAs("gizmoColor")]
+        public Color GizmoColor = new Color(1f, 0.5f, 0f, 0.25f);
 
-    // ── Locked fold axis ──────────────────────────────────────────────────────
-    // When set by FoldInstructionRunner, RecalculateFoldAxis will refuse to move
-    // foldPoint1/foldPoint2 to a position whose axis line crosses this segment.
-    [HideInInspector] public bool hasFoldAxisLock = false;
-    [HideInInspector] public Vector3 foldAxisLockP1;
-    [HideInInspector] public Vector3 foldAxisLockP2;
-    // The last axis that was accepted while the lock is active:
-    [HideInInspector] public Vector3 lockedFoldPoint1;
-    [HideInInspector] public Vector3 lockedFoldPoint2;
+        private PaperGraph _paperGraph;
+        private PaperGraph _previewGraph;
+        private PaperGraphVisualizer _authoringVisualizer;
+        private PaperGraphVisualizer _previewVisualizer;
 
-    // Cache previous values to detect changes
-    private Vector3 prevFoldPoint1;
-    private Vector3 prevFoldPoint2;
-    private Vector3 prevFoldPlaneVector;
-    private float prevFoldDegrees;
+        private const string PreviewObjectName = "Preview";
 
-    private void Awake() {
-        paperGraph = GetComponent<PaperGraph>();
-        CacheFoldValues();
-    }
+        public PaperGraph AuthoringGraph => _paperGraph;
+        public PaperGraph PreviewGraph => _previewGraph;
+        public PaperGraphVisualizer AuthoringVisualizer => _authoringVisualizer;
+        public PaperGraphVisualizer PreviewVisualizer => _previewVisualizer;
+        public Transform PreviewMeshRoot => _previewGraph != null ? _previewGraph.transform : null;
 
-    private void OnValidate() {
-        UpdatePreview();
-    }
+        public MeshRenderer PreviewMeshRenderer =>
+            _previewGraph != null ? _previewGraph.GetComponent<MeshRenderer>() : null;
 
-    private void CacheFoldValues() {
-        prevFoldPoint1 = foldPoint1;
-        prevFoldPoint2 = foldPoint2;
-        prevFoldPlaneVector = foldPlaneVector;
-        prevFoldDegrees = foldDegrees;
-    }
+        public MeshCollider PreviewMeshCollider =>
+            _previewGraph != null ? _previewGraph.GetComponent<MeshCollider>() : null;
 
-    private bool FoldValuesChanged() {
-        return foldPoint1 != prevFoldPoint1 ||
-               foldPoint2 != prevFoldPoint2 ||
-               foldPlaneVector != prevFoldPlaneVector ||
-               !Mathf.Approximately(foldDegrees, prevFoldDegrees);
-    }
-
-    /// <summary>
-    /// Copies the current PaperGraph state into the preview graph and applies the pending fold.
-    /// </summary>
-    public void UpdatePreview() {
-        if (paperGraph == null)
-            paperGraph = GetComponent<PaperGraph>();
-        if (paperGraph == null || previewGraph == null) return;
-
-        PaperGraphSnapshot snapshot = paperGraph.CreateSnapshot();
-        previewGraph.RestoreSnapshot(snapshot);
-        string tag = string.IsNullOrEmpty(foldTagName) ? null : foldTagName;
-        string filter = GetSelectedFilterTag();
-        bool valid = previewGraph.ExecuteFold(foldPoint1, foldPoint2, foldPlaneVector, foldDegrees, tag, filter, foldOffset);
-
-        if (!valid) {
-            // The current fold position produces invalid geometry — freeze the axis
-            // so the next accepted position can restore it naturally.
-            foldPoint1 = lockedFoldPoint1;
-            foldPoint2 = lockedFoldPoint2;
-        } else {
-            lockedFoldPoint1 = foldPoint1;
-            lockedFoldPoint2 = foldPoint2;
+        // When set by FoldInstructionRunner, RecalculateFoldAxis will refuse to move
+        // FoldPoint1/FoldPoint2 to a position whose axis line crosses any frozen segment.
+        [System.Serializable]
+        public struct FoldAxisLockSegment
+        {
+            public Vector3 P1;
+            public Vector3 P2;
         }
 
-        CacheFoldValues();
-        RefreshVisualizers();
-    }
+        [HideInInspector]
+        public List<FoldAxisLockSegment> FoldAxisLocks = new List<FoldAxisLockSegment>();
+        [HideInInspector]
+        [FormerlySerializedAs("lockedFoldPoint1")]
+        public Vector3 LockedFoldPoint1;
+        [HideInInspector]
+        [FormerlySerializedAs("lockedFoldPoint2")]
+        public Vector3 LockedFoldPoint2;
 
-    /// <summary>
-    /// Called by the custom inspector button.
-    /// </summary>
-    public void ExecuteFoldAction() {
-        if (paperGraph == null)
-            paperGraph = GetComponent<PaperGraph>();
+        private readonly List<float> _lockStartMidpointSide = new List<float>();
+        private Vector3 _foldDragStart;
+        private Vector3 _lastValidDragEnd;
 
-        if (paperGraph == null) {
-            Debug.LogError("No PaperGraph component found on this GameObject.");
-            return;
+        private const int DragLockSampleCount = 10;
+        private const float ParallelAxisDotThreshold = 0.92f;
+
+        public bool HasFoldAxisLock => FoldAxisLocks != null && FoldAxisLocks.Count > 0;
+
+        public void ClearFoldAxisLocks() {
+            if (FoldAxisLocks == null)
+                FoldAxisLocks = new List<FoldAxisLockSegment>();
+            else
+                FoldAxisLocks.Clear();
+
+            _lockStartMidpointSide.Clear();
         }
 
-        string tag = string.IsNullOrEmpty(foldTagName) ? null : foldTagName;
-        string filter = GetSelectedFilterTag();
-        paperGraph.ExecuteFold(foldPoint1, foldPoint2, foldPlaneVector, foldDegrees, tag, filter, foldOffset);
-        RefreshVisualizers();
-    }
-
-    /// <summary>
-    /// Recomputes foldPoint1/foldPoint2 from the current dragHandlePosition.
-    /// All positions are in local-space relative to this transform.
-    /// Call after changing dragHandlePosition to avoid stale fold axis values.
-    /// </summary>
-    public void RecalculateFoldAxis() {
-        Vector3 dragDelta = dragHandlePosition;
-        if (dragDelta.sqrMagnitude < 0.00001f) return;
-
-        Vector3 midpoint = dragHandlePosition * 0.5f;
-        Vector3 dragDir = dragDelta.normalized;
-        Vector3 foldAxisDir = Vector3.Cross(dragPlaneNormal, dragDir).normalized;
-        if (foldAxisDir.sqrMagnitude < 0.0001f) return;
-
-        Vector3 candidateP1 = midpoint + foldAxisDir * foldLineHalfLength;
-        Vector3 candidateP2 = midpoint - foldAxisDir * foldLineHalfLength;
-
-        if (hasFoldAxisLock) {
-            bool crosses = FoldAxisCrossesLockSegment(candidateP1, candidateP2, foldAxisLockP1, foldAxisLockP2, dragPlaneNormal);
-            if (crosses) {
-                foldPoint1 = lockedFoldPoint1;
-                foldPoint2 = lockedFoldPoint2;
-                foldPlaneVector = dragPlaneNormal;
+        public void SetFoldAxisLocks(IReadOnlyList<SavedCrease> axes) {
+            ClearFoldAxisLocks();
+            if (axes == null)
                 return;
-            }
-            lockedFoldPoint1 = candidateP1;
-            lockedFoldPoint2 = candidateP2;
-        }
 
-        foldPoint1 = candidateP1;
-        foldPoint2 = candidateP2;
-        foldPlaneVector = dragPlaneNormal;
-    }
-
-    /// <summary>
-    /// Returns true when the lock segment CD straddles (is crossed by) the infinite
-    /// fold-axis line passing through A and B, when projected onto the plane
-    /// perpendicular to <paramref name="normal"/>.
-    /// We intentionally treat the fold axis as an infinite line — only the lock
-    /// segment endpoints (C, D) need to be on opposite sides.
-    /// </summary>
-    private bool FoldAxisCrossesLockSegment(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Vector3 normal) {
-        Vector3 dir = Vector3.ProjectOnPlane(b - a, normal);
-        if (dir.sqrMagnitude < 0.00001f) return false;
-        Vector3 u = dir.normalized;
-        Vector3 v = Vector3.Cross(normal, u).normalized;
-
-        Vector2 A = new Vector2(Vector3.Dot(a, u), Vector3.Dot(a, v));
-        Vector2 B = new Vector2(Vector3.Dot(b, u), Vector3.Dot(b, v));
-        Vector2 C = new Vector2(Vector3.Dot(c, u), Vector3.Dot(c, v));
-        Vector2 D = new Vector2(Vector3.Dot(d, u), Vector3.Dot(d, v));
-
-        float sideC = (B.x - A.x) * (C.y - A.y) - (B.y - A.y) * (C.x - A.x);
-        float sideD = (B.x - A.x) * (D.y - A.y) - (B.y - A.y) * (D.x - A.x);
-
-        return (sideC > 0.0001f && sideD < -0.0001f) || (sideC < -0.0001f && sideD > 0.0001f);
-    }
-
-    /// <summary>
-    /// Moves the drag handle position to the outermost point on the mesh in the direction of the drag plane normal.
-    /// The drag handle's position along the drag plane remains constant.
-    /// </summary>
-    public void SnapDragHandleToOutside() {
-        if (paperGraph == null)
-            paperGraph = GetComponent<PaperGraph>();
-        if (paperGraph == null || paperGraph.faces == null || paperGraph.faces.Count == 0) return;
-
-        Vector3 N = dragPlaneNormal.normalized;
-        if (N.sqrMagnitude < 0.0001f) return;
-
-        Vector3 H0 = dragHandlePosition;
-        float maxT = float.MinValue;
-        bool found = false;
-
-        foreach (Face face in paperGraph.faces) {
-            if (face.vertices.Count < 3) continue;
-
-            Vector3 faceNormal = Vector3.zero;
-            Vector3 p0 = face.vertices[0].position;
-            for (int i = 1; i < face.vertices.Count - 1; i++) {
-                Vector3 p1 = face.vertices[i].position;
-                Vector3 p2 = face.vertices[i + 1].position;
-                faceNormal = Vector3.Cross(p1 - p0, p2 - p0);
-                if (faceNormal.sqrMagnitude > 0.000001f) {
-                    faceNormal = faceNormal.normalized;
-                    break;
-                }
-            }
-
-            if (faceNormal.sqrMagnitude < 0.000001f) continue;
-
-            float dotDirNormal = Vector3.Dot(N, faceNormal);
-            // If the ray is parallel to the face, it doesn't cleanly intersect at a point
-            if (Mathf.Abs(dotDirNormal) < 0.0001f) continue;
-
-            float t = Vector3.Dot(p0 - H0, faceNormal) / dotDirNormal;
-            Vector3 P = H0 + t * N;
-
-            // Inside test (convex polygon)
-            bool inside = true;
-            for (int i = 0; i < face.vertices.Count; i++) {
-                Vector3 vA = face.vertices[i].position;
-                Vector3 vB = face.vertices[(i + 1) % face.vertices.Count].position;
-                Vector3 edge = vB - vA;
-                Vector3 toP = P - vA;
-                Vector3 cross = Vector3.Cross(edge, toP);
-                float signedArea = Vector3.Dot(cross, faceNormal);
-                // Allow a small tolerance for floating point errors
-                if (signedArea < -0.0001f * edge.magnitude) {
-                    inside = false;
-                    break;
-                }
-            }
-
-            if (inside) {
-                if (t > maxT) {
-                    maxT = t;
-                    found = true;
-                }
+            foreach (SavedCrease axis in axes) {
+                FoldAxisLocks.Add(new FoldAxisLockSegment {
+                    P1 = axis.P1,
+                    P2 = axis.P2
+                });
             }
         }
 
-        if (found) {
-            dragHandlePosition = H0 + maxT * N;
-            RecalculateFoldAxis();
-            UpdatePreview();
+        public void BeginFoldStepDrag(Vector3 foldP1, Vector3 foldP2) {
+            _foldDragStart = DragHandlePosition;
+            _lastValidDragEnd = DragHandlePosition;
 
-            foreach (FoldDragHandle handle in FindObjectsByType<FoldDragHandle>(FindObjectsSortMode.None)) {
-                if (handle.controller == this) {
-                    handle.ResetHandle();
-                }
+            _lockStartMidpointSide.Clear();
+            if (!HasFoldAxisLock)
+                return;
+
+            Vector3 midpoint = (foldP1 + foldP2) * 0.5f;
+            foreach (FoldAxisLockSegment lockSegment in FoldAxisLocks) {
+                _lockStartMidpointSide.Add(GetSideOfInfiniteLine(midpoint, lockSegment.P1, lockSegment.P2, DragPlaneNormal));
             }
         }
-    }
 
-    /// <summary>
-    /// Clears the preview graph so no ghost fold is displayed.
-    /// </summary>
-    public void ClearPreview() {
-        if (paperGraph == null)
-            paperGraph = GetComponent<PaperGraph>();
-        if (paperGraph == null || previewGraph == null) return;
+        public bool IsAccordionDragStep { get; private set; }
+        public Vector3 AccordionDragStart { get; private set; }
+        public Vector3 AccordionDragEnd { get; private set; }
+        public float AccordionCollapseT { get; private set; }
 
-        PaperGraphSnapshot snapshot = paperGraph.CreateSnapshot();
-        previewGraph.RestoreSnapshot(snapshot);
-        RefreshVisualizers();
-    }
-
-    /// <summary>
-    /// Resolves the selected filter tag index into the actual tag name string.
-    /// Returns null if "(None)" is selected or the graph has no tags.
-    /// </summary>
-    public string GetSelectedFilterTag() {
-        if (paperGraph == null)
-            paperGraph = GetComponent<PaperGraph>();
-        if (paperGraph == null || paperGraph.tags == null || paperGraph.tags.Count == 0)
-            return null;
-        var tagKeys = new System.Collections.Generic.List<string>(paperGraph.tags.Keys);
-        if (selectedFilterTagIndex <= 0 || selectedFilterTagIndex > tagKeys.Count)
-            return null;
-        return tagKeys[selectedFilterTagIndex - 1];
-    }
-
-    public void UndoFold() {
-        if (paperGraph == null)
-            paperGraph = GetComponent<PaperGraph>();
-
-        if (paperGraph == null) {
-            Debug.LogError("No PaperGraph component found on this GameObject.");
-            return;
+        public bool IsAccordionDragComplete(float minProgress = 0.99f) {
+            return IsAccordionDragStep && AccordionCollapseT >= minProgress;
         }
 
-        paperGraph.Undo();
-        RefreshVisualizers();
-    }
+        private Vector3 _prevFoldPoint1;
+        private Vector3 _prevFoldPoint2;
+        private Vector3 _prevFoldPlaneVector;
+        private float _prevFoldDegrees;
 
-    public void RedoFold() {
-        if (paperGraph == null)
-            paperGraph = GetComponent<PaperGraph>();
-
-        if (paperGraph == null) {
-            Debug.LogError("No PaperGraph component found on this GameObject.");
-            return;
+        private void Awake() {
+            EnsurePreviewInfrastructure();
+            CacheFoldValues();
         }
 
-        paperGraph.Redo();
-        RefreshVisualizers();
-    }
-
-    /// <summary>
-    /// Clears all graph data and recreates a fresh sheet.
-    /// </summary>
-    public void ResetSheet() {
-        if (paperGraph == null)
-            paperGraph = GetComponent<PaperGraph>();
-
-        if (paperGraph == null) {
-            Debug.LogError("No PaperGraph component found on this GameObject.");
-            return;
+        private void Start() {
+            StartCoroutine(InitializeDisplayMeshAfterGraphReady());
         }
 
-        paperGraph.vertices.Clear();
-        paperGraph.edges.Clear();
-        paperGraph.faces.Clear();
-        paperGraph.tags.Clear();
-        paperGraph.CreateSheet(paperGraph.width, paperGraph.height);
-        RefreshVisualizers();
-    }
+        private IEnumerator InitializeDisplayMeshAfterGraphReady() {
+            yield return null;
+            InitializeDisplayMesh();
+        }
 
-    /// <summary>
-    /// Called by the drag handle script to update fold values based on drag movement.
-    /// Both positions must be in local-space relative to this transform.
-    /// </summary>
-    public void UpdateFoldFromDrag(Vector3 dragStartLocal, Vector3 dragCurrentLocal) {
-        Vector3 dragDelta = dragCurrentLocal - dragStartLocal;
-        if (dragDelta.sqrMagnitude < 0.00001f) return;
+        /// <summary>
+        /// Ensures the authoring sheet and preview mesh are visible without waiting for a loadout.
+        /// </summary>
+        public void InitializeDisplayMesh() {
+            EnsurePreviewInfrastructure();
+            EnsureAuthoringSheet();
+            ClearPreview();
+        }
 
-        Vector3 midpoint = (dragStartLocal + dragCurrentLocal) * 0.5f;
-        Vector3 dragDir = dragDelta.normalized;
-        Vector3 foldAxisDir = Vector3.Cross(dragPlaneNormal, dragDir).normalized;
-        if (foldAxisDir.sqrMagnitude < 0.0001f) return;
+        private void EnsureAuthoringSheet() {
+            if (_paperGraph == null)
+                return;
 
-        Vector3 candidateP1 = midpoint + foldAxisDir * foldLineHalfLength;
-        Vector3 candidateP2 = midpoint - foldAxisDir * foldLineHalfLength;
+            if (_paperGraph.Faces.Count == 0)
+                _paperGraph.CreateSheet(_paperGraph.Width, _paperGraph.Height);
+        }
 
-        if (hasFoldAxisLock) {
-            bool crosses = FoldAxisCrossesLockSegment(candidateP1, candidateP2, foldAxisLockP1, foldAxisLockP2, dragPlaneNormal);
-            if (crosses) {
-                foldPoint1 = lockedFoldPoint1;
-                foldPoint2 = lockedFoldPoint2;
-                foldPlaneVector = dragPlaneNormal;
+        private void OnValidate() {
+            EnsurePreviewInfrastructure();
+            SyncPreviewVisualizerSettings();
+            if (_paperGraph != null && _paperGraph.Faces.Count > 0)
                 UpdatePreview();
+            else
+                RefreshVisualizers();
+        }
+
+        private void EnsurePreviewInfrastructure() {
+            _paperGraph = GetComponent<PaperGraph>();
+            _authoringVisualizer = GetComponent<PaperGraphVisualizer>();
+            if (_authoringVisualizer != null && _authoringVisualizer.Graph == null)
+                _authoringVisualizer.Graph = _paperGraph;
+
+            Transform previewTransform = transform.Find(PreviewObjectName);
+            GameObject previewObject = previewTransform != null ? previewTransform.gameObject : null;
+
+            if (previewObject == null && _legacyPreviewGraph != null)
+            {
+                previewObject = _legacyPreviewGraph.gameObject;
+                previewObject.name = PreviewObjectName;
+                previewObject.transform.SetParent(transform, false);
+            }
+
+#if UNITY_EDITOR
+            if (previewObject == null && !Application.isPlaying)
+            {
+                previewObject = new GameObject(PreviewObjectName);
+                UnityEditor.Undo.RegisterCreatedObjectUndo(previewObject, "Create Paper Preview");
+                previewObject.transform.SetParent(transform, false);
+            }
+#endif
+            if (previewObject == null)
+            {
+                previewObject = new GameObject(PreviewObjectName);
+                previewObject.transform.SetParent(transform, false);
+            }
+
+            if (previewObject.GetComponent<PaperGraphPreviewRoot>() == null)
+                previewObject.AddComponent<PaperGraphPreviewRoot>();
+
+            _previewGraph = previewObject.GetComponent<PaperGraph>();
+            if (_previewGraph == null)
+                _previewGraph = previewObject.AddComponent<PaperGraph>();
+
+            _previewVisualizer = previewObject.GetComponent<PaperGraphVisualizer>();
+            if (_previewVisualizer == null)
+                _previewVisualizer = previewObject.AddComponent<PaperGraphVisualizer>();
+
+            _previewVisualizer.Graph = _previewGraph;
+            _legacyPreviewGraph = null;
+            SyncPreviewVisualizerSettings();
+        }
+
+        private void SyncPreviewVisualizerSettings() {
+            if (_authoringVisualizer == null || _previewVisualizer == null)
+                return;
+
+            _previewVisualizer.MeshMaterial = _authoringVisualizer.MeshMaterial;
+            _previewVisualizer.MeshMaterials = _authoringVisualizer.MeshMaterials;
+            _previewVisualizer.DebugMeshMaterial = _authoringVisualizer.DebugMeshMaterial;
+            _previewVisualizer.DebugMeshMaterials = _authoringVisualizer.DebugMeshMaterials;
+            _previewVisualizer.VertexColor = _authoringVisualizer.VertexColor;
+            _previewVisualizer.EdgeColor = _authoringVisualizer.EdgeColor;
+            _previewVisualizer.FoldedEdgeColor = _authoringVisualizer.FoldedEdgeColor;
+            _previewVisualizer.VertexSize = _authoringVisualizer.VertexSize;
+            _previewVisualizer.EdgeThickness = _authoringVisualizer.EdgeThickness;
+            _previewVisualizer.TagHighlightColor = _authoringVisualizer.TagHighlightColor;
+            _previewVisualizer.TagHighlightSize = _authoringVisualizer.TagHighlightSize;
+            _previewVisualizer.SelectedTagIndex = _authoringVisualizer.SelectedTagIndex;
+
+            _previewVisualizer.ShowMesh = ShowPreviewMesh;
+            _previewVisualizer.DrawGraphStructure = ShowPreviewGraphGizmos;
+            _previewVisualizer.ShowVertexLabels = ShowPreviewGraphGizmos;
+            _previewVisualizer.ShowFoldAngles = ShowPreviewGraphGizmos;
+            _previewVisualizer.ShowCoordinateRulers = false;
+            _previewVisualizer.SetDebugPaperTexture(_authoringVisualizer.DebugPaperTexture);
+        }
+
+        private void CacheFoldValues() {
+            _prevFoldPoint1 = FoldPoint1;
+            _prevFoldPoint2 = FoldPoint2;
+            _prevFoldPlaneVector = FoldPlaneVector;
+            _prevFoldDegrees = FoldDegrees;
+        }
+
+        public void UpdatePreview() {
+            if (_paperGraph == null || _previewGraph == null) return;
+
+            SyncPreviewVisualizerSettings();
+
+            PaperGraphSnapshot snapshot = _paperGraph.CreateSnapshot();
+            _previewGraph.RestoreSnapshot(snapshot);
+            string tag = string.IsNullOrEmpty(FoldTagName) ? null : FoldTagName;
+            bool valid = _previewGraph.ExecuteFold(FoldPoint1, FoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTags, FoldOffset);
+
+            if (!valid) {
+                FoldPoint1 = LockedFoldPoint1;
+                FoldPoint2 = LockedFoldPoint2;
+                _previewGraph.RestoreSnapshot(snapshot);
+                _previewGraph.ExecuteFold(LockedFoldPoint1, LockedFoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTags, FoldOffset);
+            } else {
+                LockedFoldPoint1 = FoldPoint1;
+                LockedFoldPoint2 = FoldPoint2;
+            }
+
+            CacheFoldValues();
+            RefreshVisualizers();
+        }
+
+        private void FreezeAtLastValidFold() {
+            FoldPoint1 = LockedFoldPoint1;
+            FoldPoint2 = LockedFoldPoint2;
+            FoldPlaneVector = DragPlaneNormal;
+            UpdatePreview();
+        }
+
+        /// <summary>
+        /// Invalid when the drag handle and the instruction's ideal fold axis lie on opposite
+        /// sides of the start boundary (the ideal fold axis duplicated through drag start).
+        /// </summary>
+        private bool IsPastStartBoundary(Vector3 dragStart, Vector3 dragCurrent) {
+            Vector3 idealDrag = IdealDragPosition - dragStart;
+            if (idealDrag.sqrMagnitude < 0.00001f) return false;
+
+            Vector3 idealDir = idealDrag.normalized;
+            Vector3 idealFoldCenter = dragStart + idealDrag * 0.5f;
+            float handleT = Vector3.Dot(dragCurrent - dragStart, idealDir);
+            float idealFoldT = Vector3.Dot(idealFoldCenter - dragStart, idealDir);
+            return handleT * idealFoldT < -0.0001f;
+        }
+
+        private bool IsFoldCandidateInvalid(Vector3 dragStart, Vector3 dragCurrent, Vector3 candidateP1, Vector3 candidateP2) {
+            if (IsPastStartBoundary(dragStart, dragCurrent)) return true;
+
+            return IsFoldAxisBlockedByLocks(dragCurrent, candidateP1, candidateP2);
+        }
+
+        private bool IsFoldAxisBlockedByLocks(Vector3 dragEnd, Vector3 foldP1, Vector3 foldP2) {
+            if (!HasFoldAxisLock)
+                return false;
+
+            if (IsFoldAxisBlockedAtPosition(foldP1, foldP2))
+                return true;
+
+            for (int i = 1; i < DragLockSampleCount; i++) {
+                float t = i / (float)DragLockSampleCount;
+                Vector3 sampledDragEnd = Vector3.Lerp(_lastValidDragEnd, dragEnd, t);
+                if (!TryComputeFoldAxisFromDrag(_foldDragStart, sampledDragEnd, out Vector3 sampleP1, out Vector3 sampleP2))
+                    continue;
+
+                if (IsFoldAxisBlockedAtPosition(sampleP1, sampleP2))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private bool IsFoldAxisBlockedAtPosition(Vector3 foldP1, Vector3 foldP2) {
+            for (int i = 0; i < FoldAxisLocks.Count; i++) {
+                FoldAxisLockSegment lockSegment = FoldAxisLocks[i];
+                if (FoldAxisCrossesLockSegment(foldP1, foldP2, lockSegment.P1, lockSegment.P2, DragPlaneNormal))
+                    return true;
+
+                if (i < _lockStartMidpointSide.Count
+                    && IsParallelSlidePastLock(foldP1, foldP2, _lockStartMidpointSide[i], lockSegment, DragPlaneNormal))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsParallelSlidePastLock(
+            Vector3 foldP1,
+            Vector3 foldP2,
+            float startMidpointSide,
+            FoldAxisLockSegment lockSegment,
+            Vector3 normal) {
+            if (Mathf.Abs(startMidpointSide) < 0.0001f)
+                return false;
+
+            Vector3 foldDir = Vector3.ProjectOnPlane(foldP2 - foldP1, normal);
+            Vector3 lockDir = Vector3.ProjectOnPlane(lockSegment.P2 - lockSegment.P1, normal);
+            if (foldDir.sqrMagnitude < 0.00001f || lockDir.sqrMagnitude < 0.00001f)
+                return false;
+
+            if (Mathf.Abs(Vector3.Dot(foldDir.normalized, lockDir.normalized)) < ParallelAxisDotThreshold)
+                return false;
+
+            Vector3 midpoint = (foldP1 + foldP2) * 0.5f;
+            float midpointSide = GetSideOfInfiniteLine(midpoint, lockSegment.P1, lockSegment.P2, normal);
+            if (Mathf.Abs(midpointSide) < 0.0001f)
+                return false;
+
+            return midpointSide * startMidpointSide < -0.0001f;
+        }
+
+        private static float GetSideOfInfiniteLine(Vector3 point, Vector3 lineP1, Vector3 lineP2, Vector3 normal) {
+            Vector3 lineDir = Vector3.ProjectOnPlane(lineP2 - lineP1, normal);
+            if (lineDir.sqrMagnitude < 0.00001f)
+                return 0f;
+
+            Vector3 u = lineDir.normalized;
+            Vector3 v = Vector3.Cross(normal, u).normalized;
+
+            Vector2 a = new Vector2(Vector3.Dot(lineP1, u), Vector3.Dot(lineP1, v));
+            Vector2 b = new Vector2(Vector3.Dot(lineP2, u), Vector3.Dot(lineP2, v));
+            Vector2 p = new Vector2(Vector3.Dot(point, u), Vector3.Dot(point, v));
+
+            return (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
+        }
+
+        public void ExecuteFoldAction() {
+            if (_paperGraph == null) {
+                Debug.LogError("No PaperGraph component found on this GameObject.");
                 return;
             }
-            lockedFoldPoint1 = candidateP1;
-            lockedFoldPoint2 = candidateP2;
+
+            string tag = string.IsNullOrEmpty(FoldTagName) ? null : FoldTagName;
+            _paperGraph.ExecuteFold(FoldPoint1, FoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTags, FoldOffset);
+            RefreshVisualizers();
         }
 
-        foldPoint1 = candidateP1;
-        foldPoint2 = candidateP2;
-        foldPlaneVector = dragPlaneNormal;
+        public bool ExecuteCreaseAction(bool refreshVisuals = true) {
+            if (_paperGraph == null) {
+                Debug.LogError("No PaperGraph component found on this GameObject.");
+                return false;
+            }
 
-        UpdatePreview();
-    }
-
-    /// <summary>
-    /// Finds all PaperGraphVisualizers that reference this paper and refreshes their meshes.
-    /// </summary>
-    private void RefreshVisualizers() {
-        foreach (PaperGraphVisualizer vis in FindObjectsByType<PaperGraphVisualizer>(FindObjectsSortMode.None)) {
-            vis.UpdateMesh();
+            string tag = string.IsNullOrEmpty(FoldTagName) ? null : FoldTagName;
+            bool valid = _paperGraph.ExecuteCrease(FoldPoint1, FoldPoint2, FoldPlaneVector, tag, SelectedFilterTags, FoldDegrees);
+            if (valid && refreshVisuals)
+                RefreshVisualizers();
+            return valid;
         }
-    }
 
-    private void OnDrawGizmos() {
-        if (!showFoldGizmo) return;
+        public bool BeginVertexRotationAnimation(Vector3 pivot, Vector3 axis, float degrees) {
+            if (_paperGraph == null) {
+                Debug.LogError("No PaperGraph component found on this GameObject.");
+                return false;
+            }
 
-        // All fold values are in local-space; use localToWorldMatrix so gizmos render correctly.
-        Matrix4x4 localToWorld = transform.localToWorldMatrix;
+            if (!_paperGraph.BeginVertexRotationAnimation(pivot, axis, degrees))
+                return false;
 
-        Vector3 foldAxis = (foldPoint2 - foldPoint1).normalized;
-        Vector3 foldNormal = Vector3.Cross(foldAxis, foldPlaneVector).normalized;
-        float gizmoWidth = Vector3.Distance(foldPoint1, foldPoint2);
+            ApplyVertexRotationProgress(0f);
+            return true;
+        }
+
+        public void ApplyVertexRotationProgress(float t) {
+            if (_paperGraph == null)
+                return;
+
+            _paperGraph.SetVertexRotationProgress(t);
+            SyncPreviewFromAuthoring();
+            RefreshVisualizers();
+        }
+
+        public void CommitVertexRotationAnimation() {
+            if (_paperGraph == null)
+                return;
+
+            _paperGraph.CommitVertexRotationAnimation();
+            SyncPreviewFromAuthoring();
+            RefreshVisualizers();
+        }
+
+        private void SyncPreviewFromAuthoring() {
+            if (_paperGraph == null || _previewGraph == null)
+                return;
+
+            _previewGraph.RestoreSnapshot(_paperGraph.CreateSnapshot());
+        }
+
+        public bool PrepareAccordionAction(
+            string creaseTagA,
+            string creaseTagB,
+            Vector3 creaseAxisA1,
+            Vector3 creaseAxisA2,
+            Vector3 creaseAxisB1,
+            Vector3 creaseAxisB2,
+            float foldDegrees,
+            Vector3 planeVector,
+            float foldOffset) {
+            if (_paperGraph == null) {
+                Debug.LogError("No PaperGraph component found on this GameObject.");
+                return false;
+            }
+
+            string tag = string.IsNullOrEmpty(FoldTagName) ? null : FoldTagName;
+            bool valid = _paperGraph.PrepareAccordionCollapse(
+                creaseTagA, creaseTagB, tag,
+                creaseAxisA1, creaseAxisA2, creaseAxisB1, creaseAxisB2,
+                foldDegrees, planeVector, foldOffset);
+            if (valid)
+                RefreshVisualizers();
+            return valid;
+        }
+
+        public void UpdateAccordionPreview(float collapseT) {
+            if (_paperGraph == null || _previewGraph == null || !_paperGraph.HasAccordionData) return;
+
+            if (_previewVisualizer != null)
+                _previewVisualizer.SkipColliderUpdate = true;
+
+            AccordionCollapseData data = _paperGraph.GetAccordionData();
+            PaperGraphSnapshot snapshot = _paperGraph.CreateSnapshot();
+            _previewGraph.RestoreSnapshot(snapshot);
+            AccordionCollapse.ApplyPose(_previewGraph, data, collapseT, FoldOffset);
+            RefreshVisualizers();
+        }
+
+        public bool CommitAccordionAction() {
+            if (_paperGraph == null) {
+                Debug.LogError("No PaperGraph component found on this GameObject.");
+                return false;
+            }
+
+            float t = IsAccordionDragStep ? AccordionCollapseT : 1f;
+            bool valid = _paperGraph.CommitAccordionCollapse(FoldOffset, t);
+            if (valid)
+                RefreshVisualizers();
+            return valid;
+        }
+
+        public void BeginAccordionDragStep(Vector3 dragStart, Vector3 dragEnd) {
+            IsAccordionDragStep = true;
+            AccordionDragStart = dragStart;
+            AccordionDragEnd = dragEnd;
+            AccordionCollapseT = 0f;
+            DragHandlePosition = dragStart;
+            IdealDragPosition = dragEnd;
+            UpdateAccordionPreview(0f);
+        }
+
+        public void EndAccordionDragStep() {
+            IsAccordionDragStep = false;
+            AccordionCollapseT = 0f;
+        }
+
+        public void UpdateAccordionFromDrag(Vector3 dragCurrentLocal) {
+            if (!IsAccordionDragStep) return;
+
+            Vector3 line = AccordionDragEnd - AccordionDragStart;
+            float lineLengthSq = line.sqrMagnitude;
+            if (lineLengthSq < 0.00001f) return;
+
+            float t = Vector3.Dot(dragCurrentLocal - AccordionDragStart, line) / lineLengthSq;
+            t = Mathf.Clamp01(t);
+
+            DragHandlePosition = AccordionDragStart + line * t;
+            AccordionCollapseT = t;
+            UpdateAccordionPreview(t);
+        }
+
+        public void SetAccordionPreviewProgress(float t) {
+            if (!IsAccordionDragStep) return;
+
+            t = Mathf.Clamp01(t);
+            AccordionCollapseT = t;
+            DragHandlePosition = Vector3.Lerp(AccordionDragStart, AccordionDragEnd, t);
+            UpdateAccordionPreview(t);
+        }
+
+        public void RecalculateFoldAxis() {
+            if (!TryComputeFoldAxisFromDrag(DragHandlePosition, IdealDragPosition, out Vector3 candidateP1, out Vector3 candidateP2))
+                return;
+
+            if (IsFoldAxisBlockedAtPosition(candidateP1, candidateP2)) {
+                FoldPoint1 = LockedFoldPoint1;
+                FoldPoint2 = LockedFoldPoint2;
+                FoldPlaneVector = DragPlaneNormal;
+                return;
+            }
+
+            FoldPoint1 = candidateP1;
+            FoldPoint2 = candidateP2;
+            FoldPlaneVector = DragPlaneNormal;
+        }
+
+        private bool TryComputeFoldAxisFromDrag(
+            Vector3 dragStart,
+            Vector3 dragEnd,
+            out Vector3 foldP1,
+            out Vector3 foldP2) {
+            foldP1 = default;
+            foldP2 = default;
+
+            Vector3 dragDelta = dragEnd - dragStart;
+            if (dragDelta.sqrMagnitude < 0.00001f)
+                return false;
+
+            Vector3 midpoint = (dragStart + dragEnd) * 0.5f;
+            Vector3 dragDir = dragDelta.normalized;
+            Vector3 foldAxisDir = Vector3.Cross(DragPlaneNormal, dragDir).normalized;
+            if (foldAxisDir.sqrMagnitude < 0.0001f)
+                return false;
+
+            foldP1 = midpoint + foldAxisDir * FoldLineHalfLength;
+            foldP2 = midpoint - foldAxisDir * FoldLineHalfLength;
+            return true;
+        }
+
+        private bool FoldAxisCrossesLockSegment(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Vector3 normal) {
+            Vector3 dir = Vector3.ProjectOnPlane(b - a, normal);
+            if (dir.sqrMagnitude < 0.00001f) return false;
+            Vector3 u = dir.normalized;
+            Vector3 v = Vector3.Cross(normal, u).normalized;
+
+            Vector2 A = new Vector2(Vector3.Dot(a, u), Vector3.Dot(a, v));
+            Vector2 B = new Vector2(Vector3.Dot(b, u), Vector3.Dot(b, v));
+            Vector2 C = new Vector2(Vector3.Dot(c, u), Vector3.Dot(c, v));
+            Vector2 D = new Vector2(Vector3.Dot(d, u), Vector3.Dot(d, v));
+
+            float sideC = (B.x - A.x) * (C.y - A.y) - (B.y - A.y) * (C.x - A.x);
+            float sideD = (B.x - A.x) * (D.y - A.y) - (B.y - A.y) * (D.x - A.x);
+
+            return (sideC > 0.0001f && sideD < -0.0001f) || (sideC < -0.0001f && sideD > 0.0001f);
+        }
+
+        public void SnapDragHandleToOutside() {
+            if (_paperGraph == null || _paperGraph.Faces == null || _paperGraph.Faces.Count == 0) return;
+
+            Vector3 N = DragPlaneNormal.normalized;
+            if (N.sqrMagnitude < 0.0001f) return;
+
+            Vector3 H0 = DragHandlePosition;
+            float maxT = float.MinValue;
+            bool found = false;
+
+            foreach (Face face in _paperGraph.Faces) {
+                if (face.Vertices.Count < 3) continue;
+
+                Vector3 faceNormal = Vector3.zero;
+                Vector3 p0 = face.Vertices[0].Position;
+                for (int i = 1; i < face.Vertices.Count - 1; i++) {
+                    Vector3 p1 = face.Vertices[i].Position;
+                    Vector3 p2 = face.Vertices[i + 1].Position;
+                    faceNormal = Vector3.Cross(p1 - p0, p2 - p0);
+                    if (faceNormal.sqrMagnitude > 0.000001f) {
+                        faceNormal = faceNormal.normalized;
+                        break;
+                    }
+                }
+
+                if (faceNormal.sqrMagnitude < 0.000001f) continue;
+
+                float dotDirNormal = Vector3.Dot(N, faceNormal);
+                if (Mathf.Abs(dotDirNormal) < 0.0001f) continue;
+
+                float t = Vector3.Dot(p0 - H0, faceNormal) / dotDirNormal;
+                Vector3 P = H0 + t * N;
+
+                bool inside = true;
+                for (int i = 0; i < face.Vertices.Count; i++) {
+                    Vector3 vA = face.Vertices[i].Position;
+                    Vector3 vB = face.Vertices[(i + 1) % face.Vertices.Count].Position;
+                    Vector3 edge = vB - vA;
+                    Vector3 toP = P - vA;
+                    Vector3 cross = Vector3.Cross(edge, toP);
+                    float signedArea = Vector3.Dot(cross, faceNormal);
+                    if (signedArea < -0.0001f * edge.magnitude) {
+                        inside = false;
+                        break;
+                    }
+                }
+
+                if (inside) {
+                    if (t > maxT) {
+                        maxT = t;
+                        found = true;
+                    }
+                }
+            }
+
+            if (found) {
+                DragHandlePosition = H0 + maxT * N;
+                RecalculateFoldAxis();
+                UpdatePreview();
+
+                foreach (FoldDragHandle handle in FindObjectsByType<FoldDragHandle>(FindObjectsSortMode.None)) {
+                    if (handle.Controller == this) {
+                        handle.ResetHandle();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Swaps the front material on the preview paper (the mesh seen during folding).
+        /// Used by the level-end flow to reveal the clear letter in place of the blurry material.
+        /// </summary>
+        public void SetPreviewFrontMaterial(Material material) {
+            if (_previewVisualizer != null)
+                _previewVisualizer.SetFrontMaterial(material);
+        }
+
+        public void ClearPreview() {
+            if (_paperGraph == null || _previewGraph == null) return;
+
+            if (_previewVisualizer != null)
+                _previewVisualizer.SkipColliderUpdate = false;
+
+            PaperGraphSnapshot snapshot = _paperGraph.CreateSnapshot();
+            _previewGraph.RestoreSnapshot(snapshot);
+
+            if (IsAccordionDragStep && _paperGraph.HasAccordionData)
+                AccordionCollapse.ApplyPose(_previewGraph, _paperGraph.GetAccordionData(), AccordionCollapseT, FoldOffset);
+
+            RefreshVisualizers();
+        }
+
+        public void UndoFold() {
+            if (_paperGraph == null) {
+                Debug.LogError("No PaperGraph component found on this GameObject.");
+                return;
+            }
+
+            _paperGraph.Undo();
+            RefreshVisualizers();
+        }
+
+        /// <summary>
+        /// Reverts one committed fold on the authoring graph without moving decals.
+        /// Use before unfold preview animation so stickers can track the preview mesh.
+        /// </summary>
+        public void UndoAuthoringFold() {
+            if (_paperGraph == null) {
+                Debug.LogError("No PaperGraph component found on this GameObject.");
+                return;
+            }
+
+            _paperGraph.Undo();
+            RefreshMeshesOnly();
+        }
+
+        private void RefreshMeshesOnly() {
+            _authoringVisualizer?.UpdateMesh();
+            _previewVisualizer?.UpdateMesh();
+        }
+
+        public void RedoFold() {
+            if (_paperGraph == null) {
+                Debug.LogError("No PaperGraph component found on this GameObject.");
+                return;
+            }
+
+            _paperGraph.Redo();
+            RefreshVisualizers();
+        }
+
+        public void ResetSheet() {
+            if (_paperGraph == null) {
+                Debug.LogError("No PaperGraph component found on this GameObject.");
+                return;
+            }
+
+            _paperGraph.Vertices.Clear();
+            _paperGraph.Edges.Clear();
+            _paperGraph.Faces.Clear();
+            _paperGraph.Tags.Clear();
+            _paperGraph.CreateSheet(_paperGraph.Width, _paperGraph.Height);
+            RefreshVisualizers();
+        }
+
+        public void RefreshDisplayMeshes() {
+            RefreshVisualizers();
+        }
+
+        public void UpdateFoldFromDrag(Vector3 dragStartLocal, Vector3 dragCurrentLocal) {
+            if (!TryComputeFoldAxisFromDrag(dragStartLocal, dragCurrentLocal, out Vector3 candidateP1, out Vector3 candidateP2))
+                return;
+
+            if (IsFoldCandidateInvalid(dragStartLocal, dragCurrentLocal, candidateP1, candidateP2)) {
+                FreezeAtLastValidFold();
+                return;
+            }
+
+            FoldPoint1 = candidateP1;
+            FoldPoint2 = candidateP2;
+            FoldPlaneVector = DragPlaneNormal;
+            _lastValidDragEnd = dragCurrentLocal;
+            UpdatePreview();
+        }
+
+        private void RefreshVisualizers() {
+            SyncPreviewVisualizerSettings();
+            _authoringVisualizer?.UpdateMesh();
+            _previewVisualizer?.UpdateMesh();
+            DecalController.Instance?.OnMeshUpdated();
+        }
+
+        private void OnDrawGizmos() {
+            if (!ShowFoldGizmo) return;
+
+            Matrix4x4 localToWorld = transform.localToWorldMatrix;
+
+            Vector3 foldAxis = (FoldPoint2 - FoldPoint1).normalized;
+            Vector3 foldNormal = Vector3.Cross(foldAxis, FoldPlaneVector).normalized;
+            float gizmoWidth = Vector3.Distance(FoldPoint1, FoldPoint2);
 
             if (foldNormal != Vector3.zero) {
-                // Draw the fold axis line
                 Gizmos.matrix = localToWorld;
                 Gizmos.color = Color.red;
-                Gizmos.DrawLine(foldPoint1, foldPoint2);
+                Gizmos.DrawLine(FoldPoint1, FoldPoint2);
 
-                // Draw spheres at the two fold points
-                Gizmos.DrawSphere(foldPoint1, 0.02f);
-                Gizmos.DrawSphere(foldPoint2, 0.02f);
+                Gizmos.DrawSphere(FoldPoint1, 0.02f);
+                Gizmos.DrawSphere(FoldPoint2, 0.02f);
 
-                // Draw the fold plane
-                Vector3 foldCenter = (foldPoint1 + foldPoint2) * 0.5f;
+                Vector3 foldCenter = (FoldPoint1 + FoldPoint2) * 0.5f;
                 Quaternion foldRotation = Quaternion.LookRotation(foldNormal, foldAxis);
 
-                Gizmos.color = gizmoColor;
+                Gizmos.color = GizmoColor;
                 Gizmos.matrix = localToWorld * Matrix4x4.TRS(foldCenter, foldRotation, Vector3.one);
-                Gizmos.DrawCube(Vector3.zero, new Vector3(gizmoHeight, gizmoWidth, 0.001f));
+                Gizmos.DrawCube(Vector3.zero, new Vector3(GizmoHeight, gizmoWidth, 0.001f));
 
-                Gizmos.color = new Color(gizmoColor.r, gizmoColor.g, gizmoColor.b, 1f);
-                Gizmos.DrawWireCube(Vector3.zero, new Vector3(gizmoHeight, gizmoWidth, 0.001f));
+                Gizmos.color = new Color(GizmoColor.r, GizmoColor.g, GizmoColor.b, 1f);
+                Gizmos.DrawWireCube(Vector3.zero, new Vector3(GizmoHeight, gizmoWidth, 0.001f));
 
-                // Draw the fold plane normal
                 Gizmos.matrix = localToWorld;
                 Gizmos.color = Color.magenta;
-                Gizmos.DrawRay(foldCenter, foldNormal * gizmoHeight * 0.5f);
+                Gizmos.DrawRay(foldCenter, foldNormal * GizmoHeight * 0.5f);
 
                 Gizmos.matrix = Matrix4x4.identity;
             }
 
-        // ── Locked fold-axis gizmo ────────────────────────────────────────
-        if (hasFoldAxisLock) {
-            Gizmos.matrix = localToWorld;
+            Vector3 idealDrag = IdealDragPosition - DragHandlePosition;
+            if (idealDrag.sqrMagnitude > 0.00001f) {
+                Vector3 idealFoldAxisDir = Vector3.Cross(DragPlaneNormal, idealDrag.normalized).normalized;
+                if (idealFoldAxisDir.sqrMagnitude > 0.0001f) {
+                    Gizmos.matrix = localToWorld;
+                    Gizmos.color = Color.yellow;
+                    Vector3 startP1 = DragHandlePosition + idealFoldAxisDir * FoldLineHalfLength;
+                    Vector3 startP2 = DragHandlePosition - idealFoldAxisDir * FoldLineHalfLength;
+                    Gizmos.DrawLine(startP1, startP2);
+                    Gizmos.DrawSphere(startP1, 0.015f);
+                    Gizmos.DrawSphere(startP2, 0.015f);
+                }
+            }
 
-            // Main lock segment in cyan
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawLine(foldAxisLockP1, foldAxisLockP2);
+            if (HasFoldAxisLock) {
+                Gizmos.matrix = localToWorld;
 
-            // Endpoint spheres
-            Gizmos.DrawSphere(foldAxisLockP1, 0.018f);
-            Gizmos.DrawSphere(foldAxisLockP2, 0.018f);
+                foreach (FoldAxisLockSegment lockSegment in FoldAxisLocks) {
+                    Gizmos.color = Color.cyan;
+                    Gizmos.DrawLine(lockSegment.P1, lockSegment.P2);
 
-            // Diamond marker at midpoint to distinguish it from the active fold axis
-            Vector3 lockMid = (foldAxisLockP1 + foldAxisLockP2) * 0.5f;
-            Vector3 lockDir = (foldAxisLockP2 - foldAxisLockP1).normalized;
-            Vector3 perpDir = Vector3.Cross(lockDir, foldPlaneVector).normalized;
-            float diamondSize = 0.03f;
-            Gizmos.DrawLine(lockMid + perpDir * diamondSize, lockMid + lockDir * diamondSize);
-            Gizmos.DrawLine(lockMid + lockDir * diamondSize, lockMid - perpDir * diamondSize);
-            Gizmos.DrawLine(lockMid - perpDir * diamondSize, lockMid - lockDir * diamondSize);
-            Gizmos.DrawLine(lockMid - lockDir * diamondSize, lockMid + perpDir * diamondSize);
+                    Gizmos.DrawSphere(lockSegment.P1, 0.018f);
+                    Gizmos.DrawSphere(lockSegment.P2, 0.018f);
 
-            Gizmos.matrix = Matrix4x4.identity;
+                    Vector3 lockMid = (lockSegment.P1 + lockSegment.P2) * 0.5f;
+                    Vector3 lockDir = (lockSegment.P2 - lockSegment.P1).normalized;
+                    Vector3 perpDir = Vector3.Cross(lockDir, FoldPlaneVector).normalized;
+                    float diamondSize = 0.03f;
+                    Gizmos.DrawLine(lockMid + perpDir * diamondSize, lockMid + lockDir * diamondSize);
+                    Gizmos.DrawLine(lockMid + lockDir * diamondSize, lockMid - perpDir * diamondSize);
+                    Gizmos.DrawLine(lockMid - perpDir * diamondSize, lockMid - lockDir * diamondSize);
+                    Gizmos.DrawLine(lockMid - lockDir * diamondSize, lockMid + perpDir * diamondSize);
+                }
+
+                Gizmos.matrix = Matrix4x4.identity;
+            }
         }
     }
 }

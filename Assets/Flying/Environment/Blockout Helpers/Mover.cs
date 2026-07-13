@@ -2,11 +2,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
-/// <summary>
-/// Moves an object through a series of waypoints using DOTween.
-/// All positions are relative to the transform's initial rotation.
-/// </summary>
-public class Mover : MonoBehaviour
+namespace Crease.Flying.Environment.BlockoutHelpers
+{
+    /// <summary>
+    /// Moves an object through a series of waypoints using DOTween.
+    /// All positions are relative to the transform's initial rotation.
+    /// </summary>
+    public class Mover : MonoBehaviour
 {
     [Header("Movement Settings")]
     [Tooltip("Positions relative to the starting position and oriented by starting rotation")]
@@ -54,10 +56,10 @@ public class Mover : MonoBehaviour
     [SerializeField] private bool showWaypointNumbers = true;
     #endif
     
-    private Vector3 startPosition;
-    private Quaternion startRotation;
-    private Vector3[] localWaypoints;
-    private Tweener movementTween;
+    private Vector3 _startPosition;
+    private Quaternion _startRotation;
+    private Vector3[] _localWaypoints;
+    private Tweener _movementTween;
     
     #if UNITY_EDITOR
     private float previousDuration;
@@ -69,8 +71,8 @@ public class Mover : MonoBehaviour
     
     private void Awake()
     {
-        startPosition = transform.localPosition;
-        startRotation = transform.localRotation;
+        _startPosition = transform.localPosition;
+        _startRotation = transform.localRotation;
         CalculateLocalWaypoints();
     }
     
@@ -85,7 +87,7 @@ public class Mover : MonoBehaviour
     private void OnDestroy()
     {
         // Kill tween on destroy to prevent errors
-        movementTween?.Kill();
+        _movementTween?.Kill();
     }
     
     private void CalculateLocalWaypoints()
@@ -93,16 +95,16 @@ public class Mover : MonoBehaviour
         List<Vector3> waypointList = new List<Vector3>();
         
         // DOTween paths need to include the starting position as the first waypoint
-        waypointList.Add(startPosition);
+        waypointList.Add(_startPosition);
         
         foreach (Vector3 relativePos in relativeWaypoints)
         {
             // Rotate the relative position by the starting rotation
-            Vector3 rotatedOffset = startRotation * relativePos;
-            waypointList.Add(startPosition + rotatedOffset);
+            Vector3 rotatedOffset = _startRotation * relativePos;
+            waypointList.Add(_startPosition + rotatedOffset);
         }
         
-        localWaypoints = waypointList.ToArray();
+        _localWaypoints = waypointList.ToArray();
     }
     
     private float CalculatePathDistance()
@@ -110,18 +112,18 @@ public class Mover : MonoBehaviour
         float totalDistance = 0f;
         
         // Calculate distance in edit mode or play mode
-        if (Application.isPlaying && localWaypoints != null && localWaypoints.Length > 0)
+        if (Application.isPlaying && _localWaypoints != null && _localWaypoints.Length > 0)
         {
             // Use local waypoints in play mode (first waypoint is start position)
-            for (int i = 0; i < localWaypoints.Length - 1; i++)
+            for (int i = 0; i < _localWaypoints.Length - 1; i++)
             {
-                totalDistance += Vector3.Distance(localWaypoints[i], localWaypoints[i + 1]);
+                totalDistance += Vector3.Distance(_localWaypoints[i], _localWaypoints[i + 1]);
             }
             
             // Add distance back to start if closed path
-            if (closePath && localWaypoints.Length > 1)
+            if (closePath && _localWaypoints.Length > 1)
             {
-                totalDistance += Vector3.Distance(localWaypoints[localWaypoints.Length - 1], localWaypoints[0]);
+                totalDistance += Vector3.Distance(_localWaypoints[_localWaypoints.Length - 1], _localWaypoints[0]);
             }
         }
         else
@@ -155,48 +157,48 @@ public class Mover : MonoBehaviour
         DOTween.Init();
         
         // Kill existing tween
-        movementTween?.Kill();
+        _movementTween?.Kill();
         
         // Reset to start position
-        transform.localPosition = startPosition;
+        transform.localPosition = _startPosition;
         
         // Need at least two waypoints (start + at least one target)
-        if (localWaypoints == null || localWaypoints.Length < 2)
+        if (_localWaypoints == null || _localWaypoints.Length < 2)
         {
-            Debug.LogWarning($"Mover has insufficient waypoints to move to! Found {localWaypoints?.Length ?? 0} waypoints, need at least 2.", this);
+            Debug.LogWarning($"Mover has insufficient waypoints to move to! Found {_localWaypoints?.Length ?? 0} waypoints, need at least 2.", this);
             return;
         }
         
         // Create path tween
-        movementTween = transform.DOLocalPath(localWaypoints, duration, pathType)
+        _movementTween = transform.DOLocalPath(_localWaypoints, duration, pathType)
             .SetEase(easeType)
             .SetLoops(loops, loopType)
             .SetDelay(delay)
             .SetOptions(closePath)
             .SetAutoKill(true);
             
-        // Debug.Log($"Mover started with {localWaypoints.Length} waypoints over {duration}s", this);
+        // Debug.Log($"Mover started with {_localWaypoints.Length} waypoints over {duration}s", this);
     }
     
     public void StopMovement()
     {
-        movementTween?.Kill();
+        _movementTween?.Kill();
     }
     
     public void PauseMovement()
     {
-        movementTween?.Pause();
+        _movementTween?.Pause();
     }
     
     public void ResumeMovement()
     {
-        movementTween?.Play();
+        _movementTween?.Play();
     }
     
     public void ResetPosition()
     {
-        movementTween?.Kill();
-        transform.localPosition = startPosition;
+        _movementTween?.Kill();
+        transform.localPosition = _startPosition;
     }
     
     private void OnDrawGizmosSelected()
@@ -208,19 +210,19 @@ public class Mover : MonoBehaviour
         
         // Add starting position
         Vector3 gizmoStartPos = Application.isPlaying ? 
-            (transform.parent != null ? transform.parent.TransformPoint(startPosition) : startPosition) :
+            (transform.parent != null ? transform.parent.TransformPoint(_startPosition) : _startPosition) :
             transform.position;
         gizmoWaypoints.Add(gizmoStartPos);
         
         // Calculate waypoint positions
-        if (Application.isPlaying && localWaypoints != null)
+        if (Application.isPlaying && _localWaypoints != null)
         {
             // Use calculated local waypoints in play mode (skip first one as it's the start position)
-            for (int i = 1; i < localWaypoints.Length; i++)
+            for (int i = 1; i < _localWaypoints.Length; i++)
             {
                 Vector3 worldPos = transform.parent != null 
-                    ? transform.parent.TransformPoint(localWaypoints[i]) 
-                    : localWaypoints[i];
+                    ? transform.parent.TransformPoint(_localWaypoints[i]) 
+                    : _localWaypoints[i];
                 gizmoWaypoints.Add(worldPos);
             }
         }
@@ -372,4 +374,5 @@ public class Mover : MonoBehaviour
         }
     }
     #endif
+}
 }

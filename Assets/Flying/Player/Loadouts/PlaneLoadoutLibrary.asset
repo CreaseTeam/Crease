@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7c8d9e0f1a2345678901234abcdef01, type: 3}
+  m_Name: PlaneLoadoutLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Player.Loadouts.PlaneLoadoutLibrary
+  Loadouts:
+  - {fileID: 11400000, guid: c1d2e3f4a5b6789012345678abcdef01, type: 2}
+  - {fileID: 11400000, guid: c1d2e3f4a5b6789012345678abcdef02, type: 2}
+  - {fileID: 11400000, guid: c1d2e3f4a5b6789012345678abcdef03, type: 2}
+  - {fileID: 11400000, guid: c1d2e3f4a5b6789012345678abcdef04, type: 2}
+  - {fileID: 11400000, guid: c1d2e3f4a5b6789012345678abcdef05, type: 2}

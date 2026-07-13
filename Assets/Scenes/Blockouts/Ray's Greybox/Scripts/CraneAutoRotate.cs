@@ -1,26 +1,28 @@
 using UnityEngine;
 
-public class CraneAutoRotate : MonoBehaviour
+namespace Crease.Scenes.Blockouts.RaysGreybox
 {
-    [SerializeField] private float rotationSpeed = 1f;
-    [SerializeField] private float maxAngle = 45f;
-    [SerializeField] private Vector3 rotationAxis = Vector3.up;
-
-    [SerializeField] private int direction = 1; // 1 or -1
-
-    private Quaternion initialRotation;
-
-    void Start()
+    public class CraneAutoRotate : MonoBehaviour
     {
-        initialRotation = transform.localRotation;
-    }
+        [SerializeField] private float _rotationSpeed = 1f;
+        [SerializeField] private float _maxAngle = 45f;
+        [SerializeField] private Vector3 _rotationAxis = Vector3.up;
+        [SerializeField] private int _direction = 1;
 
-    void Update()
-    {
-        float angle = Mathf.PingPong(Time.time * rotationSpeed, maxAngle * 2f) - maxAngle;
+        private Quaternion _initialRotation;
 
-        transform.localRotation =
-            initialRotation *
-            Quaternion.AngleAxis(angle * direction, rotationAxis.normalized);
+        private void Start()
+        {
+            _initialRotation = transform.localRotation;
+        }
+
+        private void Update()
+        {
+            float angle = Mathf.PingPong(Time.time * _rotationSpeed, _maxAngle * 2f) - _maxAngle;
+
+            transform.localRotation =
+                _initialRotation *
+                Quaternion.AngleAxis(angle * _direction, _rotationAxis.normalized);
+        }
     }
 }
