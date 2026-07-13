@@ -373,7 +373,7 @@ namespace Crease.Managers.Input
             // SingleMouseOrPen behavior merges all mice into one pointer, which
             // does not reliably track a second (virtual) mouse — the cursor then
             // never hovers or clicks UI.
-            _uiModule.pointerBehavior = UIPointerBehavior.AllPointers;
+            _uiModule.pointerBehavior = UIPointerBehavior.AllPointersAsIs;
             _navNeutralized = true;
 
             if (_debugLogging)
