@@ -446,6 +446,7 @@ namespace Crease.Folding.Paper
             }
 
             ApplyFlightShadingToPlayerMesh();
+            PositionPlayerWingTipsFromMesh();
 
             if (PaperGraph != null) PaperGraph.gameObject.SetActive(false);
 
@@ -763,6 +764,20 @@ namespace Crease.Folding.Paper
             if (fc != null && fc.MeshTransform != null)
                 return fc.MeshTransform;
             return Player.transform;
+        }
+
+        private void PositionPlayerWingTipsFromMesh() {
+            if (Player == null)
+                return;
+
+            CachePlayerMeshReferences();
+            if (_playerMeshFilter == null || _playerMeshFilter.sharedMesh == null)
+                return;
+
+            WingTrailController wingTrail = Player.GetComponent<WingTrailController>();
+            wingTrail?.PositionWingTipsFromMesh(
+                _playerMeshFilter.sharedMesh,
+                _playerMeshFilter.transform);
         }
     }
 }
