@@ -73,6 +73,8 @@ namespace Crease.Folding.Paper
 
         public Mesh SavedMesh { get; private set; }
 
+        private FlightShadingData _flightShadingData;
+
         private MeshFilter _playerMeshFilter;
         private MeshRenderer _playerMeshRenderer;
 
@@ -357,26 +359,37 @@ namespace Crease.Folding.Paper
         }
 
         public void SaveMesh() {
-            if (PaperGraph == null) {
+            PaperGraphController controller = PaperGraph != null
+                ? PaperGraph.GetComponent<PaperGraphController>()
+                : null;
+            if (controller != null)
+                controller.ClearPreview();
+
+            PaperGraph topologyGraph = GetFlightTopologyGraph();
+            if (topologyGraph == null) {
                 Debug.LogError("FoldingManager: No PaperGraph assigned. Cannot save mesh.");
                 return;
             }
 
-            SavedMesh = PaperGraph.GenerateMesh();
+            PaperGraph settingsGraph = GetFlightSettingsGraph();
+
+            SavedMesh = topologyGraph.GenerateMesh();
             SavedMesh.name = "FoldingManager_SavedMesh";
 
-            if (MeshRotation != Vector3.zero) {
-                Quaternion rot = Quaternion.Euler(MeshRotation);
-                Vector3[] verts = SavedMesh.vertices;
-                for (int i = 0; i < verts.Length; i++) {
-                    verts[i] = rot * verts[i];
-                }
-                SavedMesh.vertices = verts;
-                SavedMesh.RecalculateNormals();
-                SavedMesh.RecalculateBounds();
-            }
+            _flightShadingData = PaperShading.BuildFlightShadingData(
+                topologyGraph,
+                settingsGraph,
+                null,
+                Matrix4x4.identity);
 
             Debug.Log("FoldingManager: Mesh saved.");
+        }
+
+        public void RefreshPlayerMeshShadingIfFlying() {
+            if (IsFolding)
+                return;
+
+            AttachDecalMapsToPlayerMesh();
         }
 
         private void BeginPaperAlignment(bool useSavedMesh) {
@@ -477,8 +490,25 @@ namespace Crease.Folding.Paper
             }
 
             _playerMeshFilter.sharedMesh = SavedMesh;
+            ApplySavedMeshOrientationToPlayer();
             ApplyPreviewMaterialsToPlayer(SavedMesh);
             Debug.Log($"FoldingManager: Applied saved mesh to '{_playerMeshFilter.gameObject.name}'.");
+        }
+
+        private void ApplySavedMeshOrientationToPlayer() {
+            if (Player == null || MeshRotation == Vector3.zero)
+                return;
+
+            FlightController flightController = Player.GetComponent<FlightController>();
+            flightController?.ApplySavedMeshOrientation(MeshRotation);
+        }
+
+        private void RestoreDefaultMeshOrientationOnPlayer() {
+            if (Player == null)
+                return;
+
+            FlightController flightController = Player.GetComponent<FlightController>();
+            flightController?.RestoreDefaultMeshOrientation();
         }
 
         private void ApplyPreviewMaterialsToPlayer(Mesh mesh) {
@@ -502,11 +532,23 @@ namespace Crease.Folding.Paper
             AttachDecalMapsToPlayerMesh();
         }
 
-        private Matrix4x4 GetFlightSegmentTransform() {
-            if (MeshRotation == Vector3.zero)
-                return Matrix4x4.identity;
+        private PaperGraph GetFlightTopologyGraph() {
+            if (PaperGraph == null)
+                return null;
 
-            return Matrix4x4.Rotate(Quaternion.Euler(MeshRotation));
+            PaperGraphController controller = PaperGraph.GetComponent<PaperGraphController>();
+            if (controller?.AuthoringGraph != null && controller.AuthoringGraph.Faces.Count > 0)
+                return controller.AuthoringGraph;
+
+            return PaperGraph;
+        }
+
+        private PaperGraph GetFlightSettingsGraph() {
+            if (PaperGraph == null)
+                return null;
+
+            PaperGraphController controller = PaperGraph.GetComponent<PaperGraphController>();
+            return controller?.AuthoringGraph ?? PaperGraph;
         }
 
         private void AttachDecalMapsToPlayerMesh() {
@@ -519,12 +561,24 @@ namespace Crease.Folding.Paper
             if (decalController.TextureRenderer == null)
                 return;
 
+            if (_flightShadingData != null) {
+                PaperShading.ApplyFlightShadingData(
+                    _playerMeshRenderer,
+                    _flightShadingData,
+                    decalController.TextureRenderer.FrontTexture,
+                    decalController.TextureRenderer.BackTexture);
+                return;
+            }
+
+            PaperGraph topologyGraph = GetFlightTopologyGraph();
+            PaperGraph settingsGraph = GetFlightSettingsGraph();
             PaperShading.ApplyRendererShading(
                 _playerMeshRenderer,
-                PaperGraph,
+                topologyGraph,
+                settingsGraph,
                 decalController.TextureRenderer.FrontTexture,
                 decalController.TextureRenderer.BackTexture,
-                GetFlightSegmentTransform());
+                Matrix4x4.identity);
         }
 
         private void RestoreFoldingPhaseUi() {
@@ -542,6 +596,7 @@ namespace Crease.Folding.Paper
             }
 
             _playerMeshFilter.mesh = DefaultPlayerMesh;
+            RestoreDefaultMeshOrientationOnPlayer();
         }
 
         private void TeleportPaperToPlayer() {

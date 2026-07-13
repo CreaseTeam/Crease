@@ -64,6 +64,7 @@ struct Varyings
 
     float3 positionOS               : TEXCOORD11;
     nointerpolation float faceIndex   : TEXCOORD12;
+    float3 normalOS                 : TEXCOORD13;
 
     float4 positionCS               : SV_POSITION;
     UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -197,6 +198,7 @@ Varyings PaperLitPassVertex(Attributes input)
 
     output.positionWS = vertexInput.positionWS;
     output.positionOS = input.positionOS.xyz;
+    output.normalOS = input.normalOS;
     output.faceIndex = input.faceIndexUV.x;
     output.positionCS = vertexInput.positionCS;
 
@@ -245,7 +247,8 @@ void PaperLitPassFragment(
     InitializeBakedGIData(input, inputData);
 
     half creaseBrightness = GetCreaseBrightness(input.positionOS, input.faceIndex);
-    surfaceData.albedo.rgb *= creaseBrightness;
+    half edgeShadowBrightness = GetEdgeShadowBrightness(input.positionOS, normalize(input.normalOS), input.faceIndex);
+    surfaceData.albedo.rgb *= creaseBrightness * edgeShadowBrightness;
 
     half4 color = UniversalFragmentPBR(inputData, surfaceData);
     color.rgb = MixFog(color.rgb, inputData.fogCoord);

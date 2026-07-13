@@ -14,6 +14,12 @@ Shader "Crease/PaperShader"
         [HideInInspector] _CreaseDarkenWidth("Crease Darken Width", Float) = 0
         [HideInInspector] _CreaseMinBrightness("Crease Min Brightness", Float) = 1
 
+        [HideInInspector] _BoundaryEdgeSegmentTex("Boundary Edge Segments", 2D) = "black" {}
+        [HideInInspector] _BoundaryEdgeSegmentCount("Boundary Edge Segment Count", Float) = 0
+        [HideInInspector] _EdgeShadowDarkenWidth("Edge Shadow Darken Width", Float) = 0
+        [HideInInspector] _EdgeShadowInnerOffset("Edge Shadow Inner Offset", Float) = 0
+        [HideInInspector] _EdgeShadowMinBrightness("Edge Shadow Min Brightness", Float) = 1
+
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
 
         _Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5

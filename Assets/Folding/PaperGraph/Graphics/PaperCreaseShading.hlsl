@@ -22,6 +22,17 @@ float DistancePointToSegment(float3 pos, float3 a, float3 b)
     return distance(pos, a + ab * t);
 }
 
+float3 ClosestPointOnSegment(float3 pos, float3 a, float3 b)
+{
+    float3 ab = b - a;
+    float lengthSq = dot(ab, ab);
+    if (lengthSq < 1e-10)
+        return a;
+
+    float t = saturate(dot(pos - a, ab) / lengthSq);
+    return a + ab * t;
+}
+
 float BrightnessFromDistance(float distance, float width, float minBrightness)
 {
     if (width <= 0.0)
@@ -69,6 +80,67 @@ float GetCreaseBrightness(float3 positionOS, float faceIndex)
         return 1.0;
 
     return BrightnessFromDistance(creaseDistance, _CreaseDarkenWidth, _CreaseMinBrightness);
+}
+
+TEXTURE2D_FLOAT(_BoundaryEdgeSegmentTex);
+float _BoundaryEdgeSegmentCount;
+float _EdgeShadowDarkenWidth;
+float _EdgeShadowInnerOffset;
+float _EdgeShadowMinBrightness;
+
+float4 LoadBoundaryEdgeSegmentPixel(int segmentIndex, int pixelOffset)
+{
+    return LOAD_TEXTURE2D(_BoundaryEdgeSegmentTex, int2(segmentIndex * 3 + pixelOffset, 0));
+}
+
+float GetEdgeShadowBrightness(float3 positionOS, float3 normalOS, float faceIndex)
+{
+    if (_BoundaryEdgeSegmentCount <= 0 || _EdgeShadowDarkenWidth <= 0.0)
+        return 1.0;
+
+    int faceId = (int)(faceIndex + 0.5);
+    float3 receiverNormal = normalize(normalOS);
+    float edgeDistance = 1e6;
+    bool hasEdge = false;
+
+    int segmentCount = (int)(_BoundaryEdgeSegmentCount + 0.5);
+    for (int i = 0; i < segmentCount; i++)
+    {
+        float4 segmentData = LoadBoundaryEdgeSegmentPixel(i, 2);
+        int ownerFaceId = (int)(segmentData.x + 0.5);
+        if (ownerFaceId < 0 || ownerFaceId == faceId)
+            continue;
+
+        float3 shadowDir = segmentData.yzw;
+        if (dot(shadowDir, shadowDir) < 1e-10)
+            continue;
+
+        float3 a = LoadBoundaryEdgeSegmentPixel(i, 0).xyz;
+        float3 b = LoadBoundaryEdgeSegmentPixel(i, 1).xyz;
+        float3 closest = ClosestPointOnSegment(positionOS, a, b);
+        float3 toPixel = positionOS - closest;
+
+        if (dot(toPixel, shadowDir) < 0.0)
+            continue;
+
+        // Only the paper side facing the edge receives its shadow. Requiring a
+        // small separation also prevents coplanar front/back surfaces from both matching.
+        if (dot(toPixel, receiverNormal) >= -1e-5)
+            continue;
+
+        float3 inPlaneOffset = toPixel - receiverNormal * dot(toPixel, receiverNormal);
+        float dist = length(inPlaneOffset);
+        if (dist < _EdgeShadowInnerOffset)
+            continue;
+
+        edgeDistance = min(edgeDistance, dist - _EdgeShadowInnerOffset);
+        hasEdge = true;
+    }
+
+    if (!hasEdge)
+        return 1.0;
+
+    return BrightnessFromDistance(edgeDistance, _EdgeShadowDarkenWidth, _EdgeShadowMinBrightness);
 }
 
 #endif

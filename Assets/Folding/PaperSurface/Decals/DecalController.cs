@@ -417,10 +417,8 @@ namespace Crease.Folding.PaperSurface.Decals
             if (renderer == null || TextureRenderer == null)
                 return;
 
-            PaperShading.ApplyRendererShading(
+            PaperShading.ApplyDecalMapsOnly(
                 renderer,
-                topologyGraph,
-                settingsGraph,
                 TextureRenderer.FrontTexture,
                 TextureRenderer.BackTexture);
         }
@@ -442,6 +440,7 @@ namespace Crease.Folding.PaperSurface.Decals
                 _ghostPlacement,
                 _ghostVisible);
             ApplyDecalMapsToAllRenderers();
+            FoldingManager.Instance?.RefreshPlayerMeshShadingIfFlying();
         }
 
         private void ApplyDecalMapsToAllRenderers()

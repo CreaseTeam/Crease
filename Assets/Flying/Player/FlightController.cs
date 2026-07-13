@@ -21,6 +21,7 @@ namespace Crease.Flying.Player
         public Transform MeshTransform => _meshTransform;
 
         private Vector3 _meshRotation;
+        private Vector3 _prefabMeshRotation;
         private float _yaw = 0f;
 
         private float _roll = 0f;
@@ -61,7 +62,22 @@ namespace Crease.Flying.Player
 
             _body.Velocity = transform.forward * _stats.CurrentStats.InitialSpeed;
 
-            _meshRotation = _meshTransform.localEulerAngles;
+            _prefabMeshRotation = _meshTransform.localEulerAngles;
+            _meshRotation = _prefabMeshRotation;
+        }
+
+        public void ApplySavedMeshOrientation(Vector3 additionalEuler) {
+            if (_meshTransform == null)
+                return;
+
+            Quaternion baseRotation = Quaternion.Euler(_prefabMeshRotation);
+            _meshRotation = (baseRotation * Quaternion.Euler(additionalEuler)).eulerAngles;
+            UpdateRotation();
+        }
+
+        public void RestoreDefaultMeshOrientation() {
+            _meshRotation = _prefabMeshRotation;
+            UpdateRotation();
         }
 
         private bool IsFlightControlLocked =>

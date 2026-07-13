@@ -30,6 +30,17 @@ public class PaperGraph : MonoBehaviour
     [Range(0f, 1f)]
     public float CreaseMinBrightness = 0.4f;
 
+    [Header("Edge Shadow")]
+    [Tooltip("Object-space falloff for darkening near the paper's original outer edges.")]
+    [Min(0f)]
+    public float EdgeShadowDarkenWidth = 0.012f;
+    [Tooltip("Surface brightness at an outer edge shadow (1 = off).")]
+    [Range(0f, 1f)]
+    public float EdgeShadowMinBrightness = 0.55f;
+    [Tooltip("Gap along the surface before edge shadow begins (object space).")]
+    [Min(0f)]
+    public float EdgeShadowInnerOffset = 0.003f;
+
     [Header("Fold Guide Line")]
     [Tooltip("Thickness of each dash perpendicular to the guide line (object space).")]
     [Min(0f)]
