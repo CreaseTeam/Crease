@@ -91,8 +91,10 @@ namespace Crease.Folding.Stickers
 
         private void Update()
         {
-            if (_mouse == null)
-                _mouse = Mouse.current;
+            // Read Mouse.current live each frame so the sticker cursor follows
+            // whichever pointer device is active — the physical mouse or the
+            // gamepad-driven VirtualMouseInput cursor (see FoldingVirtualCursor).
+            _mouse = Mouse.current;
             if (_mouse == null || !IsStickerPhaseActive() || DecalManager == null)
                 return;
 

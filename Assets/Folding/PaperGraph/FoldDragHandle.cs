@@ -30,34 +30,36 @@ namespace Crease.Folding.PaperGraph
 
         private Camera _activeCamera;
         private bool _isDragging;
-        private Mouse _mouse;
 
         private void Start() {
-            _mouse = Mouse.current;
-
             if (Controller != null)
                 transform.position = Controller.transform.TransformPoint(Controller.DragHandlePosition);
         }
 
         private void Update() {
             _activeCamera = _trackedCamera != null ? _trackedCamera : Camera.main;
-            if (_mouse == null || _activeCamera == null) return;
 
-            if (_mouse.leftButton.wasPressedThisFrame) {
-                TryBeginDrag();
+            // Read Mouse.current live each frame so the handle follows whichever
+            // pointer device is active — the physical mouse or the gamepad-driven
+            // VirtualMouseInput cursor (see FoldingVirtualCursor).
+            Mouse mouse = Mouse.current;
+            if (mouse == null || _activeCamera == null) return;
+
+            if (mouse.leftButton.wasPressedThisFrame) {
+                TryBeginDrag(mouse);
             }
 
             if (_isDragging) {
-                UpdateDrag();
+                UpdateDrag(mouse);
 
-                if (_mouse.leftButton.wasReleasedThisFrame) {
+                if (mouse.leftButton.wasReleasedThisFrame) {
                     EndDrag();
                 }
             }
         }
 
-        private void TryBeginDrag() {
-            Ray ray = _activeCamera.ScreenPointToRay(_mouse.position.ReadValue());
+        private void TryBeginDrag(Mouse mouse) {
+            Ray ray = _activeCamera.ScreenPointToRay(mouse.position.ReadValue());
 
             if (Physics.Raycast(ray, out RaycastHit hit)) {
                 if (hit.collider.gameObject == gameObject) {
@@ -66,7 +68,7 @@ namespace Crease.Folding.PaperGraph
             }
         }
 
-        private void UpdateDrag() {
+        private void UpdateDrag(Mouse mouse) {
             if (Controller == null) return;
 
             Vector3 localNormal = Controller.DragPlaneNormal.normalized;
@@ -79,7 +81,7 @@ namespace Crease.Folding.PaperGraph
             Vector3 worldStartPos = Controller.transform.TransformPoint(localStartPos);
             Plane dragPlane = new Plane(worldNormal, worldStartPos);
 
-            Ray ray = _activeCamera.ScreenPointToRay(_mouse.position.ReadValue());
+            Ray ray = _activeCamera.ScreenPointToRay(mouse.position.ReadValue());
 
             if (dragPlane.Raycast(ray, out float enter)) {
                 Vector3 hitPoint = ray.GetPoint(enter);
