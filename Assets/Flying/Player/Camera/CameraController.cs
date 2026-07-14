@@ -41,6 +41,13 @@ namespace Crease.Flying.Player.Camera
         private float _lookCaptureBlend;
         private Coroutine _lookCaptureRoutine;
 
+        // Collision avoidance state
+        private float _currentCollisionDistance = -1f;
+        private Vector3 _lastCollisionOrigin;
+        private Vector3 _lastCollisionDir;
+        private float _lastCollisionDesiredDistance;
+        private bool _lastCollisionHit;
+
         public bool IsLookCaptureActive => _lookCaptureRoutine != null || _lookCaptureBlend > 0.001f;
 
         public void RecenterPan()
@@ -244,17 +251,108 @@ namespace Crease.Flying.Player.Camera
                 Vector3 captureLookDir = (_lookCaptureTarget.position - _unpannedBasePosition).normalized;
                 Quaternion captureRotation = Quaternion.LookRotation(captureLookDir, upVec);
                 finalRotation = Quaternion.Slerp(finalRotation, captureRotation, _lookCaptureBlend);
-                transform.position = _unpannedBasePosition;
+
+                transform.position = ResolveCollision(Target.position, _unpannedBasePosition, scaledDt, snap);
                 transform.rotation = finalRotation;
             }
             else
             {
                 Quaternion rOrbit = finalRotation * Quaternion.Inverse(_unpannedBaseRotation);
                 Vector3 offsetFromTarget = _unpannedBasePosition - Target.position;
+                Vector3 desiredPosition = Target.position + rOrbit * offsetFromTarget;
 
-                transform.position = Target.position + rOrbit * offsetFromTarget;
+                transform.position = ResolveCollision(Target.position, desiredPosition, scaledDt, snap);
                 transform.rotation = finalRotation;
             }
+        }
+
+        /// <summary>
+        /// Casts from pivot toward desiredPos and pulls the returned position in front of any
+        /// obstruction on the settings' ObstructionTags list, so the camera never clips through
+        /// level geometry. Smoothed asymmetrically: pulling in (avoiding a clip) is fast/responsive,
+        /// pushing back out once clear is slower, to avoid flickering in doorways/narrow gaps.
+        /// </summary>
+        private Vector3 ResolveCollision(Vector3 pivot, Vector3 desiredPos, float dt, bool snap)
+        {
+            Vector3 toDesired = desiredPos - pivot;
+            float desiredDistance = toDesired.magnitude;
+
+            _lastCollisionOrigin = pivot;
+            _lastCollisionDesiredDistance = desiredDistance;
+
+            if (desiredDistance < 0.0001f)
+            {
+                _currentCollisionDistance = desiredDistance;
+                _lastCollisionDir = Vector3.forward;
+                _lastCollisionHit = false;
+                return desiredPos;
+            }
+
+            Vector3 dir = toDesired / desiredDistance;
+            _lastCollisionDir = dir;
+
+            float safeDistance = desiredDistance;
+            bool didHit = false;
+
+            if (_settings.ObstructionTags != null && _settings.ObstructionTags.Count > 0)
+            {
+                RaycastHit[] hits = Physics.SphereCastAll(
+                    pivot,
+                    _settings.CollisionRadius,
+                    dir,
+                    desiredDistance,
+                    ~0,
+                    QueryTriggerInteraction.Ignore);
+
+                float closestHitDistance = float.MaxValue;
+
+                for (int h = 0; h < hits.Length; h++)
+                {
+                    RaycastHit hit = hits[h];
+                    if (hit.collider == null) continue;
+
+                    // Ignore the target itself (and any of its children/colliders).
+                    if (Target != null && (hit.collider.transform == Target || hit.collider.transform.IsChildOf(Target)))
+                        continue;
+
+                    bool tagMatch = false;
+                    for (int i = 0; i < _settings.ObstructionTags.Count; i++)
+                    {
+                        if (hit.collider.CompareTag(_settings.ObstructionTags[i]))
+                        {
+                            tagMatch = true;
+                            break;
+                        }
+                    }
+
+                    if (!tagMatch) continue;
+
+                    if (hit.distance < closestHitDistance)
+                        closestHitDistance = hit.distance;
+                }
+
+                if (closestHitDistance < float.MaxValue)
+                {
+                    didHit = true;
+                    safeDistance = Mathf.Clamp(closestHitDistance - _settings.CollisionPadding, 0f, desiredDistance);
+                }
+            }
+
+            _lastCollisionHit = didHit;
+
+            if (snap || _currentCollisionDistance < 0f)
+            {
+                _currentCollisionDistance = safeDistance;
+            }
+            else
+            {
+                float speed = safeDistance < _currentCollisionDistance
+                    ? _settings.CollisionPullInSpeed
+                    : _settings.CollisionPushOutSpeed;
+                _currentCollisionDistance = Mathf.MoveTowards(_currentCollisionDistance, safeDistance, speed * dt);
+            }
+
+            return pivot + dir * _currentCollisionDistance;
         }
 
         private void HandleZoom(float dt)
@@ -359,6 +457,21 @@ namespace Crease.Flying.Player.Camera
             Vector3 ghostPos = Target.position + rig * _runtimeOffset;
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(ghostPos, 0.5f);
+
+            if (_settings != null && _settings.DrawCollisionGizmo && _lastCollisionDesiredDistance > 0.0001f)
+            {
+                Vector3 desiredEnd = _lastCollisionOrigin + _lastCollisionDir * _lastCollisionDesiredDistance;
+                Vector3 actualEnd = _lastCollisionOrigin + _lastCollisionDir * _currentCollisionDistance;
+
+                // Full desired cast, shown dim.
+                Gizmos.color = new Color(1f, 1f, 1f, 0.25f);
+                Gizmos.DrawLine(_lastCollisionOrigin, desiredEnd);
+
+                // Actual resolved camera distance.
+                Gizmos.color = _lastCollisionHit ? Color.red : Color.green;
+                Gizmos.DrawLine(_lastCollisionOrigin, actualEnd);
+                Gizmos.DrawWireSphere(actualEnd, _settings.CollisionRadius);
+            }
         }
     }
 }

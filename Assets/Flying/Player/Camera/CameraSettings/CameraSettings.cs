@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -75,5 +76,26 @@ namespace Crease.Flying.Player.Camera
         [Range(0f, 1f)]
         [FormerlySerializedAs("horizonRollStabilization")]
         public float HorizonRollStabilization = 0.85f;
+
+        [Header("Collision")]
+        [Tooltip("Tags treated as solid geometry the camera should not clip through. The camera will jump in front of anything on these tags that lies between it and the target.")]
+        public List<string> ObstructionTags = new List<string> { "Obstacle", "Ground" };
+
+        [Tooltip("Radius of the SphereCast used to detect obstructions. Roughly represents how close the camera's near clip plane can safely get to a surface.")]
+        [Min(0.01f)]
+        public float CollisionRadius = 0.3f;
+
+        [Tooltip("Extra distance kept between the camera and any obstructing surface, so the camera doesn't sit flush against it.")]
+        [Min(0f)]
+        public float CollisionPadding = 0.15f;
+
+        [Tooltip("How quickly the camera pulls in toward the target when something obstructs it. Higher = snappier (recommended: fast, to avoid ever clipping even for a frame).")]
+        public float CollisionPullInSpeed = 40f;
+
+        [Tooltip("How quickly the camera pushes back out toward its normal follow distance once the obstruction clears. Kept slower than pull-in to avoid flickering in doorways/gaps.")]
+        public float CollisionPushOutSpeed = 8f;
+
+        [Tooltip("Draws the collision SphereCast and hit state in the Scene view.")]
+        public bool DrawCollisionGizmo = true;
     }
 }
