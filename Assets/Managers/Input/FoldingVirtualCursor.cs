@@ -126,6 +126,21 @@ namespace Crease.Managers.Input
             if (vm == null)
                 return;
 
+            SyncCursorVisual(vm);
+
+            // A real mouse's delta is reset to zero by the backend every frame,
+            // but VirtualMouseInput just stops writing when the stick goes idle,
+            // leaving the last nonzero delta on the device forever. Any later
+            // state change (like our click events below, which copy full device
+            // state) re-broadcasts that stale delta, and the Folding RotateDelta
+            // action (bound to <Mouse>/delta) latches onto it, so the paper spins
+            // by itself while RotateToggle is held. Zeroing right after
+            // VirtualMouseInput's motion update keeps cursor movement out of
+            // mouse-delta bindings entirely (paper rotation belongs to the right
+            // stick, not the cursor stick).
+            if (vm.delta.ReadValue() != Vector2.zero)
+                InputState.Change(vm.delta, Vector2.zero);
+
             // RT acts as the virtual left mouse button: hold to drag the fold
             // handle, tap to click UI buttons / place stickers. (South is taken
             // by Recenter in the folding scheme, so it cannot double as click.)
@@ -145,6 +160,21 @@ namespace Crease.Managers.Input
                 if (pressed)
                     LogUiRaycast(vm.position.ReadValue());
             }
+        }
+
+        /// <summary>
+        /// Places the cursor visual exactly at the virtual mouse's screen position.
+        /// On a Screen Space Overlay canvas, RectTransform.position IS screen pixels,
+        /// so this stays correct for any CanvasScaler configuration. Runs right after
+        /// VirtualMouseInput's own motion update (both on InputSystem.onAfterUpdate;
+        /// it subscribed first).
+        /// </summary>
+        private void SyncCursorVisual(Mouse vm)
+        {
+            if (_cursorRect == null)
+                return;
+            Vector2 screenPosition = vm.position.ReadValue();
+            _cursorRect.position = new Vector3(screenPosition.x, screenPosition.y, 0f);
         }
 
         /// <summary>TEMP: reports what UI element sits under the cursor position.</summary>
@@ -215,7 +245,11 @@ namespace Crease.Managers.Input
             _virtualMouse = _cursorObject.AddComponent<VirtualMouseInput>();
             _virtualMouse.cursorMode = VirtualMouseInput.CursorMode.SoftwareCursor;
             _virtualMouse.cursorGraphic = _cursorImage;
-            _virtualMouse.cursorTransform = _cursorRect;
+            // cursorTransform is deliberately NOT assigned. VirtualMouseInput places
+            // it using per-axis pixelRect/referenceResolution factors, which disagree
+            // with CanvasScaler's uniform match-width factor (HUD: 800x600, match=0)
+            // on non-4:3 screens — the visual drifts vertically away from the real
+            // pointer position. We place the rect ourselves in SyncCursorVisual().
             _virtualMouse.cursorSpeed = _cursorSpeed;
             _virtualMouse.stickAction = new InputActionProperty(_stickAction);
 
@@ -244,9 +278,17 @@ namespace Crease.Managers.Input
 
             if (active)
             {
-                // Center the cursor each time folding begins.
-                _cursorRect.anchoredPosition = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
                 _cursorObject.SetActive(true); // VirtualMouseInput.OnEnable adds the virtual mouse device
+
+                // Center the pointer each time folding begins (the visual follows
+                // via SyncCursorVisual). cursorTransform is not assigned, so
+                // VirtualMouseInput has nothing to seed the position from itself.
+                if (_virtualMouse.virtualMouse != null)
+                {
+                    var center = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+                    InputState.Change(_virtualMouse.virtualMouse.position, center);
+                    SyncCursorVisual(_virtualMouse.virtualMouse);
+                }
 
                 // Drive the click during the input update (before script Updates)
                 // so wasPressedThisFrame is visible to consumers this same frame.
