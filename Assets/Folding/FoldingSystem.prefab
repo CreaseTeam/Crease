@@ -66,7 +66,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 8000
+  far clip plane: 4000
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -168,10 +168,9 @@ Transform:
   m_Children:
   - {fileID: 524420088410891264}
   - {fileID: 5150218660938060951}
-  - {fileID: 3140178347256461329}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &5717690467296709662
+--- !u!1 &5695581247654118810
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -179,10 +178,11 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 531435229781562374}
-  - component: {fileID: 1808193637423921864}
-  - component: {fileID: 8389398031182854560}
-  - component: {fileID: 6793305751287028460}
+  - component: {fileID: 8526611293051543534}
+  - component: {fileID: 5559411859718704963}
+  - component: {fileID: 2936824549558735054}
+  - component: {fileID: 1008834195140893063}
+  - component: {fileID: 282802150516688212}
   m_Layer: 0
   m_Name: Preview
   m_TagString: Untagged
@@ -190,13 +190,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &531435229781562374
+--- !u!4 &8526611293051543534
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5717690467296709662}
+  m_GameObject: {fileID: 5695581247654118810}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -205,67 +205,51 @@ Transform:
   m_Children: []
   m_Father: {fileID: 524420088410891264}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1808193637423921864
+--- !u!114 &5559411859718704963
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5717690467296709662}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ef325bbf05dd354aa330cba63f4240c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.Paper.PaperGraphPreviewRoot
---- !u!114 &8389398031182854560
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5717690467296709662}
+  m_GameObject: {fileID: 5695581247654118810}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bf6c3317140fb084fa3b99ad2f40e435, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.Paper.PaperGraph
+  m_EditorClassIdentifier: Assembly-CSharp::PaperGraph
   Width: 1
-  Height: 1
-  FoldEdgeDarkenWidth: 0.006
-  FoldEdgeMinBrightness: 0.4
-  CreaseEdgeDarkenWidth: 0.006
-  CreaseEdgeMinBrightness: 0.4
-  EdgeShadowDarkenWidth: 0.012
-  EdgeShadowMinBrightness: 0.55
-  EdgeShadowInnerOffset: 0.003
-  GuideLineWidth: 0.005
-  GuideLineColor: {r: 1, g: 1, b: 1, a: 0.85}
+  Height: 1.3
+  BoundaryEdgeDarkenWidth: 0.004
+  BoundaryEdgeMinBrightness: 0.55
+  CreaseDarkenWidth: 0.025
+  CreaseMinBrightness: 0.65
+  GuideLineWidth: 0.4
+  GuideLineColor: {r: 0, g: 0, b: 0, a: 1}
   GuideDashesEnabled: 1
-  GuideDashLength: 0.02
-  GuideDashGap: 0.015
+  GuideDashLength: 0.04
+  GuideDashGap: 0.03
   GuideDashOffset: 0
---- !u!114 &6793305751287028460
+--- !u!114 &2936824549558735054
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5717690467296709662}
+  m_GameObject: {fileID: 5695581247654118810}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1cffdd7f0fe9fe14d8024af722424d7c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.Paper.PaperGraphVisualizer
-  Graph: {fileID: 8389398031182854560}
-  VertexColor: {r: 0, g: 1, b: 0, a: 1}
+  m_EditorClassIdentifier: Assembly-CSharp::PaperGraphVisualizer
+  Graph: {fileID: 5559411859718704963}
+  VertexColor: {r: 0, g: 1, b: 0.99658966, a: 1}
   EdgeColor: {r: 1, g: 1, b: 1, a: 1}
   FoldedEdgeColor: {r: 1, g: 0, b: 0, a: 1}
   VertexSize: 0.005
   EdgeThickness: 2
-  ShowVertexLabels: 0
-  ShowFoldAngles: 0
+  ShowVertexLabels: 1
+  ShowFoldAngles: 1
   ShowMesh: 1
-  DrawGraphStructure: 0
   ShowCoordinateRulers: 0
   ShowHorizontalRuler: 1
   ShowVerticalRuler: 1
@@ -274,16 +258,73 @@ MonoBehaviour:
   RulerHeightOffset: 0.002
   RulerTickSize: 0.02
   RulerColor: {r: 0.35, g: 0.75, b: 1, a: 0.95}
-  MeshMaterial: {fileID: 2100000, guid: 55e8a5b07feb4664e9061676f3ecc8a7, type: 2}
-  MeshMaterials:
-  - {fileID: 2100000, guid: 377409aa24b01794ab9e6e1b0df8d439, type: 2}
-  - {fileID: 2100000, guid: 55e8a5b07feb4664e9061676f3ecc8a7, type: 2}
+  MeshMaterial: {fileID: 0}
+  MeshMaterials: []
   DebugMeshMaterial: {fileID: 0}
-  DebugMeshMaterials: []
+  DebugMeshMaterials:
+  - {fileID: 2100000, guid: 564122fb4b241c44bb94e1f699be6b34, type: 2}
+  - {fileID: 2100000, guid: e3bb627605f041d458e168b69bbc6ce8, type: 2}
   SelectedTagIndex: 0
   TagHighlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   TagHighlightSize: 0.15
   SkipColliderUpdate: 0
+--- !u!33 &1008834195140893063
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5695581247654118810}
+  m_Mesh: {fileID: 0}
+--- !u!23 &282802150516688212
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5695581247654118810}
+  m_Enabled: 0
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 55e8a5b07feb4664e9061676f3ecc8a7, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &7871995204728712934
 GameObject:
   m_ObjectHideFlags: 0
@@ -430,6 +471,7 @@ GameObject:
   - component: {fileID: 6591481184047634249}
   - component: {fileID: 6991035767176078}
   - component: {fileID: 1584305669687720572}
+  - component: {fileID: 4502290895782083903}
   m_Layer: 0
   m_Name: PaperGraph
   m_TagString: MainPaper
@@ -450,7 +492,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 531435229781562374}
+  - {fileID: 8526611293051543534}
   - {fileID: 7342298972137249287}
   m_Father: {fileID: 1700393744000436658}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -468,13 +510,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PaperGraph
   Width: 1
   Height: 1.3
-  FoldEdgeDarkenWidth: 0.03
-  FoldEdgeMinBrightness: 0.75
-  CreaseEdgeDarkenWidth: 0.025
-  CreaseEdgeMinBrightness: 0.65
-  EdgeShadowDarkenWidth: 0.03
-  EdgeShadowMinBrightness: 0.9
-  EdgeShadowInnerOffset: 0.003
+  BoundaryEdgeDarkenWidth: 0.004
+  BoundaryEdgeMinBrightness: 0.55
+  CreaseDarkenWidth: 0.025
+  CreaseMinBrightness: 0.65
   GuideLineWidth: 0.015
   GuideLineColor: {r: 0, g: 0, b: 0, a: 1}
   GuideDashesEnabled: 1
@@ -502,7 +541,6 @@ MonoBehaviour:
   ShowVertexLabels: 1
   ShowFoldAngles: 1
   ShowMesh: 0
-  DrawGraphStructure: 1
   ShowCoordinateRulers: 0
   ShowHorizontalRuler: 1
   ShowVerticalRuler: 1
@@ -512,9 +550,7 @@ MonoBehaviour:
   RulerTickSize: 0.02
   RulerColor: {r: 0.35, g: 0.75, b: 1, a: 0.95}
   MeshMaterial: {fileID: 2100000, guid: 55e8a5b07feb4664e9061676f3ecc8a7, type: 2}
-  MeshMaterials:
-  - {fileID: 2100000, guid: 377409aa24b01794ab9e6e1b0df8d439, type: 2}
-  - {fileID: 2100000, guid: 55e8a5b07feb4664e9061676f3ecc8a7, type: 2}
+  MeshMaterials: []
   DebugMeshMaterial: {fileID: 0}
   DebugMeshMaterials: []
   SelectedTagIndex: 0
@@ -533,8 +569,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba4301bb0d33d264eb04f1a2b9dfa45e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PaperGraphController
-  FoldPoint1: {x: 0, y: 0, z: 0}
-  FoldPoint2: {x: 0, y: 0, z: 0}
+  FoldPoint1: {x: 0, y: 0, z: 0.5}
+  FoldPoint2: {x: 0.5, y: 0, z: 0}
   FoldPlaneVector: {x: 0, y: 1, z: 0}
   FoldDegrees: 180
   FoldOffset: 0.005
@@ -544,13 +580,14 @@ MonoBehaviour:
   IdealDragPosition: {x: 0, y: 0, z: 0}
   DragPlaneNormal: {x: 0, y: 1, z: 0}
   FoldLineHalfLength: 1
-  ShowPreviewMesh: 1
-  ShowPreviewGraphGizmos: 0
-  _legacyPreviewGraph: {fileID: 0}
+  PreviewGraph: {fileID: 5559411859718704963}
+  DecalManager: {fileID: 4502290895782083903}
   ShowFoldGizmo: 1
   GizmoHeight: 0.05
   GizmoColor: {r: 0, g: 1, b: 1, a: 0.3}
-  FoldAxisLocks: []
+  HasFoldAxisLock: 0
+  FoldAxisLockP1: {x: 0, y: 0, z: 0}
+  FoldAxisLockP2: {x: 0, y: 0, z: 0}
   LockedFoldPoint1: {x: 0, y: 0, z: 0}
   LockedFoldPoint2: {x: 0, y: 0, z: 0}
 --- !u!33 &1963187571064873011
@@ -654,65 +691,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PaperRotationHandle
   RotationSpeed: 0.3
   _trackedCamera: {fileID: 4105214768651930174}
---- !u!1001 &138755311124464220
-PrefabInstance:
+--- !u!114 &4502290895782083903
+MonoBehaviour:
   m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 1700393744000436658}
-    m_Modifications:
-    - target: {fileID: 3060427572805237325, guid: fc9ef74f1436ff041bd2c15fe29c4519, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3060427572805237325, guid: fc9ef74f1436ff041bd2c15fe29c4519, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3060427572805237325, guid: fc9ef74f1436ff041bd2c15fe29c4519, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3060427572805237325, guid: fc9ef74f1436ff041bd2c15fe29c4519, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3060427572805237325, guid: fc9ef74f1436ff041bd2c15fe29c4519, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3060427572805237325, guid: fc9ef74f1436ff041bd2c15fe29c4519, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3060427572805237325, guid: fc9ef74f1436ff041bd2c15fe29c4519, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3060427572805237325, guid: fc9ef74f1436ff041bd2c15fe29c4519, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3060427572805237325, guid: fc9ef74f1436ff041bd2c15fe29c4519, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3060427572805237325, guid: fc9ef74f1436ff041bd2c15fe29c4519, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5925904607649284557, guid: fc9ef74f1436ff041bd2c15fe29c4519, type: 3}
-      propertyPath: m_Name
-      value: PaperSurface
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: fc9ef74f1436ff041bd2c15fe29c4519, type: 3}
---- !u!4 &3140178347256461329 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 3060427572805237325, guid: fc9ef74f1436ff041bd2c15fe29c4519, type: 3}
-  m_PrefabInstance: {fileID: 138755311124464220}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8247833909943875533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55d497f5ea4591446a57d2504231fefd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.Decals.PaperDecalManager
+  Controller: {fileID: 3367760010211513509}
+  FoldingCamera: {fileID: 4105214768651930174}
+  BaseSurfaceOffset: 0.0001
+  LayerOffsetStep: 0.00001

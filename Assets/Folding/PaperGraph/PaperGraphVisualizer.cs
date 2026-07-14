@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Crease.Folding.Paper
+namespace Crease.Folding.PaperGraph
 {
     public class PaperGraphVisualizer : MonoBehaviour
     {
@@ -28,8 +28,6 @@ namespace Crease.Folding.Paper
         public bool ShowFoldAngles = true;
         [FormerlySerializedAs("showMesh")]
         public bool ShowMesh = true;
-        [Tooltip("Draw vertices and edges in the Scene view.")]
-        public bool DrawGraphStructure = true;
 
         [Header("Coordinate Rulers")]
         [Tooltip("Draw local X/Z rulers along the paper edges to help place drag handles.")]
@@ -72,29 +70,12 @@ namespace Crease.Folding.Paper
         /// <summary>When true, mesh collider is not updated (avoids PhysX errors during animated preview).</summary>
         public bool SkipColliderUpdate = false;
 
-        public bool DebugPaperTexture { get; private set; }
+        public bool DebugMode { get; private set; }
 
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
         private MeshCollider _meshCollider;
         private Mesh _colliderMesh;
-        private PaperGraph _shadingSettingsGraph;
-        private bool _shadingSettingsResolved;
-
-        private PaperGraph ShadingSettingsGraph {
-            get {
-                if (_shadingSettingsResolved)
-                    return _shadingSettingsGraph ?? Graph;
-
-                _shadingSettingsResolved = true;
-                if (GetComponent<PaperGraphPreviewRoot>() != null) {
-                    PaperGraphController controller = GetComponentInParent<PaperGraphController>();
-                    _shadingSettingsGraph = controller != null ? controller.AuthoringGraph : null;
-                }
-
-                return _shadingSettingsGraph ?? Graph;
-            }
-        }
 
         private void Awake() {
             _meshFilter = GetComponent<MeshFilter>();
@@ -124,12 +105,6 @@ namespace Crease.Folding.Paper
             if (Graph == null) return;
 
             UpdateMesh();
-
-            if (!DrawGraphStructure)
-            {
-                Gizmos.matrix = Matrix4x4.identity;
-                return;
-            }
 
             Gizmos.matrix = Graph.transform.localToWorldMatrix;
 
@@ -235,32 +210,11 @@ namespace Crease.Folding.Paper
 #endif
         }
 
-        public void SetDebugPaperTexture(bool enabled) {
-            if (DebugPaperTexture == enabled)
+        public void SetDebugMode(bool enabled) {
+            if (DebugMode == enabled)
                 return;
 
-            DebugPaperTexture = enabled;
-            UpdateMesh();
-        }
-
-        /// <summary>
-        /// Swaps the FRONT submesh material (submesh 0 — see PaperGraph.GenerateMesh)
-        /// and re-applies it. If the material array isn't sized for both faces yet,
-        /// it is normalized to [front, back] so the swap actually takes effect.
-        /// </summary>
-        public void SetFrontMaterial(Material material) {
-            if (material == null) return;
-
-            const int subMeshCount = 2; // front + back
-            if (MeshMaterials == null || MeshMaterials.Length < subMeshCount) {
-                Material back = (MeshMaterials != null && MeshMaterials.Length > 1) ? MeshMaterials[1]
-                              : (MeshMaterials != null && MeshMaterials.Length == 1) ? MeshMaterials[0]
-                              : MeshMaterial;
-                MeshMaterials = new[] { material, back };
-            } else {
-                MeshMaterials[0] = material;
-            }
-
+            DebugMode = enabled;
             UpdateMesh();
         }
 
@@ -272,8 +226,8 @@ namespace Crease.Folding.Paper
                 _meshFilter.sharedMesh = generatedMesh;
                 _meshRenderer.enabled = true;
 
-                Material[] meshMaterials = DebugPaperTexture ? DebugMeshMaterials : MeshMaterials;
-                Material meshMaterial = DebugPaperTexture ? DebugMeshMaterial : MeshMaterial;
+                Material[] meshMaterials = DebugMode ? DebugMeshMaterials : MeshMaterials;
+                Material meshMaterial = DebugMode ? DebugMeshMaterial : MeshMaterial;
 
                 if (meshMaterials != null && meshMaterials.Length >= generatedMesh.subMeshCount) {
                     _meshRenderer.sharedMaterials = meshMaterials;
@@ -290,7 +244,7 @@ namespace Crease.Folding.Paper
                     _meshCollider.convex = false;
                 }
 
-                PaperShading.ApplyEdgeSegments(_meshRenderer, Graph, ShadingSettingsGraph);
+                PaperEdgeShading.Apply(_meshRenderer, Graph);
             } else {
                 _meshFilter.sharedMesh = null;
                 _meshRenderer.enabled = false;

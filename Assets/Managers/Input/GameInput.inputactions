@@ -34,18 +34,9 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "PrimaryAbility",
+                    "name": "ActivateAbility",
                     "type": "Button",
                     "id": "500b201b-64ed-4710-b93e-ea7869be9473",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "SecondaryAbility",
-                    "type": "Button",
-                    "id": "452b5353-8254-4316-88db-b0c2d527a31c",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -206,7 +197,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "PrimaryAbility",
+                    "action": "ActivateAbility",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -217,7 +208,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
-                    "action": "PrimaryAbility",
+                    "action": "ActivateAbility",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -363,28 +354,6 @@
                     "action": "CenterCamera",
                     "isComposite": false,
                     "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "97db6bca-e3af-4a32-ba2e-37d0fc5cf541",
-                    "path": "<Keyboard>/leftShift",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "SecondaryAbility",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "86ed051e-7bea-40eb-8755-fa267923f43b",
-                    "path": "<Gamepad>/leftTrigger",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "SecondaryAbility",
-                    "isComposite": false,
-                    "isPartOfComposite": false
                 }
             ]
         },
@@ -424,7 +393,7 @@
                 {
                     "name": "",
                     "id": "a2ff8831-7274-4a55-b9d6-9b0ff4d8c0f6",
-                    "path": "<Keyboard>/capsLock",
+                    "path": "<Keyboard>/shift",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
@@ -435,7 +404,7 @@
                 {
                     "name": "",
                     "id": "78c89886-fd1b-4ef5-bc9f-58cca709771e",
-                    "path": "<Gamepad>/leftShoulder",
+                    "path": "<Gamepad>/leftTrigger",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
@@ -546,15 +515,6 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
-                },
-                {
-                    "name": "Pause",
-                    "type": "Button",
-                    "id": "f06d26dd-ced9-4b72-a121-7978dc3b0338",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -830,28 +790,6 @@
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "RotateSticker",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "3e20f0ab-c03b-4e85-8ee6-9d5ecb18818e",
-                    "path": "<Keyboard>/escape",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "Pause",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "f12fc6d5-69eb-4d92-856c-30a5868d3af9",
-                    "path": "<Gamepad>/start",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "Pause",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

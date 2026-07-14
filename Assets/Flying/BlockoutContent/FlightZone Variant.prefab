@@ -21,14 +21,6 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
-      propertyPath: OnTriggerExited.m_PersistentCalls.m_Calls.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
-      propertyPath: OnTriggerEntered.m_PersistentCalls.m_Calls.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
       propertyPath: onTriggerExit.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 1
       objectReference: {fileID: 0}
@@ -37,27 +29,11 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
-      propertyPath: OnTriggerExited.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
       propertyPath: onTriggerExit.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 7441502338079060954}
     - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
-      propertyPath: OnTriggerEntered.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
       propertyPath: onTriggerEnter.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 7441502338079060954}
-    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
-      propertyPath: OnTriggerExited.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 7441502338079060954}
-    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
-      propertyPath: OnTriggerEntered.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 7441502338079060954}
     - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
@@ -73,23 +49,7 @@ PrefabInstance:
       value: RemoveModifier
       objectReference: {fileID: 0}
     - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
-      propertyPath: OnTriggerExited.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
       propertyPath: onTriggerEnter.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: MatchTargetSettings
-      objectReference: {fileID: 0}
-    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
-      propertyPath: OnTriggerEntered.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
-      propertyPath: OnTriggerExited.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: RemoveModifier
-      objectReference: {fileID: 0}
-    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
-      propertyPath: OnTriggerEntered.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: MatchTargetSettings
       objectReference: {fileID: 0}
     - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
@@ -101,19 +61,7 @@ PrefabInstance:
       value: FlightStatsModifier, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
-      propertyPath: OnTriggerExited.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: FlightStatsModifier, Assembly-CSharp
-      objectReference: {fileID: 0}
-    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
-      propertyPath: OnTriggerEntered.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: Crease.Flying.Player.FlightStatsModifier, Assembly-CSharp
-      objectReference: {fileID: 0}
-    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
       propertyPath: onTriggerEnter.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
-      value: 
-      objectReference: {fileID: 11400000, guid: 9d55ef9bf95a6f2428b90e290621ca93, type: 2}
-    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
-      propertyPath: OnTriggerEntered.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
       value: 
       objectReference: {fileID: 11400000, guid: 9d55ef9bf95a6f2428b90e290621ca93, type: 2}
     - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
@@ -123,14 +71,6 @@ PrefabInstance:
     - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
       propertyPath: onTriggerEnter.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: FlightSettings, Assembly-CSharp
-      objectReference: {fileID: 0}
-    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
-      propertyPath: OnTriggerExited.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Object, UnityEngine
-      objectReference: {fileID: 0}
-    - target: {fileID: 5009025837706572730, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
-      propertyPath: OnTriggerEntered.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: Crease.Flying.Player.FlightSettings, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 8121321412320970009, guid: 052195129e0412e4fb50a1f8c37096c9, type: 3}
       propertyPath: m_LocalScale.x
@@ -209,5 +149,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96654bdf03f81924ebf1677125653eee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlightStatsModifier
-  StatType: 0
-  ModifierValue: 0
+  statType: 0
+  modifierValue: 0

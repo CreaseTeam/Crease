@@ -10,10 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 886023622550707924}
   - component: {fileID: 1828092180999132405}
+  - component: {fileID: 8919605034283263958}
   - component: {fileID: 2994393332591196646}
   - component: {fileID: 5187064691994786596}
-  - component: {fileID: 8103963219421940921}
-  - component: {fileID: 986002664352057892}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -68,7 +67,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 8000
+  far clip plane: 4000
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -87,6 +86,14 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!81 &8919605034283263958
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1223776982513680127}
+  m_Enabled: 1
 --- !u!114 &2994393332591196646
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -143,46 +150,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95fd3cc307a19984a87e74734795eb14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
-  Target: {fileID: 0}
-  FlightController: {fileID: 0}
-  _settings: {fileID: 11400000, guid: 1e43676e13e4a9448bad79f4b3440402, type: 2}
---- !u!114 &8103963219421940921
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1223776982513680127}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ae9bd8936cb5442e8fdf7c5e342a4c3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: AK.Wwise.Unity.MonoBehaviour::AkGameObj
-  m_listeners:
-    initialListenerList: []
-    useDefaultListeners: 1
-  isEnvironmentAware: 0
-  isStaticObject: 0
-  usePositionOffsetData: 0
-  m_positionOffsetData:
-    KeepMe: 0
-    positionOffset: {x: 0, y: 0, z: 0}
-  scalingFactor: 1
-  m_posOffsetData: {fileID: 0}
-  listenerMask: 1
---- !u!114 &986002664352057892
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1223776982513680127}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62749dbc44c874689bbc6361f1088f1b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: AK.Wwise.Unity.MonoBehaviour::AkAudioListener
-  isDefaultListener: 1
-  bOverrideScalingFactor: 0
-  scalingFactor: -1
-  listenerId: 0
+  target: {fileID: 0}
+  flightController: {fileID: 0}
+  settings: {fileID: 11400000, guid: 1e43676e13e4a9448bad79f4b3440402, type: 2}

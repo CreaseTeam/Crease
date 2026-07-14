@@ -14,13 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Player.Loadouts.PlaneLoadout
   FoldInstruction: {fileID: 11400000, guid: 606917080b5d3db418e2276f4d710500, type: 2}
   FlightSettings: {fileID: 11400000, guid: 9d55ef9bf95a6f2428b90e290621ca93, type: 2}
-  PrimaryAbility: {fileID: 11400000, guid: 4b29948a4ebb6464d96d991381d33e76, type: 2}
-  SecondaryAbility: {fileID: 11400000, guid: d2e3f405162738495a6b7c8d9e0f1a2b, type: 2}
-  DisplayName: Spinner
-  Image: {fileID: 0}
-  Description: A balanced all-rounder with dependable handling in most situations.
-  Speed: 3
-  Control: 3
-  Durability: 3
-  WindResistance: 3
-  AbilityDescription: Dash forward with a burst of speed and brief invincibility.
+  Ability: {fileID: 11400000, guid: 4b29948a4ebb6464d96d991381d33e76, type: 2}

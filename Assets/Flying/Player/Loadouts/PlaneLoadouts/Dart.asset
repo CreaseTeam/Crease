@@ -15,11 +15,3 @@ MonoBehaviour:
   FoldInstruction: {fileID: 11400000, guid: f6614e182e3a7a944b0a8ca13b863877, type: 2}
   FlightSettings: {fileID: 11400000, guid: 204397c0df06b994a97bdd15b29c59df, type: 2}
   Ability: {fileID: 11400000, guid: 4b29948a4ebb6464d96d991381d33e76, type: 2}
-  DisplayName: Dart
-  Image: {fileID: 21300000, guid: 980e517a92a23fe4483c378305e395e6, type: 3}
-  Description: Fast. Small, able to fit through especially tiny spaces.
-  Speed: 5
-  Control: 3
-  Durability: 2
-  WindResistance: 2
-  AbilityDescription: 'Triple Dash: Can dash up to 3 times in a row.'

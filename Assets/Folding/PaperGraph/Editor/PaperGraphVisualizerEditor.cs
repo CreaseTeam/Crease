@@ -2,24 +2,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace Crease.Folding.Paper.Editor
+namespace Crease.Folding.PaperGraph.Editor
 {
     [CustomEditor(typeof(PaperGraphVisualizer))]
     public class PaperGraphVisualizerEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI() {
-            PaperGraphVisualizer visualizer = (PaperGraphVisualizer)target;
-
-            if (visualizer.GetComponent<PaperGraphPreviewRoot>() != null)
-            {
-                EditorGUILayout.HelpBox(
-                    "This preview visualizer is managed by PaperGraphController on the parent. "
-                    + "Mesh materials and preview display options are configured on the parent.",
-                    MessageType.Info);
-                return;
-            }
-
             DrawDefaultInspector();
+
+            PaperGraphVisualizer visualizer = (PaperGraphVisualizer)target;
 
             if (GUI.changed)
                 SceneView.RepaintAll();

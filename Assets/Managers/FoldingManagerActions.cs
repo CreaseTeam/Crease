@@ -1,5 +1,5 @@
 using UnityEngine;
-using Crease.Folding.Paper;
+using Crease.Folding.PaperGraph;
 
 namespace Crease.Managers
 {

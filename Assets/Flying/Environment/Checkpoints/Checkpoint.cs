@@ -1,6 +1,5 @@
-using Crease.Folding.Paper;
-using Crease.UI;
 using UnityEngine;
+using Crease.Folding.PaperGraph;
 
 namespace Crease.Flying.Environment.Checkpoints
 {
@@ -15,13 +14,7 @@ namespace Crease.Flying.Environment.Checkpoints
 
         public void TriggerCheckpoint()
         {
-            if (HUDCanvas.Instance != null)
-                HUDCanvas.Instance.SetRefoldAvailable(true);
-
-            if (FoldingManager.Instance != null)
-                FoldingManager.Instance.EnterFoldingMode();
-            else
-                Debug.LogWarning("Checkpoint: no FoldingManager in scene.");
+            FoldingManager.Instance.EnterFoldingMode();
             Debug.Log("Checkpoint triggered!");
 
             if (_meshRenderer != null)

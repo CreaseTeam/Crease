@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Crease.Folding.Paper.Editor
+namespace Crease.Folding.PaperGraph.Editor
 {
     [CustomPropertyDrawer(typeof(FilterTagsAttribute))]
     public class FilterTagsPropertyDrawer : PropertyDrawer

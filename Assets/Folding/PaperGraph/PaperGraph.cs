@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Crease.Folding.Paper
+namespace Crease.Folding.PaperGraph
 {
 
 public class PaperGraph : MonoBehaviour
@@ -22,35 +22,26 @@ public class PaperGraph : MonoBehaviour
     [FormerlySerializedAs("height")]
     public float Height = 1f;
 
-    [Header("Fold Edge Shading")]
-    [Tooltip("Object-space falloff for committed fold edges.")]
+    [Header("Boundary Edge Shading")]
+    [Tooltip("Object-space falloff for darkening near the outer sheet edges.")]
     [Min(0f)]
-    public float FoldEdgeDarkenWidth = 0.006f;
-    [Tooltip("Surface brightness on a committed fold edge (1 = off).")]
+    [FormerlySerializedAs("EdgeDarkenWidth")]
+    public float BoundaryEdgeDarkenWidth = 0.004f;
+    [Tooltip("Surface brightness at a boundary edge (1 = off).")]
     [Range(0f, 1f)]
-    public float FoldEdgeMinBrightness = 0.4f;
+    [FormerlySerializedAs("EdgeMinBrightness")]
+    public float BoundaryEdgeMinBrightness = 0.55f;
 
-    [Header("Crease Edge Shading")]
-    [Tooltip("Object-space falloff for topology-only crease edges.")]
+    [Header("Crease Line Shading")]
+    [Tooltip("Object-space falloff for fold/crease lines left on the paper.")]
     [Min(0f)]
-    public float CreaseEdgeDarkenWidth = 0.006f;
-    [Tooltip("Surface brightness on a crease edge (1 = off).")]
+    public float CreaseDarkenWidth = 0.006f;
+    [Tooltip("Surface brightness on a crease line (1 = off).")]
     [Range(0f, 1f)]
-    public float CreaseEdgeMinBrightness = 0.4f;
-
-    [Header("Edge Shadow")]
-    [Tooltip("Object-space falloff for darkening near the paper's original outer edges.")]
-    [Min(0f)]
-    public float EdgeShadowDarkenWidth = 0.012f;
-    [Tooltip("Surface brightness at an outer edge shadow (1 = off).")]
-    [Range(0f, 1f)]
-    public float EdgeShadowMinBrightness = 0.55f;
-    [Tooltip("Gap along the surface before edge shadow begins (object space).")]
-    [Min(0f)]
-    public float EdgeShadowInnerOffset = 0.003f;
+    public float CreaseMinBrightness = 0.4f;
 
     [Header("Fold Guide Line")]
-    [Tooltip("Thickness of each dash perpendicular to the guide line (object space).")]
+    [Tooltip("Object-space width of each guide dash.")]
     [Min(0f)]
     public float GuideLineWidth = 0.005f;
     [Tooltip("Guide dash color.")]
@@ -65,15 +56,6 @@ public class PaperGraph : MonoBehaviour
     public float GuideDashGap = 0.015f;
     [Tooltip("Offset dashes along the guide line.")]
     public float GuideDashOffset = 0f;
-
-#if UNITY_EDITOR
-    private void OnValidate() {
-        if (GetComponent<PaperGraphPreviewRoot>() != null)
-            return;
-
-        GetComponent<PaperGraphController>()?.RefreshDisplayMeshes();
-    }
-#endif
 
     private List<PaperGraphSnapshot> _undoStack = new List<PaperGraphSnapshot>();
     private List<PaperGraphSnapshot> _redoStack = new List<PaperGraphSnapshot>();
@@ -199,159 +181,7 @@ public class PaperGraph : MonoBehaviour
         return faces;
     }
 
-    /// <summary>
-    /// Returns faces whose geometry intersects the fold-axis segment, respecting filter tags.
-    /// Complements <see cref="GetFacesSplitByFoldPlane"/> for crease intersections where the
-    /// axis lies on a face that is not split by the fold's perpendicular plane.
-    /// </summary>
-    public HashSet<Face> GetFacesIntersectingFoldAxis(
-        Vector3 axisStart,
-        Vector3 axisEnd,
-        IReadOnlyList<string> filterTags)
-    {
-        HashSet<Face> faces = new HashSet<Face>();
-        if ((axisEnd - axisStart).sqrMagnitude < FoldPlaneEpsilon * FoldPlaneEpsilon)
-            return faces;
-
-        HashSet<Vertex> filterSet = BuildFilterSet(filterTags);
-
-        foreach (Face face in Faces)
-        {
-            if (!FacePassesFilter(face, filterSet))
-                continue;
-
-            if (FoldAxisIntersectsFace(face, axisStart, axisEnd))
-                faces.Add(face);
-        }
-
-        return faces;
-    }
-
-    /// <summary>
-    /// Faces split by the fold plane plus faces the fold axis passes through.
-    /// </summary>
-    public HashSet<Face> GetFacesForFoldGuide(
-        Vector3 axisStart,
-        Vector3 axisEnd,
-        Vector3 foldSplitPlaneNormal,
-        IReadOnlyList<string> filterTags)
-    {
-        HashSet<Face> faces = GetFacesSplitByFoldPlane(axisStart, foldSplitPlaneNormal, filterTags);
-        foreach (Face face in GetFacesIntersectingFoldAxis(axisStart, axisEnd, filterTags))
-            faces.Add(face);
-        return faces;
-    }
-
-    private static bool FacePassesFilter(Face face, HashSet<Vertex> filterSet)
-    {
-        if (filterSet == null)
-            return true;
-
-        foreach (Vertex vertex in face.Vertices)
-        {
-            if (filterSet.Contains(vertex))
-                return true;
-        }
-
-        return false;
-    }
-
-    private static bool FoldAxisIntersectsFace(Face face, Vector3 segA, Vector3 segB)
-    {
-        int count = face.Vertices.Count;
-        if (count < 3)
-            return false;
-
-        Vector3 anchor = face.Vertices[0].Position;
-        for (int i = 1; i < count - 1; i++)
-        {
-            if (SegmentIntersectsTriangle(
-                    segA,
-                    segB,
-                    anchor,
-                    face.Vertices[i].Position,
-                    face.Vertices[i + 1].Position))
-                return true;
-        }
-
-        return false;
-    }
-
-    private static bool SegmentIntersectsTriangle(
-        Vector3 segA,
-        Vector3 segB,
-        Vector3 p0,
-        Vector3 p1,
-        Vector3 p2)
-    {
-        if (PointInTriangle(segA, p0, p1, p2) || PointInTriangle(segB, p0, p1, p2))
-            return true;
-
-        if (SegmentsIntersect(segA, segB, p0, p1)
-            || SegmentsIntersect(segA, segB, p1, p2)
-            || SegmentsIntersect(segA, segB, p2, p0))
-            return true;
-
-        Vector3 edgeAB = segB - segA;
-        Vector3 triNormal = Vector3.Cross(p1 - p0, p2 - p0);
-        float denom = Vector3.Dot(triNormal, edgeAB);
-        if (Mathf.Abs(denom) < FoldPlaneEpsilon)
-            return false;
-
-        float t = Vector3.Dot(triNormal, p0 - segA) / denom;
-        if (t < -FoldPlaneEpsilon || t > 1f + FoldPlaneEpsilon)
-            return false;
-
-        return PointInTriangle(segA + edgeAB * t, p0, p1, p2);
-    }
-
-    private static bool PointInTriangle(Vector3 point, Vector3 p0, Vector3 p1, Vector3 p2)
-    {
-        Vector3 bary = ComputeBarycentric(p0, p1, p2, point);
-        return bary.x >= -FoldPlaneEpsilon && bary.y >= -FoldPlaneEpsilon && bary.z >= -FoldPlaneEpsilon;
-    }
-
-    private static Vector3 ComputeBarycentric(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 point)
-    {
-        Vector3 v0 = p1 - p0;
-        Vector3 v1 = p2 - p0;
-        Vector3 v2 = point - p0;
-        float d00 = Vector3.Dot(v0, v0);
-        float d01 = Vector3.Dot(v0, v1);
-        float d11 = Vector3.Dot(v1, v1);
-        float d20 = Vector3.Dot(v2, v0);
-        float d21 = Vector3.Dot(v2, v1);
-        float denom = d00 * d11 - d01 * d01;
-        if (Mathf.Abs(denom) < FoldPlaneEpsilon * FoldPlaneEpsilon)
-            return new Vector3(-1f, -1f, -1f);
-
-        float v = (d11 * d20 - d01 * d21) / denom;
-        float w = (d00 * d21 - d01 * d20) / denom;
-        float u = 1f - v - w;
-        return new Vector3(u, v, w);
-    }
-
-    private static bool SegmentsIntersect(Vector3 a, Vector3 b, Vector3 c, Vector3 d)
-    {
-        Vector3 r = b - a;
-        Vector3 s = d - c;
-        Vector3 crossRs = Vector3.Cross(r, s);
-        float denom = crossRs.sqrMagnitude;
-        if (denom < FoldPlaneEpsilon * FoldPlaneEpsilon)
-            return false;
-
-        float t = Vector3.Dot(Vector3.Cross(c - a, s), crossRs) / denom;
-        float u = Vector3.Dot(Vector3.Cross(c - a, r), crossRs) / denom;
-        return t >= -FoldPlaneEpsilon
-            && t <= 1f + FoldPlaneEpsilon
-            && u >= -FoldPlaneEpsilon
-            && u <= 1f + FoldPlaneEpsilon;
-    }
-
     private void Start() {
-        if (GetComponent<PaperGraphPreviewRoot>() != null)
-            return;
-
         Vertices.Clear();
         Edges.Clear();
         Faces.Clear();
@@ -374,7 +204,7 @@ public class PaperGraph : MonoBehaviour
 
         // Split edges along the fold plane; crease edges produced by SplitFace will carry signedOffset.
         bool splitValid;
-        List<Vertex> splitVertices = SplitEdgesCrossingPlane(foldPoint1, planeNormal, degrees, filterSet, signedOffset, false, out splitValid);
+        List<Vertex> splitVertices = SplitEdgesCrossingPlane(foldPoint1, planeNormal, degrees, filterSet, signedOffset, out splitValid);
 
         // Also invalid if the fold axis doesn't cleanly cross the paper (< 2 intersection points):
         // this means the axis missed the mesh entirely, or only grazed a single corner, and the
@@ -491,7 +321,7 @@ public class PaperGraph : MonoBehaviour
         Vector3 planeNormal = Vector3.Cross(foldAxis, planeVector).normalized;
 
         bool splitValid;
-        List<Vertex> splitVertices = SplitEdgesCrossingPlane(foldPoint1, planeNormal, foldAngle, filterSet, 0f, true, out splitValid);
+        List<Vertex> splitVertices = SplitEdgesCrossingPlane(foldPoint1, planeNormal, foldAngle, filterSet, 0f, out splitValid);
 
         if (!splitValid || splitVertices.Count < 2) {
             PaperGraphSnapshot bad = _undoStack[_undoStack.Count - 1];
@@ -695,8 +525,6 @@ public class PaperGraph : MonoBehaviour
         edgeB.FoldAngle = edge.FoldAngle;
         edgeA.FoldOffset = edge.FoldOffset;
         edgeB.FoldOffset = edge.FoldOffset;
-        edgeA.IsCreaseEdge = edge.IsCreaseEdge;
-        edgeB.IsCreaseEdge = edge.IsCreaseEdge;
         edgeA.Face1 = edge.Face1;
         edgeA.Face2 = edge.Face2;
         edgeB.Face1 = edge.Face1;
@@ -746,8 +574,6 @@ public class PaperGraph : MonoBehaviour
         edgeB.FoldAngle = edge.FoldAngle;
         edgeA.FoldOffset = edge.FoldOffset;
         edgeB.FoldOffset = edge.FoldOffset;
-        edgeA.IsCreaseEdge = edge.IsCreaseEdge;
-        edgeB.IsCreaseEdge = edge.IsCreaseEdge;
         edgeA.Face1 = edge.Face1;
         edgeA.Face2 = edge.Face2;
         edgeB.Face1 = edge.Face1;
@@ -767,7 +593,7 @@ public class PaperGraph : MonoBehaviour
         return split;
     }
 
-    public List<Vertex> SplitEdgesCrossingPlane(Vector3 planePoint, Vector3 planeNormal, float foldAngle, HashSet<Vertex> filterSet, float foldOffset, bool isCreaseEdge, out bool isValid) {
+    public List<Vertex> SplitEdgesCrossingPlane(Vector3 planePoint, Vector3 planeNormal, float foldAngle, HashSet<Vertex> filterSet, float foldOffset, out bool isValid) {
         isValid = true;
         List<Edge> edgeSnapshot = new List<Edge>(Edges);
         Dictionary<Face, List<Vertex>> faceSplitVertices = new Dictionary<Face, List<Vertex>>();
@@ -810,8 +636,6 @@ public class PaperGraph : MonoBehaviour
             Edge edgeB = new Edge(vNew, oldEdge.V2);
             edgeA.FoldAngle = oldEdge.FoldAngle;
             edgeB.FoldAngle = oldEdge.FoldAngle;
-            edgeA.IsCreaseEdge = oldEdge.IsCreaseEdge;
-            edgeB.IsCreaseEdge = oldEdge.IsCreaseEdge;
             edgeA.Face1 = oldEdge.Face1;
             edgeA.Face2 = oldEdge.Face2;
             edgeB.Face1 = oldEdge.Face1;
@@ -869,7 +693,7 @@ public class PaperGraph : MonoBehaviour
         // Split any face that had exactly two edges cut by the plane
         foreach (var kvp in faceSplitVertices) {
             if (kvp.Value.Count == 2)
-                SplitFace(kvp.Value[0], kvp.Value[1], kvp.Key, foldAngle, foldOffset, isCreaseEdge);
+                SplitFace(kvp.Value[0], kvp.Value[1], kvp.Key, foldAngle, foldOffset);
             else if (kvp.Value.Count > 2)
                 isValid = false;
         }
@@ -877,7 +701,7 @@ public class PaperGraph : MonoBehaviour
         return newSplitVertices;
     }
 
-    public void SplitFace(Vertex vA, Vertex vB, Face face, float foldAngle = 180f, float foldOffset = 0f, bool isCreaseEdge = false) {
+    public void SplitFace(Vertex vA, Vertex vB, Face face, float foldAngle = 180f, float foldOffset = 0f) {
         int idxA = face.Vertices.IndexOf(vA);
         int idxB = face.Vertices.IndexOf(vB);
 
@@ -895,7 +719,6 @@ public class PaperGraph : MonoBehaviour
         Edge splitEdge = new Edge(vA, vB);
         splitEdge.FoldAngle = foldAngle;
         splitEdge.FoldOffset = foldOffset;
-        splitEdge.IsCreaseEdge = isCreaseEdge;
         Edges.Add(splitEdge);
 
         // --- Build face1: vertices[idxA..idxB], closed by splitEdge ---
@@ -1243,7 +1066,6 @@ public class PaperGraph : MonoBehaviour
             Edge clone = new Edge(vertexMap[e.V1], vertexMap[e.V2]);
             clone.FoldAngle = e.FoldAngle;
             clone.FoldOffset = e.FoldOffset;
-            clone.IsCreaseEdge = e.IsCreaseEdge;
             edgeMap[e] = clone;
             clonedEdges.Add(clone);
         }
@@ -1299,8 +1121,8 @@ public class PaperGraph : MonoBehaviour
     /// Each face is fan-triangulated from its first vertex.
     /// Normals are computed per fan triangle so creases stay hard and non-planar poses
     /// (such as mid-accordion collapse) stay visible. Back faces are appended with reversed
-    /// winding and negated normals. UV2 stores a per-face index used by the crease
-    /// shading shader to select only that face's crease segments at each pixel.
+    /// winding and negated normals. UV2 stores a per-face index used by the edge
+    /// darkening shader to select only that face's feature edges at each pixel.
     /// </summary>
     public Mesh GenerateMesh() {
         List<Vector3> positions = new List<Vector3>();
@@ -1382,16 +1204,10 @@ public class PaperGraph : MonoBehaviour
 #if UNITY_EDITOR
     /// <summary>
     /// Saves the current mesh as an asset file in the project natively using a timestamp.
-    /// Bakes the active fold instruction's <see cref="FoldInstruction.FlightMeshRotation"/> so +Z is model front.
     /// </summary>
     public void SaveCurrentMeshAsAsset()
     {
-        Mesh rawMesh = GenerateMesh();
-        Quaternion flightOrientation = GetActiveFlightMeshRotation();
-        Mesh mesh = FlightMeshBaker.BakeFlightMesh(rawMesh, flightOrientation);
-
-        if (rawMesh != mesh)
-            DestroyImmediate(rawMesh);
+        Mesh mesh = GenerateMesh();
         
         string timestamp = System.DateTime.Now.ToString("yyyyMMdd_HHmmss");
         string filename = $"Assets/Folding/SavedAssets/PaperMesh_{timestamp}.asset";
@@ -1404,17 +1220,7 @@ public class PaperGraph : MonoBehaviour
 
         UnityEditor.AssetDatabase.CreateAsset(mesh, filename);
         UnityEditor.AssetDatabase.SaveAssets();
-        Debug.Log($"PaperGraph: Saved current mesh to {filename} (flight rotation {flightOrientation.eulerAngles})");
-    }
-
-    private Quaternion GetActiveFlightMeshRotation()
-    {
-        FoldInstructionRunner runner = GetComponentInParent<FoldInstructionRunner>();
-        if (runner?.Instruction != null)
-            return Quaternion.Euler(runner.Instruction.FlightMeshRotation);
-
-        Debug.LogWarning("PaperGraph: No FoldInstructionRunner/Instruction found — saving mesh without flight rotation.");
-        return Quaternion.identity;
+        Debug.Log($"PaperGraph: Saved current mesh to {filename}");
     }
 #endif
 }
@@ -1434,8 +1240,6 @@ public class Edge {
     public float FoldAngle = 180f;
     /// <summary>Hinge thickness offset stored on crease edges during flat folds. Zero for non-hinge edges.</summary>
     public float FoldOffset = 0f;
-    /// <summary>True for topology-only crease edges from <see cref="PaperGraph.ExecuteCrease"/>.</summary>
-    public bool IsCreaseEdge = false;
     public Face Face1;  // One adjacent face
     public Face Face2;  // Other adjacent face (null for boundary)
 

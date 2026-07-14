@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 
-namespace Crease.Folding.Paper
+namespace Crease.Folding.PaperGraph
 {
     /// <summary>
     /// A draggable handle that drives PaperGraphController fold values.

@@ -30,13 +30,10 @@ namespace Crease.Managers.Input
         public bool BoostPressed => Actions.Debug.Boost.IsPressed() || _micBoostActive;
         public bool BoostTriggered => Actions.Debug.Boost.WasPerformedThisFrame();
         public bool ResetTriggered => Actions.Debug.Reset.WasPerformedThisFrame();
-        public bool PrimaryAbilityPressed => Actions.Player.PrimaryAbility.WasPerformedThisFrame();
-        public bool SecondaryAbilityPressed => Actions.Player.SecondaryAbility.WasPerformedThisFrame();
+        public bool ActivateAbilityPressed => Actions.Player.ActivateAbility.WasPerformedThisFrame();
         public bool DropTriggered => Actions.Player.Drop.WasPerformedThisFrame();
         public bool ReturnTriggered => Actions.Player.Return.WasPerformedThisFrame();
-        public bool PauseTriggered =>
-            Actions.Player.Pause.WasPerformedThisFrame()
-            || Actions.Folding.Pause.WasPerformedThisFrame();
+        public bool PauseTriggered => Actions.Player.Pause.WasPerformedThisFrame();
 
         // ── Folding convenience accessors ───────────────────────────────
         public bool RecenterTriggered => Actions.Folding.Recenter.WasPerformedThisFrame();
@@ -68,8 +65,9 @@ namespace Crease.Managers.Input
 
             Actions = new GameInput();
             Actions.Player.Pause.performed += OnPausePerformed;
-            Actions.Folding.Pause.performed += OnPausePerformed;
             Actions.Player.Enable();
+
+            Actions.Debug.Enable();
         }
 
         void OnDestroy()
@@ -78,10 +76,7 @@ namespace Crease.Managers.Input
             {
                 StopMic();
                 if (Actions != null)
-                {
                     Actions.Player.Pause.performed -= OnPausePerformed;
-                    Actions.Folding.Pause.performed -= OnPausePerformed;
-                }
                 Actions?.Player.Disable();
                 Actions?.Debug.Disable();
                 Actions?.Folding.Disable();
@@ -114,7 +109,7 @@ namespace Crease.Managers.Input
         {
             Actions.Folding.Disable();
             Actions.Player.Enable();
-            SyncDebugControls();
+            Actions.Debug.Enable();
 
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Confined;
@@ -124,30 +119,6 @@ namespace Crease.Managers.Input
                 // Instantly snap physical mouse coordinate to center screen (no hardware lag trailing)
                 Mouse.current.WarpCursorPosition(new Vector2(Screen.width / 2f, Screen.height / 2f));
             }
-        }
-
-        /// <summary>
-        /// Enables the Debug action map only when HUDCanvas debug is on and Player controls are active.
-        /// </summary>
-        public void SyncDebugControls()
-        {
-            if (Actions == null)
-                return;
-
-            bool shouldEnable = IsHudDebugEnabled() && Actions.Player.enabled;
-
-            if (shouldEnable)
-                Actions.Debug.Enable();
-            else
-                Actions.Debug.Disable();
-        }
-
-        private static bool IsHudDebugEnabled()
-        {
-            if (HUDCanvas.Instance != null)
-                return HUDCanvas.Instance.Debug;
-
-            return PlayerPrefs.GetInt("Debug", 0) == 1;
         }
 
         // ── Pause callback ────────────────────────────────────────────────
