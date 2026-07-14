@@ -73,11 +73,6 @@ namespace Crease.Folding.Paper
                     _grabOffset = Vector3.zero;
                     if (TryProjectOnDragPlane(ray, out Vector3 grabPoint))
                         _grabOffset = grabPoint - transform.position;
-                    // TEMP diagnostic, remove with the other [VirtualCursor] logs.
-                    Debug.Log($"[VirtualCursor] Drag handle grabbed, grabOffset={_grabOffset.magnitude:F4}");
-                } else {
-                    // TEMP diagnostic, remove with the other [VirtualCursor] logs.
-                    Debug.Log($"[VirtualCursor] Click raycast hit '{hit.collider.gameObject.name}' (not the drag handle)");
                 }
             }
         }

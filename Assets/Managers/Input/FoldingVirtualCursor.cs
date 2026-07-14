@@ -42,9 +42,6 @@ namespace Crease.Managers.Input
         [Tooltip("Trigger value (0-1) at which the right trigger counts as a click.")]
         [SerializeField] private float _clickThreshold = 0.5f;
 
-        [Tooltip("Log cursor/click diagnostics to the console. Turn off once verified.")]
-        [SerializeField] private bool _debugLogging = true;
-
         private VirtualMouseInput _virtualMouse;
         private GameObject _cursorObject;
         private Image _cursorImage;
@@ -80,29 +77,7 @@ namespace Crease.Managers.Input
                 SetActive(shouldBeActive);
 
             if (_active)
-            {
                 UpdateDeviceVisibility();
-                if (_debugLogging)
-                    LogFoldingInputs();
-            }
-        }
-
-        /// <summary>TEMP: reports whether the Folding-map gamepad actions are firing.</summary>
-        private void LogFoldingInputs()
-        {
-            if (InputManager.Instance == null || InputManager.Instance.Actions == null)
-                return;
-
-            var folding = InputManager.Instance.Actions.Folding;
-            if (folding.ExecuteFold.WasPerformedThisFrame())
-                Debug.Log("[VirtualCursor] Folding.ExecuteFold performed (East)");
-            if (folding.Recenter.WasPerformedThisFrame())
-                Debug.Log("[VirtualCursor] Folding.Recenter performed (South)");
-
-            float scale = folding.ScaleSticker.ReadValue<float>();
-            float rotate = folding.RotateSticker.ReadValue<float>();
-            if (Mathf.Abs(scale) > 0.1f || Mathf.Abs(rotate) > 0.1f)
-                Debug.Log($"[VirtualCursor] Folding D-pad scale={scale:F2} rotate={rotate:F2} (map enabled={folding.enabled})");
         }
 
         /// <summary>
@@ -153,13 +128,6 @@ namespace Crease.Managers.Input
             vm.CopyState(out MouseState state);
             state.WithButton(MouseButton.Left, pressed);
             InputState.Change(vm, state);
-
-            if (_debugLogging)
-            {
-                Debug.Log($"[VirtualCursor] RT click={pressed} | Mouse.current={(Mouse.current == vm ? "virtual" : Mouse.current != null ? Mouse.current.name : "null")} | cursorPos={vm.position.ReadValue()}");
-                if (pressed)
-                    LogUiRaycast(vm.position.ReadValue());
-            }
         }
 
         /// <summary>
@@ -175,23 +143,6 @@ namespace Crease.Managers.Input
                 return;
             Vector2 screenPosition = vm.position.ReadValue();
             _cursorRect.position = new Vector3(screenPosition.x, screenPosition.y, 0f);
-        }
-
-        /// <summary>TEMP: reports what UI element sits under the cursor position.</summary>
-        private static void LogUiRaycast(Vector2 screenPosition)
-        {
-            if (EventSystem.current == null)
-            {
-                Debug.Log("[VirtualCursor] UI raycast: no EventSystem");
-                return;
-            }
-
-            var eventData = new PointerEventData(EventSystem.current) { position = screenPosition };
-            var results = new System.Collections.Generic.List<RaycastResult>();
-            EventSystem.current.RaycastAll(eventData, results);
-            Debug.Log(results.Count > 0
-                ? $"[VirtualCursor] UI raycast hit: {results[0].gameObject.name} ({results.Count} total)"
-                : "[VirtualCursor] UI raycast hit nothing");
         }
 
         private void OnDisable()
@@ -254,8 +205,6 @@ namespace Crease.Managers.Input
             _virtualMouse.stickAction = new InputActionProperty(_stickAction);
 
             _built = true;
-            if (_debugLogging)
-                Debug.Log($"[VirtualCursor] Built. canvas={_canvas.name}, EventSystem.current={(EventSystem.current != null ? EventSystem.current.name : "null")}");
         }
 
         private Canvas ResolveCanvas()
@@ -300,9 +249,6 @@ namespace Crease.Managers.Input
                 // so mouse-only users keep their normal cursor.
                 _gamepadMode = false;
                 ApplyCursorVisibility();
-
-                if (_debugLogging)
-                    Debug.Log($"[VirtualCursor] Activated. virtualMouse added={_virtualMouse.virtualMouse != null}, foldingMapEnabled={(InputManager.Instance != null && InputManager.Instance.Actions != null ? InputManager.Instance.Actions.Folding.enabled.ToString() : "n/a")}");
             }
             else
             {
@@ -389,8 +335,6 @@ namespace Crease.Managers.Input
             var go = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
             InputSystemUIInputModule module = go.GetComponent<InputSystemUIInputModule>();
             module.AssignDefaultActions();
-            if (_debugLogging)
-                Debug.Log("[VirtualCursor] No EventSystem found — created one.");
         }
 
         private void NeutralizeUiNavigation()
@@ -417,9 +361,6 @@ namespace Crease.Managers.Input
             // never hovers or clicks UI.
             _uiModule.pointerBehavior = UIPointerBehavior.AllPointersAsIs;
             _navNeutralized = true;
-
-            if (_debugLogging)
-                LogUiModuleState();
         }
 
         private void RestoreUiNavigation()
@@ -435,30 +376,6 @@ namespace Crease.Managers.Input
             _uiModule.cancel = _savedCancel;
             _uiModule.pointerBehavior = _savedPointerBehavior;
             _navNeutralized = false;
-        }
-
-        /// <summary>TEMP: reports whether the UI module resolved the virtual mouse.</summary>
-        private void LogUiModuleState()
-        {
-            Mouse vm = _virtualMouse != null ? _virtualMouse.virtualMouse : null;
-            InputAction point = _uiModule.point != null ? _uiModule.point.action : null;
-
-            bool pointSeesVirtualMouse = false;
-            if (point != null && vm != null)
-            {
-                foreach (InputControl control in point.controls)
-                {
-                    if (control.device == vm)
-                    {
-                        pointSeesVirtualMouse = true;
-                        break;
-                    }
-                }
-            }
-
-            Debug.Log($"[VirtualCursor] UI module '{_uiModule.name}': pointEnabled={point?.enabled}, "
-                + $"pointSeesVirtualMouse={pointSeesVirtualMouse}, pointerBehavior={_uiModule.pointerBehavior}, "
-                + $"actionsAsset={(_uiModule.actionsAsset != null ? _uiModule.actionsAsset.name : "null")}");
         }
 
         private InputSystemUIInputModule ResolveUiModule()

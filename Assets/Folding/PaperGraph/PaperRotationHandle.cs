@@ -25,10 +25,6 @@ namespace Crease.Folding.Paper
             {
                 Vector2 deltaPos = InputManager.Instance.RotatePaperDelta;
 
-                // TEMP diagnostic, remove with the other [VirtualCursor] logs.
-                if (deltaPos.sqrMagnitude > 0.01f)
-                    Debug.Log($"[VirtualCursor] PaperRotationHandle rotating, delta={deltaPos}");
-
                 transform.Rotate(_trackedCamera.transform.up, -deltaPos.x * RotationSpeed, Space.World);
                 transform.Rotate(_trackedCamera.transform.right, deltaPos.y * RotationSpeed, Space.World);
             }
