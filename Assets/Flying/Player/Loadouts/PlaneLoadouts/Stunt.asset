@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1a2b3c4d5e6f7890123456789abcd08, type: 3}
+  m_Name: Stunt
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Player.Loadouts.PlaneLoadout
+  FoldInstruction: {fileID: 11400000, guid: 29794bb0305a8314f99ae5c674fa64c6, type: 2}
+  FlightSettings: {fileID: 11400000, guid: 204397c0df06b994a97bdd15b29c59df, type: 2}
+  PrimaryAbility: {fileID: 11400000, guid: aabbccdd11223344556677889900a002, type: 2}
+  SecondaryAbility: {fileID: 11400000, guid: f8a9b0c1d2e3f405162738495a6b7c8d, type: 2}
+  DisplayName: Stunt
+  Image: {fileID: 21300000, guid: 1916761ad7d821448ba77366a4dcbdba, type: 3}
+  Description: Able to do full loops! Provides a wider range of movement possibilities,
+    and now upon reaching a 180-degree angle, the plane will not stall; instead,
+    it will keep going.
+  Speed: 3
+  Control: 5
+  Durability: 3
+  WindResistance: 3
+  AbilityDescription: 'Time Stop: Slow time greatly for a few seconds. Do slick tricks
+    or get through a difficult section with ease. '

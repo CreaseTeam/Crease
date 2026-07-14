@@ -1,80 +1,83 @@
 using UnityEngine;
 using DG.Tweening;
 
-public class ClockworkStomper : MonoBehaviour
+namespace Crease.Flying.BlockoutContent
 {
-    [Header("Movement")]
-    [SerializeField] private float dropDistance = 3f;
-    [SerializeField] private float dropDuration = 0.25f;
-    [SerializeField] private float riseDuration = 1.2f;
-    [SerializeField] private float bottomWait = 0.5f;
-    [SerializeField] private float topWait = 0.5f;
-
-    [Header("Settings")]
-    [SerializeField] private bool triggerOnStart = true;
-    [SerializeField] private bool loop = true;
-
-    [Header("Easing")]
-    [SerializeField] private Ease dropEase = Ease.InQuad;
-    [SerializeField] private Ease riseEase = Ease.OutQuad;
-
-    private Vector3 startLocalPos;
-    private Sequence stompSequence;
-
-    private void Awake()
+    public class ClockworkStomper : MonoBehaviour
     {
-        startLocalPos = transform.localPosition;
-    }
+        [Header("Movement")]
+        [SerializeField] private float _dropDistance = 3f;
+        [SerializeField] private float _dropDuration = 0.25f;
+        [SerializeField] private float _riseDuration = 1.2f;
+        [SerializeField] private float _bottomWait = 0.5f;
+        [SerializeField] private float _topWait = 0.5f;
 
-    private void Start()
-    {
-        if (triggerOnStart)
-            TriggerStomp();
-    }
+        [Header("Settings")]
+        [SerializeField] private bool _triggerOnStart = true;
+        [SerializeField] private bool _loop = true;
 
-    private void OnDisable()
-    {
-        stompSequence?.Kill();
-        stompSequence = null;
-    }
+        [Header("Easing")]
+        [SerializeField] private Ease _dropEase = Ease.InQuad;
+        [SerializeField] private Ease _riseEase = Ease.OutQuad;
 
-    private void OnDestroy()
-    {
-        stompSequence?.Kill();
-    }
+        private Vector3 _startLocalPos;
+        private Sequence _stompSequence;
 
-    public void TriggerStomp()
-    {
-        stompSequence?.Kill();
+        private void Awake()
+        {
+            _startLocalPos = transform.localPosition;
+        }
 
-        transform.localPosition = startLocalPos;
+        private void Start()
+        {
+            if (_triggerOnStart)
+                TriggerStomp();
+        }
 
-        Vector3 bottomPos = startLocalPos + Vector3.down * dropDistance;
+        private void OnDisable()
+        {
+            _stompSequence?.Kill();
+            _stompSequence = null;
+        }
 
-        stompSequence = DOTween.Sequence()
-            .SetLink(gameObject);   // auto-kill with GameObject
+        private void OnDestroy()
+        {
+            _stompSequence?.Kill();
+        }
 
-        stompSequence.Append(
-            transform.DOLocalMove(bottomPos, dropDuration)
-                .SetEase(dropEase)
-        );
+        public void TriggerStomp()
+        {
+            _stompSequence?.Kill();
 
-        stompSequence.AppendInterval(bottomWait);
+            transform.localPosition = _startLocalPos;
 
-        stompSequence.Append(
-            transform.DOLocalMove(startLocalPos, riseDuration)
-                .SetEase(riseEase)
-        );
+            Vector3 bottomPos = _startLocalPos + Vector3.down * _dropDistance;
 
-        stompSequence.AppendInterval(topWait);
+            _stompSequence = DOTween.Sequence()
+                .SetLink(gameObject);
 
-        if (loop)
-            stompSequence.SetLoops(-1, LoopType.Restart);
-    }
+            _stompSequence.Append(
+                transform.DOLocalMove(bottomPos, _dropDuration)
+                    .SetEase(_dropEase)
+            );
 
-    public void StopStomp()
-    {
-        stompSequence?.Kill();
-        stompSequence = null;
+            _stompSequence.AppendInterval(_bottomWait);
+
+            _stompSequence.Append(
+                transform.DOLocalMove(_startLocalPos, _riseDuration)
+                    .SetEase(_riseEase)
+            );
+
+            _stompSequence.AppendInterval(_topWait);
+
+            if (_loop)
+                _stompSequence.SetLoops(-1, LoopType.Restart);
+        }
+
+        public void StopStomp()
+        {
+            _stompSequence?.Kill();
+            _stompSequence = null;
+        }
     }
 }

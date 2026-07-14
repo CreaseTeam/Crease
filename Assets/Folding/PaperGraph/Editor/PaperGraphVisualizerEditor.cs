@@ -2,44 +2,57 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(PaperGraphVisualizer))]
-public class PaperGraphVisualizerEditor : Editor
+namespace Crease.Folding.Paper.Editor
 {
-    public override void OnInspectorGUI() {
-        DrawDefaultInspector();
+    [CustomEditor(typeof(PaperGraphVisualizer))]
+    public class PaperGraphVisualizerEditor : UnityEditor.Editor
+    {
+        public override void OnInspectorGUI() {
+            PaperGraphVisualizer visualizer = (PaperGraphVisualizer)target;
 
-        PaperGraphVisualizer visualizer = (PaperGraphVisualizer)target;
+            if (visualizer.GetComponent<PaperGraphPreviewRoot>() != null)
+            {
+                EditorGUILayout.HelpBox(
+                    "This preview visualizer is managed by PaperGraphController on the parent. "
+                    + "Mesh materials and preview display options are configured on the parent.",
+                    MessageType.Info);
+                return;
+            }
 
-        if (visualizer.graph == null || visualizer.graph.tags == null || visualizer.graph.tags.Count == 0) {
-            EditorGUILayout.HelpBox("No tags available. Execute a fold with a tag name to populate tags.", MessageType.Info);
-            visualizer.selectedTagIndex = 0;
-            return;
-        }
+            DrawDefaultInspector();
 
-        // Build dropdown options: "None" + all tag keys
-        List<string> tagKeys = new List<string>(visualizer.graph.tags.Keys);
-        List<string> options = new List<string> { "(None)" };
-        options.AddRange(tagKeys);
+            if (GUI.changed)
+                SceneView.RepaintAll();
 
-        // Clamp index to valid range
-        if (visualizer.selectedTagIndex >= options.Count)
-            visualizer.selectedTagIndex = 0;
+            if (visualizer.Graph == null || visualizer.Graph.Tags == null || visualizer.Graph.Tags.Count == 0) {
+                EditorGUILayout.HelpBox("No tags available. Execute a fold with a tag name to populate tags.", MessageType.Info);
+                visualizer.SelectedTagIndex = 0;
+                return;
+            }
 
-        EditorGUILayout.Space(5);
-        EditorGUILayout.LabelField("Tag Highlight", EditorStyles.boldLabel);
+            List<string> tagKeys = new List<string>(visualizer.Graph.Tags.Keys);
+            List<string> options = new List<string> { "(None)" };
+            options.AddRange(tagKeys);
 
-        int newIndex = EditorGUILayout.Popup("Highlight Tag", visualizer.selectedTagIndex, options.ToArray());
-        if (newIndex != visualizer.selectedTagIndex) {
-            Undo.RecordObject(visualizer, "Change Highlight Tag");
-            visualizer.selectedTagIndex = newIndex;
-            EditorUtility.SetDirty(visualizer);
-            SceneView.RepaintAll();
-        }
+            if (visualizer.SelectedTagIndex >= options.Count)
+                visualizer.SelectedTagIndex = 0;
 
-        if (visualizer.selectedTagIndex > 0 && visualizer.selectedTagIndex <= tagKeys.Count) {
-            string selectedTag = tagKeys[visualizer.selectedTagIndex - 1];
-            int count = visualizer.graph.tags[selectedTag].Count;
-            EditorGUILayout.HelpBox($"Tag \"{selectedTag}\" has {count} vertices.", MessageType.None);
+            EditorGUILayout.Space(5);
+            EditorGUILayout.LabelField("Tag Highlight", EditorStyles.boldLabel);
+
+            int newIndex = EditorGUILayout.Popup("Highlight Tag", visualizer.SelectedTagIndex, options.ToArray());
+            if (newIndex != visualizer.SelectedTagIndex) {
+                Undo.RecordObject(visualizer, "Change Highlight Tag");
+                visualizer.SelectedTagIndex = newIndex;
+                EditorUtility.SetDirty(visualizer);
+                SceneView.RepaintAll();
+            }
+
+            if (visualizer.SelectedTagIndex > 0 && visualizer.SelectedTagIndex <= tagKeys.Count) {
+                string selectedTag = tagKeys[visualizer.SelectedTagIndex - 1];
+                int count = visualizer.Graph.Tags[selectedTag].Count;
+                EditorGUILayout.HelpBox($"Tag \"{selectedTag}\" has {count} vertices.", MessageType.None);
+            }
         }
     }
 }

@@ -3,205 +3,191 @@ using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
 
-/// <summary>
-/// Editor utility to convert materials from Unlit/Color shader to URP shaders while preserving colors.
-/// </summary>
-public class MaterialShaderConverter : EditorWindow
+namespace Crease.Flying.Environment.BlockoutHelpers.Editor
 {
-    private string sourceShaderName = "Unlit/Color";
-    private string targetShaderName = "Universal Render Pipeline/Unlit";
-    private string sourceColorProperty = "_Color";
-    private string targetColorProperty = "_BaseColor";
-    
-    private bool searchInSelection = false;
-    private bool createBackup = true;
-    
-    private List<Material> foundMaterials = new List<Material>();
-    private Vector2 scrollPosition;
-    
-    [MenuItem("Tools/Material Shader Converter")]
-    public static void ShowWindow()
+    /// <summary>
+    /// Editor utility to convert materials from Unlit/Color shader to URP shaders while preserving colors.
+    /// </summary>
+    public class MaterialShaderConverter : EditorWindow
     {
-        GetWindow<MaterialShaderConverter>("Material Shader Converter");
-    }
-    
-    private void OnGUI()
-    {
-        EditorGUILayout.LabelField("Material Shader Converter", EditorStyles.boldLabel);
-        EditorGUILayout.Space(5);
-        
-        EditorGUILayout.HelpBox("This tool converts materials from one shader to another while preserving color properties.", MessageType.Info);
-        EditorGUILayout.Space(10);
-        
-        // Source shader settings
-        EditorGUILayout.LabelField("Source Shader Settings", EditorStyles.boldLabel);
-        sourceShaderName = EditorGUILayout.TextField("Source Shader", sourceShaderName);
-        sourceColorProperty = EditorGUILayout.TextField("Color Property Name", sourceColorProperty);
-        EditorGUILayout.Space(5);
-        
-        // Target shader settings
-        EditorGUILayout.LabelField("Target Shader Settings", EditorStyles.boldLabel);
-        targetShaderName = EditorGUILayout.TextField("Target Shader", targetShaderName);
-        targetColorProperty = EditorGUILayout.TextField("Color Property Name", targetColorProperty);
-        EditorGUILayout.Space(5);
-        
-        // Options
-        EditorGUILayout.LabelField("Options", EditorStyles.boldLabel);
-        searchInSelection = EditorGUILayout.Toggle("Search in Selection Only", searchInSelection);
-        createBackup = EditorGUILayout.Toggle("Create Backup (Undo)", createBackup);
-        EditorGUILayout.Space(10);
-        
-        // Find materials button
-        if (GUILayout.Button("Find Materials", GUILayout.Height(30)))
+        private string _sourceShaderName = "Unlit/Color";
+        private string _targetShaderName = "Universal Render Pipeline/Unlit";
+        private string _sourceColorProperty = "_Color";
+        private string _targetColorProperty = "_BaseColor";
+
+        private bool _searchInSelection = false;
+        private bool _createBackup = true;
+
+        private List<Material> _foundMaterials = new List<Material>();
+        private Vector2 _scrollPosition;
+
+        [MenuItem("Tools/Material Shader Converter")]
+        public static void ShowWindow()
         {
-            FindMaterials();
+            GetWindow<MaterialShaderConverter>("Material Shader Converter");
         }
-        
-        // Display found materials
-        if (foundMaterials.Count > 0)
+
+        private void OnGUI()
         {
+            EditorGUILayout.LabelField("Material Shader Converter", EditorStyles.boldLabel);
+            EditorGUILayout.Space(5);
+
+            EditorGUILayout.HelpBox("This tool converts materials from one shader to another while preserving color properties.", MessageType.Info);
             EditorGUILayout.Space(10);
-            EditorGUILayout.LabelField($"Found {foundMaterials.Count} material(s):", EditorStyles.boldLabel);
-            
-            scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.Height(200));
-            foreach (Material mat in foundMaterials)
-            {
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.ObjectField(mat, typeof(Material), false);
-                
-                if (mat.HasProperty(sourceColorProperty))
-                {
-                    Color color = mat.GetColor(sourceColorProperty);
-                    EditorGUI.BeginDisabledGroup(true);
-                    EditorGUILayout.ColorField(GUIContent.none, color, GUILayout.Width(50));
-                    EditorGUI.EndDisabledGroup();
-                }
-                
-                EditorGUILayout.EndHorizontal();
-            }
-            EditorGUILayout.EndScrollView();
-            
+
+            EditorGUILayout.LabelField("Source Shader Settings", EditorStyles.boldLabel);
+            _sourceShaderName = EditorGUILayout.TextField("Source Shader", _sourceShaderName);
+            _sourceColorProperty = EditorGUILayout.TextField("Color Property Name", _sourceColorProperty);
+            EditorGUILayout.Space(5);
+
+            EditorGUILayout.LabelField("Target Shader Settings", EditorStyles.boldLabel);
+            _targetShaderName = EditorGUILayout.TextField("Target Shader", _targetShaderName);
+            _targetColorProperty = EditorGUILayout.TextField("Color Property Name", _targetColorProperty);
+            EditorGUILayout.Space(5);
+
+            EditorGUILayout.LabelField("Options", EditorStyles.boldLabel);
+            _searchInSelection = EditorGUILayout.Toggle("Search in Selection Only", _searchInSelection);
+            _createBackup = EditorGUILayout.Toggle("Create Backup (Undo)", _createBackup);
             EditorGUILayout.Space(10);
-            
-            // Convert button
-            if (GUILayout.Button($"Convert {foundMaterials.Count} Material(s)", GUILayout.Height(35)))
+
+            if (GUILayout.Button("Find Materials", GUILayout.Height(30)))
             {
-                ConvertMaterials();
+                FindMaterials();
             }
-        }
-    }
-    
-    private void FindMaterials()
-    {
-        foundMaterials.Clear();
-        
-        List<Material> allMaterials = new List<Material>();
-        
-        if (searchInSelection)
-        {
-            // Search in selected objects
-            foreach (GameObject obj in Selection.gameObjects)
+
+            if (_foundMaterials.Count > 0)
             {
-                Renderer[] renderers = obj.GetComponentsInChildren<Renderer>(true);
-                foreach (Renderer renderer in renderers)
+                EditorGUILayout.Space(10);
+                EditorGUILayout.LabelField($"Found {_foundMaterials.Count} material(s):", EditorStyles.boldLabel);
+
+                _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, GUILayout.Height(200));
+                foreach (Material mat in _foundMaterials)
                 {
-                    allMaterials.AddRange(renderer.sharedMaterials.Where(m => m != null));
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.ObjectField(mat, typeof(Material), false);
+
+                    if (mat.HasProperty(_sourceColorProperty))
+                    {
+                        Color color = mat.GetColor(_sourceColorProperty);
+                        EditorGUI.BeginDisabledGroup(true);
+                        EditorGUILayout.ColorField(GUIContent.none, color, GUILayout.Width(50));
+                        EditorGUI.EndDisabledGroup();
+                    }
+
+                    EditorGUILayout.EndHorizontal();
+                }
+                EditorGUILayout.EndScrollView();
+
+                EditorGUILayout.Space(10);
+
+                if (GUILayout.Button($"Convert {_foundMaterials.Count} Material(s)", GUILayout.Height(35)))
+                {
+                    ConvertMaterials();
                 }
             }
         }
-        else
+
+        private void FindMaterials()
         {
-            // Search all materials in project
-            string[] guids = AssetDatabase.FindAssets("t:Material");
-            foreach (string guid in guids)
+            _foundMaterials.Clear();
+
+            List<Material> allMaterials = new List<Material>();
+
+            if (_searchInSelection)
             {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                Material mat = AssetDatabase.LoadAssetAtPath<Material>(path);
-                if (mat != null)
+                foreach (GameObject obj in Selection.gameObjects)
                 {
-                    allMaterials.Add(mat);
+                    Renderer[] renderers = obj.GetComponentsInChildren<Renderer>(true);
+                    foreach (Renderer renderer in renderers)
+                    {
+                        allMaterials.AddRange(renderer.sharedMaterials.Where(m => m != null));
+                    }
                 }
             }
-        }
-        
-        // Filter by source shader
-        Shader sourceShader = Shader.Find(sourceShaderName);
-        if (sourceShader == null)
-        {
-            EditorUtility.DisplayDialog("Error", $"Source shader '{sourceShaderName}' not found!", "OK");
-            return;
-        }
-        
-        foundMaterials = allMaterials
-            .Where(m => m.shader == sourceShader)
-            .Distinct()
-            .ToList();
-        
-        Debug.Log($"Found {foundMaterials.Count} materials using shader '{sourceShaderName}'");
-    }
-    
-    private void ConvertMaterials()
-    {
-        Shader targetShader = Shader.Find(targetShaderName);
-        if (targetShader == null)
-        {
-            EditorUtility.DisplayDialog("Error", $"Target shader '{targetShaderName}' not found!", "OK");
-            return;
-        }
-        
-        int successCount = 0;
-        int failCount = 0;
-        
-        foreach (Material mat in foundMaterials)
-        {
-            try
+            else
             {
-                // Save current color if property exists
-                Color savedColor = Color.white;
-                bool hasColor = mat.HasProperty(sourceColorProperty);
-                if (hasColor)
+                string[] guids = AssetDatabase.FindAssets("t:Material");
+                foreach (string guid in guids)
                 {
-                    savedColor = mat.GetColor(sourceColorProperty);
+                    string path = AssetDatabase.GUIDToAssetPath(guid);
+                    Material mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+                    if (mat != null)
+                    {
+                        allMaterials.Add(mat);
+                    }
                 }
-                
-                // Record for undo
-                if (createBackup)
-                {
-                    Undo.RecordObject(mat, "Convert Material Shader");
-                }
-                
-                // Change shader
-                mat.shader = targetShader;
-                
-                // Apply saved color to new property if it exists
-                if (hasColor && mat.HasProperty(targetColorProperty))
-                {
-                    mat.SetColor(targetColorProperty, savedColor);
-                }
-                
-                // Mark as dirty
-                EditorUtility.SetDirty(mat);
-                
-                successCount++;
             }
-            catch (System.Exception e)
+
+            Shader sourceShader = Shader.Find(_sourceShaderName);
+            if (sourceShader == null)
             {
-                Debug.LogError($"Failed to convert material '{mat.name}': {e.Message}", mat);
-                failCount++;
+                EditorUtility.DisplayDialog("Error", $"Source shader '{_sourceShaderName}' not found!", "OK");
+                return;
             }
+
+            _foundMaterials = allMaterials
+                .Where(m => m.shader == sourceShader)
+                .Distinct()
+                .ToList();
+
+            Debug.Log($"Found {_foundMaterials.Count} materials using shader '{_sourceShaderName}'");
         }
-        
-        // Save assets
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
-        
-        // Show results
-        string message = $"Conversion complete!\n\nSuccessfully converted: {successCount}\nFailed: {failCount}";
-        EditorUtility.DisplayDialog("Material Shader Converter", message, "OK");
-        
-        Debug.Log($"[MaterialShaderConverter] Converted {successCount} materials, {failCount} failed");
-        
-        // Clear the list
-        foundMaterials.Clear();
+
+        private void ConvertMaterials()
+        {
+            Shader targetShader = Shader.Find(_targetShaderName);
+            if (targetShader == null)
+            {
+                EditorUtility.DisplayDialog("Error", $"Target shader '{_targetShaderName}' not found!", "OK");
+                return;
+            }
+
+            int successCount = 0;
+            int failCount = 0;
+
+            foreach (Material mat in _foundMaterials)
+            {
+                try
+                {
+                    Color savedColor = Color.white;
+                    bool hasColor = mat.HasProperty(_sourceColorProperty);
+                    if (hasColor)
+                    {
+                        savedColor = mat.GetColor(_sourceColorProperty);
+                    }
+
+                    if (_createBackup)
+                    {
+                        Undo.RecordObject(mat, "Convert Material Shader");
+                    }
+
+                    mat.shader = targetShader;
+
+                    if (hasColor && mat.HasProperty(_targetColorProperty))
+                    {
+                        mat.SetColor(_targetColorProperty, savedColor);
+                    }
+
+                    EditorUtility.SetDirty(mat);
+
+                    successCount++;
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError($"Failed to convert material '{mat.name}': {e.Message}", mat);
+                    failCount++;
+                }
+            }
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
+            string message = $"Conversion complete!\n\nSuccessfully converted: {successCount}\nFailed: {failCount}";
+            EditorUtility.DisplayDialog("Material Shader Converter", message, "OK");
+
+            Debug.Log($"[MaterialShaderConverter] Converted {successCount} materials, {failCount} failed");
+
+            _foundMaterials.Clear();
+        }
     }
 }

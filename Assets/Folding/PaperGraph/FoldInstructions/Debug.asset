@@ -12,31 +12,51 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34b6f10957cb31144b4e916fe8d806ef, type: 3}
   m_Name: Debug
   m_EditorClassIdentifier: Assembly-CSharp::FoldInstruction
-  steps:
-  - dragHandlePosition: {x: 0.5, y: 0, z: 0.5}
-    idealDragPosition: {x: 0, y: 0, z: 0}
-    dragPlaneNormal: {x: 0, y: 1, z: 0}
-    foldDegrees: -180
-    foldOffset: 0.001
-    applyTag: 
-    filterTag: 
-    rotatePaper: 0
-    paperRotation: {x: 0, y: 0, z: 0}
-  - dragHandlePosition: {x: 0.5, y: 0, z: 0}
-    idealDragPosition: {x: 0, y: 0, z: 0}
-    dragPlaneNormal: {x: 0, y: 1, z: 0}
-    foldDegrees: -180
-    foldOffset: 0.001
-    applyTag: 
-    filterTag: 
-    rotatePaper: 0
-    paperRotation: {x: 0, y: 0, z: 0}
-  - dragHandlePosition: {x: -0.5, y: 0, z: 0.5}
-    idealDragPosition: {x: 0, y: 0, z: 0}
-    dragPlaneNormal: {x: 0, y: 1, z: 0}
-    foldDegrees: -180
-    foldOffset: 0.001
-    applyTag: half
-    filterTag: 
-    rotatePaper: 0
-    paperRotation: {x: 0, y: 0, z: -180}
+  Offset: {x: 0, y: 0}
+  FlightMeshRotation: {x: 90, y: -90, z: 101}
+  Steps:
+  - DragHandlePosition: {x: 0.5, y: 0, z: 0.5}
+    IdealDragPosition: {x: 0, y: 0, z: 0}
+    DragPlaneNormal: {x: 0, y: 1, z: 0}
+    FoldDegrees: -180
+    FoldOffset: 0.001
+    ApplyTag: 
+    FilterTags:
+      _tags: []
+    LockFoldAxis: 0
+    IsCrease: 0
+    IsAccordionFold: 0
+    AccordionCreaseTagA: 
+    AccordionCreaseTagB: 
+    RotatePaper: 0
+    PaperRotation: {x: 0, y: 0, z: 0}
+  - DragHandlePosition: {x: 0.5, y: 0, z: 0}
+    IdealDragPosition: {x: 0, y: 0, z: 0}
+    DragPlaneNormal: {x: 0, y: 1, z: 0}
+    FoldDegrees: -180
+    FoldOffset: 0.001
+    ApplyTag: 
+    FilterTags:
+      _tags: []
+    LockFoldAxis: 0
+    IsCrease: 0
+    IsAccordionFold: 0
+    AccordionCreaseTagA: 
+    AccordionCreaseTagB: 
+    RotatePaper: 0
+    PaperRotation: {x: 0, y: 0, z: 0}
+  - DragHandlePosition: {x: -0.5, y: 0, z: 0.5}
+    IdealDragPosition: {x: 0, y: 0, z: 0}
+    DragPlaneNormal: {x: 0, y: 1, z: 0}
+    FoldDegrees: -180
+    FoldOffset: 0.001
+    ApplyTag: half
+    FilterTags:
+      _tags: []
+    LockFoldAxis: 0
+    IsCrease: 0
+    IsAccordionFold: 0
+    AccordionCreaseTagA: 
+    AccordionCreaseTagB: 
+    RotatePaper: 0
+    PaperRotation: {x: 0, y: 0, z: -180}

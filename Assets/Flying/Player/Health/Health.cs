@@ -1,118 +1,172 @@
 using System;
 using System.Collections.Generic;
+using Crease.Flying.Player;
+using Crease.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class Health : MonoBehaviour
+namespace Crease.Flying.Player.Health
 {
-    public float MaxHealth = 100f;
-
-    public float CurrentHealth { get; private set; }
-    public float NormalizedDamage(float amount) => amount / MaxHealth;
-
-    [Serializable]
-    private class DamageRecord
+    public class Health : MonoBehaviour
     {
-        public DamageType type;
-        public float amount;
-    }
+        public static event Action<float, DamageType> OnDamageTaken;
+        public static event Action<float, DamageType> OnDamageHealed;
 
-    private readonly List<DamageRecord> _damageLog = new();
+        public float MaxHealth = 100f;
 
-    void Start() => CurrentHealth = MaxHealth;
+        public float CurrentHealth { get; private set; }
+        public float NormalizedDamage(float amount) => amount / MaxHealth;
 
-    public void TakeDamage(float amount, DamageType type)
-    {
-        amount = Mathf.Min(amount, CurrentHealth);
-        if (amount <= 0f) return;
-
-        CurrentHealth -= amount;
-
-        // Either append to existing or add to end of list to preserve accrual order
-        int index = _damageLog.FindIndex(r => r.type == type);
-        DamageRecord record = null;
-        if (index >= 0)
+        [Serializable]
+        private class DamageRecord
         {
-            record = _damageLog[index];
-            // If the record existed but was fully healed and remained with zero
-            // amount for some reason, remove it so a new accrual places this
-            // damage at the end of the log (preserve chronological order).
-            if (record.amount <= 0f)
-            {
-                _damageLog.RemoveAt(index);
-                record = null;
-            }
+            public DamageType Type;
+            public float Amount;
         }
 
-        if (record != null)
-        {
-            record.amount += amount;
-        }
-        else
-        {
-            record = new DamageRecord { type = type, amount = amount };
-            _damageLog.Add(record);
-        }
+        private readonly List<DamageRecord> _damageLog = new();
+        private readonly int[] _damageDecalCountByType = new int[5];
 
-        if (HUDCanvas.Instance != null)
-        {
-            HUDCanvas.Instance.VisualDamage(type, record.amount / MaxHealth);
-        }
-    }
+        void Start() => CurrentHealth = MaxHealth;
 
-    public void Heal(float amount, DamageType? targetType = null)
-    {
-        if (amount <= 0f) return;
-        
-        float remainingHeal = amount;
-
-        if (targetType.HasValue)
+        public void TakeDamage(float amount, DamageType type)
         {
-            DamageType target = targetType.Value;
-            int index = _damageLog.FindIndex(r => r.type == target);
+            if (FlightStats.Instance != null && FlightStats.Instance.CurrentStats != null)
+                amount *= FlightStats.Instance.CurrentStats.DamageTaken;
+
+            amount = Mathf.Min(amount, CurrentHealth);
+            if (amount <= 0f) return;
+
+            CurrentHealth -= amount;
+
+            int index = _damageLog.FindIndex(r => r.Type == type);
+            DamageRecord record = null;
             if (index >= 0)
             {
-                DamageRecord record = _damageLog[index];
-                float healAmount = Mathf.Min(record.amount, remainingHeal);
-                record.amount -= healAmount;
-                CurrentHealth += healAmount;
-                
-                if (HUDCanvas.Instance != null)
-                {
-                    HUDCanvas.Instance.VisualHeal(record.amount / MaxHealth, record.type);
-                }
-
-                if (record.amount <= 0f)
+                record = _damageLog[index];
+                if (record.Amount <= 0f)
                 {
                     _damageLog.RemoveAt(index);
+                    record = null;
                 }
             }
-        }
-        else
-        {
-            // Iterate forwards: "first chunk of damage... oldest first" -> Index 0 forwards
-            for (int i = 0; i < _damageLog.Count && remainingHeal > 0;)
+
+            if (record != null)
             {
-                DamageRecord record = _damageLog[i];
-                float healAmount = Mathf.Min(record.amount, remainingHeal);
+                record.Amount += amount;
+            }
+            else
+            {
+                record = new DamageRecord { Type = type, Amount = amount };
+                _damageLog.Add(record);
+            }
 
-                record.amount -= healAmount;
-                CurrentHealth += healAmount;
-                remainingHeal -= healAmount;
+            if (HUDCanvas.Instance != null)
+            {
+                HUDCanvas.Instance.VisualDamage(type, record.Amount / MaxHealth);
+            }
 
-                if (HUDCanvas.Instance != null)
+            OnDamageTaken?.Invoke(amount, type);
+        }
+
+        public int GetDamageDecalCount(DamageType type)
+        {
+            int typeIndex = (int)type;
+            if (typeIndex < 0 || typeIndex >= _damageDecalCountByType.Length)
+                return 0;
+
+            return _damageDecalCountByType[typeIndex];
+        }
+
+        public void RegisterDamageDecal(DamageType type)
+        {
+            int typeIndex = (int)type;
+            if (typeIndex < 0 || typeIndex >= _damageDecalCountByType.Length)
+                return;
+
+            _damageDecalCountByType[typeIndex]++;
+        }
+
+        public void UnregisterDamageDecal(DamageType type)
+        {
+            int typeIndex = (int)type;
+            if (typeIndex < 0 || typeIndex >= _damageDecalCountByType.Length)
+                return;
+
+            if (_damageDecalCountByType[typeIndex] > 0)
+                _damageDecalCountByType[typeIndex]--;
+        }
+
+        public void ClearDamageDecalTracking()
+        {
+            for (int i = 0; i < _damageDecalCountByType.Length; i++)
+                _damageDecalCountByType[i] = 0;
+        }
+
+        private void NotifyDamageHealed(float healAmount, DamageType type)
+        {
+            if (healAmount <= 0f)
+                return;
+
+            OnDamageHealed?.Invoke(healAmount, type);
+        }
+
+        public void Heal(float amount, DamageType? targetType = null)
+        {
+            if (amount <= 0f) return;
+
+            float remainingHeal = amount;
+
+            if (targetType.HasValue)
+            {
+                DamageType target = targetType.Value;
+                int index = _damageLog.FindIndex(r => r.Type == target);
+                if (index >= 0)
                 {
-                    HUDCanvas.Instance.VisualHeal(record.amount / MaxHealth, record.type);
+                    DamageRecord record = _damageLog[index];
+                    float healAmount = Mathf.Min(record.Amount, remainingHeal);
+                    record.Amount -= healAmount;
+                    CurrentHealth += healAmount;
+
+                    if (HUDCanvas.Instance != null)
+                    {
+                        HUDCanvas.Instance.VisualHeal(record.Amount / MaxHealth, record.Type);
+                    }
+
+                    NotifyDamageHealed(healAmount, record.Type);
+
+                    if (record.Amount <= 0f)
+                    {
+                        _damageLog.RemoveAt(index);
+                    }
                 }
+            }
+            else
+            {
+                for (int i = 0; i < _damageLog.Count && remainingHeal > 0;)
+                {
+                    DamageRecord record = _damageLog[i];
+                    float healAmount = Mathf.Min(record.Amount, remainingHeal);
 
-                if (record.amount <= 0f)
-                {
-                    _damageLog.RemoveAt(i);
-                    // Do not increment 'i' because the list just shifted left
-                }
-                else
-                {
-                    i++; // Only move to the next if we didn't destroy this one
+                    record.Amount -= healAmount;
+                    CurrentHealth += healAmount;
+                    remainingHeal -= healAmount;
+
+                    if (HUDCanvas.Instance != null)
+                    {
+                        HUDCanvas.Instance.VisualHeal(record.Amount / MaxHealth, record.Type);
+                    }
+
+                    NotifyDamageHealed(healAmount, record.Type);
+
+                    if (record.Amount <= 0f)
+                    {
+                        _damageLog.RemoveAt(i);
+                    }
+                    else
+                    {
+                        i++;
+                    }
                 }
             }
         }

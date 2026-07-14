@@ -101,3 +101,15 @@ InitTestScene*.unity*
 # Modern Visual Studio Solution files
 *.slnx
 *.slnx.sqlite
+
+# Ignore Mac-specific localized prefs files
+.DS_Store
+
+# Wwise
+.backup*
+.cache*
+*.akd
+*.prof
+*.validationcache
+*.wsettings
+IncrementalSoundBankData.xml

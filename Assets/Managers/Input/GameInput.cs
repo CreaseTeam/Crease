@@ -120,9 +120,18 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Dash"",
+                    ""name"": ""PrimaryAbility"",
                     ""type"": ""Button"",
                     ""id"": ""500b201b-64ed-4710-b93e-ea7869be9473"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SecondaryAbility"",
+                    ""type"": ""Button"",
+                    ""id"": ""452b5353-8254-4316-88db-b0c2d527a31c"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -283,7 +292,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""Dash"",
+                    ""action"": ""PrimaryAbility"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -294,7 +303,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Gamepad"",
-                    ""action"": ""Dash"",
+                    ""action"": ""PrimaryAbility"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -440,6 +449,28 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""action"": ""CenterCamera"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""97db6bca-e3af-4a32-ba2e-37d0fc5cf541"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""SecondaryAbility"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""86ed051e-7bea-40eb-8755-fa267923f43b"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""SecondaryAbility"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -479,7 +510,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""a2ff8831-7274-4a55-b9d6-9b0ff4d8c0f6"",
-                    ""path"": ""<Keyboard>/shift"",
+                    ""path"": ""<Keyboard>/capsLock"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
@@ -490,7 +521,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""78c89886-fd1b-4ef5-bc9f-58cca709771e"",
-                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Gamepad"",
@@ -583,6 +614,33 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""ScaleSticker"",
+                    ""type"": ""Value"",
+                    ""id"": ""012e63a5-6755-4b6f-a6df-f78e3cfe653e"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""RotateSticker"",
+                    ""type"": ""Value"",
+                    ""id"": ""f6243928-30ab-4fcb-91d3-1809dd7a9ad7"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Pause"",
+                    ""type"": ""Button"",
+                    ""id"": ""f06d26dd-ced9-4b72-a121-7978dc3b0338"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -772,6 +830,116 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""action"": ""RotateDelta"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""b84e05af-7ccc-4ec4-bfd1-315af54e4381"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ScaleSticker"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""4bdda3a3-c327-4e22-8caa-4af055bcf123"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""ScaleSticker"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""96db697e-6141-4dd3-a61d-b56e549a2ac5"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""ScaleSticker"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8ae6cf8e-44ff-4507-9d2e-827eb59a7dd9"",
+                    ""path"": ""<Gamepad>/dpad/y"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""ScaleSticker"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""0ba2f37e-1ddf-4477-b842-b7ba449ea0c9"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RotateSticker"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""e704168a-5bdf-4f6a-85d4-d7c5c392ede8"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""RotateSticker"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""17cc9bca-d39e-4bbc-a7a9-9742bdb78c40"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""RotateSticker"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bcaaf65b-dbe3-4b52-84a6-27428acb1a1f"",
+                    ""path"": ""<Gamepad>/dpad/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""RotateSticker"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3e20f0ab-c03b-4e85-8ee6-9d5ecb18818e"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f12fc6d5-69eb-4d92-856c-30a5868d3af9"",
+                    ""path"": ""<Gamepad>/start"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -811,7 +979,8 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_CameraZoom = m_Player.FindAction("CameraZoom", throwIfNotFound: true);
         m_Player_Drop = m_Player.FindAction("Drop", throwIfNotFound: true);
-        m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
+        m_Player_PrimaryAbility = m_Player.FindAction("PrimaryAbility", throwIfNotFound: true);
+        m_Player_SecondaryAbility = m_Player.FindAction("SecondaryAbility", throwIfNotFound: true);
         m_Player_Return = m_Player.FindAction("Return", throwIfNotFound: true);
         m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
         m_Player_CameraPan = m_Player.FindAction("CameraPan", throwIfNotFound: true);
@@ -827,6 +996,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         m_Folding_ExecuteFold = m_Folding.FindAction("ExecuteFold", throwIfNotFound: true);
         m_Folding_RotateToggle = m_Folding.FindAction("RotateToggle", throwIfNotFound: true);
         m_Folding_RotateDelta = m_Folding.FindAction("RotateDelta", throwIfNotFound: true);
+        m_Folding_ScaleSticker = m_Folding.FindAction("ScaleSticker", throwIfNotFound: true);
+        m_Folding_RotateSticker = m_Folding.FindAction("RotateSticker", throwIfNotFound: true);
+        m_Folding_Pause = m_Folding.FindAction("Pause", throwIfNotFound: true);
     }
 
     ~@GameInput()
@@ -912,7 +1084,8 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_CameraZoom;
     private readonly InputAction m_Player_Drop;
-    private readonly InputAction m_Player_Dash;
+    private readonly InputAction m_Player_PrimaryAbility;
+    private readonly InputAction m_Player_SecondaryAbility;
     private readonly InputAction m_Player_Return;
     private readonly InputAction m_Player_Pause;
     private readonly InputAction m_Player_CameraPan;
@@ -941,9 +1114,13 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Drop => m_Wrapper.m_Player_Drop;
         /// <summary>
-        /// Provides access to the underlying input action "Player/Dash".
+        /// Provides access to the underlying input action "Player/PrimaryAbility".
         /// </summary>
-        public InputAction @Dash => m_Wrapper.m_Player_Dash;
+        public InputAction @PrimaryAbility => m_Wrapper.m_Player_PrimaryAbility;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/SecondaryAbility".
+        /// </summary>
+        public InputAction @SecondaryAbility => m_Wrapper.m_Player_SecondaryAbility;
         /// <summary>
         /// Provides access to the underlying input action "Player/Return".
         /// </summary>
@@ -995,9 +1172,12 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @Drop.started += instance.OnDrop;
             @Drop.performed += instance.OnDrop;
             @Drop.canceled += instance.OnDrop;
-            @Dash.started += instance.OnDash;
-            @Dash.performed += instance.OnDash;
-            @Dash.canceled += instance.OnDash;
+            @PrimaryAbility.started += instance.OnPrimaryAbility;
+            @PrimaryAbility.performed += instance.OnPrimaryAbility;
+            @PrimaryAbility.canceled += instance.OnPrimaryAbility;
+            @SecondaryAbility.started += instance.OnSecondaryAbility;
+            @SecondaryAbility.performed += instance.OnSecondaryAbility;
+            @SecondaryAbility.canceled += instance.OnSecondaryAbility;
             @Return.started += instance.OnReturn;
             @Return.performed += instance.OnReturn;
             @Return.canceled += instance.OnReturn;
@@ -1030,9 +1210,12 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @Drop.started -= instance.OnDrop;
             @Drop.performed -= instance.OnDrop;
             @Drop.canceled -= instance.OnDrop;
-            @Dash.started -= instance.OnDash;
-            @Dash.performed -= instance.OnDash;
-            @Dash.canceled -= instance.OnDash;
+            @PrimaryAbility.started -= instance.OnPrimaryAbility;
+            @PrimaryAbility.performed -= instance.OnPrimaryAbility;
+            @PrimaryAbility.canceled -= instance.OnPrimaryAbility;
+            @SecondaryAbility.started -= instance.OnSecondaryAbility;
+            @SecondaryAbility.performed -= instance.OnSecondaryAbility;
+            @SecondaryAbility.canceled -= instance.OnSecondaryAbility;
             @Return.started -= instance.OnReturn;
             @Return.performed -= instance.OnReturn;
             @Return.canceled -= instance.OnReturn;
@@ -1204,6 +1387,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Folding_ExecuteFold;
     private readonly InputAction m_Folding_RotateToggle;
     private readonly InputAction m_Folding_RotateDelta;
+    private readonly InputAction m_Folding_ScaleSticker;
+    private readonly InputAction m_Folding_RotateSticker;
+    private readonly InputAction m_Folding_Pause;
     /// <summary>
     /// Provides access to input actions defined in input action map "Folding".
     /// </summary>
@@ -1231,6 +1417,18 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Folding/RotateDelta".
         /// </summary>
         public InputAction @RotateDelta => m_Wrapper.m_Folding_RotateDelta;
+        /// <summary>
+        /// Provides access to the underlying input action "Folding/ScaleSticker".
+        /// </summary>
+        public InputAction @ScaleSticker => m_Wrapper.m_Folding_ScaleSticker;
+        /// <summary>
+        /// Provides access to the underlying input action "Folding/RotateSticker".
+        /// </summary>
+        public InputAction @RotateSticker => m_Wrapper.m_Folding_RotateSticker;
+        /// <summary>
+        /// Provides access to the underlying input action "Folding/Pause".
+        /// </summary>
+        public InputAction @Pause => m_Wrapper.m_Folding_Pause;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1269,6 +1467,15 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @RotateDelta.started += instance.OnRotateDelta;
             @RotateDelta.performed += instance.OnRotateDelta;
             @RotateDelta.canceled += instance.OnRotateDelta;
+            @ScaleSticker.started += instance.OnScaleSticker;
+            @ScaleSticker.performed += instance.OnScaleSticker;
+            @ScaleSticker.canceled += instance.OnScaleSticker;
+            @RotateSticker.started += instance.OnRotateSticker;
+            @RotateSticker.performed += instance.OnRotateSticker;
+            @RotateSticker.canceled += instance.OnRotateSticker;
+            @Pause.started += instance.OnPause;
+            @Pause.performed += instance.OnPause;
+            @Pause.canceled += instance.OnPause;
         }
 
         /// <summary>
@@ -1292,6 +1499,15 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @RotateDelta.started -= instance.OnRotateDelta;
             @RotateDelta.performed -= instance.OnRotateDelta;
             @RotateDelta.canceled -= instance.OnRotateDelta;
+            @ScaleSticker.started -= instance.OnScaleSticker;
+            @ScaleSticker.performed -= instance.OnScaleSticker;
+            @ScaleSticker.canceled -= instance.OnScaleSticker;
+            @RotateSticker.started -= instance.OnRotateSticker;
+            @RotateSticker.performed -= instance.OnRotateSticker;
+            @RotateSticker.canceled -= instance.OnRotateSticker;
+            @Pause.started -= instance.OnPause;
+            @Pause.performed -= instance.OnPause;
+            @Pause.canceled -= instance.OnPause;
         }
 
         /// <summary>
@@ -1380,12 +1596,19 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnDrop(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Dash" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "PrimaryAbility" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnDash(InputAction.CallbackContext context);
+        void OnPrimaryAbility(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SecondaryAbility" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSecondaryAbility(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Return" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
@@ -1479,5 +1702,26 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnRotateDelta(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ScaleSticker" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnScaleSticker(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "RotateSticker" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRotateSticker(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Pause" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPause(InputAction.CallbackContext context);
     }
 }

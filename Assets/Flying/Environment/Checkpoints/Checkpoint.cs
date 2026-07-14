@@ -1,24 +1,31 @@
+using Crease.Folding.Paper;
+using Crease.UI;
 using UnityEngine;
 
-public class Checkpoint : MonoBehaviour
+namespace Crease.Flying.Environment.Checkpoints
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public class Checkpoint : MonoBehaviour
     {
-        
-    }
+        private MeshRenderer _meshRenderer;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+        private void Awake()
+        {
+            _meshRenderer = GetComponent<MeshRenderer>();
+        }
 
-    public void TriggerCheckpoint()
-    {
-        FoldingManager.Instance.EnterFoldingMode();
-        Debug.Log("Checkpoint triggered!");
+        public void TriggerCheckpoint()
+        {
+            if (HUDCanvas.Instance != null)
+                HUDCanvas.Instance.SetRefoldAvailable(true);
 
-        GetComponent<MeshRenderer>().enabled = false;
+            if (FoldingManager.Instance != null)
+                FoldingManager.Instance.EnterFoldingMode();
+            else
+                Debug.LogWarning("Checkpoint: no FoldingManager in scene.");
+            Debug.Log("Checkpoint triggered!");
+
+            if (_meshRenderer != null)
+                _meshRenderer.enabled = false;
+        }
     }
 }

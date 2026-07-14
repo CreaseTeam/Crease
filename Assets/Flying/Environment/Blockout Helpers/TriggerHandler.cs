@@ -1,34 +1,37 @@
 using UnityEngine;
-using UnityEngine.Events; // Required for UnityEvent
+using UnityEngine.Events;
+using UnityEngine.Serialization;
 
-public class TriggerHandler : MonoBehaviour
+namespace Crease.Flying.Environment.BlockoutHelpers
 {
-    [Header("Settings")]
-    [Tooltip("Only objects with this tag will trigger the event.")]
-    public string targetTag = "Player";
-
-    [Space]
-    [Tooltip("Drag and drop objects here to trigger their functions.")]
-    public UnityEvent onTriggerEnter;
-    public UnityEvent onTriggerExit;
-
-    private void OnTriggerEnter(Collider other)
+    public class TriggerHandler : MonoBehaviour
     {
-        // Check if the object entering is the Player
-        if (other.CompareTag(targetTag))
+        [Header("Settings")]
+        [Tooltip("Only objects with this tag will trigger the event.")]
+        [FormerlySerializedAs("targetTag")]
+        public string TargetTag = "Player";
+
+        [Space]
+        [Tooltip("Drag and drop objects here to trigger their functions.")]
+        [FormerlySerializedAs("onTriggerEnter")]
+        public UnityEvent OnTriggerEntered;
+        [FormerlySerializedAs("onTriggerExit")]
+        public UnityEvent OnTriggerExited;
+
+        private void OnTriggerEnter(Collider other)
         {
-            // Fire all events hooked up in the Inspector
-            onTriggerEnter.Invoke();
+            if (other.CompareTag(TargetTag))
+            {
+                OnTriggerEntered.Invoke();
+            }
         }
-    }
 
-    private void OnTriggerExit(Collider other)
-    {
-        // Check if the object exiting is the Player
-        if (other.CompareTag(targetTag))
+        private void OnTriggerExit(Collider other)
         {
-            // Fire all events hooked up in the Inspector
-            onTriggerExit.Invoke();
+            if (other.CompareTag(TargetTag))
+            {
+                OnTriggerExited.Invoke();
+            }
         }
     }
 }
