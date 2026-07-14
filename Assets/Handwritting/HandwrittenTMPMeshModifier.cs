@@ -35,5 +35,33 @@ namespace Crease.Handwritting
 
             text.UpdateVertexData(TMP_VertexDataUpdateFlags.Uv2);
         }
+
+        public static void SetCharacterVisible(TMP_Text text, int charIndex, bool visible)
+        {
+            if (text == null)
+                return;
+
+            TMP_TextInfo textInfo = text.textInfo;
+            if (textInfo == null || charIndex < 0 || charIndex >= textInfo.characterCount)
+                return;
+
+            TMP_CharacterInfo charInfo = textInfo.characterInfo[charIndex];
+            if (!charInfo.isVisible)
+                return;
+
+            int materialIndex = charInfo.materialReferenceIndex;
+            int vertexIndex = charInfo.vertexIndex;
+            Color32[] colors = textInfo.meshInfo[materialIndex].colors32;
+            byte alpha = visible ? (byte)Mathf.Clamp(Mathf.RoundToInt(charInfo.color.a * 255f), 0, 255) : (byte)0;
+
+            for (int i = 0; i < 4; i++)
+            {
+                Color32 color = colors[vertexIndex + i];
+                color.a = alpha;
+                colors[vertexIndex + i] = color;
+            }
+
+            text.UpdateVertexData(TMP_VertexDataUpdateFlags.Colors32);
+        }
     }
 }

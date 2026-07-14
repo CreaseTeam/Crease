@@ -1,0 +1,77 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "RootPaths": {
+   "ProjectRoot": "../../../../../Crease_WwiseProject",
+   "SourceFilesRoot": "../../../../../Crease_WwiseProject/.cache",
+   "SoundBanksRoot": ".",
+   "ExternalSourcesInputFile": "",
+   "ExternalSourcesOutputRoot": "../../../../../Crease_WwiseProject/GeneratedSoundBanks/Windows"
+  },
+  "DialogueEvents": [],
+  "SoundBanks": [
+   {
+    "Id": "1355168291",
+    "Type": "User",
+    "GUID": "{701ECBBD-9C7B-4030-8CDB-749EE5D1C7B9}",
+    "Language": "SFX",
+    "Hash": "{CDE9AC3D-2B42-1217-02C1-D64576EB9AF6}",
+    "ObjectPath": "Init",
+    "ShortName": "Init",
+    "Path": "Init.bnk",
+    "Plugins": {
+     "AudioDevices": [
+      {
+       "Id": "2317455096",
+       "Name": "No_Output",
+       "ObjectPath": "\\Devices\\Default Work Unit\\No_Output",
+       "GUID": "{1509F699-213D-464B-9DBE-55FC618E69EE}",
+       "LibName": "No Output",
+       "LibId": "11862023"
+      },
+      {
+       "Id": "3859886410",
+       "Name": "System",
+       "ObjectPath": "\\Devices\\Default Work Unit\\System",
+       "GUID": "{1783A305-170C-4796-8DFA-F8A42752A560}",
+       "LibName": "System",
+       "LibId": "11403271"
+      }
+     ]
+    },
+    "Busses": [
+     {
+      "Id": "2246998526",
+      "Name": "Main Audio Bus",
+      "ObjectPath": "\\Busses\\Default Work Unit\\Main Audio Bus",
+      "GUID": "{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}"
+     }
+    ]
+   },
+   {
+    "Id": "2412228321",
+    "Type": "User",
+    "GUID": "{E57FE327-2DEC-491F-8BDE-6C23EE143398}",
+    "Language": "SFX",
+    "Hash": "{A047A694-2BB4-D349-AC60-DA2FF7FE47A2}",
+    "ObjectPath": "\\SoundBanks\\Default Work Unit\\level_1_sfx",
+    "ShortName": "level_1_sfx",
+    "Path": "level_1_sfx.bnk"
+   },
+   {
+    "Id": "2968846937",
+    "Type": "User",
+    "GUID": "{7EFBB1C0-8EED-4660-9AE9-FD3D7195B4AF}",
+    "Language": "SFX",
+    "Hash": "{DDB37FF4-B4A5-2FC7-ED1F-AA56E022ABF1}",
+    "ObjectPath": "\\SoundBanks\\Default Work Unit\\level_1_mus",
+    "ShortName": "level_1_mus",
+    "Path": "level_1_mus.bnk"
+   }
+  ],
+  "FileHash": "{619C45F6-2728-7A91-3E1B-C764FEDBAE05}"
+ }
+}

@@ -17,11 +17,13 @@ namespace Crease.Flying.Player
         public List<WindProvider> ActiveWindZones = new List<WindProvider>();
 
         private KinematicBody _body;
+        private FlightController _flightController;
         private FlightStats _stats;
 
         private void Awake()
         {
             _body = GetComponent<KinematicBody>();
+            _flightController = GetComponent<FlightController>();
             _stats = GetComponent<FlightStats>();
 
             if (_stats == null)
@@ -52,6 +54,8 @@ namespace Crease.Flying.Player
             if (ActiveWindZones.Count == 0) return;
 
             Vector3 totalWindForce = Vector3.zero;
+            Vector3 torqueWindForce = Vector3.zero;
+            float maxTorqueStrength = 0f;
             bool hasOverride = false;
             Vector3 overrideVelocity = Vector3.zero;
 
@@ -76,7 +80,14 @@ namespace Crease.Flying.Player
                     continue;
                 }
 
-                totalWindForce += zone.GetWindForceAtPoint(transform.position);
+                Vector3 zoneForce = zone.GetWindForceAtPoint(transform.position);
+                totalWindForce += zoneForce;
+
+                if (zone.AppliesTorqueFromForce && zone.ShouldApplyTorqueAtPoint(transform.position))
+                {
+                    torqueWindForce += zoneForce;
+                    maxTorqueStrength = Mathf.Max(maxTorqueStrength, zone.WindTorqueStrength);
+                }
             }
 
 
@@ -84,12 +95,22 @@ namespace Crease.Flying.Player
             {
                 // Drop the wind force's vertical component but let it still push horizontally.
                 totalWindForce.y = 0f;
+                torqueWindForce.y = 0f;
             }
+
+            float windForceMultiplier = _stats.CurrentStats.WindForceMultiplier;
 
             if (totalWindForce.sqrMagnitude > 0.01f)
             {
-                Vector3 finalForce = totalWindForce * _stats.CurrentStats.WindForceMultiplier;
+                Vector3 finalForce = totalWindForce * windForceMultiplier;
                 _body.AddForce(finalForce);
+            }
+
+            if (torqueWindForce.sqrMagnitude > 0.01f && maxTorqueStrength > 0f)
+            {
+                _flightController.ApplyTorqueTowardDirection(
+                    torqueWindForce,
+                    maxTorqueStrength * windForceMultiplier);
             }
 
             if (hasOverride)

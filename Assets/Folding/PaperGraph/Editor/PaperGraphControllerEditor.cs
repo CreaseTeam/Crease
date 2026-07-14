@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace Crease.Folding.PaperGraph.Editor
+namespace Crease.Folding.Paper.Editor
 {
     [CustomEditor(typeof(PaperGraphController))]
     public class PaperGraphControllerEditor : UnityEditor.Editor
@@ -11,6 +11,13 @@ namespace Crease.Folding.PaperGraph.Editor
             DrawDefaultInspector();
 
             PaperGraphController controller = (PaperGraphController)target;
+
+            EditorGUILayout.Space(5);
+            EditorGUILayout.LabelField("Preview Display", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+                "The fold preview mesh is created automatically under this object. "
+                + "Materials and crease/guide settings come from the PaperGraph and PaperGraphVisualizer on this object.",
+                MessageType.None);
 
             PaperGraph graph = controller.GetComponent<PaperGraph>();
             if (graph != null && graph.Tags != null && graph.Tags.Count > 0) {

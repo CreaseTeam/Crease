@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Stunt
   m_EditorClassIdentifier: Assembly-CSharp::FoldInstruction
   Offset: {x: 0, y: 0}
+  FlightMeshRotation: {x: 0, y: 0, z: 90}
   Steps:
   - DragHandlePosition: {x: 0.5, y: 0, z: 0.65}
     IdealDragPosition: {x: -0.5, y: 0, z: -0.35}
@@ -23,7 +24,9 @@ MonoBehaviour:
     FilterTags:
       _tags: []
     _legacyFilterTag: 
-    LockFoldAxis: 0
+    FreezeAxisTags:
+      _tags: []
+    _legacyLockFoldAxis: 0
     IsCrease: 1
     IsAccordionFold: 0
     AccordionCreaseTagA: 
@@ -43,7 +46,9 @@ MonoBehaviour:
     FilterTags:
       _tags: []
     _legacyFilterTag: 
-    LockFoldAxis: 0
+    FreezeAxisTags:
+      _tags: []
+    _legacyLockFoldAxis: 0
     IsCrease: 1
     IsAccordionFold: 0
     AccordionCreaseTagA: 
@@ -63,7 +68,9 @@ MonoBehaviour:
     FilterTags:
       _tags: []
     _legacyFilterTag: 
-    LockFoldAxis: 0
+    FreezeAxisTags:
+      _tags: []
+    _legacyLockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 1
     AccordionCreaseTagA: accordion1
@@ -84,7 +91,10 @@ MonoBehaviour:
       _tags:
       - accordion_static
     _legacyFilterTag: 
-    LockFoldAxis: 0
+    FreezeAxisTags:
+      _tags:
+      - accordion
+    _legacyLockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
     AccordionCreaseTagA: 
@@ -105,7 +115,10 @@ MonoBehaviour:
       _tags:
       - accordion_static
     _legacyFilterTag: 
-    LockFoldAxis: 0
+    FreezeAxisTags:
+      _tags:
+      - accordion
+    _legacyLockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
     AccordionCreaseTagA: 
@@ -125,7 +138,9 @@ MonoBehaviour:
     FilterTags:
       _tags: []
     _legacyFilterTag: 
-    LockFoldAxis: 0
+    FreezeAxisTags:
+      _tags: []
+    _legacyLockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
     AccordionCreaseTagA: 
@@ -146,7 +161,10 @@ MonoBehaviour:
       _tags:
       - triangle_down_moved
     _legacyFilterTag: 
-    LockFoldAxis: 0
+    FreezeAxisTags:
+      _tags:
+      - triangle_down
+    _legacyLockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
     AccordionCreaseTagA: 
@@ -166,7 +184,9 @@ MonoBehaviour:
     FilterTags:
       _tags: []
     _legacyFilterTag: 
-    LockFoldAxis: 1
+    FreezeAxisTags:
+      _tags: []
+    _legacyLockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
     AccordionCreaseTagA: 
@@ -187,7 +207,10 @@ MonoBehaviour:
       _tags:
       - half_moved
     _legacyFilterTag: 
-    LockFoldAxis: 1
+    FreezeAxisTags:
+      _tags:
+      - half
+    _legacyLockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
     AccordionCreaseTagA: 
@@ -208,7 +231,9 @@ MonoBehaviour:
       _tags:
       - half_static
     _legacyFilterTag: 
-    LockFoldAxis: 1
+    FreezeAxisTags:
+      _tags: []
+    _legacyLockFoldAxis: 0
     IsCrease: 0
     IsAccordionFold: 0
     AccordionCreaseTagA: 

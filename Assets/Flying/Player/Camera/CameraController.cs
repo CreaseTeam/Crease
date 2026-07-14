@@ -147,9 +147,18 @@ namespace Crease.Flying.Player.Camera
             {
                 Mouse.current.WarpCursorPosition(new Vector2(Screen.width / 2f, Screen.height / 2f));
             }
+
+            FollowPlane(true);
+        }
+        private void LateUpdate()
+        {
+            FollowPlane();
         }
 
-        private void LateUpdate()
+        // snap to plane used for Start()
+        // we want to snap to the correct location to avoid
+        // the smooth pan from original camera location to correct location
+        private void FollowPlane(bool snap = false)
         {
             if (Target == null) return;
 
@@ -191,13 +200,20 @@ namespace Crease.Flying.Player.Camera
 
             Vector3 baseDesiredPosition = Target.position + baseRigRotation * _runtimeOffset;
             if (_unpannedBasePosition == Vector3.zero) _unpannedBasePosition = transform.position;
-            _unpannedBasePosition = Vector3.SmoothDamp(
-                _unpannedBasePosition,
-                baseDesiredPosition,
-                ref _positionVelocity,
-                1f / _settings.PositionSmoothing,
-                Mathf.Infinity,
-                scaledDt);
+            if (snap)
+            {
+                _unpannedBasePosition = baseDesiredPosition;
+            }
+            else
+            {
+                _unpannedBasePosition = Vector3.SmoothDamp(
+                    _unpannedBasePosition,
+                    baseDesiredPosition,
+                    ref _positionVelocity,
+                    1f / _settings.PositionSmoothing,
+                    Mathf.Infinity,
+                    scaledDt);
+            }
 
             Vector3 baseLookTarget = Vector3.Lerp(
                 Target.position,
@@ -210,7 +226,14 @@ namespace Crease.Flying.Player.Camera
             Quaternion baseDesiredRotation = Quaternion.LookRotation(lookDir, upVec);
 
             if (_unpannedBaseRotation.w == 0f) _unpannedBaseRotation = transform.rotation;
-            _unpannedBaseRotation = Quaternion.Slerp(_unpannedBaseRotation, baseDesiredRotation, scaledDt * _settings.LookSmoothing);
+            if (snap)
+            {
+                _unpannedBaseRotation = baseDesiredRotation;
+            }
+            else
+            {
+                _unpannedBaseRotation = Quaternion.Slerp(_unpannedBaseRotation, baseDesiredRotation, scaledDt * _settings.LookSmoothing);
+            }
 
             Quaternion localPan = Quaternion.Euler(-_panPitch, _panYaw, 0f);
 

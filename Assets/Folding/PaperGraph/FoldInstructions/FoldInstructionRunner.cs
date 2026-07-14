@@ -1,12 +1,14 @@
+using System;
 using System.Collections.Generic;
 using Crease.Audio;
-using Crease.Folding.Stickers;
+using Crease.Folding.PaperSurface.Decals;
+using Crease.Folding.PaperSurface.Stickers;
 using Crease.Managers.Input;
 using Crease.UI;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Crease.Folding.PaperGraph
+namespace Crease.Folding.Paper
 {
 
 public enum FoldingRunPhase
@@ -30,7 +32,7 @@ public struct SavedCrease
 /// Loads a FoldInstruction asset and runs its steps sequentially.
 /// Uses InputManager for Folding actions (ExecuteFold, Recenter).
 /// </summary>
-public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiver
+public class FoldInstructionRunner : MonoBehaviour
 {
     [Tooltip("The instruction set to run. Assign in the Inspector or call LoadInstruction() at runtime.")]
     [FormerlySerializedAs("instruction")]
@@ -112,6 +114,7 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
 
     // Paper rotation lerp state
     private bool _isPaperLerping = false;
+    private bool _paperRotationLerpPaused;
     private Quaternion _targetPaperRotation;
 
     private bool _isUnfolding = false;
@@ -120,22 +123,18 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
     private bool _isExecutingStepAnimation = false;
     private FoldingRunPhase _phase = FoldingRunPhase.Folding;
 
-    private readonly Dictionary<string, SavedCrease> _savedCreases = new Dictionary<string, SavedCrease>();
+    private readonly Dictionary<string, SavedCrease> _savedAxes = new Dictionary<string, SavedCrease>();
 
-    public IReadOnlyDictionary<string, SavedCrease> SavedCreases => _savedCreases;
+    public IReadOnlyDictionary<string, SavedCrease> SavedCreases => _savedAxes;
 
     public bool IsInStickerPhase => _phase == FoldingRunPhase.Stickers;
+
+    public bool IsUnfolding => _isUnfolding;
 
     public bool IsFoldingComplete =>
         Instruction != null
         && Instruction.Steps.Count > 0
         && _currentStepIndex >= Instruction.Steps.Count;
-
-    // Set when a step with LockFoldAxis == true is executed.
-    // Cleared when LoadInstruction is called.
-    private bool _hasSavedFoldAxis = false;
-    private Vector3 _savedFoldAxisP1;
-    private Vector3 _savedFoldAxisP2;
 
     private void OnValidate() {
         RecalculatePaperTarget();
@@ -146,30 +145,30 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             Controller = GetComponent<PaperGraphController>();
         if (Controller != null)
             _paperGraph = Controller.GetComponent<PaperGraph>();
+
+        MigrateLegacyLineStyles();
+        RefreshDragHandleVisibility();
     }
 
     private void Start() {
+        if (HUDCanvas.Instance != null) {
+            RefreshDragHandleVisibility();
+            return;
+        }
+
         if (Instruction != null)
             LoadInstruction(Instruction);
     }
 
-    public void OnBeforeSerialize() { }
-
-    public void OnAfterDeserialize() {
+    private void MigrateLegacyLineStyles() {
         if (_legacyLineStylesMigrated)
             return;
-
-        if (_paperGraph == null && Controller != null)
-            _paperGraph = Controller.GetComponent<PaperGraph>();
 
         if (_paperGraph != null) {
             if (_legacyGuideLineWidth > 0f)
                 _paperGraph.GuideLineWidth = _legacyGuideLineWidth;
             if (_legacyGuideLineColor.a > 0f)
                 _paperGraph.GuideLineColor = _legacyGuideLineColor;
-            if (_legacyCreaseLineColor.a > 0f) {
-                _paperGraph.CreaseMinBrightness = Mathf.Clamp01(_legacyCreaseLineColor.grayscale * 0.5f);
-            }
         }
 
         _legacyLineStylesMigrated = true;
@@ -187,37 +186,35 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
     }
 
     private void LateUpdate() {
-        if (Controller != null) {
-            if (_isPaperLerping) {
-                Transform paperTransform = Controller.transform;
-                paperTransform.rotation = Quaternion.Slerp(paperTransform.rotation, _targetPaperRotation, PaperLerpSpeed * Time.deltaTime);
-
-                if (Quaternion.Angle(paperTransform.rotation, _targetPaperRotation) < 0.1f) {
-                    paperTransform.rotation = _targetPaperRotation;
-                    _isPaperLerping = false;
-                }
-            }
-        }
-
-        if (_phase != FoldingRunPhase.Folding || Instruction == null || _currentStepIndex < 0
-            || _currentStepIndex >= Instruction.Steps.Count || _isCreaseAnimating || _isExecutingStepAnimation)
+        if (_paperRotationLerpPaused || Controller == null || !_isPaperLerping)
             return;
 
-        UpdateGuideLine(Instruction.Steps[_currentStepIndex]);
+        Transform paperTransform = Controller.transform;
+        paperTransform.rotation = Quaternion.Slerp(paperTransform.rotation, _targetPaperRotation, PaperLerpSpeed * Time.deltaTime);
+
+        if (Quaternion.Angle(paperTransform.rotation, _targetPaperRotation) < 0.1f) {
+            paperTransform.rotation = _targetPaperRotation;
+            _isPaperLerping = false;
+        }
     }
 
     /// <summary>
     /// Resets the paper and loads the first step of the given instruction set.
     /// </summary>
-    public void LoadInstruction(FoldInstruction newInstruction) {
+    public void LoadInstruction(FoldInstruction newInstruction, bool clearDecals = true) {
         Instruction = newInstruction;
-        ExitStickerPhase(clearStickers: true);
+        ExitStickerPhase(clearStickers: clearDecals);
+
+        if (HUDCanvas.Instance != null)
+            HUDCanvas.Instance.SetFlyCurrentVisible(false);
 
         if (Instruction == null || Instruction.Steps.Count == 0) {
             Debug.LogWarning("FoldInstructionRunner: Instruction is null or has no steps.");
             _currentStepIndex = -1;
             return;
         }
+
+        MigrateInstructionSteps();
 
         // Reset accuracy tracking
         _totalAccuracy = 0f;
@@ -227,23 +224,19 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             HUDCanvas.Instance.StartFoldingTimer();
         }
 
-        // Clear any saved fold-axis lock from a previous instruction
-        _hasSavedFoldAxis = false;
-        if (Controller != null) Controller.HasFoldAxisLock = false;
+        if (Controller != null)
+            Controller.ClearFoldAxisLocks();
 
-        ClearSavedCreases();
+        ClearSavedAxes();
         HideGuideLine();
 
         // Reset the paper to a fresh sheet
         Controller.ResetSheet();
 
-        // Re-enable the drag handle
-        if (DragHandle != null)
-            DragHandle.gameObject.SetActive(true);
-
         // Load the first step
         _currentStepIndex = 0;
         ApplyStepToController(Instruction.Steps[0]);
+        RefreshDragHandleVisibility();
 
         // Debug.Log($"FoldInstructionRunner: Loaded instruction with {Instruction.Steps.Count} step(s). Press ExecuteFold to execute step 1.");
     }
@@ -297,20 +290,23 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
 
     private System.Collections.IEnumerator ExecuteStandardFoldStepRoutine(FoldStep step) {
         _isExecutingStepAnimation = true;
+        RefreshDragHandleVisibility();
 
         Controller.ExecuteFoldAction();
         AudioManager.Instance.Play("fold");
         Debug.Log($"FoldInstructionRunner: Executed step {_currentStepIndex + 1}/{Instruction.Steps.Count}.");
 
-        ApplyLockFoldAxisIfNeeded(step);
+        SaveExecutedAxis(step);
         yield return AnimateVertexRotationIfNeeded(step);
         AdvanceToNextStep();
 
         _isExecutingStepAnimation = false;
+        RefreshDragHandleVisibility();
     }
 
     private System.Collections.IEnumerator ExecuteAccordionFoldStepRoutine(FoldStep step) {
         _isExecutingStepAnimation = true;
+        RefreshDragHandleVisibility();
 
         Controller.CommitAccordionAction();
         Controller.EndAccordionDragStep();
@@ -318,15 +314,17 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         AudioManager.Instance.Play("fold");
         Debug.Log($"FoldInstructionRunner: Executed accordion step {_currentStepIndex + 1}/{Instruction.Steps.Count}.");
 
-        ApplyLockFoldAxisIfNeeded(step);
+        SaveExecutedAxis(step);
         yield return AnimateVertexRotationIfNeeded(step);
         AdvanceToNextStep();
 
         _isExecutingStepAnimation = false;
+        RefreshDragHandleVisibility();
     }
 
     private System.Collections.IEnumerator ExecuteCreaseStepRoutine(FoldStep executedStep, bool animateFoldInFirst = false, bool advanceStep = true) {
         _isCreaseAnimating = true;
+        RefreshDragHandleVisibility();
 
         if (animateFoldInFirst) {
             yield return AnimateFoldDegreesRoutine(0f, executedStep.FoldDegrees, FoldAnimationSpeed);
@@ -347,15 +345,7 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             AudioManager.Instance.Play("fold");
             Debug.Log($"FoldInstructionRunner: Executed crease step {_currentStepIndex + 1}/{Instruction.Steps.Count}.");
 
-            string creaseLabel = GetCreaseLabel(executedStep);
-            _savedCreases[creaseLabel] = new SavedCrease {
-                Tag = creaseLabel,
-                P1 = Controller.FoldPoint1,
-                P2 = Controller.FoldPoint2,
-                PlaneNormal = executedStep.DragPlaneNormal
-            };
-
-            ApplyLockFoldAxisIfNeeded(executedStep);
+            SaveExecutedAxis(executedStep);
         } else {
             Debug.LogWarning($"FoldInstructionRunner: Crease step {_currentStepIndex + 1} failed — topology was not cut.");
         }
@@ -376,6 +366,7 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             AdvanceToNextStep();
 
         _isCreaseAnimating = false;
+        RefreshDragHandleVisibility();
     }
 
     private bool TrySetupAccordionStep(FoldStep step) {
@@ -388,8 +379,8 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             return false;
         }
 
-        if (!_savedCreases.TryGetValue(tagA, out SavedCrease creaseA)
-            || !_savedCreases.TryGetValue(tagB, out SavedCrease creaseB)) {
+        if (!_savedAxes.TryGetValue(tagA, out SavedCrease creaseA)
+            || !_savedAxes.TryGetValue(tagB, out SavedCrease creaseB)) {
             Debug.LogWarning($"FoldInstructionRunner: Accordion crease tags not found (\"{tagA}\", \"{tagB}\").");
             return false;
         }
@@ -447,37 +438,137 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             DragHandle.transform.position = Controller.transform.TransformPoint(Controller.DragHandlePosition);
     }
 
-    /// <summary>
-    /// Finds a previously committed crease whose axis crosses the given fold axis.
-    /// </summary>
-    private bool TryFindCrossingCreaseTag(
-        Vector3 foldP1, Vector3 foldP2, Vector3 planeNormal, string excludeTag, out string crossingTag) {
-        crossingTag = null;
+    private void SaveExecutedAxis(FoldStep step) {
+        string axisTag = GetAxisLabel(step);
+        if (string.IsNullOrEmpty(axisTag))
+            return;
 
-        if (_savedCreases.Count == 0)
-            return false;
+        Vector3 planeNormal = step.DragPlaneNormal;
+        Vector3 clippedP1;
+        Vector3 clippedP2;
 
-        foreach (var kvp in _savedCreases) {
-            if (!string.IsNullOrEmpty(excludeTag) && kvp.Key == excludeTag)
-                continue;
-
-            SavedCrease other = kvp.Value;
-            Vector3 n = planeNormal.sqrMagnitude > 0.0001f ? planeNormal : other.PlaneNormal;
-            if (AccordionCollapse.CreaseAxesCross(foldP1, foldP2, other.P1, other.P2, n)) {
-                crossingTag = kvp.Key;
-                return true;
+        if (step.IsAccordionFold) {
+            Vector3 dragStart = Controller.AccordionDragStart;
+            Vector3 dragEnd = Controller.AccordionDragEnd;
+            Vector3 dragMidpoint = (dragStart + dragEnd) * 0.5f;
+            if (!TryClipAccordionDragAxisToPaper(dragEnd, dragMidpoint, planeNormal, out clippedP1, out clippedP2)) {
+                Debug.LogWarning($"FoldInstructionRunner: Could not clip accordion axis \"{axisTag}\" to paper edges.");
+                return;
             }
+        } else if (!TryClipAxisToPaperEdges(Controller.FoldPoint1, Controller.FoldPoint2, planeNormal, out clippedP1, out clippedP2)) {
+            Debug.LogWarning($"FoldInstructionRunner: Could not clip axis \"{axisTag}\" to paper edges.");
+            return;
         }
 
-        return false;
+        _savedAxes[axisTag] = new SavedCrease {
+            Tag = axisTag,
+            P1 = clippedP1,
+            P2 = clippedP2,
+            PlaneNormal = planeNormal
+        };
     }
 
-    private void ApplyLockFoldAxisIfNeeded(FoldStep step) {
-        if (!step.LockFoldAxis) return;
+    private bool TryClipAccordionDragAxisToPaper(
+        Vector3 dragEnd,
+        Vector3 dragMidpoint,
+        Vector3 planeNormal,
+        out Vector3 clippedP1,
+        out Vector3 clippedP2) {
+        clippedP1 = dragEnd;
+        clippedP2 = dragMidpoint;
 
-        _hasSavedFoldAxis = true;
-        _savedFoldAxisP1 = SnapToNearestVertex(Controller.FoldPoint1);
-        _savedFoldAxisP2 = SnapToNearestVertex(Controller.FoldPoint2);
+        Vector3 axisDelta = dragMidpoint - dragEnd;
+        if (axisDelta.sqrMagnitude < 0.00001f)
+            return false;
+
+        if (!TryClipAxisToPaperEdges(dragEnd, dragMidpoint, planeNormal, out Vector3 paperP1, out Vector3 paperP2))
+            return false;
+
+        Vector3 axisDir = axisDelta.normalized;
+        float midpointT = Vector3.Dot(dragMidpoint - dragEnd, axisDir);
+        float paperT1 = Vector3.Dot(paperP1 - dragEnd, axisDir);
+        float paperT2 = Vector3.Dot(paperP2 - dragEnd, axisDir);
+        float minPaperT = Mathf.Min(paperT1, paperT2);
+        float maxPaperT = Mathf.Max(paperT1, paperT2);
+
+        float startT = Mathf.Max(0f, minPaperT);
+        float endT = Mathf.Min(midpointT, maxPaperT);
+        if (endT - startT < 0.00001f)
+            return false;
+
+        clippedP1 = dragEnd + axisDir * startT;
+        clippedP2 = dragEnd + axisDir * endT;
+        return true;
+    }
+
+    private bool TryClipAxisToPaperEdges(
+        Vector3 axisP1,
+        Vector3 axisP2,
+        Vector3 planeNormal,
+        out Vector3 clippedP1,
+        out Vector3 clippedP2) {
+        clippedP1 = axisP1;
+        clippedP2 = axisP2;
+
+        if (_paperGraph == null || _paperGraph.Edges == null || _paperGraph.Edges.Count == 0)
+            return false;
+
+        Vector3 axisDelta = axisP2 - axisP1;
+        if (axisDelta.sqrMagnitude < 0.00001f)
+            return false;
+
+        Vector3 axisDir = axisDelta.normalized;
+        Vector3 axisMidpoint = (axisP1 + axisP2) * 0.5f;
+        return ClipLineToPaperEdges(
+            axisP1,
+            axisP2,
+            axisDir,
+            axisMidpoint,
+            planeNormal,
+            _paperGraph,
+            out clippedP1,
+            out clippedP2,
+            out _);
+    }
+
+    private void RemoveSavedAxisForStep(FoldStep step) {
+        string axisTag = GetAxisLabel(step);
+        if (string.IsNullOrEmpty(axisTag))
+            return;
+
+        _savedAxes.Remove(axisTag);
+    }
+
+    private string GetAxisLabel(FoldStep step) {
+        string axisTag = step.GetAxisTagName();
+        if (!string.IsNullOrEmpty(axisTag))
+            return axisTag;
+
+        if (step.IsCrease)
+            return GetCreaseLabel(step);
+
+        return null;
+    }
+
+    private List<SavedCrease> ResolveFreezeAxesForStep(FoldStep step) {
+        List<SavedCrease> axes = new List<SavedCrease>();
+        IReadOnlyList<string> tags = step.FreezeAxisTags?.Tags;
+        if (tags == null || tags.Count == 0)
+            return axes;
+
+        foreach (string tag in tags) {
+            if (string.IsNullOrEmpty(tag))
+                continue;
+
+            if (_savedAxes.TryGetValue(tag, out SavedCrease axis)) {
+                axes.Add(axis);
+                continue;
+            }
+
+            Debug.LogWarning($"FoldInstructionRunner: Freeze axis \"{tag}\" not found among executed folds.");
+        }
+
+        return axes;
     }
 
     private void AdvanceToNextStep() {
@@ -489,9 +580,7 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         } else {
             Controller.ClearPreview();
             HideGuideLine();
-
-            if (DragHandle != null)
-                DragHandle.gameObject.SetActive(false);
+            RefreshDragHandleVisibility();
 
             if (HUDCanvas.Instance != null)
                 HUDCanvas.Instance.StopFoldingTimer();
@@ -514,8 +603,20 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         return fallback;
     }
 
-    private void ClearSavedCreases() {
-        _savedCreases.Clear();
+    private void MigrateInstructionSteps() {
+        if (Instruction?.Steps == null)
+            return;
+
+        for (int i = 0; i < Instruction.Steps.Count; i++) {
+            FoldStep step = Instruction.Steps[i];
+            step.MigrateLegacyFilterTag();
+            FoldStep nextStep = i + 1 < Instruction.Steps.Count ? Instruction.Steps[i + 1] : null;
+            step.MigrateLegacyLockFoldAxis(nextStep);
+        }
+    }
+
+    private void ClearSavedAxes() {
+        _savedAxes.Clear();
     }
 
     private void UpdateGuideLine(FoldStep step) {
@@ -583,19 +684,20 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
     }
 
     private void ShowGuideLine(FoldStep step, Vector3 p1, Vector3 p2) {
-        if (Controller?.DecalManager == null || _paperGraph == null || step == null)
+        if (DecalController.Instance == null || _paperGraph == null || step == null)
             return;
 
-        Controller.DecalManager.UpdateFoldGuide(
+        DecalController.Instance.UpdateFoldGuide(
             p1,
             p2,
             step.DragPlaneNormal.normalized,
+            step.PaperRotation,
             ResolveFilterTagsForStep(step),
             _paperGraph);
     }
 
     private void HideGuideLine() {
-        Controller?.DecalManager?.HideFoldGuide();
+        DecalController.Instance?.HideFoldGuide();
     }
 
     /// <summary>
@@ -606,20 +708,23 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             ReenterStickerPhaseFromFlight();
         else if (_phase == FoldingRunPhase.Stickers)
             ExitStickerPhase(clearStickers: false);
+
+        RefreshDragHandleVisibility();
     }
 
     private void EnterStickerPhase() {
         _phase = FoldingRunPhase.Stickers;
-        if (HUDCanvas.Instance != null)
+        if (HUDCanvas.Instance != null) {
             HUDCanvas.Instance.ShowStickerUI(true);
+            HUDCanvas.Instance.SetFlyCurrentVisible(true);
+        }
 
         if (Controller != null) {
             Controller.ClearPreview();
-            Controller.DecalManager?.PreparePlacement();
+            DecalController.Instance?.PreparePlacement();
         }
 
-        if (DragHandle != null)
-            DragHandle.gameObject.SetActive(false);
+        RefreshDragHandleVisibility();
 
         HideGuideLine();
 
@@ -634,10 +739,9 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             HUDCanvas.Instance.ShowStickerUI(true);
 
         if (Controller != null)
-            Controller.DecalManager?.PreparePlacement(syncPreviewFromAuthoring: false);
+            DecalController.Instance?.PreparePlacement(syncPreviewFromAuthoring: false);
 
-        if (DragHandle != null)
-            DragHandle.gameObject.SetActive(false);
+        RefreshDragHandleVisibility();
 
         HideGuideLine();
 
@@ -646,17 +750,20 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             stickerUi.PopulateDropdown();
     }
 
-    private void ExitStickerPhase(bool clearStickers) {
+    private void ExitStickerPhase(bool clearStickers, bool includeDamageDecals = true) {
         _phase = FoldingRunPhase.Folding;
         if (clearStickers)
-            ClearStickersOnPaper();
+            ClearStickersOnPaper(includeDamageDecals);
         if (HUDCanvas.Instance != null)
             HUDCanvas.Instance.ShowStickerUI(false);
     }
 
-    private void ClearStickersOnPaper() {
-        if (Controller == null || Controller.DecalManager == null) return;
-        Controller.DecalManager.ClearDecals();
+    private void ClearStickersOnPaper(bool includeDamageDecals = true) {
+        if (DecalController.Instance == null) return;
+        if (includeDamageDecals)
+            DecalController.Instance.ClearDecals();
+        else
+            DecalController.Instance.ClearUserStickers();
     }
 
     /// <summary>
@@ -665,6 +772,126 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
     public void InstantResetPaper() {
         if (_isUnfolding || Instruction == null) return;
         LoadInstruction(Instruction);
+    }
+
+    /// <summary>
+    /// Instantly puts the paper into the flat, non-interactive state used for the
+    /// level-end reveal: stops any fold animation, flattens the sheet, orients it to the
+    /// base (unfolded) world rotation, and hides the drag handle and fold guide line.
+    /// Unlike <see cref="InstantResetPaper"/> this does NOT re-arm fold step 0, so the
+    /// handle and guide line stay hidden (no fold interaction behind the end screen).
+    /// </summary>
+    public void EnterLevelEndState() {
+        StopAllCoroutines();
+        _isUnfolding = false;
+        _isAutoFolding = false;
+        _isCreaseAnimating = false;
+        _isExecutingStepAnimation = false;
+
+        ExitStickerPhase(clearStickers: false);
+        ClearSavedAxes();
+
+        if (Controller != null) {
+            Controller.ResetSheet();
+            Controller.ClearPreview();
+        }
+
+        SettleIntoLevelEndState();
+        RefreshDragHandleVisibility();
+    }
+
+    /// <summary>
+    /// Folds the paper up to its fully folded shape without any visible animation. Used at
+    /// level end for the default plane (which the player never folded by hand) so there is a
+    /// folded plane to unfold; folds happen off-screen during the camera pan. A no-op when
+    /// the plane is already fully folded (the hand-folded case).
+    /// </summary>
+    public void PrepareLevelEndFold() {
+        if (Instruction == null || Controller == null) return;
+        if (_isUnfolding || _isAutoFolding) return;
+        if (_currentStepIndex >= Instruction.Steps.Count) return; // already fully folded
+
+        ExitStickerPhase(clearStickers: false);
+        StartCoroutine(AutoFoldAllRoutine(fast: true, enterStickerPhase: false));
+    }
+
+    /// <summary>
+    /// Animated level-end reveal: plays the same fold-by-fold unfold as <see cref="Unfold"/>,
+    /// then finishes in the flat, non-interactive level-end state (rather than re-arming
+    /// fold step 0). Falls back to an instant flatten when there is nothing to animate.
+    /// Waits for any in-progress silent fold-up (see <see cref="PrepareLevelEndFold"/>) so
+    /// the default plane unfolds just like a hand-folded one.
+    /// </summary>
+    public void UnfoldForLevelEnd() {
+        if (Instruction == null || Controller == null) {
+            EnterLevelEndState();
+            return;
+        }
+        if (_isUnfolding) return;
+
+        ExitStickerPhase(clearStickers: false);
+        StartCoroutine(UnfoldForLevelEndRoutine());
+    }
+
+    private System.Collections.IEnumerator UnfoldForLevelEndRoutine() {
+        // If the plane is still folding up silently, let it finish first.
+        while (_isAutoFolding)
+            yield return null;
+
+        yield return UnfoldAllRoutine(preserveStickers: true, levelEnd: true);
+    }
+
+    /// <summary>
+    /// Shared terminal state for the level-end reveal: orients the paper to the base
+    /// (unfolded) world rotation and hides the drag handle and fold guide line so no fold
+    /// interaction remains behind the end screen.
+    /// </summary>
+    private void SettleIntoLevelEndState() {
+        _totalAccuracy = 0f;
+        _foldCount = 0;
+
+        // The unfolded base orientation is world identity (Unfold() returns here), which
+        // is the flat pose the folding camera frames. Stop the rotation lerp so LateUpdate
+        // leaves the paper at this orientation.
+        CurrentPaperRotation = Vector3.zero;
+        _isPaperLerping = false;
+        if (Controller != null) {
+            Controller.ClearFoldAxisLocks();
+            Controller.transform.rotation = Quaternion.identity;
+        }
+
+        // Terminal state: no active fold step, so LateUpdate stops redrawing the fold
+        // guide line and re-arming the handle.
+        _currentStepIndex = -1;
+        HideGuideLine();
+
+        RefreshDragHandleVisibility();
+    }
+
+    bool ShouldShowDragHandle() {
+        if (DragHandle == null)
+            return false;
+
+        if (HUDCanvas.Instance != null && !HUDCanvas.Instance.HasStartedFolding)
+            return false;
+
+        if (_phase != FoldingRunPhase.Folding)
+            return false;
+
+        if (_isUnfolding || _isAutoFolding || _isCreaseAnimating || _isExecutingStepAnimation)
+            return false;
+
+        if (Instruction == null || _currentStepIndex < 0 || _currentStepIndex >= Instruction.Steps.Count)
+            return false;
+
+        return true;
+    }
+
+    void RefreshDragHandleVisibility() {
+        if (DragHandle == null)
+            return;
+
+        DragHandle.gameObject.SetActive(ShouldShowDragHandle());
     }
 
     /// <summary>
@@ -756,13 +983,7 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
 
         Controller.SelectedFilterTags = ResolveFilterTagsForStep(step);
 
-        if (_hasSavedFoldAxis) {
-            Controller.HasFoldAxisLock = true;
-            Controller.FoldAxisLockP1 = _savedFoldAxisP1;
-            Controller.FoldAxisLockP2 = _savedFoldAxisP2;
-        } else {
-            Controller.HasFoldAxisLock = false;
-        }
+        Controller.SetFoldAxisLocks(ResolveFreezeAxesForStep(step));
 
         if (step.RotatePaper && Controller != null) {
             CurrentPaperRotation = step.PaperRotation;
@@ -774,6 +995,7 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             if (!TrySetupAccordionStep(step))
                 Controller.ClearPreview();
 
+            DecalController.Instance?.InvalidateFoldGuideCache();
             UpdateGuideLine(step);
             return;
         }
@@ -795,9 +1017,11 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         Controller.RecalculateFoldAxis();
         Controller.LockedFoldPoint1 = Controller.FoldPoint1;
         Controller.LockedFoldPoint2 = Controller.FoldPoint2;
+        Controller.BeginFoldStepDrag(Controller.FoldPoint1, Controller.FoldPoint2);
 
         Controller.ClearPreview();
 
+        DecalController.Instance?.InvalidateFoldGuideCache();
         UpdateGuideLine(step);
     }
 
@@ -886,6 +1110,44 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         RecalculatePaperTarget();
     }
 
+    public void SetPaperRotationLerpPaused(bool paused) {
+        _paperRotationLerpPaused = paused;
+    }
+
+    /// <summary>
+    /// World rotation for the current fold step's folding view.
+    /// </summary>
+    public Quaternion GetFoldingViewRotation() {
+        if (Instruction == null || Instruction.Steps.Count == 0 || Controller == null)
+            return Controller != null ? Controller.transform.rotation : Quaternion.identity;
+
+        int idx = Mathf.Clamp(_currentStepIndex, 0, Instruction.Steps.Count - 1);
+        return Quaternion.Euler(Instruction.Steps[idx].PaperRotation);
+    }
+
+    /// <summary>
+    /// Keeps the runner's paper rotation state in sync after an external transform change.
+    /// </summary>
+    public void SyncPaperRotationToTransform() {
+        if (Controller == null) return;
+
+        CurrentPaperRotation = Controller.transform.rotation.eulerAngles;
+        _targetPaperRotation = Controller.transform.rotation;
+        _isPaperLerping = false;
+    }
+
+    /// <summary>
+    /// Snaps the paper to the current step's folding view rotation.
+    /// </summary>
+    public void RestoreFoldingViewRotation() {
+        if (Instruction == null || Instruction.Steps.Count == 0 || Controller == null) return;
+
+        CurrentPaperRotation = Instruction.Steps[Mathf.Clamp(_currentStepIndex, 0, Instruction.Steps.Count - 1)].PaperRotation;
+        _targetPaperRotation = Quaternion.Euler(CurrentPaperRotation);
+        Controller.transform.rotation = _targetPaperRotation;
+        _isPaperLerping = false;
+    }
+
     /// <summary>
     /// Recomputes the paper target rotation from the exposed euler values.
     /// Called from OnValidate so tweaking values in the Inspector updates the paper live.
@@ -906,12 +1168,23 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         StartCoroutine(UnfoldAllRoutine(preserveStickers));
     }
 
+    /// <summary>
+    /// Unfolds the paper for refold/plane re-selection without restarting fold step 0.
+    /// </summary>
+    public void UnfoldForRefold(Action onComplete = null) {
+        if (_isUnfolding || Instruction == null || Controller == null) {
+            onComplete?.Invoke();
+            return;
+        }
+
+        StartCoroutine(UnfoldAllRoutine(preserveStickers: false, levelEnd: false, refold: true, onComplete));
+    }
+
     private void PrepareForAnimation() {
         HideGuideLine();
-        if (DragHandle != null) DragHandle.gameObject.SetActive(false);
+        RefreshDragHandleVisibility();
         if (Controller != null) {
             Controller.ClearPreview();
-            Controller.DecalManager?.InvalidatePreviewCaches();
         }
     }
 
@@ -943,8 +1216,14 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         Controller.UpdatePreview(); 
     }
 
-    private System.Collections.IEnumerator UnfoldAllRoutine(bool preserveStickers = false) {
+    private System.Collections.IEnumerator UnfoldAllRoutine(
+        bool preserveStickers = false,
+        bool levelEnd = false,
+        bool refold = false,
+        Action onComplete = null) {
         _isUnfolding = true;
+        if (HUDCanvas.Instance != null)
+            HUDCanvas.Instance.ShowStickerUI(false);
         PrepareForAnimation();
 
         int executedCount = _currentStepIndex >= 0 ? 
@@ -956,7 +1235,7 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
 
             // Revert authoring topology without snapping decals to the flat mesh.
             Controller.UndoAuthoringFold();
-            Controller.DecalManager?.ReanchorPlacementDataOnly();
+            RemoveSavedAxisForStep(step);
 
             ConfigureControllerForStep(step);
 
@@ -981,14 +1260,34 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             yield return AnimateFoldDegreesRoutine(step.FoldDegrees, 0f, UnfoldAnimationSpeed, 0.1f);
             
             Controller.ClearPreview();
-            Controller.DecalManager?.InvalidatePreviewCaches();
 
             // Short pause between folds
             yield return new WaitForSeconds(0.2f);
         }
 
-        RestartFoldInstructionsAfterUnfold(preserveStickers);
+        if (levelEnd)
+            SettleIntoLevelEndState();
+        else if (refold)
+            SettleForRefoldSelection();
+        else
+            RestartFoldInstructionsAfterUnfold(preserveStickers);
         _isUnfolding = false;
+        RefreshDragHandleVisibility();
+        onComplete?.Invoke();
+        HUDCanvas.Instance?.RefreshStickerUiVisibility();
+    }
+
+    private void SettleForRefoldSelection() {
+        ExitStickerPhase(clearStickers: false);
+
+        _currentStepIndex = -1;
+        if (Controller != null)
+            Controller.ClearFoldAxisLocks();
+
+        HideGuideLine();
+        RefreshDragHandleVisibility();
+
+        Controller?.ClearPreview();
     }
 
     private void RestartFoldInstructionsAfterUnfold(bool preserveStickers) {
@@ -1002,23 +1301,21 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
             HUDCanvas.Instance.StartFoldingTimer();
         }
 
-        _hasSavedFoldAxis = false;
         if (Controller != null)
-            Controller.HasFoldAxisLock = false;
+            Controller.ClearFoldAxisLocks();
+
+        ClearSavedAxes();
 
         Controller?.ClearPreview();
 
         _currentStepIndex = 0;
         if (Instruction != null && Instruction.Steps.Count > 0) {
             ApplyStepToController(Instruction.Steps[0]);
-            if (DragHandle != null)
-                DragHandle.gameObject.SetActive(true);
         }
+        RefreshDragHandleVisibility();
 
-        if (preserveStickers && Controller?.DecalManager != null) {
-            Controller.DecalManager.InvalidatePreviewCaches();
-            Controller.DecalManager.RefreshAfterMeshUpdate(reanchorAuthoring: true);
-        }
+        if (HUDCanvas.Instance != null)
+            HUDCanvas.Instance.SetFlyCurrentVisible(false);
     }
 
     private void ConfigureControllerForStep(FoldStep step) {
@@ -1079,9 +1376,30 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
         StartCoroutine(AutoFoldAllRoutine());
     }
 
-    private System.Collections.IEnumerator AutoFoldAllRoutine() {
+    /// <summary>
+    /// Folds every remaining instruction step onto the paper.
+    /// When <paramref name="fast"/> is true the fold animations, paper rotations and
+    /// inter-step pauses are collapsed to near-instant so the paper snaps to its fully
+    /// folded shape in a handful of frames (used to fold the default plane up off-screen
+    /// during the level-end camera pan, before the unfold reveal). When
+    /// <paramref name="enterStickerPhase"/> is false the sticker/timer wrap-up is skipped.
+    /// </summary>
+    private System.Collections.IEnumerator AutoFoldAllRoutine(bool fast = false, bool enterStickerPhase = true) {
         _isAutoFolding = true;
         PrepareForAnimation();
+
+        // Temporarily crank the animation speeds so every sub-routine (fold, crease,
+        // accordion, vertex rotation, paper lerp) resolves in ~1 frame.
+        float origFoldSpeed = FoldAnimationSpeed;
+        float origUnfoldSpeed = UnfoldAnimationSpeed;
+        float origVertexSpeed = VertexRotationSpeed;
+        float origPaperLerpSpeed = PaperLerpSpeed;
+        float origAccordionDuration = AccordionCollapseDuration;
+        if (fast) {
+            FoldAnimationSpeed = UnfoldAnimationSpeed = VertexRotationSpeed = 100000f;
+            PaperLerpSpeed = 100000f;
+            AccordionCollapseDuration = 0f;
+        }
 
         int startIdx = Mathf.Max(0, _currentStepIndex);
 
@@ -1108,21 +1426,21 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
                     yield return AnimateAccordionDragRoutine(1f);
                     Controller.CommitAccordionAction();
                     Controller.EndAccordionDragStep();
-                    ApplyLockFoldAxisIfNeeded(step);
+                    SaveExecutedAxis(step);
                 }
 
                 Controller.ClearPreview();
 
-                if (AudioManager.Instance != null)
+                if (!fast && AudioManager.Instance != null)
                     AudioManager.Instance.Play("fold");
             } else {
                 yield return AnimateFoldDegreesRoutine(0f, step.FoldDegrees, FoldAnimationSpeed);
 
                 Controller.ExecuteFoldAction();
                 Controller.ClearPreview();
-                ApplyLockFoldAxisIfNeeded(step);
+                SaveExecutedAxis(step);
 
-                if (AudioManager.Instance != null)
+                if (!fast && AudioManager.Instance != null)
                     AudioManager.Instance.Play("fold");
             }
 
@@ -1130,37 +1448,31 @@ public class FoldInstructionRunner : MonoBehaviour, ISerializationCallbackReceiv
 
             _currentStepIndex = i + 1;
 
-            yield return new WaitForSeconds(0.2f);
+            // Short pause between folds (skipped when folding up silently).
+            if (!fast)
+                yield return new WaitForSeconds(0.2f);
+        }
+
+        if (fast) {
+            FoldAnimationSpeed = origFoldSpeed;
+            UnfoldAnimationSpeed = origUnfoldSpeed;
+            VertexRotationSpeed = origVertexSpeed;
+            PaperLerpSpeed = origPaperLerpSpeed;
+            AccordionCollapseDuration = origAccordionDuration;
         }
 
         // All steps done
         PrepareForAnimation();
 
-        if (HUDCanvas.Instance != null)
-            HUDCanvas.Instance.StopFoldingTimer();
+        if (enterStickerPhase) {
+            if (HUDCanvas.Instance != null)
+                HUDCanvas.Instance.StopFoldingTimer();
 
-        EnterStickerPhase();
-        _isAutoFolding = false;
-    }
-
-    /// <summary>
-    /// Returns the position of the vertex closest to <paramref name="point"/> in 3D local space.
-    /// Falls back to <paramref name="point"/> itself if the graph is null or empty.
-    /// </summary>
-    private Vector3 SnapToNearestVertex(Vector3 point) {
-        if (_paperGraph == null || _paperGraph.Vertices == null || _paperGraph.Vertices.Count == 0)
-            return point;
-
-        Vector3 best = point;
-        float bestDist = float.PositiveInfinity;
-        foreach (Vertex v in _paperGraph.Vertices) {
-            float d = (v.Position - point).sqrMagnitude;
-            if (d < bestDist) {
-                bestDist = d;
-                best = v.Position;
-            }
+            EnterStickerPhase();
         }
-        return best;
+
+        _isAutoFolding = false;
+        RefreshDragHandleVisibility();
     }
 }
 }

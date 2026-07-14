@@ -14,4 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Player.Loadouts.PlaneLoadout
   FoldInstruction: {fileID: 11400000, guid: 59ce8b8185a22e34a963a51bf064e6bd, type: 2}
   FlightSettings: {fileID: 11400000, guid: 204397c0df06b994a97bdd15b29c59df, type: 2}
-  Ability: {fileID: 11400000, guid: d2e3f405162738495a6b7c8d9e0f1a2b, type: 2}
+  PrimaryAbility: {fileID: 11400000, guid: aabbccdd11223344556677889900a002, type: 2}
+  SecondaryAbility: {fileID: 11400000, guid: d2e3f405162738495a6b7c8d9e0f1a2b, type: 2}
+  DisplayName: Heavyweight
+  Image: {fileID: 21300000, guid: 22562bd03e659f74e9a9afbd91c8c1f1, type: 3}
+  Description: Tanky but slow and hard to control plane, with a compact build, it
+    is more structurally stronger. Although it is harder to be lifted/pushed by frustrums.
+  Speed: 2
+  Control: 2
+  Durability: 5
+  WindResistance: 4
+  AbilityDescription: 'Corkscrew Deflection: Rapidly spin, creating a kinetic shield.
+    It deflects glancing blows from the sides, converting potential Critical Damage
+    from lateral obstacles into minor Cosmetic Damage. '
