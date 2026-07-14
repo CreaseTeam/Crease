@@ -1,0 +1,21 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Linux",
+  "BasePlatform": "Linux",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "2968846937",
+    "Type": "User",
+    "GUID": "{7EFBB1C0-8EED-4660-9AE9-FD3D7195B4AF}",
+    "Language": "SFX",
+    "Hash": "{DDB37FF4-B4A5-2FC7-ED1F-AA56E022ABF1}",
+    "ObjectPath": "\\SoundBanks\\Default Work Unit\\level_1_mus",
+    "ShortName": "level_1_mus",
+    "Path": "level_1_mus.bnk"
+   }
+  ],
+  "FileHash": "{83EE6B02-9C02-CB22-71DD-F8E66396768D}"
+ }
+}

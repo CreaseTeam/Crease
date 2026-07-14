@@ -1,0 +1,130 @@
+diff --git a/Assets/Scenes/Blockouts/Briana's Blockouts/L1 Grass & Lake Blockout.unity b/Assets/Scenes/Blockouts/Briana's Blockouts/L1 Grass & Lake Blockout.unity
+index 6f11bbc..1cf11ef 100644
+--- a/Assets/Scenes/Blockouts/Briana's Blockouts/L1 Grass & Lake Blockout.unity	
++++ b/Assets/Scenes/Blockouts/Briana's Blockouts/L1 Grass & Lake Blockout.unity	
+@@ -569,7 +569,7 @@ Terrain:
+   m_EnableTreesAndDetailsRayTracing: 0
+   m_TreeMotionVectorModeOverride: 3
+ --- !u!4 &192228335
+->
++
+ Transform:
+   m_CorrespondingSourceObject: {fileID: 8424490050691201794, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
+   m_PrefabInstance: {fileID: 220826257}
+@@ -800,7 +800,7 @@ Mesh:
+       m_Extent: {x: 20, y: 5.79, z: 20}
+ 
+       m_Extent: {x: 3.4, y: 5.79, z: 3.4}
+->
++
+   m_Shapes:
+     vertices: []
+     shapes: []
+@@ -883,7 +883,7 @@ Mesh:
+     _typelessdata: 000000000000000000000000000000000000803f0000000000000000ae4739410000000000000000000080bf000000000000a0410000000000000000c2e1383ffca71f3f4129993e30466241000000003046624100c9cb3e5d7e403f6289063f7aac6ab5000000000000a041a7a9b8bd5d7e403f422e273f304662c10000000030466241628906bf5d7e403fffc8cb3e0000a0c1000000007aaceab5422e27bf5d7e403fb1a9b8bd2d4662c100000000324662c100c9cbbe5e7e403f628906bfdd0a8034000000000000a0c1bda9b83d5c7e403f432e27bf35466241000000002b4662c16189063f5d7e403ffcc8cbbe0000a041000000007aac6a36d931fb3ed2eb583fac1850be0000a041ae47394100000000d831fb3ed1eb58bfb518503e30466241ae473941304662416189063f5d7e40bf00c9cb3e7aac6ab5ae4739410000a041a7a9b83d5d7e40bf422e273f304662c1ae4739413046624101c9cbbe5e7e40bf6189063f0000a0c1ae4739417aaceab5432e27bf5d7e40bfa1a9b83d2d4662c1ae473941324662c1628906bf5e7e40bf03c9cbbedd0a8034ae4739410000a0c196a9b8bd5e7e40bf432e27bf35466241ae4739412b4662c102c9cb3e5d7e40bf628906bf0000a041ae4739417aac6a36c4e1383ffda71fbf3b2999be
+ 
+     _typelessdata: 00000000000000000000000000000000ffff7f3f0000000000000000ae4739410000000000000000000080bf000000000000803f0000000000000000b009693fb7e52ebe0e0ec13ef304353f00000000f304353f984fff3e03392bbeb5bb593f2ebd3bb3000000000000803f47c77ebe05392bbe073a743ff30435bf00000000f304353fb7bb59bf04392bbe974fff3e000080bf000000002ebdbbb3073a74bf03392bbe4fc77ebef10435bf00000000f50435bf984fffbe04392bbeb5bb59bf2ede4c3200000000000080bf55c77e3e02392bbe073a74bff704353f00000000ef0435bfb5bb593f03392bbe954fffbe0000803f000000002ebd3b342f0d6b3f9856e3bd11b9c2be9a995940ae4739410000000073a5563f5c04d7be9fd1b13ecfdd1940ae473941cfdd194062c62c3fe4f3d6bea0591b3f01941fb4ae4739419a995940bc23453de4f3d6befa04683fcfdd19c0ae473941cfdd1940a1591bbfe6f3d6be62c62c3f9a9959c0ae47394101949fb4fa0468bfe4f3d6bea423453dcddd19c0ae473941d1dd19c063c62cbfe3f3d6bea1591bbf41232e33ae4739419a9959c0852345bde4f3d6befb0468bfd2dd1940ae473941cbdd19c0a1591b3fe2f3d6be64c62cbf9a995940ae47394101941f35b8835b3ff498bebe09dab5be
+->
++
+   m_CompressedMesh:
+     m_Vertices:
+       m_NumItems: 0
+@@ -942,7 +942,7 @@ Mesh:
+     m_Extent: {x: 20, y: 5.79, z: 20}
+ 
+     m_Extent: {x: 3.4, y: 5.79, z: 3.4}
+->
++
+   m_MeshUsageFlags: 0
+   m_CookingOptions: 30
+   m_BakedConvexCollisionMesh: 
+@@ -3959,7 +3959,7 @@ PrefabInstance:
+ --- !u!1001 &2036702963
+ 
+ --- !u!1001 &3479183127657217181
+->
++
+ PrefabInstance:
+   m_ObjectHideFlags: 0
+   serializedVersion: 2
+@@ -4051,7 +4051,7 @@ PrefabInstance:
+     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
+       propertyPath: m_LocalPosition.x
+       value: 321.68268
+->
++
+       objectReference: {fileID: 0}
+     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
+       propertyPath: m_LocalPosition.y
+@@ -4059,7 +4059,7 @@ PrefabInstance:
+       value: 5.1419
+ 
+       value: -4.5
+->
++
+       objectReference: {fileID: 0}
+     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
+       propertyPath: m_LocalPosition.z
+@@ -4067,7 +4067,7 @@ PrefabInstance:
+       value: 435.6
+ 
+       value: 786.3
+->
++
+       objectReference: {fileID: 0}
+     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
+       propertyPath: m_LocalRotation.w
+@@ -4075,7 +4075,7 @@ PrefabInstance:
+       value: 0.28844917
+ 
+       value: 1
+->
++
+       objectReference: {fileID: 0}
+     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
+       propertyPath: m_LocalRotation.x
+@@ -4083,7 +4083,7 @@ PrefabInstance:
+       value: 0.61595565
+ 
+       value: 0
+->
++
+       objectReference: {fileID: 0}
+     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
+       propertyPath: m_LocalRotation.y
+@@ -4091,7 +4091,7 @@ PrefabInstance:
+       value: 0.7236179
+ 
+       value: 0
+->
++
+       objectReference: {fileID: 0}
+     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
+       propertyPath: m_LocalRotation.z
+@@ -4099,7 +4099,7 @@ PrefabInstance:
+       value: -0.11735764
+ 
+       value: 0
+->
++
+       objectReference: {fileID: 0}
+     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
+       propertyPath: m_LocalEulerAnglesHint.x
+@@ -4107,7 +4107,7 @@ PrefabInstance:
+       value: 31.681
+ 
+       value: 0
+->
++
+       objectReference: {fileID: 0}
+     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
+       propertyPath: m_LocalEulerAnglesHint.y
+@@ -4115,7 +4115,7 @@ PrefabInstance:
+       value: 161.297
+ 
+       value: 0
+->
++
+       objectReference: {fileID: 0}
+     - target: {fileID: 2514185657687589085, guid: 1c61e2a2b2b094546a9b77dbb171e19d, type: 3}
+       propertyPath: m_LocalEulerAnglesHint.z

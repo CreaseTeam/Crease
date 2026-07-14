@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Crease.Folding.PaperGraph
+namespace Crease.Folding.Paper
 {
     /// <summary>
     /// Runtime state for an in-progress or previewed accordion (water-bomb style) collapse.
@@ -289,7 +289,7 @@ namespace Crease.Folding.PaperGraph
             Vector3 dragAxis = Vector3.Cross(accordionAxisDir, planeNormal).normalized;
             OrientNormalTowardSheetUp(ref dragAxis, sheetUp);
 
-            graph.SplitEdgesCrossingPlane(center.Position, accordionPlaneNormal, 180f, null, 0f, out bool _);
+            graph.SplitEdgesCrossingPlane(center.Position, accordionPlaneNormal, 180f, null, 0f, false, out bool _);
 
             EnsureCreaseRaysFromCenter(
                 graph, center,
@@ -736,13 +736,13 @@ namespace Crease.Folding.PaperGraph
             Vector3 axisA = Vector3.ProjectOnPlane(axisA2 - axisA1, planeNormal);
             if (axisA.sqrMagnitude > 0.00001f) {
                 Vector3 planeA = Vector3.Cross(axisA.normalized, planeNormal).normalized;
-                graph.SplitEdgesCrossingPlane(point, planeA, 180f, null, 0f, out bool _);
+                graph.SplitEdgesCrossingPlane(point, planeA, 180f, null, 0f, false, out bool _);
             }
 
             Vector3 axisB = Vector3.ProjectOnPlane(axisB2 - axisB1, planeNormal);
             if (axisB.sqrMagnitude > 0.00001f) {
                 Vector3 planeB = Vector3.Cross(axisB.normalized, planeNormal).normalized;
-                graph.SplitEdgesCrossingPlane(point, planeB, 180f, null, 0f, out bool _);
+                graph.SplitEdgesCrossingPlane(point, planeB, 180f, null, 0f, false, out bool _);
             }
         }
 

@@ -2,7 +2,7 @@ using Crease.Managers.Input;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Crease.Folding.PaperGraph
+namespace Crease.Folding.Paper
 {
     /// <summary>
     /// Rotates the attached GameObject using the abstract InputManager actions.

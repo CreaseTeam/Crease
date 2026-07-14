@@ -1,9 +1,11 @@
+using System.Collections;
 using System.Collections.Generic;
 using Crease.Flying.Player.Abilities;
 using Crease.Flying.Player.Loadouts;
 using Crease.Flying.Player.Health;
 using PlayerHealth = Crease.Flying.Player.Health.Health;
-using Crease.Folding.PaperGraph;
+using Crease.Folding.Paper;
+using Crease.Folding.PaperSurface.Writing;
 using Crease.Managers.Input;
 using Crease.UI.Flying;
 using TMPro;
@@ -17,12 +19,23 @@ namespace Crease.UI
 {
     public class HUDCanvas : MonoBehaviour
     {
+        [Header("Ability UI")]
         [SerializeField]
         private AbilityController _abilityController;
         [SerializeField]
-        private Image _abilityRechargeBar;
+        private GameObject _primaryAbilityUI;
+        [FormerlySerializedAs("_abilityRechargeBar")]
         [SerializeField]
-        private GameObject _abilityReadyBorder;
+        private Image _primaryAbilityRechargeBar;
+        [FormerlySerializedAs("_abilityReadyBorder")]
+        [SerializeField]
+        private GameObject _primaryAbilityReadyBorder;
+        [SerializeField]
+        private GameObject _secondaryAbilityUI;
+        [SerializeField]
+        private Image _secondaryAbilityRechargeBar;
+        [SerializeField]
+        private GameObject _secondaryAbilityReadyBorder;
         [SerializeField]
         [FormerlySerializedAs("collectibleText")]
         private TextMeshProUGUI _collectibleText;
@@ -37,6 +50,8 @@ namespace Crease.UI
         [SerializeField]
         [FormerlySerializedAs("foldingUI")]
         private GameObject _foldingUI;
+        [SerializeField]
+        private GameObject _flyCurrentButton;
         [SerializeField]
         [FormerlySerializedAs("flyingUI")]
         private GameObject _flyingUI;
@@ -77,21 +92,42 @@ namespace Crease.UI
         private PlaneLoadoutApplier _loadoutApplier;
         [SerializeField]
         private FoldInstructionRunner _foldInstructionRunner;
-
-        [Header("Folding Debug")]
         [SerializeField]
-        private Toggle _debugModeToggle;
+        private PlaneSelectionScreen _planeSelectionScreen;
+        [SerializeField]
+        private GameObject _refoldButton;
+
+        [Header("Folding Debug Paper Texture")]
+        [SerializeField]
+        private Toggle _debugToggle;
+        [SerializeField]
+        [FormerlySerializedAs("_debugModeToggle")]
+        private Toggle _debugPaperTextureToggle;
         [SerializeField]
         private PaperGraphVisualizer[] _paperGraphVisualizers;
 
         public static HUDCanvas Instance { get; private set; }
 
-        public bool DebugMode { get; private set; }
+        public PlaneSelectionScreen PlaneSelectionScreen => _planeSelectionScreen;
+
+        private const string DebugPrefsKey = "Debug";
+
+        public bool Debug { get; private set; }
+        public bool DebugPaperTexture { get; private set; }
 
         private int _collectibleCount = 0;
         private int _selectedLoadoutIndex;
         private bool _isUpdatingLoadoutDropdown;
+        private bool _hasStartedFolding;
+        private bool _refoldAvailable;
+        private bool _flyCurrentRequestedVisible;
+        private bool _stickerUiRequestedVisible;
+        private bool _preserveDecalsForNextLoadout;
         private PaperGraphVisualizer[] _resolvedPaperGraphVisualizers = System.Array.Empty<PaperGraphVisualizer>();
+
+        public bool RequiresPlaneSelection => _planeSelectionScreen != null;
+        public bool HasStartedFolding => _hasStartedFolding;
+        public bool RefoldAvailable => _refoldAvailable;
 
         public int Collect()
         {
@@ -128,10 +164,11 @@ namespace Crease.UI
             if (Instance == null)
             {
                 Instance = this;
+                _hasStartedFolding = _planeSelectionScreen == null;
             }
             else
             {
-                Debug.LogWarning("HUDCanvas Awake: Instance already exists, destroying duplicate");
+                UnityEngine.Debug.LogWarning("HUDCanvas Awake: Instance already exists, destroying duplicate");
                 Destroy(gameObject);
             }
         }
@@ -140,20 +177,26 @@ namespace Crease.UI
         void Start()
         {
             _collectibleText.text = $"{_collectibleCount}";
-            if (_abilityRechargeBar != null && _abilityController != null)
-                _abilityRechargeBar.fillAmount = _abilityController.RechargeNormalized;
+            UpdateAbilityUI();
 
             PopulateLoadoutDropdown();
-            if (_planeTypeDropdown != null)
-                _planeTypeDropdown.onValueChanged.AddListener(OnLoadoutDropdownChanged);
-            ApplySelectedLoadout();
+
+            if (_hasStartedFolding)
+                ApplySelectedLoadout();
 
             _resolvedPaperGraphVisualizers = ResolvePaperGraphVisualizers();
-            if (_debugModeToggle != null)
-            {
-                _debugModeToggle.onValueChanged.AddListener(OnDebugModeToggleChanged);
-                OnDebugModeToggleChanged(_debugModeToggle.isOn);
-            }
+            if (_debugPaperTextureToggle != null)
+                SetDebugPaperTexture(_debugPaperTextureToggle.isOn);
+
+            Debug = PlayerPrefs.GetInt(DebugPrefsKey, 0) == 1;
+            if (_debugToggle != null)
+                _debugToggle.SetIsOnWithoutNotify(Debug);
+            ApplyDebugVisibility();
+            if (InputManager.Instance != null)
+                InputManager.Instance.SyncDebugControls();
+            UpdateRefoldUi();
+
+            SetFlyCurrentVisible(false);
 
             // maxHealth = hearts.Count;
             // health = maxHealth;
@@ -162,7 +205,18 @@ namespace Crease.UI
 
         private void OnEnable()
         {
+            SceneManager.sceneLoaded += OnSceneLoaded;
             PopulateLoadoutDropdown();
+        }
+
+        private void OnDisable()
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            ApplyDebugVisibility();
         }
 
         // Update is called once per frame
@@ -174,21 +228,61 @@ namespace Crease.UI
                 UpdateTimerDisplay();
             }
 
-            if (_abilityRechargeBar != null && _abilityController != null)
-                _abilityRechargeBar.fillAmount = _abilityController.RechargeNormalized;
+            UpdateAbilityUI();
+        }
 
-            if (_abilityReadyBorder != null && _abilityController != null)
+        private void UpdateAbilityUI()
+        {
+            if (_abilityController == null)
+                return;
+
+            bool hasPrimary = _abilityController.PrimaryEquippedAbility != null;
+            bool hasSecondary = _abilityController.SecondaryEquippedAbility != null;
+
+            if (_primaryAbilityUI != null)
+                _primaryAbilityUI.SetActive(hasPrimary);
+
+            if (_secondaryAbilityUI != null)
+                _secondaryAbilityUI.SetActive(hasSecondary);
+
+            if (hasPrimary)
             {
-                bool canUse = _abilityController.CanActivate;
-                if (canUse)
-                {
-                    bool flip = Mathf.PingPong(Time.time * 2f, 1f) > 0.5f;
-                    _abilityReadyBorder.SetActive(flip);
-                }
-                else
-                {
-                    _abilityReadyBorder.SetActive(false);
-                }
+                if (_primaryAbilityRechargeBar != null)
+                    _primaryAbilityRechargeBar.fillAmount = _abilityController.RechargeNormalized;
+
+                UpdateReadyBorder(_primaryAbilityReadyBorder, _abilityController.CanActivate);
+            }
+            else if (_primaryAbilityReadyBorder != null)
+            {
+                _primaryAbilityReadyBorder.SetActive(false);
+            }
+
+            if (hasSecondary)
+            {
+                if (_secondaryAbilityRechargeBar != null)
+                    _secondaryAbilityRechargeBar.fillAmount = _abilityController.SecondaryRechargeNormalized;
+
+                UpdateReadyBorder(_secondaryAbilityReadyBorder, _abilityController.SecondaryCanActivate);
+            }
+            else if (_secondaryAbilityReadyBorder != null)
+            {
+                _secondaryAbilityReadyBorder.SetActive(false);
+            }
+        }
+
+        private static void UpdateReadyBorder(GameObject readyBorder, bool canActivate)
+        {
+            if (readyBorder == null)
+                return;
+
+            if (canActivate)
+            {
+                bool flip = Mathf.PingPong(Time.time * 2f, 1f) > 0.5f;
+                readyBorder.SetActive(flip);
+            }
+            else
+            {
+                readyBorder.SetActive(false);
             }
         }
 
@@ -198,10 +292,29 @@ namespace Crease.UI
             _flyingUI.SetActive(!show);
         }
 
+        /// <summary>
+        /// Called when entering normal folding mode. Shows folding HUD and, if configured,
+        /// the plane selection screen before any loadout is applied.
+        /// </summary>
+        public void OnEnterNormalFoldingMode()
+        {
+            ShowFoldingUI(true);
+            StartCoroutine(PresentPlaneSelectionIfNeeded());
+        }
+
+        public void SetFlyCurrentVisible(bool visible)
+        {
+            _flyCurrentRequestedVisible = visible;
+            ApplyFlyCurrentVisibility();
+        }
+
         public void ShowFlyingUI(bool show)
         {
             _flyingUI.SetActive(show);
             _foldingUI.SetActive(!show);
+
+            if (show)
+                HidePlaneSelectionScreen();
         }
 
         /// <summary>
@@ -215,17 +328,21 @@ namespace Crease.UI
 
             if (show)
             {
+                HidePlaneSelectionScreen();
                 if (_foldingUI != null) _foldingUI.SetActive(false);
                 if (_flyingUI != null) _flyingUI.SetActive(false);
+                _stickerUiRequestedVisible = false;
                 if (_stickerUI != null) _stickerUI.SetActive(false);
             }
         }
 
         public void ShowStickerUI(bool show)
         {
-            if (_stickerUI != null)
-                _stickerUI.SetActive(show);
+            _stickerUiRequestedVisible = show;
+            ApplyStickerUiVisibility();
         }
+
+        public void RefreshStickerUiVisibility() => ApplyStickerUiVisibility();
 
         /// <summary>
         /// Called by the health system to update the flying health bar segments visually.
@@ -257,11 +374,11 @@ namespace Crease.UI
         {
             if (_playerHealth == null)
             {
-                Debug.LogWarning("HUDCanvas.Damage: playerHealth is not assigned");
+                UnityEngine.Debug.LogWarning("HUDCanvas.Damage: playerHealth is not assigned");
                 return;
             }
 
-            Debug.Log($"HUDCanvas.Damage delegating to playerHealth: type={type}, absolute={absoluteDamage}");
+            UnityEngine.Debug.Log($"HUDCanvas.Damage delegating to playerHealth: type={type}, absolute={absoluteDamage}");
             _playerHealth.TakeDamage(absoluteDamage, type);
         }
 
@@ -273,11 +390,11 @@ namespace Crease.UI
         {
             if (_playerHealth == null)
             {
-                Debug.LogWarning("HUDCanvas.Heal: playerHealth is not assigned");
+                UnityEngine.Debug.LogWarning("HUDCanvas.Heal: playerHealth is not assigned");
                 return;
             }
 
-            Debug.Log($"HUDCanvas.Heal delegating to playerHealth: absolute={absoluteAmount}, type={type}");
+            UnityEngine.Debug.Log($"HUDCanvas.Heal delegating to playerHealth: absolute={absoluteAmount}, type={type}");
             _playerHealth.Heal(absoluteAmount, type);
         }
 
@@ -402,7 +519,14 @@ namespace Crease.UI
             _planeTypeDropdown.ClearOptions();
             var options = new List<string>();
             foreach (PlaneLoadout loadout in _loadoutLibrary.Loadouts)
-                options.Add(loadout != null ? loadout.name : "Missing");
+            {
+                if (loadout == null)
+                    options.Add("Missing");
+                else if (!string.IsNullOrEmpty(loadout.DisplayName))
+                    options.Add(loadout.DisplayName);
+                else
+                    options.Add(loadout.name);
+            }
 
             if (options.Count == 0)
                 options.Add("No loadouts");
@@ -413,13 +537,152 @@ namespace Crease.UI
             _isUpdatingLoadoutDropdown = false;
         }
 
-        public void OnLoadoutDropdownChanged(int index)
+        public void SetLoadout(int index)
         {
             if (_isUpdatingLoadoutDropdown)
                 return;
 
             _selectedLoadoutIndex = index;
+            _hasStartedFolding = true;
+            ApplyFlyCurrentVisibility();
             ApplySelectedLoadout();
+        }
+
+        public void SelectLoadoutFromCard(PlaneLoadout loadout)
+        {
+            if (loadout == null)
+                return;
+
+            if (_loadoutApplier == null)
+            {
+                UnityEngine.Debug.LogWarning("HUDCanvas: LoadoutApplier is not assigned.");
+                return;
+            }
+
+            _hasStartedFolding = true;
+            ApplyFlyCurrentVisibility();
+            _loadoutApplier.ApplyLoadout(loadout, _preserveDecalsForNextLoadout);
+            _preserveDecalsForNextLoadout = false;
+            SyncDropdownToLoadout(loadout);
+            HidePlaneSelectionScreen();
+        }
+
+        public void ShowLoadoutDetails(PlaneLoadout loadout)
+        {
+            if (_planeSelectionScreen != null)
+                _planeSelectionScreen.ShowDetails(loadout);
+        }
+
+        public void ShowPlaneSelectionScreen()
+        {
+            if (_planeSelectionScreen != null)
+                _planeSelectionScreen.Show();
+        }
+
+        public void HidePlaneSelectionScreen()
+        {
+            if (_planeSelectionScreen != null)
+                _planeSelectionScreen.Hide();
+        }
+
+        public void SetRefoldAvailable(bool available)
+        {
+            _refoldAvailable = available;
+            UpdateRefoldUi();
+        }
+
+        public void Refold()
+        {
+            ShowStickerUI(false);
+            _refoldAvailable = false;
+            _hasStartedFolding = false;
+            _flyCurrentRequestedVisible = false;
+            UpdateRefoldUi();
+
+            if (FoldingManager.Instance != null)
+            {
+                FoldingManager.Instance.UnfoldForRefold(BeginRefoldPlaneSelection);
+                return;
+            }
+
+            if (_foldInstructionRunner == null)
+            {
+                UnityEngine.Debug.LogWarning("HUDCanvas.Refold: FoldInstructionRunner is not assigned.");
+                BeginRefoldPlaneSelection();
+                return;
+            }
+
+            _foldInstructionRunner.UnfoldForRefold(BeginRefoldPlaneSelection);
+        }
+
+        private void BeginRefoldPlaneSelection()
+        {
+            _preserveDecalsForNextLoadout = true;
+            _hasStartedFolding = false;
+            StopFoldingTimer();
+            ResetAccuracyDisplay();
+            ShowStickerUI(false);
+            SetFlyCurrentVisible(false);
+            ShowPlaneSelectionScreen();
+        }
+
+        private void UpdateRefoldUi()
+        {
+            if (_refoldButton != null)
+                _refoldButton.SetActive(_refoldAvailable);
+
+            ApplyFlyCurrentVisibility();
+            ApplyStickerUiVisibility();
+        }
+
+        private void ApplyStickerUiVisibility()
+        {
+            if (_stickerUI == null)
+                return;
+
+            bool unfolding = _foldInstructionRunner != null && _foldInstructionRunner.IsUnfolding;
+            bool visible = _stickerUiRequestedVisible && !_refoldAvailable && !unfolding;
+            _stickerUI.SetActive(visible);
+        }
+
+        private void ApplyFlyCurrentVisibility()
+        {
+            if (_flyCurrentButton == null)
+                return;
+
+            bool visible = _flyCurrentRequestedVisible && !_refoldAvailable && _hasStartedFolding;
+            _flyCurrentButton.SetActive(visible);
+        }
+
+        private IEnumerator PresentPlaneSelectionIfNeeded()
+        {
+            if (!RequiresPlaneSelection || _hasStartedFolding)
+                yield break;
+
+            LetterController letterController = LetterController.Instance;
+            if (letterController != null)
+                yield return letterController.WriteSectionAndWait("Intro");
+
+            if (!RequiresPlaneSelection || _hasStartedFolding)
+                yield break;
+
+            ShowPlaneSelectionScreen();
+        }
+
+        private void SyncDropdownToLoadout(PlaneLoadout loadout)
+        {
+            if (_planeTypeDropdown == null || _loadoutLibrary == null)
+                return;
+
+            int index = _loadoutLibrary.Loadouts.IndexOf(loadout);
+            if (index < 0)
+                return;
+
+            _selectedLoadoutIndex = index;
+            _isUpdatingLoadoutDropdown = true;
+            _planeTypeDropdown.SetValueWithoutNotify(index);
+            _planeTypeDropdown.RefreshShownValue();
+            _isUpdatingLoadoutDropdown = false;
         }
 
         private void ApplySelectedLoadout()
@@ -430,11 +693,12 @@ namespace Crease.UI
 
             if (_loadoutApplier == null)
             {
-                Debug.LogWarning("HUDCanvas: LoadoutApplier is not assigned.");
+                UnityEngine.Debug.LogWarning("HUDCanvas: LoadoutApplier is not assigned.");
                 return;
             }
 
-            _loadoutApplier.ApplyLoadout(loadout);
+            _loadoutApplier.ApplyLoadout(loadout, _preserveDecalsForNextLoadout);
+            _preserveDecalsForNextLoadout = false;
         }
 
         private void SyncLoadoutDropdownToRunner()
@@ -476,16 +740,59 @@ namespace Crease.UI
         }
 
         /// <summary>
-        /// Called when the debug mode toggle changes. Can also be wired directly from the toggle's OnValueChanged event.
+        /// Enables or disables debug visibility for all GameObjects tagged "Debug".
+        /// Persists the setting in PlayerPrefs.
         /// </summary>
-        public void OnDebugModeToggleChanged(bool enabled)
+        public void SetDebug(bool enabled)
         {
-            DebugMode = enabled;
+            if (Debug == enabled)
+                return;
+
+            Debug = enabled;
+            PlayerPrefs.SetInt(DebugPrefsKey, enabled ? 1 : 0);
+            PlayerPrefs.Save();
+            ApplyDebugVisibility();
+            if (InputManager.Instance != null)
+                InputManager.Instance.SyncDebugControls();
+        }
+
+        /// <summary>
+        /// Toggles debug visibility for all GameObjects tagged "Debug".
+        /// </summary>
+        public void ToggleDebug()
+        {
+            SetDebug(!Debug);
+        }
+
+        private void ApplyDebugVisibility()
+        {
+            GameObject[] sceneObjects = FindObjectsByType<GameObject>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+
+            foreach (GameObject obj in sceneObjects)
+            {
+                if (!obj.CompareTag("Debug"))
+                    continue;
+
+                if (!obj.scene.IsValid() || !obj.scene.isLoaded)
+                    continue;
+
+                obj.SetActive(Debug);
+            }
+        }
+
+        /// <summary>
+        /// Enables or disables the debug paper texture on paper graph visualizers.
+        /// </summary>
+        public void SetDebugPaperTexture(bool enabled)
+        {
+            DebugPaperTexture = enabled;
 
             foreach (PaperGraphVisualizer visualizer in _resolvedPaperGraphVisualizers)
             {
                 if (visualizer != null)
-                    visualizer.SetDebugMode(enabled);
+                    visualizer.SetDebugPaperTexture(enabled);
             }
         }
 
@@ -500,16 +807,11 @@ namespace Crease.UI
             PaperGraphController controller = _foldInstructionRunner.Controller;
             var visualizers = new List<PaperGraphVisualizer>(2);
 
-            PaperGraphVisualizer authoringVisualizer = controller.GetComponent<PaperGraphVisualizer>();
-            if (authoringVisualizer != null)
-                visualizers.Add(authoringVisualizer);
+            if (controller.AuthoringVisualizer != null)
+                visualizers.Add(controller.AuthoringVisualizer);
 
-            if (controller.PreviewGraph != null)
-            {
-                PaperGraphVisualizer previewVisualizer = controller.PreviewGraph.GetComponent<PaperGraphVisualizer>();
-                if (previewVisualizer != null)
-                    visualizers.Add(previewVisualizer);
-            }
+            if (controller.PreviewVisualizer != null)
+                visualizers.Add(controller.PreviewVisualizer);
 
             return visualizers.ToArray();
         }

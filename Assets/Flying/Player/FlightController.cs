@@ -20,24 +20,22 @@ namespace Crease.Flying.Player
         [SerializeField] private Transform _meshTransform;
         public Transform MeshTransform => _meshTransform;
 
-        private Vector3 _meshRotation;
         private float _yaw = 0f;
 
         private float _roll = 0f;
         public float Roll => _roll;
 
-        [FormerlySerializedAs("rollOffset")]
-        [SerializeField] private float _rollOffset = 0f;
-        public float RollOffset
-        {
-            get => _rollOffset;
-            set => _rollOffset = value;
-        }
-
         [FormerlySerializedAs("stats")]
         [SerializeField] private FlightStats _stats;
 
         private float _inputMagnitude;
+        private bool _transitionFrozen;
+
+        public void SetTransitionFrozen(bool frozen) {
+            _transitionFrozen = frozen;
+            if (frozen && _body != null)
+                _body.Velocity = Vector3.zero;
+        }
 
         private void Awake()
         {
@@ -60,8 +58,6 @@ namespace Crease.Flying.Player
             }
 
             _body.Velocity = transform.forward * _stats.CurrentStats.InitialSpeed;
-
-            _meshRotation = _meshTransform.localEulerAngles;
         }
 
         private bool IsFlightControlLocked =>
@@ -69,6 +65,9 @@ namespace Crease.Flying.Player
 
         void FixedUpdate()
         {
+            if (_transitionFrozen)
+                return;
+
             _body.SimulationSpeed = _flightModifiers != null ? _flightModifiers.SimulationSpeed : 1f;
 
             if (!IsFlightControlLocked)
@@ -160,21 +159,36 @@ namespace Crease.Flying.Player
             float speedFactor = Mathf.Clamp01(speed / _stats.CurrentStats.StabilityReferenceSpeed);
             if (speedFactor <= 0f) return;
 
-            Vector3 velocityDirection = velocity / speed;
+            float inputSuppression = _stats.CurrentStats.StabilityInputSuppression * _inputMagnitude;
+            float stabilityScale = speedFactor * (1f - inputSuppression);
+            if (stabilityScale <= 0f) return;
+
+            ApplyTorqueTowardDirection(
+                velocity / speed,
+                _stats.CurrentStats.StabilityStrength * stabilityScale);
+        }
+
+        /// <summary>
+        /// Rotates pitch and yaw toward a world-space direction. Used by wind and stability systems.
+        /// </summary>
+        public void ApplyTorqueTowardDirection(Vector3 worldDirection, float strength)
+        {
+            if (IsFlightControlLocked || strength <= 0f) return;
+
+            float directionMagnitude = worldDirection.magnitude;
+            if (directionMagnitude < 0.001f) return;
+
+            Vector3 targetDirection = worldDirection / directionMagnitude;
             Vector3 forward = GetLookDirection();
 
-            Vector3 misalignmentAxis = Vector3.Cross(forward, velocityDirection);
+            Vector3 misalignmentAxis = Vector3.Cross(forward, targetDirection);
             float sinAngle = misalignmentAxis.magnitude;
             if (sinAngle < 0.001f) return;
 
             float angleDegrees = Mathf.Asin(Mathf.Clamp(sinAngle, 0f, 1f)) * Mathf.Rad2Deg;
             Vector3 correctionAxis = misalignmentAxis / sinAngle;
 
-            float inputSuppression = _stats.CurrentStats.StabilityInputSuppression * _inputMagnitude;
-            float stabilityScale = speedFactor * (1f - inputSuppression);
-            if (stabilityScale <= 0f) return;
-
-            float correctionRate = angleDegrees * _stats.CurrentStats.StabilityStrength * stabilityScale;
+            float correctionRate = angleDegrees * strength;
             Vector3 worldAngularVelocity = correctionAxis * correctionRate;
 
             float pitchRate = Vector3.Dot(worldAngularVelocity, transform.right);
@@ -183,6 +197,9 @@ namespace Crease.Flying.Player
             float dt = ScaledDeltaTime;
             _pitch += pitchRate * dt;
             _yaw += yawRate * dt;
+
+            ClampOrientation();
+            UpdateRotation();
         }
 
         private void UpdateRotation()
@@ -190,9 +207,7 @@ namespace Crease.Flying.Player
             _body.MoveRotation(Quaternion.Euler(_pitch, _yaw, 0f));
 
             if (_meshTransform != null)
-            {
-                _meshTransform.localRotation = Quaternion.Euler(_roll + _rollOffset + _meshRotation.x, _meshRotation.y, _meshRotation.z);
-            }
+                _meshTransform.localRotation = Quaternion.Euler(0f, 0f, -_roll);
         }
 
         private void ProcessInput()

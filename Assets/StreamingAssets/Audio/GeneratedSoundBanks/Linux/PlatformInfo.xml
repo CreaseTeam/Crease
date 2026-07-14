@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PlatformInfo>
+	<Platform Name="Linux" BasePlatform="Linux" Generator="2025.1.8.9170"/>
+	<RootPaths>
+		<ProjectRoot>../../../../../Crease_WwiseProject</ProjectRoot>
+		<SourceFilesRoot>../../../../../Crease_WwiseProject/.cache</SourceFilesRoot>
+		<SoundBanksRoot>.</SoundBanksRoot>
+		<ExternalSourcesInputFile></ExternalSourcesInputFile>
+		<ExternalSourcesOutputRoot>../../../../../Crease_WwiseProject/GeneratedSoundBanks/Linux</ExternalSourcesOutputRoot>
+	</RootPaths>
+	<DefaultAlign>16</DefaultAlign>
+	<Settings>
+		<AutoSoundBankDefinition>false</AutoSoundBankDefinition>
+		<CopyLooseStreamedMediaFiles>true</CopyLooseStreamedMediaFiles>
+		<SubFoldersForGeneratedFiles>false</SubFoldersForGeneratedFiles>
+		<RemoveUnusedGeneratedFiles>true</RemoveUnusedGeneratedFiles>
+		<SourceControlGeneratedFiles>false</SourceControlGeneratedFiles>
+		<GenerateHeaderFile>true</GenerateHeaderFile>
+		<GenerateContentTxtFile>true</GenerateContentTxtFile>
+		<GenerateMetadataXML>true</GenerateMetadataXML>
+		<GenerateMetadataJSON>true</GenerateMetadataJSON>
+		<GenerateAllBanksMetadata>true</GenerateAllBanksMetadata>
+		<GeneratePerBankMetadata>true</GeneratePerBankMetadata>
+		<UseSoundBankNames>true</UseSoundBankNames>
+		<AllowExceedingMaxSize>true</AllowExceedingMaxSize>
+		<MaxAttenuationInfo>true</MaxAttenuationInfo>
+		<EstimatedDurationInfo>true</EstimatedDurationInfo>
+		<PrintObjectGuid>true</PrintObjectGuid>
+		<PrintObjectPath>true</PrintObjectPath>
+		<PrintObjectColor>true</PrintObjectColor>
+	</Settings>
+	<FileHash>{250426BF-02B3-182C-A76F-5FE97374E021}</FileHash>
+</PlatformInfo>

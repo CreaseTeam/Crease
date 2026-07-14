@@ -1,5 +1,5 @@
 using UnityEngine;
-using Crease.Folding.PaperGraph;
+using Crease.Folding.Paper;
 
 namespace Crease.Flying.Environment.Checkpoints
 {
@@ -17,6 +17,12 @@ namespace Crease.Flying.Environment.Checkpoints
         public Material LetterFront;
 
         private bool _triggered;
+        private MeshRenderer _meshRenderer;
+
+        private void Awake()
+        {
+            _meshRenderer = GetComponent<MeshRenderer>();
+        }
 
         private void OnTriggerEnter(Collider other)
         {
@@ -24,6 +30,9 @@ namespace Crease.Flying.Environment.Checkpoints
                 return;
 
             _triggered = true;
+
+            if (_meshRenderer != null)
+                _meshRenderer.enabled = false;
 
             if (FoldingManager.Instance != null)
                 FoldingManager.Instance.TriggerLevelEnd(LetterFront);
