@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Crease.Flying.Player;
-using Crease.Folding.PaperSurface.Decals;
 using Crease.Folding.PaperSurface.Writing;
 using Crease.Managers.Input;
 using Crease.UI;
@@ -16,8 +15,7 @@ namespace Crease.Folding.Paper
     /// <summary>
     /// Singleton that manages switching between Folding and Flying modes
     /// within the same scene. Performs smooth camera transitions between
-    /// a dedicated folding camera and flying camera, and lerps the paper
-    /// to match the player orientation before switching to flying.
+    /// a dedicated folding camera and flying camera.
     /// </summary>
     public class FoldingManager : MonoBehaviour
     {
@@ -42,22 +40,14 @@ namespace Crease.Folding.Paper
         [FormerlySerializedAs("transitionDuration")]
         public float TransitionDuration = 1f;
 
-        [Tooltip("Duration of the paper alignment lerp before switching to flying.")]
+        [Tooltip("Duration of the paper alignment lerp during mode transitions.")]
         [FormerlySerializedAs("paperAlignDuration")]
         public float PaperAlignDuration = 0.6f;
 
         [Header("Mesh Settings")]
-        [Tooltip("Preset mesh used when entering flying mode without saving a fold.")]
+        [Tooltip("Preset mesh used when entering flying mode without saving a fold. Must already be in flight frame (+Z = model front), e.g. from Save Current Mesh As Asset.")]
         [FormerlySerializedAs("defaultPlayerMesh")]
         public Mesh DefaultPlayerMesh;
-
-        [Tooltip("Rotation (euler angles) applied to mesh vertices on save to correct orientation.")]
-        [FormerlySerializedAs("meshRotation")]
-        public Vector3 MeshRotation = Vector3.zero;
-
-        [Tooltip("Euler angle offset applied when aligning paper to player rotation.")]
-        [FormerlySerializedAs("paperToPlayerRotationOffset")]
-        public Vector3 PaperToPlayerRotationOffset = Vector3.zero;
 
         [Header("References")]
         [Tooltip("Current PaperGraph reference. Assign in the Inspector.")]
@@ -73,6 +63,8 @@ namespace Crease.Folding.Paper
 
         public Mesh SavedMesh { get; private set; }
 
+        private FlightShadingData _flightShadingData;
+
         private MeshFilter _playerMeshFilter;
         private MeshRenderer _playerMeshRenderer;
 
@@ -83,13 +75,17 @@ namespace Crease.Folding.Paper
         private Camera _transitionTarget;
         private float _transitionElapsed;
 
-        private bool _isAligningPaper = false;
-        private Quaternion _paperAlignStartRot;
-        private Quaternion _paperAlignTargetRot;
-        private float _paperAlignElapsed;
         private bool _pendingUseSavedMesh;
         private bool _pendingFlyingSwitch;
+        private bool _pendingFoldingTransition;
+        private bool _restoreFoldingPhaseUiAfterTransition;
         private bool _pendingLevelEndUnfold;
+        private bool _isAligningPaper;
+        private Quaternion _paperAlignStartRot;
+        private Quaternion _paperAlignTargetRot;
+        private Quaternion _capturedFlightAlignRotation;
+        private Vector3 _capturedFlightMeshPosition;
+        private float _paperAlignElapsed;
         private readonly Queue<string> _queuedLetterSections = new Queue<string>();
 
         private void Awake() {
@@ -167,7 +163,7 @@ namespace Crease.Folding.Paper
                 EnterFoldingMode();
             }
 
-            if (_isAligningPaper) {
+            if (_isAligningPaper && PaperGraph != null) {
                 _paperAlignElapsed += Time.deltaTime;
                 float t = Mathf.Clamp01(_paperAlignElapsed / PaperAlignDuration);
                 float s = t * t * (3f - 2f * t);
@@ -175,12 +171,19 @@ namespace Crease.Folding.Paper
                 PaperGraph.transform.rotation = Quaternion.Slerp(
                     _paperAlignStartRot, _paperAlignTargetRot, s);
 
+                if (_pendingFoldingTransition)
+                    SyncPaperPositionToFlightMesh();
+
                 if (t >= 1f) {
                     _isAligningPaper = false;
                     PaperGraph.transform.rotation = _paperAlignTargetRot;
+                    SyncFoldInstructionRunnerToPaperRotation();
 
-                    if (!IsTransitioning)
+                    if (!IsTransitioning && _pendingFlyingSwitch)
                         ExecuteFlyingSwitch(_pendingUseSavedMesh);
+
+                    if (!IsTransitioning && _pendingFoldingTransition)
+                        CompleteFoldingTransition();
                 }
             }
 
@@ -202,8 +205,9 @@ namespace Crease.Folding.Paper
                     if (!_isAligningPaper && _pendingFlyingSwitch)
                         ExecuteFlyingSwitch(_pendingUseSavedMesh);
 
-                    // Level-end: now that the camera has settled on the folding view,
-                    // play the unfold animation that reveals the flat letter.
+                    if (!_isAligningPaper && _pendingFoldingTransition)
+                        CompleteFoldingTransition();
+
                     if (_pendingLevelEndUnfold) {
                         _pendingLevelEndUnfold = false;
                         StartCoroutine(UnfoldForLevelEndThenPlayQueuedSections());
@@ -248,19 +252,42 @@ namespace Crease.Folding.Paper
 
             if (PaperGraph != null) PaperGraph.gameObject.SetActive(true);
 
-            if (Player != null) {
-                TeleportPaperToPlayer();
-                Player.SetActive(false);
-            }
+            _pendingFoldingTransition = true;
+            _restoreFoldingPhaseUiAfterTransition = !levelEnd;
+            _capturedFlightAlignRotation = GetFlightAlignedPaperRotation();
+            _capturedFlightMeshPosition = GetPlayerMeshTransform().position;
+            SetFlightTransitionFrozen(true);
+            GetFoldInstructionRunner()?.SetPaperRotationLerpPaused(true);
+            SetFoldingPreviewMeshVisible(false);
 
-            if (!levelEnd) {
-                RestoreFoldingPhaseUi();
-            }
+            if (Player != null)
+                SyncPaperPositionToFlightMesh();
+
+            BeginPaperAlignmentForFolding();
 
             if (FlyingCamera != null) FlyingCamera.gameObject.SetActive(false);
             if (FoldingCamera != null) FoldingCamera.gameObject.SetActive(true);
 
             BeginTransition(FlyingCamera, FoldingCamera);
+        }
+
+        private void CompleteFoldingTransition() {
+            _pendingFoldingTransition = false;
+
+            SyncPaperPositionToFlightMesh();
+            SetFoldingPreviewMeshVisible(true);
+            ForcePreviewMeshUpdate();
+            CorrectPaperPositionForPreviewMesh();
+
+            SetFlightTransitionFrozen(false);
+
+            if (Player != null)
+                Player.SetActive(false);
+
+            GetFoldInstructionRunner()?.SetPaperRotationLerpPaused(false);
+            if (_restoreFoldingPhaseUiAfterTransition)
+                RestoreFoldingPhaseUi();
+            SyncFoldInstructionRunnerToPaperRotation();
         }
 
         /// <summary>
@@ -275,20 +302,11 @@ namespace Crease.Folding.Paper
 
             EnterFoldingMode(levelEnd: true);
 
-            // Reveal the clear letter on the front of the folding preview paper
-            // (swaps out the blurry material assigned in the scene). Do this now so the
-            // letter is already showing on the folded plane as the camera pans in.
             if (letterFront != null)
                 SetPreviewFrontMaterial(letterFront);
 
-            // Fold the plane up now (off-screen during the pan) so there is a folded plane
-            // to reveal. For a hand-folded plane this is a no-op; for the default plane
-            // (never folded by hand) it snaps the paper into its folded shape so the unfold
-            // animation below actually has something to reverse.
             GetFoldInstructionRunner()?.PrepareLevelEndFold();
 
-            // End-flow step 5: the plane unfolds itself. Defer the unfold animation until
-            // the camera pan finishes (handled in Update) so the flow is pan -> unfold.
             _pendingLevelEndUnfold = true;
         }
 
@@ -348,73 +366,87 @@ namespace Crease.Folding.Paper
 
         public void EnterFlyingMode() {
             if (!IsFolding || IsTransitioning || _isAligningPaper) return;
-            BeginPaperAlignment(useSavedMesh: true);
+            BeginFlyingTransition(useSavedMesh: true);
         }
 
         public void EnterFlyingModeNoMesh() {
             if (!IsFolding || IsTransitioning || _isAligningPaper) return;
-            BeginPaperAlignment(useSavedMesh: false);
+            BeginFlyingTransition(useSavedMesh: false);
         }
 
         public void SaveMesh() {
-            if (PaperGraph == null) {
+            PaperGraphController controller = PaperGraph != null
+                ? PaperGraph.GetComponent<PaperGraphController>()
+                : null;
+            if (controller != null)
+                controller.ClearPreview();
+
+            PaperGraph topologyGraph = GetFlightTopologyGraph();
+            if (topologyGraph == null) {
                 Debug.LogError("FoldingManager: No PaperGraph assigned. Cannot save mesh.");
                 return;
             }
 
-            SavedMesh = PaperGraph.GenerateMesh();
-            SavedMesh.name = "FoldingManager_SavedMesh";
+            PaperGraph settingsGraph = GetFlightSettingsGraph();
+            Quaternion flightOrientation = Quaternion.Euler(GetActiveFlightMeshRotation());
 
-            if (MeshRotation != Vector3.zero) {
-                Quaternion rot = Quaternion.Euler(MeshRotation);
-                Vector3[] verts = SavedMesh.vertices;
-                for (int i = 0; i < verts.Length; i++) {
-                    verts[i] = rot * verts[i];
-                }
-                SavedMesh.vertices = verts;
-                SavedMesh.RecalculateNormals();
-                SavedMesh.RecalculateBounds();
-            }
+            Mesh rawMesh = topologyGraph.GenerateMesh();
+            SavedMesh = FlightMeshBaker.BakeFlightMesh(rawMesh, flightOrientation);
+            SavedMesh.name = "FoldingManager_SavedMesh";
+            Destroy(rawMesh);
+
+            _flightShadingData = BuildFlightShadingData(topologyGraph, settingsGraph, flightOrientation);
 
             Debug.Log("FoldingManager: Mesh saved.");
         }
 
-        private void BeginPaperAlignment(bool useSavedMesh) {
-            if (PaperGraph == null || Player == null) {
-                ExecuteFlyingSwitch(useSavedMesh);
+        public void RefreshPlayerMeshShadingIfFlying() {
+            if (IsFolding)
                 return;
+
+            PaperGraph topologyGraph = GetFlightTopologyGraph();
+            PaperGraph settingsGraph = GetFlightSettingsGraph();
+            if (topologyGraph != null)
+            {
+                Quaternion flightOrientation = Quaternion.Euler(GetActiveFlightMeshRotation());
+                _flightShadingData = BuildFlightShadingData(topologyGraph, settingsGraph, flightOrientation);
             }
 
+            ApplyFlightShadingToPlayerMesh();
+        }
+
+        private void BeginFlyingTransition(bool useSavedMesh) {
             _pendingFlyingSwitch = true;
             _pendingUseSavedMesh = useSavedMesh;
 
             if (HUDCanvas.Instance != null)
                 HUDCanvas.Instance.StopFoldingTimer();
 
-            _isAligningPaper = true;
-            _paperAlignElapsed = 0f;
-            _paperAlignStartRot = PaperGraph.transform.rotation;
-            _paperAlignTargetRot = GetPlayerMeshRotation() * Quaternion.Euler(PaperToPlayerRotationOffset);
+            BeginPaperAlignmentForFlight();
 
             if (FoldingCamera != null) FoldingCamera.gameObject.SetActive(false);
             if (FlyingCamera != null) FlyingCamera.gameObject.SetActive(true);
 
-            BeginTransition(FoldingCamera, FlyingCamera);
+            if (FoldingCamera != null && FlyingCamera != null)
+                BeginTransition(FoldingCamera, FlyingCamera);
+            else if (!_isAligningPaper)
+                ExecuteFlyingSwitch(useSavedMesh);
         }
 
         private void ExecuteFlyingSwitch(bool useSavedMesh) {
             _pendingFlyingSwitch = false;
             if (Player != null) Player.SetActive(true);
 
-            if (useSavedMesh)
+            if (useSavedMesh) {
                 SaveMesh();
-
-            if (useSavedMesh)
                 ApplyMeshToPlayer();
-            else
+            } else {
+                _flightShadingData = null;
                 ApplyDefaultMeshToPlayer();
+            }
 
-            AttachDecalMapsToPlayerMesh();
+            ApplyFlightShadingToPlayerMesh();
+            PositionPlayerWingTipsFromMesh();
 
             if (PaperGraph != null) PaperGraph.gameObject.SetActive(false);
 
@@ -498,33 +530,69 @@ namespace Crease.Folding.Paper
                     materials[i] = previewVisualizer.MeshMaterial;
                 _playerMeshRenderer.sharedMaterials = materials;
             }
-
-            AttachDecalMapsToPlayerMesh();
         }
 
-        private Matrix4x4 GetFlightSegmentTransform() {
-            if (MeshRotation == Vector3.zero)
-                return Matrix4x4.identity;
+        private PaperGraph GetFlightTopologyGraph() {
+            if (PaperGraph == null)
+                return null;
 
-            return Matrix4x4.Rotate(Quaternion.Euler(MeshRotation));
+            PaperGraphController controller = PaperGraph.GetComponent<PaperGraphController>();
+            if (controller?.AuthoringGraph != null && controller.AuthoringGraph.Faces.Count > 0)
+                return controller.AuthoringGraph;
+
+            return PaperGraph;
         }
 
-        private void AttachDecalMapsToPlayerMesh() {
-            DecalController decalController = DecalController.Instance;
-            if (decalController == null) return;
+        private PaperGraph GetFlightSettingsGraph() {
+            if (PaperGraph == null)
+                return null;
 
+            PaperGraphController controller = PaperGraph.GetComponent<PaperGraphController>();
+            return controller?.AuthoringGraph ?? PaperGraph;
+        }
+
+        private Vector3 GetActiveFlightMeshRotation() {
+            FoldInstructionRunner runner = GetFoldInstructionRunner();
+            if (runner?.Instruction != null)
+                return runner.Instruction.FlightMeshRotation;
+
+            return Vector3.zero;
+        }
+
+        private static FlightShadingData BuildFlightShadingData(
+            PaperGraph topologyGraph,
+            PaperGraph settingsGraph,
+            Quaternion flightOrientation)
+        {
+            Matrix4x4 segmentTransform = Matrix4x4.Rotate(flightOrientation);
+            return PaperShading.BuildFlightShadingData(
+                topologyGraph,
+                settingsGraph,
+                null,
+                segmentTransform);
+        }
+
+        private void ApplyFlightShadingToPlayerMesh() {
             CachePlayerMeshReferences();
-            if (_playerMeshRenderer == null) return;
-
-            if (decalController.TextureRenderer == null)
+            if (_playerMeshRenderer == null)
                 return;
 
-            PaperShading.ApplyRendererShading(
+            if (_flightShadingData != null) {
+                PaperShading.ApplyFlightShadingData(_playerMeshRenderer, _flightShadingData);
+                return;
+            }
+
+            PaperGraph topologyGraph = GetFlightTopologyGraph();
+            PaperGraph settingsGraph = GetFlightSettingsGraph();
+            if (topologyGraph == null)
+                return;
+
+            Quaternion flightOrientation = Quaternion.Euler(GetActiveFlightMeshRotation());
+            PaperShading.ApplyEdgeSegments(
                 _playerMeshRenderer,
-                PaperGraph,
-                decalController.TextureRenderer.FrontTexture,
-                decalController.TextureRenderer.BackTexture,
-                GetFlightSegmentTransform());
+                topologyGraph,
+                settingsGraph,
+                Matrix4x4.Rotate(flightOrientation));
         }
 
         private void RestoreFoldingPhaseUi() {
@@ -536,15 +604,21 @@ namespace Crease.Folding.Paper
         private void ApplyDefaultMeshToPlayer() {
             if (DefaultPlayerMesh == null) return;
 
+            CachePlayerMeshReferences();
             if (_playerMeshFilter == null) {
                 Debug.LogWarning("FoldingManager: No GameObject tagged 'PlayerMesh' found.");
                 return;
             }
 
-            _playerMeshFilter.mesh = DefaultPlayerMesh;
+            _playerMeshFilter.sharedMesh = DefaultPlayerMesh;
         }
 
         private void TeleportPaperToPlayer() {
+            TeleportPaperPositionToPlayer();
+            SnapPaperToFoldingViewRotation();
+        }
+
+        private void TeleportPaperPositionToPlayer() {
             if (Player == null || PaperGraph == null) return;
 
             Transform meshTarget = GetPlayerMeshTransform();
@@ -553,8 +627,136 @@ namespace Crease.Folding.Paper
 
             if (FoldingCamera != null)
                 FoldingCamera.transform.position += delta;
+        }
 
-            PaperGraph.transform.rotation = meshTarget.rotation * Quaternion.Euler(PaperToPlayerRotationOffset);
+        private void BeginPaperAlignmentForFlight() {
+            if (PaperGraph == null) return;
+
+            _paperAlignStartRot = PaperGraph.transform.rotation;
+            _paperAlignTargetRot = GetFlightAlignedPaperRotation();
+            _paperAlignElapsed = 0f;
+            _isAligningPaper = true;
+        }
+
+        private void BeginPaperAlignmentForFolding() {
+            if (PaperGraph == null) return;
+
+            _paperAlignStartRot = PaperGraph.transform.rotation;
+            _paperAlignTargetRot = _capturedFlightAlignRotation;
+            _paperAlignElapsed = 0f;
+            _isAligningPaper = true;
+        }
+
+        /// <summary>
+        /// World rotation that matches the in-flight mesh: mesh world orientation
+        /// composed with the flight bake rotation from the fold instruction.
+        /// </summary>
+        private Quaternion GetFlightAlignedPaperRotation() {
+            if (PaperGraph == null)
+                return Quaternion.identity;
+
+            Transform meshTarget = GetPlayerMeshTransform();
+            if (meshTarget == null)
+                return PaperGraph.transform.rotation;
+
+            return meshTarget.rotation * Quaternion.Euler(GetActiveFlightMeshRotation());
+        }
+
+        private Quaternion GetFoldingViewPaperRotation() {
+            FoldInstructionRunner runner = GetFoldInstructionRunner();
+            if (runner != null)
+                return runner.GetFoldingViewRotation();
+
+            return PaperGraph != null ? PaperGraph.transform.rotation : Quaternion.identity;
+        }
+
+        private void SnapPaperToFoldingViewRotation() {
+            if (PaperGraph == null) return;
+
+            PaperGraph.transform.rotation = GetFoldingViewPaperRotation();
+            SyncFoldInstructionRunnerToPaperRotation();
+        }
+
+        private void SyncFoldInstructionRunnerToPaperRotation() {
+            if (PaperGraph == null) return;
+
+            FoldInstructionRunner runner = GetFoldInstructionRunner();
+            runner?.SyncPaperRotationToTransform();
+        }
+
+        private void SetFlightTransitionFrozen(bool frozen) {
+            if (Player == null) return;
+
+            FlightController flightController = Player.GetComponent<FlightController>();
+            flightController?.SetTransitionFrozen(frozen);
+        }
+
+        private void SetFoldingPreviewMeshVisible(bool visible) {
+            if (PaperGraph == null) return;
+
+            PaperGraphController controller = PaperGraph.GetComponent<PaperGraphController>();
+            if (controller?.PreviewVisualizer != null)
+                controller.PreviewVisualizer.ShowMesh = visible;
+        }
+
+        private void SyncPaperPositionToFlightMesh() {
+            if (PaperGraph == null) return;
+
+            Vector3 targetPosition = Player != null && Player.activeSelf
+                ? GetPlayerMeshTransform().position
+                : _capturedFlightMeshPosition;
+
+            Vector3 delta = targetPosition - PaperGraph.transform.position;
+            if (delta.sqrMagnitude < 1e-10f)
+                return;
+
+            PaperGraph.transform.position += delta;
+            if (FoldingCamera != null)
+                FoldingCamera.transform.position += delta;
+        }
+
+        private void ForcePreviewMeshUpdate() {
+            if (PaperGraph == null) return;
+
+            PaperGraphController controller = PaperGraph.GetComponent<PaperGraphController>();
+            controller?.PreviewVisualizer?.UpdateMesh();
+        }
+
+        private void CorrectPaperPositionForPreviewMesh() {
+            if (PaperGraph == null || Player == null || !Player.activeSelf)
+                return;
+
+            CachePlayerMeshReferences();
+            if (_playerMeshFilter == null || _playerMeshFilter.sharedMesh == null)
+                return;
+
+            PaperGraphController controller = PaperGraph.GetComponent<PaperGraphController>();
+            Transform previewRoot = controller?.PreviewMeshRoot;
+            MeshFilter previewFilter = previewRoot != null ? previewRoot.GetComponent<MeshFilter>() : null;
+            if (previewFilter == null || previewFilter.sharedMesh == null)
+                return;
+
+            Vector3 flightCentroid = GetMeshWorldCentroid(_playerMeshFilter.sharedMesh, _playerMeshFilter.transform);
+            Vector3 previewCentroid = GetMeshWorldCentroid(previewFilter.sharedMesh, previewFilter.transform);
+            Vector3 delta = flightCentroid - previewCentroid;
+            if (delta.sqrMagnitude < 1e-10f)
+                return;
+
+            PaperGraph.transform.position += delta;
+            if (FoldingCamera != null)
+                FoldingCamera.transform.position += delta;
+        }
+
+        private static Vector3 GetMeshWorldCentroid(Mesh mesh, Transform transform) {
+            Vector3[] vertices = mesh.vertices;
+            if (vertices == null || vertices.Length == 0)
+                return transform.position;
+
+            Vector3 sum = Vector3.zero;
+            for (int i = 0; i < vertices.Length; i++)
+                sum += transform.TransformPoint(vertices[i]);
+
+            return sum / vertices.Length;
         }
 
         private Transform GetPlayerMeshTransform() {
@@ -564,8 +766,18 @@ namespace Crease.Folding.Paper
             return Player.transform;
         }
 
-        private Quaternion GetPlayerMeshRotation() {
-            return GetPlayerMeshTransform().rotation;
+        private void PositionPlayerWingTipsFromMesh() {
+            if (Player == null)
+                return;
+
+            CachePlayerMeshReferences();
+            if (_playerMeshFilter == null || _playerMeshFilter.sharedMesh == null)
+                return;
+
+            WingTrailController wingTrail = Player.GetComponent<WingTrailController>();
+            wingTrail?.PositionWingTipsFromMesh(
+                _playerMeshFilter.sharedMesh,
+                _playerMeshFilter.transform);
         }
     }
 }

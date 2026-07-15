@@ -9,10 +9,21 @@ Shader "Crease/PaperShader"
 
         _DecalMap("Decal Overlay", 2D) = "black" {}
 
-        [HideInInspector] _CreaseSegmentTex("Crease Segments", 2D) = "black" {}
-        [HideInInspector] _CreaseSegmentCount("Crease Segment Count", Float) = 0
-        [HideInInspector] _CreaseDarkenWidth("Crease Darken Width", Float) = 0
-        [HideInInspector] _CreaseMinBrightness("Crease Min Brightness", Float) = 1
+        [HideInInspector] _FoldEdgeSegmentTex("Fold Edge Segments", 2D) = "black" {}
+        [HideInInspector] _FoldEdgeSegmentCount("Fold Edge Segment Count", Float) = 0
+        [HideInInspector] _FoldEdgeDarkenWidth("Fold Edge Darken Width", Float) = 0
+        [HideInInspector] _FoldEdgeMinBrightness("Fold Edge Min Brightness", Float) = 1
+
+        [HideInInspector] _CreaseEdgeSegmentTex("Crease Edge Segments", 2D) = "black" {}
+        [HideInInspector] _CreaseEdgeSegmentCount("Crease Edge Segment Count", Float) = 0
+        [HideInInspector] _CreaseEdgeDarkenWidth("Crease Edge Darken Width", Float) = 0
+        [HideInInspector] _CreaseEdgeMinBrightness("Crease Edge Min Brightness", Float) = 1
+
+        [HideInInspector] _BoundaryEdgeSegmentTex("Boundary Edge Segments", 2D) = "black" {}
+        [HideInInspector] _BoundaryEdgeSegmentCount("Boundary Edge Segment Count", Float) = 0
+        [HideInInspector] _EdgeShadowDarkenWidth("Edge Shadow Darken Width", Float) = 0
+        [HideInInspector] _EdgeShadowInnerOffset("Edge Shadow Inner Offset", Float) = 0
+        [HideInInspector] _EdgeShadowMinBrightness("Edge Shadow Min Brightness", Float) = 1
 
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
 

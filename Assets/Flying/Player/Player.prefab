@@ -316,7 +316,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3170476522262132025}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.44977522, y: 0.54562104, z: 0.44977522, w: 0.54562104}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -333,7 +333,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3170476522262132025}
-  m_Mesh: {fileID: 4300000, guid: 3d07862ae155a79468790d1c9c3e87c5, type: 2}
+  m_Mesh: {fileID: 4300000, guid: 91d3c4548297db94c9f3d0b97561c32e, type: 2}
 --- !u!23 &3828333310774951010
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -409,7 +409,7 @@ Transform:
   m_GameObject: {fileID: 5761645548201871312}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.209, y: -0.534, z: 0.218}
+  m_LocalPosition: {x: 0.266, y: 0.112, z: -0.707}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -440,7 +440,7 @@ Transform:
   m_GameObject: {fileID: 6568170741002272847}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.221, y: -0.532, z: -0.227}
+  m_LocalPosition: {x: -0.249, y: 0.109, z: -0.703}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -522,7 +522,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FlightController
   _pitch: 0
   _meshTransform: {fileID: 8993998958267351050}
-  _rollOffset: 0
   _stats: {fileID: 5517443600840389601}
 --- !u!54 &6411813560646232638
 Rigidbody:
@@ -693,7 +692,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1a2b3c4d5e6f7890123456789abcd07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Player.Abilities.AbilityController
-  _equippedAbility: {fileID: 11400000, guid: 4b29948a4ebb6464d96d991381d33e76, type: 2}
+  _primaryAbility: {fileID: 11400000, guid: 4b29948a4ebb6464d96d991381d33e76, type: 2}
+  _secondaryAbility: {fileID: 0}
   _animationController: {fileID: 9201342132183545357}
   _body: {fileID: 6633779251846987741}
   _wingTrail: {fileID: 6900904615396018688}
@@ -773,6 +773,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Player.Health.DamageDecalApplier
   _library: {fileID: 11400000, guid: d6a1b2c3d4e5678901234abcd1234569, type: 2}
+  _health: {fileID: 0}
   _decalCooldown: 0.75
   _randomRotationRange: 180
 --- !u!1 &8300377221380386037
