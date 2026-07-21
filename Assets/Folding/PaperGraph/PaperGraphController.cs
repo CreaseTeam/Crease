@@ -280,7 +280,12 @@ namespace Crease.Folding.Paper
             if (!valid) {
                 FoldPoint1 = LockedFoldPoint1;
                 FoldPoint2 = LockedFoldPoint2;
-                _previewGraph.RestoreSnapshot(snapshot);
+                // Do NOT reuse `snapshot` here: RestoreSnapshot aliases the snapshot's
+                // lists into the graph, so the failed ExecuteFold above has already
+                // mutated them (edges split before validity is known). Restoring it
+                // again leaves faces referencing edges missing from the graph and the
+                // next ExecuteFold's undo snapshot throws KeyNotFoundException.
+                _previewGraph.RestoreSnapshot(_paperGraph.CreateSnapshot());
                 _previewGraph.ExecuteFold(LockedFoldPoint1, LockedFoldPoint2, FoldPlaneVector, FoldDegrees, tag, SelectedFilterTags, FoldOffset);
             } else {
                 LockedFoldPoint1 = FoldPoint1;

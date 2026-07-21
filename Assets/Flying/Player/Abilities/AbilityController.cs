@@ -130,6 +130,10 @@ namespace Crease.Flying.Player.Abilities
 
             {
 
+                _primaryRuntime?.SetInputHeld(InputManager.Instance.Actions.Player.PrimaryAbility.IsPressed());
+
+                _secondaryRuntime?.SetInputHeld(InputManager.Instance.Actions.Player.SecondaryAbility.IsPressed());
+
                 if (InputManager.Instance.PrimaryAbilityPressed)
 
                     _primaryRuntime?.TryActivate();
