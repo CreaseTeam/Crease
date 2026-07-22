@@ -5299,6 +5299,10 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 1404954546}
+    - target: {fileID: 1288798942434531401, guid: d1bc3632dbb76df40a344f580cda5887, type: 3}
+      propertyPath: Reversible
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2350564767165267525, guid: d1bc3632dbb76df40a344f580cda5887, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -5407,6 +5411,18 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 308180180}
+    - target: {fileID: 8725022199111993513, guid: d1bc3632dbb76df40a344f580cda5887, type: 3}
+      propertyPath: IgnoreInput
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8725022199111993513, guid: d1bc3632dbb76df40a344f580cda5887, type: 3}
+      propertyPath: IgnoreInputTorqueBoost
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8725022199111993513, guid: d1bc3632dbb76df40a344f580cda5887, type: 3}
+      propertyPath: IgnoreInputPassiveAmount
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 8776466626795229184, guid: d1bc3632dbb76df40a344f580cda5887, type: 3}
       propertyPath: m_sharedMaterial
       value: 

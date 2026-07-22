@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Crease.Flying.Environment.Wind.SplineTube
@@ -51,8 +52,25 @@ namespace Crease.Flying.Environment.Wind.SplineTube
         private Mesh _combinedSegmentMesh;
 
         private SegmentTriggerRelay[] _cachedRelays;
-        private int _lastSegmentCount = -1;
-        private float _lastRadius;
+
+        // Cached against SplineTubeTrigger.RebuildVersion so HasTubeChanged() is an O(1) int
+        // comparison instead of walking the child hierarchy every frame.
+        private int _lastRebuildVersion = -1;
+
+        // +1 = particles flow in the spline's authored direction, -1 = reversed.
+        // Mirrors the same sign SplineWindZone tracks for wind force, kept independently
+        // here (rather than referencing SplineWindZone directly) by listening to the same
+        // SplineTubeTrigger events it does.
+        private float _windDirectionSign = 1f;
+
+        // The Particle System Shape module needs CPU-readable mesh data. MeshCollider
+        // (especially convex) can leave its assigned mesh's data inaccessible after baking,
+        // which produces "Mesh used in Particle System Shape Module is not valid, possibly
+        // due to missing read/write flag" in the console. To avoid that, each segment gets
+        // its own independent, guaranteed-readable mesh copy for particle use only — never
+        // touched by the physics engine. Keyed by relay so it survives per-segment across
+        // frames and gets cleaned up when segments are rebuilt.
+        private readonly Dictionary<SegmentTriggerRelay, Mesh> _readableMeshCache = new Dictionary<SegmentTriggerRelay, Mesh>();
 
         private void Awake()
         {
@@ -61,8 +79,28 @@ namespace Crease.Flying.Environment.Wind.SplineTube
 
         private void Start()
         {
+            if (_tubeTrigger != null)
+            {
+                _tubeTrigger.OnEndCapEntered.AddListener(HandleEndCapEntered);
+            }
+
             // Start guarantees SplineTubeTrigger.Awake has already run and built
             // all segment children before we try to add particle systems to them.
+            UpdateParticleSystems();
+        }
+
+        /// <summary>
+        /// Fired by SplineTubeTrigger when the player crosses one of the reversible end caps.
+        /// Mirrors SplineWindZone.HandleEndCapEntered so particle flow direction matches
+        /// wind force direction. No-ops if Reversible is off. Deliberately persists across
+        /// exits — direction only changes again when an end cap is crossed, in either
+        /// direction, not when the player simply leaves the tube.
+        /// </summary>
+        private void HandleEndCapEntered(Collider other, bool enteredFromEndSide)
+        {
+            if (_tubeTrigger == null || !_tubeTrigger.Reversible) return;
+
+            _windDirectionSign = enteredFromEndSide ? -1f : 1f;
             UpdateParticleSystems();
         }
 
@@ -86,21 +124,81 @@ namespace Crease.Flying.Environment.Wind.SplineTube
 
         private bool HasTubeChanged()
         {
-            SegmentTriggerRelay[] current = GetComponentsInChildren<SegmentTriggerRelay>();
-            int currentCount = current != null ? current.Length : 0;
-            return currentCount != _lastSegmentCount || _tubeTrigger.Radius != _lastRadius;
+            return _tubeTrigger.RebuildVersion != _lastRebuildVersion;
         }
 
         private void UpdateParticleSystems()
         {
             if (_tubeTrigger == null) return;
 
-            _cachedRelays     = GetComponentsInChildren<SegmentTriggerRelay>();
-            _lastSegmentCount = _cachedRelays != null ? _cachedRelays.Length : 0;
-            _lastRadius       = _tubeTrigger.Radius;
+            _cachedRelays        = GetComponentsInChildren<SegmentTriggerRelay>();
+            _lastRebuildVersion  = _tubeTrigger.RebuildVersion;
 
+            PruneReadableMeshCache();
             SetupSegmentParticleSystems();
             UpdateSecondaryParticleSystem();
+        }
+
+        /// <summary>
+        /// Destroys and removes cached readable mesh copies belonging to segments that no
+        /// longer exist (e.g. after SplineTubeTrigger rebuilds with a different segment count),
+        /// so we don't leak Mesh objects across rebuilds.
+        /// </summary>
+        private void PruneReadableMeshCache()
+        {
+            if (_readableMeshCache.Count == 0) return;
+
+            HashSet<SegmentTriggerRelay> current = _cachedRelays != null
+                ? new HashSet<SegmentTriggerRelay>(_cachedRelays)
+                : new HashSet<SegmentTriggerRelay>();
+
+            List<SegmentTriggerRelay> stale = null;
+            foreach (KeyValuePair<SegmentTriggerRelay, Mesh> kvp in _readableMeshCache)
+            {
+                if (kvp.Key == null || !current.Contains(kvp.Key))
+                {
+                    stale ??= new List<SegmentTriggerRelay>();
+                    stale.Add(kvp.Key);
+                }
+            }
+
+            if (stale == null) return;
+
+            foreach (SegmentTriggerRelay key in stale)
+            {
+                if (_readableMeshCache.TryGetValue(key, out Mesh staleMesh) && staleMesh != null)
+                {
+                    if (Application.isPlaying)
+                        Destroy(staleMesh);
+                    else
+                        DestroyImmediate(staleMesh);
+                }
+                _readableMeshCache.Remove(key);
+            }
+        }
+
+        /// <summary>
+        /// Returns a cached, independent, guaranteed-readable copy of this segment's mesh for
+        /// particle use, creating it the first time this relay is seen. This copy is never
+        /// assigned to a MeshCollider, so nothing in the physics pipeline can affect its
+        /// readability.
+        /// </summary>
+        private Mesh GetReadableSegmentMesh(SegmentTriggerRelay relay, MeshCollider mc)
+        {
+            if (mc == null || mc.sharedMesh == null) return null;
+
+            if (_readableMeshCache.TryGetValue(relay, out Mesh cached) && cached != null)
+                return cached;
+
+            Mesh readableCopy = new Mesh();
+            readableCopy.name     = mc.sharedMesh.name + "_ParticleReadable";
+            readableCopy.vertices = mc.sharedMesh.vertices;
+            readableCopy.triangles = mc.sharedMesh.triangles;
+            readableCopy.RecalculateNormals();
+            readableCopy.RecalculateBounds();
+
+            _readableMeshCache[relay] = readableCopy;
+            return readableCopy;
         }
 
         /// <summary>
@@ -126,7 +224,7 @@ namespace Crease.Flying.Environment.Wind.SplineTube
                 // Get the midpoint ring index for this segment to sample tangent direction.
                 int midRing = (relay.StartRingIndex + relay.EndRingIndex) / 2;
                 midRing = Mathf.Clamp(midRing, 0, _tubeTrigger.Rings.Count - 1);
-                Vector3 worldTangent = _tubeTrigger.Rings[midRing].Tangent;
+                Vector3 worldTangent = _tubeTrigger.Rings[midRing].Tangent * _windDirectionSign;
 
                 // Segment mesh verts are in world space. The segment child sits at world
                 // origin (no local offset), so world space == local space for this child.
@@ -162,12 +260,13 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             emission.enabled      = true;
             emission.rateOverTime = _emissionRate;
 
-            // Emit from this segment's own mesh surface.
+            // Emit from this segment's own mesh surface. Use a readable copy rather than
+            // mc.sharedMesh directly — see GetReadableSegmentMesh for why.
             var shape = ps.shape;
             shape.enabled       = true;
             shape.shapeType     = ParticleSystemShapeType.Mesh;
             shape.meshShapeType = ParticleSystemMeshShapeType.Triangle;
-            shape.mesh          = mc.sharedMesh;
+            shape.mesh          = GetReadableSegmentMesh(relay, mc);
 
             shape.alignToDirection      = false;
             shape.randomDirectionAmount = 0f;
@@ -230,9 +329,21 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             shape.alignToDirection      = false;
             shape.randomDirectionAmount = 0f;
 
+            // Now that the particle system has been repointed to the new mesh, it's safe to
+            // retire the previous one — see BuildCombinedMesh for why we can't just clear and
+            // reuse the same Mesh object in place while it's live on a running system.
+            if (_combinedSegmentMesh != null && _combinedSegmentMesh != steamMesh)
+            {
+                if (Application.isPlaying)
+                    Destroy(_combinedSegmentMesh);
+                else
+                    DestroyImmediate(_combinedSegmentMesh);
+            }
+            _combinedSegmentMesh = steamMesh;
+
             // Use first ring tangent as a general flow direction for steam.
             Vector3 worldTangent = _tubeTrigger.Rings != null && _tubeTrigger.Rings.Count > 0
-                ? _tubeTrigger.Rings[0].Tangent
+                ? _tubeTrigger.Rings[0].Tangent * _windDirectionSign
                 : Vector3.forward;
             Vector3 localDir = transform.InverseTransformDirection(worldTangent.normalized);
 
@@ -270,27 +381,49 @@ namespace Crease.Flying.Environment.Wind.SplineTube
                 MeshCollider mc = _cachedRelays[i].GetComponent<MeshCollider>();
                 if (mc == null || mc.sharedMesh == null) continue;
 
-                combine[i].mesh      = mc.sharedMesh;
+                // Use the same readable copies the segment particle systems use, rather than
+                // mc.sharedMesh directly — see GetReadableSegmentMesh for why.
+                combine[i].mesh      = GetReadableSegmentMesh(_cachedRelays[i], mc);
                 combine[i].transform = transform.worldToLocalMatrix;
                 anyValid = true;
             }
 
             if (!anyValid) return null;
 
-            if (_combinedSegmentMesh == null)
-            {
-                _combinedSegmentMesh      = new Mesh();
-                _combinedSegmentMesh.name = "SplineTubeCombinedEmissionMesh";
-            }
-
-            _combinedSegmentMesh.Clear();
-            _combinedSegmentMesh.CombineMeshes(combine, mergeSubMeshes: true, useMatrices: true);
-            _combinedSegmentMesh.RecalculateBounds();
-            return _combinedSegmentMesh;
+            // Always build into a brand-new Mesh rather than clearing and reusing the mesh
+            // currently assigned to the (possibly still running) particle system's Shape
+            // module. Once a mesh is bound to a live ParticleSystem's Shape module, Unity can
+            // upload it GPU-only and strip its CPU-readable data — so calling Clear() /
+            // CombineMeshes() on that same instance afterward throws "Mesh used in Particle
+            // System Shape Module is not valid, possibly due to missing read/write flag".
+            // A fresh instance every rebuild avoids ever touching a mesh the system has
+            // already consumed. The caller (UpdateSecondaryParticleSystem) is responsible for
+            // repointing the particle system to this new mesh and disposing of the old one.
+            Mesh combinedMesh = new Mesh();
+            combinedMesh.name = "SplineTubeCombinedEmissionMesh";
+            combinedMesh.CombineMeshes(combine, mergeSubMeshes: true, useMatrices: true);
+            combinedMesh.RecalculateBounds();
+            return combinedMesh;
         }
 
         private void OnDestroy()
         {
+            if (_tubeTrigger != null)
+            {
+                _tubeTrigger.OnEndCapEntered.RemoveListener(HandleEndCapEntered);
+            }
+
+            foreach (KeyValuePair<SegmentTriggerRelay, Mesh> kvp in _readableMeshCache)
+            {
+                if (kvp.Value == null) continue;
+
+                if (Application.isPlaying)
+                    Destroy(kvp.Value);
+                else
+                    DestroyImmediate(kvp.Value);
+            }
+            _readableMeshCache.Clear();
+
             if (_combinedSegmentMesh != null)
             {
                 if (Application.isPlaying)
