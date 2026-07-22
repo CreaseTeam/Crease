@@ -60,6 +60,21 @@ namespace Crease.Flying.Environment.Wind.SplineTube
         [Tooltip("If true, the Rigidbody will be set to IsKinematic automatically.")]
         public bool AutoConfigureRigidbody = true;
 
+        [Header("Reversible Settings")]
+        [Tooltip(
+            "If true, the tube can be entered from either end. Two thin trigger 'caps' are generated " +
+            "at the start and end of the spline; crossing the end-side cap tells SplineWindZone to " +
+            "reverse the wind direction for that traversal, so wind always blows the way the player " +
+            "is actually travelling.")]
+        public bool Reversible = false;
+
+        [Tooltip("Thickness (along the tube's tangent) of the invisible end-cap triggers used to detect entry side. Keep this small relative to tube length.")]
+        [Min(0.05f)]
+        public float EndCapThickness = 1f;
+
+        [Tooltip("Invoked when the player crosses one of the tube's end caps. The bool is true if they entered from the 'end' side (travelling backwards relative to the spline's authored direction), false if from the 'start' side (natural direction).")]
+        public UnityEvent<Collider, bool> OnEndCapEntered;
+
         [Header("Events")]
         public UnityEvent<Collider> OnTriggerEntered;
         public UnityEvent<Collider> OnTriggerExited;
@@ -76,7 +91,17 @@ namespace Crease.Flying.Environment.Wind.SplineTube
         // Child GameObjects holding per-segment convex MeshColliders.
         private readonly List<GameObject> _segmentObjects = new List<GameObject>();
 
+        // Child GameObjects holding the two end-cap trigger colliders (only populated when Reversible == true).
+        private readonly List<GameObject> _endCapObjects = new List<GameObject>();
+
         public IReadOnlyList<TubeRing> Rings => _rings;
+
+        /// <summary>
+        /// Increments every time RebuildMesh() actually rebuilds the tube. Lets dependent
+        /// scripts (e.g. SplineWindParticles) detect a rebuild with a cheap int comparison
+        /// instead of walking the child hierarchy every frame.
+        /// </summary>
+        public int RebuildVersion { get; private set; } = 0;
 
         private void Awake()
         {
@@ -99,7 +124,7 @@ namespace Crease.Flying.Environment.Wind.SplineTube
 
         /// <summary>
         /// Resamples the spline, determines curvature-based segments, and rebuilds all
-        /// child convex MeshCollider objects.
+        /// child convex MeshCollider objects (plus end caps, if Reversible is enabled).
         /// </summary>
         public void RebuildMesh()
         {
@@ -108,6 +133,8 @@ namespace Crease.Flying.Environment.Wind.SplineTube
 
             SampleRings();
             RebuildSegmentColliders();
+            RebuildEndCaps();
+            RebuildVersion++;
         }
 
         private void SampleRings()
@@ -267,6 +294,100 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             mesh.RecalculateNormals();
             mesh.RecalculateBounds();
             return mesh;
+        }
+
+        /// <summary>
+        /// Rebuilds the two end-cap trigger colliders used for Reversible entry-side detection.
+        /// Only generates them when Reversible is enabled; otherwise clears any existing ones
+        /// (e.g. if the setting was toggled off after being on).
+        /// </summary>
+        private void RebuildEndCaps()
+        {
+            // Clean up anything from a previous rebuild, including stale objects that might
+            // exist from before a domain reload.
+            TubeEndCapRelay[] existingCaps = GetComponentsInChildren<TubeEndCapRelay>();
+            foreach (TubeEndCapRelay cap in existingCaps)
+            {
+                if (cap != null && cap.gameObject != null)
+                {
+                    if (Application.isPlaying)
+                        Destroy(cap.gameObject);
+                    else
+                        DestroyImmediate(cap.gameObject);
+                }
+            }
+            _endCapObjects.Clear();
+
+            if (!Reversible || _rings == null || _rings.Length < 2) return;
+
+            CreateEndCap(_rings[0], isEndSide: false, name: "TubeEndCap_Start");
+            CreateEndCap(_rings[_rings.Length - 1], isEndSide: true, name: "TubeEndCap_End");
+        }
+
+        private void CreateEndCap(TubeRing ring, bool isEndSide, string name)
+        {
+            GameObject capObj = new GameObject(name);
+            capObj.transform.SetParent(transform, worldPositionStays: true);
+            capObj.layer = gameObject.layer;
+
+            Vector3 fwd = ring.Tangent.sqrMagnitude > 0.0001f ? ring.Tangent.normalized : Vector3.forward;
+            Vector3 up  = ring.Up.sqrMagnitude > 0.0001f ? ring.Up.normalized : Vector3.up;
+
+            capObj.transform.position = ring.Position;
+            capObj.transform.rotation = Quaternion.LookRotation(fwd, up);
+
+            // Needs its own kinematic Rigidbody, same reasoning as segment colliders —
+            // trigger detection needs a Rigidbody on at least one side of the pair.
+            Rigidbody rb = capObj.AddComponent<Rigidbody>();
+            rb.isKinematic = true;
+            rb.useGravity  = false;
+
+            // A thin box spanning the tube's cross-section acts as a trip-wire: anything
+            // entering through this end of the tube passes through it first.
+            BoxCollider box = capObj.AddComponent<BoxCollider>();
+            float diameter = ring.Radius * 2f;
+            box.size = new Vector3(diameter, diameter, EndCapThickness);
+            box.isTrigger = true;
+
+            TubeEndCapRelay relay = capObj.AddComponent<TubeEndCapRelay>();
+            relay.Initialize(this, isEndSide);
+
+            _endCapObjects.Add(capObj);
+        }
+
+        /// <summary>
+        /// Called by TubeEndCapRelay children when a collider passes through an end cap.
+        /// Filters out non-player colliders, then checks whether this crossing is a genuine
+        /// entry (moving into the tube through that end) rather than an exit (the player
+        /// just flying out the far end after a normal traversal) — the same cap trigger
+        /// fires for both, so without this check exiting out either end would incorrectly
+        /// flip the wind direction. Only genuine entries forward to SplineWindZone (and
+        /// anything else listening) via OnEndCapEntered.
+        /// </summary>
+        public void OnEndCapTriggerEnter(Collider other, bool isEndSide)
+        {
+            if (other.GetComponent<SegmentTriggerRelay>() != null) return;
+            if (other.GetComponent<TubeEndCapRelay>() != null) return;
+
+            FlightForceReceiver receiver = other.GetComponentInParent<FlightForceReceiver>();
+            if (receiver == null) receiver = other.GetComponent<FlightForceReceiver>();
+            if (receiver == null) return;
+
+            if (_rings == null || _rings.Length < 2) return;
+
+            // Tangent always points in the spline's authored "forward" (start → end) direction,
+            // regardless of which cap this is. Moving into the tube means: at the start cap,
+            // travelling the same way as that tangent; at the end cap, travelling against it.
+            Vector3 capTangent = isEndSide ? _rings[_rings.Length - 1].Tangent : _rings[0].Tangent;
+
+            KinematicBody body = receiver.GetComponent<KinematicBody>();
+            Vector3 travelDirection = body != null ? body.Velocity : receiver.transform.forward;
+
+            float travelDot = Vector3.Dot(travelDirection, capTangent);
+            bool isGenuineEntry = isEndSide ? (travelDot < 0f) : (travelDot > 0f);
+            if (!isGenuineEntry) return;
+
+            OnEndCapEntered?.Invoke(other, isEndSide);
         }
 
         /// <summary>
