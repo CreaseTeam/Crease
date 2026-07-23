@@ -117,6 +117,10 @@ namespace Crease.Folding.Paper
         [Tooltip("Offset applied to every step position when this instruction is run (x → local X, y → local Z).")]
         public Vector2 Offset;
 
+        [Header("Flight Orientation")]
+        [Tooltip("Euler rotation (graph space → flight mesh space) baked into the saved mesh so the model's front aligns with +Z.")]
+        public Vector3 FlightMeshRotation;
+
         [FormerlySerializedAs("steps")]
         public List<FoldStep> Steps = new List<FoldStep>();
 

@@ -30,43 +30,76 @@ namespace Crease.Folding.Paper
 
         private Camera _activeCamera;
         private bool _isDragging;
-        private Mouse _mouse;
+        // World-space offset between the grab point and the handle center,
+        // captured on press. Subtracted while dragging so grabbing the edge of
+        // the handle collider does not jump the fold on the press frame (the
+        // fold axis direction is derived from the drag vector, so even a tiny
+        // press-point offset flips the fold line to a random orientation).
+        private Vector3 _grabOffset;
 
         private void Start() {
-            _mouse = Mouse.current;
-
             if (Controller != null)
                 transform.position = Controller.transform.TransformPoint(Controller.DragHandlePosition);
         }
 
         private void Update() {
             _activeCamera = _trackedCamera != null ? _trackedCamera : Camera.main;
-            if (_mouse == null || _activeCamera == null) return;
 
-            if (_mouse.leftButton.wasPressedThisFrame) {
-                TryBeginDrag();
+            // Read Mouse.current live each frame so the handle follows whichever
+            // pointer device is active — the physical mouse or the gamepad-driven
+            // VirtualMouseInput cursor (see FoldingVirtualCursor).
+            Mouse mouse = Mouse.current;
+            if (mouse == null || _activeCamera == null) return;
+
+            if (mouse.leftButton.wasPressedThisFrame) {
+                TryBeginDrag(mouse);
             }
 
             if (_isDragging) {
-                UpdateDrag();
+                UpdateDrag(mouse);
 
-                if (_mouse.leftButton.wasReleasedThisFrame) {
+                if (mouse.leftButton.wasReleasedThisFrame) {
                     EndDrag();
                 }
             }
         }
 
-        private void TryBeginDrag() {
-            Ray ray = _activeCamera.ScreenPointToRay(_mouse.position.ReadValue());
+        private void TryBeginDrag(Mouse mouse) {
+            Ray ray = _activeCamera.ScreenPointToRay(mouse.position.ReadValue());
 
             if (Physics.Raycast(ray, out RaycastHit hit)) {
                 if (hit.collider.gameObject == gameObject) {
                     _isDragging = true;
+                    _grabOffset = Vector3.zero;
+                    if (TryProjectOnDragPlane(ray, out Vector3 grabPoint))
+                        _grabOffset = grabPoint - transform.position;
                 }
             }
         }
 
-        private void UpdateDrag() {
+        /// <summary>
+        /// Projects a ray onto the current drag plane (same plane UpdateDrag uses).
+        /// </summary>
+        private bool TryProjectOnDragPlane(Ray ray, out Vector3 point) {
+            point = Vector3.zero;
+            if (Controller == null) return false;
+
+            Vector3 localNormal = Controller.DragPlaneNormal.normalized;
+            if (localNormal.sqrMagnitude < 0.0001f) return false;
+            Vector3 worldNormal = Controller.transform.TransformDirection(localNormal);
+
+            Vector3 localStartPos = Controller.IsAccordionDragStep
+                ? Controller.AccordionDragStart
+                : Controller.DragHandlePosition;
+            Vector3 worldStartPos = Controller.transform.TransformPoint(localStartPos);
+            Plane dragPlane = new Plane(worldNormal, worldStartPos);
+
+            if (!dragPlane.Raycast(ray, out float enter)) return false;
+            point = ray.GetPoint(enter);
+            return true;
+        }
+
+        private void UpdateDrag(Mouse mouse) {
             if (Controller == null) return;
 
             Vector3 localNormal = Controller.DragPlaneNormal.normalized;
@@ -79,10 +112,10 @@ namespace Crease.Folding.Paper
             Vector3 worldStartPos = Controller.transform.TransformPoint(localStartPos);
             Plane dragPlane = new Plane(worldNormal, worldStartPos);
 
-            Ray ray = _activeCamera.ScreenPointToRay(_mouse.position.ReadValue());
+            Ray ray = _activeCamera.ScreenPointToRay(mouse.position.ReadValue());
 
             if (dragPlane.Raycast(ray, out float enter)) {
-                Vector3 hitPoint = ray.GetPoint(enter);
+                Vector3 hitPoint = ray.GetPoint(enter) - _grabOffset;
                 Vector3 localHit = Controller.transform.InverseTransformPoint(hitPoint);
 
                 if (Controller.IsAccordionDragStep) {
