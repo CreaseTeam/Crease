@@ -53,7 +53,7 @@ namespace Crease.Handwritting
         [SerializeField]
         [Min(0f)]
         [Tooltip("Seconds to keep the camera locked on the text before returning.")]
-        float _cameraCaptureHoldDuration = 3f;
+        float _cameraCaptureHoldDuration = 1f;
 
         [SerializeField]
         [FormerlySerializedAs("_disappear")]
@@ -63,7 +63,7 @@ namespace Crease.Handwritting
         [SerializeField]
         [Min(0f)]
         [Tooltip("Seconds to keep fully visible text on screen before disappearing.")]
-        float _lingerTime = 2f;
+        float _lingerTime = 4f;
 
         [SerializeField]
         [Min(0.01f)]
