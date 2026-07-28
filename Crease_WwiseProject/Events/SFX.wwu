@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}" SchemaVersion="133" RootDocumentID="{0EEEC0C5-46C7-4AA1-AE47-79909262EE75}" ParentDocumentID="{0EEEC0C5-46C7-4AA1-AE47-79909262EE75}">
+	<Events>
+		<WorkUnit Name="SFX" ID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}" OwnerID="{0EEEC0C5-46C7-4AA1-AE47-79909262EE75}" PersistMode="Nested">
+			<ChildrenList>
+				<WorkUnit Name="Lv1_SFX" ID="{61AA8E38-8BE5-4700-B964-A66748547F43}" PersistMode="Reference"/>
+				<WorkUnit Name="UI_SFX" ID="{AAB10814-E332-4A7C-8E6F-AA17EDE39E70}" PersistMode="Reference"/>
+			</ChildrenList>
+		</WorkUnit>
+	</Events>
+</WwiseDocument>

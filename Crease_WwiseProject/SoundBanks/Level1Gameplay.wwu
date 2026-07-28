@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{DA3F1A3C-1646-4263-BC5C-04F8D637FB8E}" SchemaVersion="133" RootDocumentID="{B0EDE3EA-6F53-409E-A1BE-8189012E5AFC}" ParentDocumentID="{8939939A-2E07-4008-98EA-E742AC903E06}">
+	<SoundBanks>
+		<WorkUnit Name="Level1Gameplay" ID="{DA3F1A3C-1646-4263-BC5C-04F8D637FB8E}" OwnerID="{8939939A-2E07-4008-98EA-E742AC903E06}" PersistMode="Nested">
+			<ChildrenList>
+				<SoundBank Name="Level1General" ID="{8C59F681-D097-4EC2-8273-0E99CBD4D6CF}">
+					<PropertyList>
+						<Property Name="Maximum" Type="int32">
+							<ValueList>
+								<Value>100000000</Value>
+							</ValueList>
+						</Property>
+					</PropertyList>
+					<ObjectInclusionList>
+						<ObjectRef Name="SoundbankSpecificSFX" ID="{A291CDE4-4FD7-4263-A374-98265E9A9ED8}" WorkUnitID="{61AA8E38-8BE5-4700-B964-A66748547F43}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="GeneralSFX" ID="{EBA948A2-AFAC-46E4-8823-A236833450C1}" WorkUnitID="{61AA8E38-8BE5-4700-B964-A66748547F43}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="TEST_DELETE_ME" ID="{08CF5B0F-3679-4F5E-AC09-E49B16D2B34F}" WorkUnitID="{0EEEC0C5-46C7-4AA1-AE47-79909262EE75}" Origin="Manual" Filter="7"/>
+					</ObjectInclusionList>
+					<ObjectExclusionList/>
+					<GameSyncExclusionList/>
+				</SoundBank>
+				<WorkUnit Name="Level1Regions" ID="{28B883D6-1E20-4406-B2BF-035F47603A67}" PersistMode="Reference"/>
+			</ChildrenList>
+		</WorkUnit>
+	</SoundBanks>
+</WwiseDocument>

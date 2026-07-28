@@ -3,16 +3,8 @@
 	<SoundBanks>
 		<WorkUnit Name="Default Work Unit" ID="{B0EDE3EA-6F53-409E-A1BE-8189012E5AFC}" PersistMode="Standalone">
 			<ChildrenList>
-				<SoundBank Name="level_1_sfx" ID="{E57FE327-2DEC-491F-8BDE-6C23EE143398}">
-					<ObjectInclusionList/>
-					<ObjectExclusionList/>
-					<GameSyncExclusionList/>
-				</SoundBank>
-				<SoundBank Name="level_1_mus" ID="{7EFBB1C0-8EED-4660-9AE9-FD3D7195B4AF}">
-					<ObjectInclusionList/>
-					<ObjectExclusionList/>
-					<GameSyncExclusionList/>
-				</SoundBank>
+				<WorkUnit Name="Menus" ID="{445492F6-411E-4B58-B773-0A2A7A20F126}" PersistMode="Reference"/>
+				<WorkUnit Name="Gameplay" ID="{8939939A-2E07-4008-98EA-E742AC903E06}" PersistMode="Reference"/>
 			</ChildrenList>
 		</WorkUnit>
 	</SoundBanks>

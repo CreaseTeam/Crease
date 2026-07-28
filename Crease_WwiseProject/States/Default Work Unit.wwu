@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <WwiseDocument Type="WorkUnit" ID="{68E99588-79E1-4CBF-A2AE-FC594A6C4289}" SchemaVersion="133">
 	<States>
-		<WorkUnit Name="Default Work Unit" ID="{68E99588-79E1-4CBF-A2AE-FC594A6C4289}" PersistMode="Standalone"/>
+		<WorkUnit Name="Default Work Unit" ID="{68E99588-79E1-4CBF-A2AE-FC594A6C4289}" PersistMode="Standalone">
+			<ChildrenList>
+				<Folder Name="TestStates" ID="{09134E87-394D-42FB-BE93-E0474CE3BA56}" ShortID="1045015142">
+					<ChildrenList>
+						<Folder Name="SFX" ID="{B688ACFA-69B8-41B4-9CD8-5BFAACB32E48}" ShortID="438845686">
+							<ChildrenList>
+								<StateGroup Name="RegionAmbienceStates" ID="{0447417C-0993-4B97-93D0-41831A1AB9D0}">
+									<ChildrenList>
+										<State Name="None" ID="{C69D8809-E72A-4E51-8B5C-FC7813CF3D29}"/>
+										<State Name="GrassLakeArea" ID="{DA5B8B70-2780-49EA-8F8A-71CE8F6B33E2}"/>
+										<State Name="ForestArea" ID="{666F9A7B-E262-43FD-AB2C-5859DCCCB2BD}"/>
+									</ChildrenList>
+								</StateGroup>
+							</ChildrenList>
+						</Folder>
+					</ChildrenList>
+				</Folder>
+			</ChildrenList>
+		</WorkUnit>
 	</States>
 </WwiseDocument>

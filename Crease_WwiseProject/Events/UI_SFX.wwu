@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{AAB10814-E332-4A7C-8E6F-AA17EDE39E70}" SchemaVersion="133" RootDocumentID="{0EEEC0C5-46C7-4AA1-AE47-79909262EE75}" ParentDocumentID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}">
+	<Events>
+		<WorkUnit Name="UI_SFX" ID="{AAB10814-E332-4A7C-8E6F-AA17EDE39E70}" OwnerID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}" PersistMode="Nested">
+			<ChildrenList>
+				<Folder Name="SoundbankSpecificUI" ID="{A8F206CF-82DD-45CC-A730-46C06262C2A4}" ShortID="359394856">
+					<ChildrenList>
+						<Event Name="Play_CreasePaper" ID="{E29B5ED5-6187-4481-8362-3B07D309480C}"/>
+						<Event Name="Play_FoldPaper" ID="{4C1F1568-0BBB-4844-B494-0331F9C2BA8F}"/>
+						<Event Name="Play_SelectSticker" ID="{7A9CB8D8-A42F-4584-BA5F-9709F6E90686}"/>
+						<Event Name="Play_RemoveSticker" ID="{1D0C698E-E75D-4A83-A3F8-A76867814AC4}"/>
+					</ChildrenList>
+				</Folder>
+				<Folder Name="GeneralUI" ID="{B4C54646-4039-4239-8E0E-9C059C80AD0A}" ShortID="1032648818">
+					<ChildrenList>
+						<Event Name="Select" ID="{C15C9FAB-D02C-46AE-AA07-9EE23603DC70}"/>
+						<Event Name="HoverON" ID="{A2EA666C-63B4-499C-A7DD-BF85F2F711E5}"/>
+						<Event Name="HoverOFF" ID="{BFE87B85-BA37-4656-A61A-3CB8C239816E}"/>
+					</ChildrenList>
+				</Folder>
+			</ChildrenList>
+		</WorkUnit>
+	</Events>
+</WwiseDocument>

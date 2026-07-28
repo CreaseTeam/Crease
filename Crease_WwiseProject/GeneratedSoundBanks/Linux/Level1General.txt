@@ -1,0 +1,58 @@
+Event	ID	Name			Wwise Object Path	Notes
+	94728852	Play_WaterDamage			\Default Work Unit\SFX\Lv1_SFX\GeneralSFX\Play_WaterDamage	
+	827576222	Play_AmbientWaterspout			\Default Work Unit\SFX\Lv1_SFX\SoundbankSpecificSFX\Play_AmbientWaterspout	
+	979988297	Play_CoinCollect			\Default Work Unit\SFX\Lv1_SFX\GeneralSFX\Play_CoinCollect	
+	1280143093	Play_AmbientWindFrustrum1			\Default Work Unit\SFX\Lv1_SFX\GeneralSFX\Play_AmbientWindFrustrum1	
+	1280143094	Play_AmbientWindFrustrum2			\Default Work Unit\SFX\Lv1_SFX\GeneralSFX\Play_AmbientWindFrustrum2	
+	1280143095	Play_AmbientWindFrustrum3			\Default Work Unit\SFX\Lv1_SFX\GeneralSFX\Play_AmbientWindFrustrum3	
+	1844555015	Play_WindFrustrumLift			\Default Work Unit\SFX\Lv1_SFX\GeneralSFX\Play_WindFrustrumLift	
+	1987482915	Start_L1AmbienceSwitch			\Default Work Unit\SFX\Lv1_SFX\GeneralSFX\Start_L1AmbienceSwitch	
+	2069913319	Play_AmbientSwings			\Default Work Unit\SFX\Lv1_SFX\SoundbankSpecificSFX\Play_AmbientSwings	
+	2187218884	Play_AmbientWindFrustrumGeneral			\Default Work Unit\SFX\Lv1_SFX\GeneralSFX\Play_AmbientWindFrustrumGeneral	
+	2220497489	Play_PlaneSpeedSounds			\Default Work Unit\SFX\Lv1_SFX\GeneralSFX\Play_PlaneSpeedSounds	
+	2321545575	Play_StickerCollect			\Default Work Unit\SFX\Lv1_SFX\GeneralSFX\Play_StickerCollect	
+	2446149930	TEST_DELETE_ME			\Default Work Unit\TEST_DELETE_ME	
+	3134050369	Play_PlaneBoost			\Default Work Unit\SFX\Lv1_SFX\GeneralSFX\Play_PlaneBoost	
+	3300885361	Stop_L1AmbienceSwitch			\Default Work Unit\SFX\Lv1_SFX\GeneralSFX\Stop_L1AmbienceSwitch	
+
+State Group	ID	Name			Wwise Object Path	Notes
+	567225543	RegionAmbienceStates			\Default Work Unit\TestStates\SFX\RegionAmbienceStates	
+
+State	ID	Name	State Group			Notes
+	421983475	GrassLakeArea	RegionAmbienceStates			
+	748895195	None	RegionAmbienceStates			
+	3336434501	ForestArea	RegionAmbienceStates			
+
+Game Parameter	ID	Name			Wwise Object Path	Notes
+	4135936604	Player_FlightSpeed			\Default Work Unit\Player\Player_FlightSpeed	
+
+In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
+	6126600	sfx_plane_boost	.cache\E7\{E7997F11-DA4F-16F7-13E7-14A424F764C2}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Movement\Player_Dash\sfx_plane_boost		349000
+	32658430	sfx_sticker_peel_03	.cache\9C\{9C4F2534-631A-7BEA-95F0-83D62AE354AA}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Collect\Pickup_Sticker\Pickup_Sticker_Head\sfx_sticker_peel_03		95460
+	60420500	sfx_plane_splash_03	.cache\0C\{0C3D9BE5-9568-67F4-B4E9-B94C64C48B12}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Damage\Water_Hit\Water_Hits\sfx_plane_splash_03		156068
+	81596657	sfx_grass_field	.cache\06\{060C15F7-F711-7651-445E-E7D66EA013DC}.wem		\Containers\Default Work Unit\WORLD\Ambient\Ambiences-and-Emitters\Ambiences_Background\Ambiences\Region_Ambiences\sfx_grass_field		5290428
+	104502095	sfx_plane_splash_02	.cache\3D\{3DA224CE-F1C1-EE72-C562-81353CC1ED8E}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Damage\Water_Hit\Water_Hits\sfx_plane_splash_02		153436
+	111288094	sfx_coin-collect_06	.cache\D0\{D05AF5E5-2DD1-5926-55E4-E08A059F2099}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Collect\Pickup_Coins\sfx_coin-collect_06		380660
+	130912113	sfx_windfrustrum_lift	.cache\13\{13CE095A-E000-2D52-79EF-AB95FA454D1E}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Movement\Player_WindfrustrumLifted\sfx_windfrustrum_lift		661644
+	193925975	sfx_waterfountain_ambience_02	.cache\15\{15667780-B6B6-999B-6D46-44E3E3E61794}.wem		\Containers\Default Work Unit\WORLD\Ambient\Ambiences-and-Emitters\Ambiences_Emitters\Emitters\Watersprout_Emitter\Watersprout_Container\sfx_waterfountain_ambience_02		2707568
+	255530573	sfx_coin-collect_02	.cache\27\{272A8BCD-844D-92EA-3908-C06DCEB49521}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Collect\Pickup_Coins\sfx_coin-collect_02		291060
+	286066908	sfx_coin-collect_05	.cache\27\{2757469B-F67E-B855-28DE-44EBF7834BBD}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Collect\Pickup_Coins\sfx_coin-collect_05		356160
+	307480835	sfx_plane_splash_05	.cache\4F\{4F210A12-3ACE-EC78-8E45-D67D3DC4B83B}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Damage\Water_Hit\Water_Hits\sfx_plane_splash_05		151344
+	337278340	sfx_plane_splash_04	.cache\44\{44E18F4B-45F3-88E9-11CD-172EFC4DC9FA}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Damage\Water_Hit\Water_Hits\sfx_plane_splash_04		148164
+	484290944	sfx_waterfountain_ambience_01	.cache\DA\{DAA0C03B-A67D-0B0C-BE52-D0F20CAF2619}.wem		\Containers\Default Work Unit\WORLD\Ambient\Ambiences-and-Emitters\Ambiences_Emitters\Emitters\Watersprout_Emitter\Watersprout_Container\sfx_waterfountain_ambience_01		2707568
+	572764049	sfx_sticker_stick_02	.cache\1C\{1C24C101-951E-3560-659C-4655F36163C5}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Collect\Pickup_Sticker\Pickup_Sticker_Tail\sfx_sticker_stick_02		11268
+	653433178	sfx_coin-collect_04	.cache\90\{90627907-B83B-2BCD-BBEE-7CA4F03498BA}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Collect\Pickup_Coins\sfx_coin-collect_04		352160
+	683921367	sfx_coin-collect_03	.cache\71\{71C43DAF-59D2-27C8-C8FA-49B4949FE852}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Collect\Pickup_Coins\sfx_coin-collect_03		276160
+	689446621	sfx_plane_splash_01	.cache\4E\{4E8F50C5-CE8B-1800-C766-C236A62072D3}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Damage\Water_Hit\Water_Hits\sfx_plane_splash_01		80100
+	727757605	sfx_base_wind_high	.cache\3C\{3C30F46E-BC37-2B82-C8A1-48E83C4C243A}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Movement\Player_WindSpeeding\sfx_base_wind_high		3695288
+	742397810	sfx_base_wind_highest	.cache\D2\{D279FD21-1DF6-79FC-A8A5-81704EB1A687}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Movement\Player_WindSpeeding\sfx_base_wind_highest		3695288
+	761285829	sfx_coin-collect_01	.cache\AA\{AAA1B7D1-82E1-6C6D-8AEF-1BBD4021ECBF}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Collect\Pickup_Coins\sfx_coin-collect_01		291060
+	787311231	sfx_base_wind_low	.cache\51\{510BEB67-7965-98EA-BF15-4747892BD9FE}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Movement\Player_WindSpeeding\sfx_base_wind_low		3693572
+	846295118	sfx_sticker_peel_01	.cache\AB\{ABEAB991-17D6-E74B-D25E-438BB70362B2}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Collect\Pickup_Sticker\Pickup_Sticker_Head\sfx_sticker_peel_01		102324
+	887369446	sfx_swings_v2_EQ	.cache\D8\{D82E13B1-F661-F380-35EB-B9FB3FCEAA86}.wem		\Containers\Default Work Unit\WORLD\Ambient\Ambiences-and-Emitters\Ambiences_Emitters\Emitters\Swing_Emitter\sfx_swings_v2_EQ		5510920
+	910996997	sfx_sticker_peel_02	.cache\B6\{B66FBD88-D908-6D7B-BBB9-55BD985DCE29}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Collect\Pickup_Sticker\Pickup_Sticker_Head\sfx_sticker_peel_02		95484
+	919606371	sfx_windfrustrum_lift_V2_FIXED EQ	.cache\C2\{C22B810E-7D0D-0733-BCF0-0FB4D6186EFF}.wem		\Containers\Default Work Unit\WORLD\Ambient\Ambiences-and-Emitters\Ambiences_Emitters\Emitters\WindFrustrum_Emitters\WindFrustrum_GENERAL_CloseEmitter\sfx_windfrustrum_lift_V2_FIXED EQ		2119016
+	977030703	sfx_windfrustrum_layer1_FIXED	.cache\37\{37ED01D5-2AC2-9432-FDEC-D54864E97310}.wem		\Containers\Default Work Unit\WORLD\Ambient\Ambiences-and-Emitters\Ambiences_Emitters\Emitters\WindFrustrum_Emitters\WindFrustrum-3_Emitter\sfx_windfrustrum_layer1_FIXED		3456160
+	990541490	sfx_forest_ambience_02	.cache\65\{6547DF76-F60F-D0DB-4E15-881C7ED6551B}.wem		\Containers\Default Work Unit\WORLD\Ambient\Ambiences-and-Emitters\Ambiences_Background\Ambiences\Region_Ambiences\sfx_forest_ambience_02		9563544
+	1068781597	sfx_sticker_stick_01	.cache\79\{792DC552-B7B8-1AFF-0408-D83EEA1D25F9}.wem		\Containers\Default Work Unit\WORLD\Player\Player_Collect\Pickup_Sticker\Pickup_Sticker_Tail\sfx_sticker_stick_01		30008
+
