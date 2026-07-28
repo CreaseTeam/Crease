@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Mac" BasePlatform="Mac" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="3494343696" Type="User" GUID="{C2FB256C-F158-46D6-B332-A0E789900C2F}" Language="SFX" Hash="{104A920E-726C-7572-267E-0D9393031090}">
+			<ObjectPath>\SoundBanks\Default Work Unit\Menus\PauseMenu</ObjectPath>
+			<ShortName>PauseMenu</ShortName>
+			<Path>PauseMenu.bnk</Path>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{62D10AFF-545E-FFE7-4A42-2634BD622FEF}</FileHash>
+</SoundBanksInfo>

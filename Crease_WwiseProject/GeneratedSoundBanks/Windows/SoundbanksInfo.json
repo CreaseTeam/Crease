@@ -142,7 +142,7 @@
     "Type": "User",
     "GUID": "{8C59F681-D097-4EC2-8273-0E99CBD4D6CF}",
     "Language": "SFX",
-    "Hash": "{E27E4744-9950-F002-713C-148822D2043C}",
+    "Hash": "{D9F32BD9-F9DF-9AB1-D91A-9340FCD4B531}",
     "ObjectPath": "\\SoundBanks\\Default Work Unit\\Gameplay\\Level1Gameplay\\Level1General",
     "ShortName": "Level1General",
     "Path": "Level1General.bnk",
@@ -391,7 +391,7 @@
       "Name": "Play_AmbientWaterspout",
       "ObjectPath": "\\Events\\Default Work Unit\\SFX\\Lv1_SFX\\SoundbankSpecificSFX\\Play_AmbientWaterspout",
       "GUID": "{E0827410-F474-40E7-9223-2AED5964BE22}",
-      "MaxAttenuation": "100",
+      "MaxAttenuation": "115",
       "DurationType": "Infinite",
       "MediaRefs": [
        {
@@ -637,7 +637,7 @@
       "Name": "TEST_DELETE_ME",
       "ObjectPath": "\\Events\\Default Work Unit\\TEST_DELETE_ME",
       "GUID": "{08CF5B0F-3679-4F5E-AC09-E49B16D2B34F}",
-      "MaxAttenuation": "100",
+      "MaxAttenuation": "115",
       "DurationType": "Infinite",
       "MediaRefs": [
        {
@@ -727,6 +727,6 @@
     "Path": "MainMenu.bnk"
    }
   ],
-  "FileHash": "{3819CC08-08DB-9777-E28C-23CC7A37B272}"
+  "FileHash": "{F2E1865F-9822-3019-342C-97E00D3F5859}"
  }
 }

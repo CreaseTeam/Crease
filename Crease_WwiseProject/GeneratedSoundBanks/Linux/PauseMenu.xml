@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Linux" BasePlatform="Linux" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="3494343696" Type="User" GUID="{C2FB256C-F158-46D6-B332-A0E789900C2F}" Language="SFX" Hash="{104A920E-726C-7572-267E-0D9393031090}">
+			<ObjectPath>\SoundBanks\Default Work Unit\Menus\PauseMenu</ObjectPath>
+			<ShortName>PauseMenu</ShortName>
+			<Path>PauseMenu.bnk</Path>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{10D41AF1-D36A-C610-632D-0ACD86730152}</FileHash>
+</SoundBanksInfo>

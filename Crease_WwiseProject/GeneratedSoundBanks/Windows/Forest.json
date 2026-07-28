@@ -1,0 +1,21 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "491961918",
+    "Type": "User",
+    "GUID": "{2F291807-0730-41AE-9AB0-F9FBFB18E772}",
+    "Language": "SFX",
+    "Hash": "{CD91E871-F78A-0E1B-2B73-935D58185561}",
+    "ObjectPath": "\\SoundBanks\\Default Work Unit\\Gameplay\\Level1Gameplay\\Level1Regions\\Forest",
+    "ShortName": "Forest",
+    "Path": "Forest.bnk"
+   }
+  ],
+  "FileHash": "{CD4CDE53-2890-6A4A-21CA-1E12F9FBD0A6}"
+ }
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Linux" BasePlatform="Linux" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="953591617" Type="User" GUID="{FCFC6331-AA96-4965-AC7B-1BE8AA5D4C76}" Language="SFX" Hash="{5258DB5D-EAC2-6238-E116-4E5BF64622E8}">
+			<ObjectPath>\SoundBanks\Default Work Unit\Menus\FoldMenu</ObjectPath>
+			<ShortName>FoldMenu</ShortName>
+			<Path>FoldMenu.bnk</Path>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{288F925B-D96F-B30B-FFE0-EB61E5E40EF2}</FileHash>
+</SoundBanksInfo>

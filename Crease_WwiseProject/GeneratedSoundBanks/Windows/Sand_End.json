@@ -1,0 +1,21 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "1079185769",
+    "Type": "User",
+    "GUID": "{90CBE1A9-6A2D-4748-853B-4C84F967A28A}",
+    "Language": "SFX",
+    "Hash": "{711692E5-3C9C-2129-4374-D1C52DF47B65}",
+    "ObjectPath": "\\SoundBanks\\Default Work Unit\\Gameplay\\Level1Gameplay\\Level1Regions\\Sand_End",
+    "ShortName": "Sand_End",
+    "Path": "Sand_End.bnk"
+   }
+  ],
+  "FileHash": "{DF9FD5B5-0150-F421-818E-B102DE856341}"
+ }
+}

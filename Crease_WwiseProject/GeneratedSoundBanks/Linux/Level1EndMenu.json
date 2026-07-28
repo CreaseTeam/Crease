@@ -1,0 +1,21 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Linux",
+  "BasePlatform": "Linux",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "879074040",
+    "Type": "User",
+    "GUID": "{6F4F655D-4054-405F-A3FA-E00CB780C9A5}",
+    "Language": "SFX",
+    "Hash": "{64AFAE6D-5A3C-6ED5-3659-C1E8D960D795}",
+    "ObjectPath": "\\SoundBanks\\Default Work Unit\\Menus\\Level1EndMenu",
+    "ShortName": "Level1EndMenu",
+    "Path": "Level1EndMenu.bnk"
+   }
+  ],
+  "FileHash": "{E7C2C15E-DF46-E5D0-8F20-836EFB182902}"
+ }
+}

@@ -4,6 +4,9 @@
 		<WorkUnit Name="Default Work Unit" ID="{9DAD5C3B-8BDC-4B43-8526-E6B76A36F001}" PersistMode="Standalone">
 			<ChildrenList>
 				<Attenuation Name="ATT_Waterspouts" ID="{0F95848F-CAB8-4853-B034-88938E76D768}" ShortID="994537903">
+					<PropertyList>
+						<Property Name="RadiusMax" Type="Real64" Value="115"/>
+					</PropertyList>
 					<CurveUsageInfoList>
 						<VolumeDryUsage>
 							<CurveUsageInfo Platform="Linked" CurveToUse="Custom">
@@ -14,16 +17,16 @@
 									<PointList>
 										<Point>
 											<XPos>0</XPos>
-											<YPos>0</YPos>
+											<YPos>-4.4988</YPos>
 											<Flags>5</Flags>
 										</Point>
 										<Point>
-											<XPos>60.24306</XPos>
-											<YPos>-15.91464</YPos>
+											<XPos>62.2862835714286</XPos>
+											<YPos>-4.64818</YPos>
 											<Flags>0</Flags>
 										</Point>
 										<Point>
-											<XPos>100</XPos>
+											<XPos>115</XPos>
 											<YPos>-200</YPos>
 											<Flags>37</Flags>
 										</Point>
@@ -51,14 +54,13 @@
 											<SegmentShape>Exp1</SegmentShape>
 										</Point>
 										<Point>
-											<XPos>43.58974</XPos>
-											<YPos>50</YPos>
+											<XPos>81.6072282142857</XPos>
+											<YPos>0</YPos>
 											<Flags>0</Flags>
-											<SegmentShape>Log1</SegmentShape>
 										</Point>
 										<Point>
-											<XPos>100</XPos>
-											<YPos>76</YPos>
+											<XPos>115</XPos>
+											<YPos>21</YPos>
 											<Flags>37</Flags>
 										</Point>
 									</PointList>

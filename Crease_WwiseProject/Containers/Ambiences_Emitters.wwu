@@ -23,6 +23,11 @@
 						<PropertyContainer Name="Watersprout_Emitter" ID="{D50916AB-BB97-4E59-A62A-3BDB66F18525}" ShortID="216948653">
 							<PropertyList>
 								<Property Name="3DSpatialization" Type="int16" Value="1"/>
+								<Property Name="Lowpass" Type="int16">
+									<ValueList>
+										<Value>30</Value>
+									</ValueList>
+								</Property>
 								<Property Name="OverridePositioning" Type="bool" Value="True"/>
 								<Property Name="Pitch" Type="int32">
 									<ModifierList>
@@ -36,6 +41,11 @@
 											</Modifier>
 										</ModifierInfo>
 									</ModifierList>
+								</Property>
+								<Property Name="Volume" Type="Real64">
+									<ValueList>
+										<Value>-16</Value>
+									</ValueList>
 								</Property>
 							</PropertyList>
 							<ReferenceList>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <SoundBanksInfo Platform="Mac" BasePlatform="Mac" SchemaVersion="16" SoundBankVersion="172">
 	<SoundBanks>
-		<SoundBank Id="1995660790" Type="User" GUID="{8C59F681-D097-4EC2-8273-0E99CBD4D6CF}" Language="SFX" Hash="{E27E4744-9950-F002-713C-148822D2043C}">
+		<SoundBank Id="1995660790" Type="User" GUID="{8C59F681-D097-4EC2-8273-0E99CBD4D6CF}" Language="SFX" Hash="{D9F32BD9-F9DF-9AB1-D91A-9340FCD4B531}">
 			<ObjectPath>\SoundBanks\Default Work Unit\Gameplay\Level1Gameplay\Level1General</ObjectPath>
 			<ShortName>Level1General</ShortName>
 			<Path>Level1General.bnk</Path>
@@ -125,7 +125,7 @@
 						<MediaRef Id="887369446"/>
 					</MediaRefs>
 				</Event>
-				<Event Id="827576222" Name="Play_AmbientWaterspout" ObjectPath="\Events\Default Work Unit\SFX\Lv1_SFX\SoundbankSpecificSFX\Play_AmbientWaterspout" GUID="{E0827410-F474-40E7-9223-2AED5964BE22}" MaxAttenuation="100" DurationType="Infinite">
+				<Event Id="827576222" Name="Play_AmbientWaterspout" ObjectPath="\Events\Default Work Unit\SFX\Lv1_SFX\SoundbankSpecificSFX\Play_AmbientWaterspout" GUID="{E0827410-F474-40E7-9223-2AED5964BE22}" MaxAttenuation="115" DurationType="Infinite">
 					<MediaRefs>
 						<MediaRef Id="484290944"/>
 					</MediaRefs>
@@ -215,7 +215,7 @@
 					</ActionSetState>
 				</Event>
 				<Event Id="3300885361" Name="Stop_L1AmbienceSwitch" ObjectPath="\Events\Default Work Unit\SFX\Lv1_SFX\GeneralSFX\Stop_L1AmbienceSwitch" GUID="{385BFB2B-EB9A-4B93-B2FE-BE8BA02D887E}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
-				<Event Id="2446149930" Name="TEST_DELETE_ME" ObjectPath="\Events\Default Work Unit\TEST_DELETE_ME" GUID="{08CF5B0F-3679-4F5E-AC09-E49B16D2B34F}" MaxAttenuation="100" DurationType="Infinite">
+				<Event Id="2446149930" Name="TEST_DELETE_ME" ObjectPath="\Events\Default Work Unit\TEST_DELETE_ME" GUID="{08CF5B0F-3679-4F5E-AC09-E49B16D2B34F}" MaxAttenuation="115" DurationType="Infinite">
 					<MediaRefs>
 						<MediaRef Id="193925975"/>
 						<MediaRef Id="484290944"/>
@@ -236,5 +236,5 @@
 			</StateGroups>
 		</SoundBank>
 	</SoundBanks>
-	<FileHash>{C2A76EB7-4DC3-6A2D-6EC4-37B496383F61}</FileHash>
+	<FileHash>{3C824CBC-3D0D-9606-B67F-BDD3F54BF5FC}</FileHash>
 </SoundBanksInfo>

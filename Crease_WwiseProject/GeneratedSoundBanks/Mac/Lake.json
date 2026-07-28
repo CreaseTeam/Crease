@@ -1,0 +1,21 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Mac",
+  "BasePlatform": "Mac",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "624189772",
+    "Type": "User",
+    "GUID": "{94853A7B-23EC-49E3-A507-A16E9DAB61D8}",
+    "Language": "SFX",
+    "Hash": "{9477C794-B49C-669D-F7D6-018E12204A32}",
+    "ObjectPath": "\\SoundBanks\\Default Work Unit\\Gameplay\\Level1Gameplay\\Level1Regions\\Lake",
+    "ShortName": "Lake",
+    "Path": "Lake.bnk"
+   }
+  ],
+  "FileHash": "{DEC55D7B-28D5-E98A-5193-1B7289E58061}"
+ }
+}

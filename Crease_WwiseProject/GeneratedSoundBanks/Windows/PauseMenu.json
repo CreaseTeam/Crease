@@ -1,0 +1,21 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "3494343696",
+    "Type": "User",
+    "GUID": "{C2FB256C-F158-46D6-B332-A0E789900C2F}",
+    "Language": "SFX",
+    "Hash": "{104A920E-726C-7572-267E-0D9393031090}",
+    "ObjectPath": "\\SoundBanks\\Default Work Unit\\Menus\\PauseMenu",
+    "ShortName": "PauseMenu",
+    "Path": "PauseMenu.bnk"
+   }
+  ],
+  "FileHash": "{14415766-EFE6-008D-789F-0C3C72CFBF3C}"
+ }
+}

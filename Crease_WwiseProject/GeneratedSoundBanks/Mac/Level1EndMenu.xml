@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Mac" BasePlatform="Mac" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="879074040" Type="User" GUID="{6F4F655D-4054-405F-A3FA-E00CB780C9A5}" Language="SFX" Hash="{64AFAE6D-5A3C-6ED5-3659-C1E8D960D795}">
+			<ObjectPath>\SoundBanks\Default Work Unit\Menus\Level1EndMenu</ObjectPath>
+			<ShortName>Level1EndMenu</ShortName>
+			<Path>Level1EndMenu.bnk</Path>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{EF752804-3A8B-979C-50BE-8D2BED8E32BC}</FileHash>
+</SoundBanksInfo>
