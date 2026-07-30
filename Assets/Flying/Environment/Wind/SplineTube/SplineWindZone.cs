@@ -31,71 +31,73 @@ namespace Crease.Flying.Environment.Wind.SplineTube
         [Tooltip("If true, boost strength fades out near the edges of the tube radius, same as FrustumWindZone's FeatherEdges.")]
         public bool FeatherEdges = true;
 
-        [Header("Input Settings")]
-        [Tooltip("If true, all player input (turning, abilities, etc.) is disabled while the player is inside this wind tube.")]
+        [Header("Player Input Settings")]
+        [Tooltip(
+            "If true, all player input (turning, abilities, etc.) is disabled while the player is " +
+            "inside this wind tube, AND the wind tube takes full direct control of the player's " +
+            "velocity (see OverridesVelocity / GetVelocityOverride below) — smoothly sliding them " +
+            "along the tube rather than nudging them with competing forces.")]
         public bool IgnoreInput = false;
+        
 
+        [Header("Ignore Player Input — Tube has Full Control")]
         [Tooltip(
-            "Centering force strength used while IgnoreInput is active — completely independent of " +
-            "CenteringStrength above, which stays exactly as tuned for normal, non-locked tubes. " +
-            "IgnoreInputPassiveAmount below is only a 0–1 multiplier on this value, so it can never " +
-            "exceed whatever this is set to — raise THIS if centering feels weak, not that.")]
-        public float IgnoreInputCenteringStrength = 150f;
+            "The speed the wind actively maintains while IgnoreInput is active. Unlike the normal " +
+            "wind path (which only nudges existing velocity via BoostStrength), this slide only " +
+            "redirects velocity by default — it doesn't add any of its own, so a player entering slow " +
+            "(or affected by drag/low MinimumVelocity) could otherwise stall out with nothing pushing " +
+            "them forward. Direction and speed are both smoothly ramped toward internally, so speeding " +
+            "up, slowing down, or turning never feels like a snap.")]
+        public float IgnoreInputTubeSpeed = 40f;
 
-        [Tooltip(
-            "Multiplier (0–1) applied to IgnoreInputCenteringStrength above, replacing the normal " +
-            "real-time-input-driven passiveAmount calculation (which would otherwise be permanently " +
-            "pinned at 1 — its absolute max — since IgnoreInput locks MoveInput at zero for the whole " +
-            "traversal). This can only ever reach parity with IgnoreInputCenteringStrength at best, " +
-            "never exceed it — to increase overall centering strength beyond that, raise " +
-            "IgnoreInputCenteringStrength itself instead.")]
-        [Range(0f, 1f)]
-        public float IgnoreInputPassiveAmount = 1f;
+        // How quickly velocity catches up to the ideal slide direction/speed each second while
+        // IgnoreInput is active. Since GetVelocityOverride directly SETS velocity every FixedUpdate
+        // (rather than accumulating a force that competes against gravity/drag/stability torque like
+        // the normal wind path does), there is nothing left to fight it — this constant only affects
+        // how gradual the catch-up feels, never whether it bounces. Not exposed in the Inspector;
+        // 8 is an untested starting guess for a smooth-but-responsive feel.
+        private const float IgnoreInputSlideSmoothing = 8f;
 
-        [Header("Torque")]
-        [Tooltip("If true, wind force can rotate the plane toward its direction when the plane is pointed away from the spline center.")]
-        public bool ApplyTorqueFromWindForce = true;
+        /// <summary>
+        /// While IgnoreInput is on, this zone takes full direct control of the player's velocity
+        /// (see FlightForceReceiver.FixedUpdate's OverridesVelocity branch) instead of contributing
+        /// an additive force — this is what actually delivers the "slide" feel, since a direct
+        /// velocity set can't be fought/overshot by FlightController's own physics the way an
+        /// accumulated force can.
+        /// </summary>
+        public override bool OverridesVelocity => IgnoreInput;
 
-        [Tooltip("How strongly wind force rotates the plane toward its direction.")]
-        public float TorqueStrength = 1.5f;
-
-        [Tooltip(
-            "Multiplier applied to TorqueStrength while IgnoreInput is active. FlightController's " +
-            "stability torque runs at full, uninterrupted strength every frame when there's no player " +
-            "input to ever reduce it (normally, even idle players produce occasional incidental input " +
-            "that momentarily weakens it) — this compensates so the tube's steering can still win out.")]
-        public float IgnoreInputTorqueBoost = 2f;
-
-        public override bool AppliesTorqueFromForce => ApplyTorqueFromWindForce;
-        public override float WindTorqueStrength => IgnoreInput ? TorqueStrength * IgnoreInputTorqueBoost : TorqueStrength;
-
-        public override bool ShouldApplyTorqueAtPoint(Vector3 worldPosition)
+        /// <summary>
+        /// Computes the velocity the player should have this step to smoothly follow the tube:
+        /// forward along the (possibly reversed) tangent, blended with a lateral pull back toward
+        /// the centerline, at IgnoreInputTubeSpeed. Smoothly interpolated toward rather than
+        /// snapped, so entering the tube or hitting a sharp turn doesn't feel like a jolt.
+        /// </summary>
+        public override Vector3 GetVelocityOverride(Vector3 worldPosition, Vector3 currentVelocity)
         {
-            if (!ApplyTorqueFromWindForce || _shape == null || _cachedPlayerTransform == null)
-            {
-                return false;
-            }
+            if (_shape == null || _shape.Rings == null || _shape.Rings.Count < 2)
+                return currentVelocity;
 
-            if (!TryGetNearestTubeSample(worldPosition, out _, out float radiusAtPoint, out float distanceFromCenter, out Vector3 nearestPoint))
-            {
-                return false;
-            }
+            if (!TryGetNearestTubeSample(worldPosition, out Vector3 tubeTangent, out float radiusAtPoint, out float distanceFromCenter, out Vector3 nearestPoint))
+                return currentVelocity;
 
-            if (distanceFromCenter > radiusAtPoint || distanceFromCenter < 0.001f)
-            {
-                return false;
-            }
-
-            // Normally, torque only fires when the player is facing away from center, so we
-            // don't fight a well-aligned player who could otherwise self-correct. Under
-            // IgnoreInput the player has no ability to self-correct at all, so there's no
-            // reason to hold back — apply every frame instead of only on misaligned ones,
-            // so it can actually contest FlightController's now-constant stability torque.
-            if (IgnoreInput) return true;
+            tubeTangent *= _windDirectionSign;
 
             Vector3 toCenter = nearestPoint - worldPosition;
-            float facingCenter = Vector3.Dot(_cachedPlayerTransform.forward, toCenter.normalized);
-            return facingCenter < 0f;
+            float lateralAmount = radiusAtPoint > 0.001f ? Mathf.Clamp01(distanceFromCenter / radiusAtPoint) : 0f;
+            Vector3 lateralDirection = toCenter.sqrMagnitude > 0.0001f ? toCenter.normalized : Vector3.zero;
+
+            // Full lateral correction, proportional to how far off-center the player is — always
+            // pulling toward dead-center like a slide's walls, rather than an adjustable amount.
+            Vector3 desiredDirection = tubeTangent.normalized + lateralDirection * lateralAmount;
+            if (desiredDirection.sqrMagnitude < 0.0001f) desiredDirection = tubeTangent.normalized;
+            desiredDirection.Normalize();
+
+            float speed = IgnoreInputTubeSpeed;
+            Vector3 targetVelocity = desiredDirection * speed;
+
+            float t = 1f - Mathf.Exp(-IgnoreInputSlideSmoothing * Time.fixedDeltaTime);
+            return Vector3.Lerp(currentVelocity, targetVelocity, t);
         }
 
         private SplineTubeTrigger _shape;
@@ -116,6 +118,38 @@ namespace Crease.Flying.Environment.Wind.SplineTube
         // Tracks whether this specific zone currently holds the lock, so OnDestroy can
         // release it if the zone is destroyed (or disabled) while the player is still inside it.
         private bool _inputLockHeld = false;
+        
+        [Header("Torque")]
+        [Tooltip("If true, wind force can rotate the plane toward its direction when the plane is pointed away from the spline center.")]
+        public bool ApplyTorqueFromWindForce = true;
+
+        [Tooltip("How strongly wind force rotates the plane toward its direction.")]
+        public float TorqueStrength = 1.5f;
+
+        public override bool AppliesTorqueFromForce => ApplyTorqueFromWindForce;
+        public override float WindTorqueStrength => TorqueStrength;
+
+        public override bool ShouldApplyTorqueAtPoint(Vector3 worldPosition)
+        {
+            if (!ApplyTorqueFromWindForce || _shape == null || _cachedPlayerTransform == null)
+            {
+                return false;
+            }
+
+            if (!TryGetNearestTubeSample(worldPosition, out _, out float radiusAtPoint, out float distanceFromCenter, out Vector3 nearestPoint))
+            {
+                return false;
+            }
+
+            if (distanceFromCenter > radiusAtPoint || distanceFromCenter < 0.001f)
+            {
+                return false;
+            }
+
+            Vector3 toCenter = nearestPoint - worldPosition;
+            float facingCenter = Vector3.Dot(_cachedPlayerTransform.forward, toCenter.normalized);
+            return facingCenter < 0f;
+        }
 
         [Header("Debug")]
         public bool DebugLog = false;
@@ -290,26 +324,11 @@ namespace Crease.Flying.Environment.Wind.SplineTube
             // Player is considered "idling" / "passive" if FlightController detects no input, and centeringForce is activated
             // Player can freely escape the wind tube once input is detected and centeringForce no longer applies
             float playerSpeed = _cachedPlayerBody != null ? _cachedPlayerBody.Speed : 0f;
-
-            // This calculation assumes real-time, fluctuating input — an idle-but-not-locked player
-            // occasionally nudges the stick, so passiveAmount normally dips below 1 sometimes, keeping
-            // centering a soft, varying pull. IgnoreInput breaks that assumption: MoveInput is
-            // permanently (0,0), so this would otherwise pin passiveAmount at its absolute max for the
-            // entire traversal with zero relief. Give IgnoreInput its own dedicated, tunable value
-            // instead of hijacking this one.
-            float passiveAmount = IgnoreInput
-                ? IgnoreInputPassiveAmount
-                : Mathf.Clamp01(1f - InputManager.Instance.MoveInput.magnitude);
-
-            // IgnoreInputPassiveAmount is only ever a 0–1 multiplier, so it can't push centering
-            // past whatever base strength it's multiplying — use a fully independent strength value
-            // for IgnoreInput tubes rather than capping them at the shared CenteringStrength ceiling
-            // that normal, non-locked tubes are tuned around.
-            float effectiveCenteringStrength = IgnoreInput ? IgnoreInputCenteringStrength : CenteringStrength;
-
+            float passiveAmount = Mathf.Clamp01(1f - InputManager.Instance.MoveInput.magnitude);
+            
             float towardsCenterVelocity = Vector3.Dot(_cachedPlayerBody.Velocity, toCenter.normalized);
-            float dampening = Mathf.Clamp01(1f - (towardsCenterVelocity / effectiveCenteringStrength));
-            Vector3 centeringForce = toCenter.normalized * effectiveCenteringStrength * (distanceFromCenter / radiusAtPoint) * passiveAmount * dampening;
+            float dampening = Mathf.Clamp01(1f - (towardsCenterVelocity / CenteringStrength));
+            Vector3 centeringForce = toCenter.normalized * CenteringStrength * (distanceFromCenter / radiusAtPoint) * passiveAmount * dampening;
 
             float dot = Vector3.Dot(_cachedPlayerTransform.forward, tubeTangent);
             float boostMultiplier = AlignmentCurve.Evaluate(dot);
