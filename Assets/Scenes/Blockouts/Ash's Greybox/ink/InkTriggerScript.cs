@@ -1,17 +1,33 @@
-using TMPro;
 using UnityEngine;
-using TMPro;
 
 public class InkTriggerScript : MonoBehaviour
 {
-    public TextMeshProUGUI InkTextMesh;
+    [SerializeField] private InkTextManager inkTextManager;
 
-    // Update is called once per frame
+    [TextArea(2, 5)]
+    [SerializeField] private string textToShow;
+
+    [SerializeField] private string playerTag = "Player";
+
+    private bool hasBeenCollected;
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Ink"))
+        if (hasBeenCollected)
+            return;
+
+        if (!other.CompareTag(playerTag))
+            return;
+
+        hasBeenCollected = true;
+
+        if (inkTextManager != null)
         {
-            InkTextMesh.text = "Make sure to like and subscribe";
+            inkTextManager.PlayText(textToShow);
+        }
+        else
+        {
+            Debug.LogWarning($"{name} is missing an InkTextManager reference.");
         }
     }
 }
