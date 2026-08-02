@@ -18438,8 +18438,8 @@ Transform:
   m_GameObject: {fileID: 904922807}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1107.1001, y: 110.19995, z: 1710.7001}
-  m_LocalScale: {x: 0.12974, y: 0.12974, z: 0.12974}
+  m_LocalPosition: {x: 1425, y: -202.5, z: 1710.7}
+  m_LocalScale: {x: 0.487975, y: 0.61453295, z: 0.12974}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 983569318}
@@ -19543,9 +19543,9 @@ MonoBehaviour:
   - m_EditModeType: 1
     m_Knots:
     - Position:
-        x: -118.65904
-        y: -0.16300672
-        z: -1041.905
+        x: -118.65915
+        y: -0.0032016337
+        z: -1041.4641
       TangentIn:
         x: 0
         y: 0
