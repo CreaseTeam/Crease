@@ -34,6 +34,7 @@ namespace Crease.Flying.Environment.Wind.Visuals
         private static readonly int LoopAxisId = Shader.PropertyToID("LoopAxis");
         private static readonly int LoopOmegaId = Shader.PropertyToID("LoopOmega");
         private static readonly int LoopIntensityId = Shader.PropertyToID("LoopIntensity");
+        private static readonly int LoopFractionId = Shader.PropertyToID("LoopFraction");
         private static readonly int SizeScaleId = Shader.PropertyToID("SizeScale");
 
         [Header("Follow")]
@@ -92,6 +93,10 @@ namespace Crease.Flying.Environment.Wind.Visuals
         [Range(0.2f, 6f)]
         [SerializeField] private float _loopOmega = 1.6f;
 
+        [Tooltip("Share of ribbons that take part in a loop burst. Keep this low so loops read as a few showing off, not the whole field turning.")]
+        [Range(0f, 1f)]
+        [SerializeField] private float _loopFraction = 0.15f;
+
         [Header("Density")]
         [Tooltip("Master dial for the whole effect. This is the knob to reach for if it ever feels busy.")]
         [Range(0f, 1f)]
@@ -129,6 +134,7 @@ namespace Crease.Flying.Environment.Wind.Visuals
         private bool _hasLoopAxis;
         private bool _hasLoopOmega;
         private bool _hasLoopIntensity;
+        private bool _hasLoopFraction;
         private bool _hasSizeScale;
 
         private Vector3 _flowFast;
@@ -188,6 +194,7 @@ namespace Crease.Flying.Environment.Wind.Visuals
             _hasLoopAxis = _vfx.HasVector3(LoopAxisId);
             _hasLoopOmega = _vfx.HasFloat(LoopOmegaId);
             _hasLoopIntensity = _vfx.HasFloat(LoopIntensityId);
+            _hasLoopFraction = _vfx.HasFloat(LoopFractionId);
             _hasSizeScale = _vfx.HasFloat(SizeScaleId);
         }
 
@@ -341,6 +348,7 @@ namespace Crease.Flying.Environment.Wind.Visuals
             if (_hasLoopAxis) _vfx.SetVector3(LoopAxisId, _loopAxis);
             if (_hasLoopOmega) _vfx.SetFloat(LoopOmegaId, _loopOmega);
             if (_hasLoopIntensity) _vfx.SetFloat(LoopIntensityId, _loopIntensity);
+            if (_hasLoopFraction) _vfx.SetFloat(LoopFractionId, _loopFraction);
             if (_hasSizeScale) _vfx.SetFloat(SizeScaleId, _sizeScale);
         }
 
