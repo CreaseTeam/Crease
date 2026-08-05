@@ -60,8 +60,8 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
                     vfx.visualEffectAsset = asset;
                 }
 
-                // The volume moves every frame, so never cull it.
-                vfx.cullingFlags = VFXCullingFlags.CullNone;
+                // Culling and bounds are asset level settings on the Initialize context,
+                // not component properties, so they are set by PaperRibbonVfxGenerator.
 
                 root.AddComponent<PaperRibbonWindVfx>();
 

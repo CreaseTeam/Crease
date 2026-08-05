@@ -337,6 +337,12 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
         {
             SetSetting(initialize, SettingCapacity, (uint)Capacity);
 
+            // The spawn volume moves with the player every frame, so recorded bounds
+            // would cull the effect mid flight. Optional: the exact setting name is not
+            // API, and getting it wrong only costs culling, not the effect.
+            TrySetSetting(initialize, "boundsMode", "Manual");
+            TrySetSetting(initialize, "boundsSettingMode", "Manual");
+
             object box = AddBlock(initialize, TypePositionAABox);
             LinkParameter(parameters, "SpawnCenter", box, FindSlot(box, "center", "Center", "position"));
             LinkParameter(parameters, "SpawnBoxSize", box, FindSlot(box, "size", "Size"));
@@ -666,6 +672,26 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
             {
                 Failures.Add("failed to set slot " + slotIndex + ": " + e.Message);
             }
+        }
+
+        /// <summary>
+        /// Sets a setting if it exists, recording nothing if it does not. For settings
+        /// whose absence degrades the effect rather than breaking it.
+        /// </summary>
+        private static void TrySetSetting(object model, string name, object value)
+        {
+            if (model == null) return;
+
+            bool exists = model.GetType()
+                .GetField(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance) != null;
+
+            if (!exists) return;
+
+            int before = Failures.Count;
+            SetSetting(model, name, value);
+
+            // Swallow anything this optional set added.
+            if (Failures.Count > before) Failures.RemoveRange(before, Failures.Count - before);
         }
 
         /// <summary>Enums are passed as strings, since the enum types are internal.</summary>
