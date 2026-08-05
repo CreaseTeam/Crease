@@ -6,36 +6,18 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
 {
     /// <summary>
     /// Builds the curved paper strip meshes used by the ambient ribbon VFX.
-    ///
-    /// Each mesh is a quad strip swept along a circular arc, tapered toward both tips.
-    /// Geometry is single sided so the winding stays consistent, and the output shader
-    /// renders it two sided.
-    ///
-    /// Every mesh is normalised to a maximum extent of one unit and recentred on its
-    /// own bounds, so the VFX size attribute reads directly in metres and particles
-    /// tumble about their visual centre rather than about an arbitrary corner.
+    /// Single sided, normalised to one unit across and centred on their bounds.
     /// </summary>
     public static class PaperRibbonMeshGenerator
     {
         private const string OutputFolder = "Assets/Flying/Environment/Wind/Visuals/Meshes";
 
-        /// <summary>
-        /// Shape parameters for one ribbon variant.
-        /// </summary>
         private struct RibbonShape
         {
             public string Name;
-
-            /// <summary>Quads along the strip. Vertex count is (Segments + 1) * 2.</summary>
             public int Segments;
-
-            /// <summary>Total arc the spine sweeps through, in degrees. 0 is a flat strip.</summary>
             public float SweepDegrees;
-
-            /// <summary>Radius of the arc the spine follows. Larger is straighter.</summary>
             public float BendRadius;
-
-            /// <summary>Half width of the strip at its midpoint, before taper.</summary>
             public float HalfWidth;
 
             /// <summary>0 is a rectangle, 0.35 a soft taper, 0.6 a crescent.</summary>
@@ -45,8 +27,6 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
             public float TwistDegrees;
         }
 
-        // Three silhouettes so a crowd of ribbons does not read as one repeated shape.
-        // Kept to three because the VFX mesh output indexes a small fixed set.
         private static readonly RibbonShape[] Shapes =
         {
             new RibbonShape
@@ -97,7 +77,6 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
                     Mesh mesh = Build(shape);
                     string path = OutputFolder + "/" + shape.Name + ".asset";
 
-                    // Rewriting in place would keep stale sub-assets around, so replace.
                     if (AssetDatabase.LoadAssetAtPath<Mesh>(path) != null)
                     {
                         AssetDatabase.DeleteAsset(path);
@@ -136,7 +115,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
                 float s = t * 2f - 1f;           // -1 to 1, symmetric about the middle
                 float theta = s * half;
 
-                // Spine on a circular arc, shifted so the midpoint sits at the origin.
+                // Arc spine, shifted so the midpoint sits at the origin.
                 var spine = new Vector3(
                     Mathf.Sin(theta),
                     Mathf.Cos(theta) - cosHalf,
@@ -144,17 +123,13 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
 
                 var tangent = new Vector3(Mathf.Cos(theta), -Mathf.Sin(theta), 0f);
 
-                // Width runs perpendicular to the spine but inside the arc plane, which
-                // is what makes the strip a flat crescent rather than a curved fence.
+                // In the arc plane, so the strip is a flat crescent not a curved fence.
                 var inPlaneNormal = new Vector3(Mathf.Sin(theta), Mathf.Cos(theta), 0f);
 
-                // Twisting that width direction about the spine lifts the tips out of
-                // the plane, so the strip catches light differently along its length and
-                // never reads as a flat card.
+                // Twist lifts the tips out of plane so it never reads as a flat card.
                 Vector3 widthDir = Quaternion.AngleAxis(shape.TwistDegrees * s, tangent) * inPlaneNormal;
 
-                // Taper toward both tips. The floor keeps the tips from collapsing into
-                // degenerate triangles, which render as flickering black slivers.
+                // The floor keeps the tips from collapsing into degenerate triangles.
                 float taper = Mathf.Pow(Mathf.Max(0f, 1f - s * s), shape.TaperPower);
                 float halfWidth = Mathf.Max(shape.HalfWidth * taper, shape.HalfWidth * 0.06f);
 
@@ -193,9 +168,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
             return mesh;
         }
 
-        /// <summary>
-        /// Recentres on the bounds and scales so the largest extent is exactly one unit.
-        /// </summary>
+        /// <summary>Recentres and scales so the largest extent is one unit.</summary>
         private static void Normalise(Vector3[] vertices)
         {
             if (vertices.Length == 0) return;

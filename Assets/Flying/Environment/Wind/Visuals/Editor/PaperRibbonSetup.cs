@@ -8,11 +8,7 @@ using UnityEngine.VFX;
 namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
 {
     /// <summary>
-    /// Creates the drop-in prefab and the isolated test scene for the paper ribbon
-    /// effect, and offers a single command that runs the whole pipeline in order.
-    ///
-    /// Both are built by Unity rather than hand authored, so the serialised output is
-    /// always valid for this editor version.
+    /// Creates the ribbon prefab and test scene, and the run-everything command.
     /// </summary>
     public static class PaperRibbonSetup
     {
@@ -64,8 +60,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
                     vfx.visualEffectAsset = asset;
                 }
 
-                // The spawn volume is moved every frame and is much larger than the
-                // default bounds, so let it recompute rather than be culled mid flight.
+                // The volume moves every frame, so never cull it.
                 vfx.cullingFlags = VFXCullingFlags.CullNone;
 
                 root.AddComponent<PaperRibbonWindVfx>();
@@ -86,8 +81,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
 
             var created = new List<GameObject>();
 
-            // Sun at a shallow angle so the ribbons are lit from the side and the
-            // translucency in the output shading actually has something to read against.
+            // Shallow angle so ribbons are lit from the side.
             var lightGo = new GameObject("Directional Light");
             var light = lightGo.AddComponent<Light>();
             light.type = LightType.Directional;
@@ -96,7 +90,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
             lightGo.transform.rotation = Quaternion.Euler(40f, -35f, 0f);
             created.Add(lightGo);
 
-            // Ribbons only read as paper against paper, so the greybox is paper too.
+            // Ribbons only read as paper against paper.
             Material paper = AssetDatabase.LoadAssetAtPath<Material>(PaperMaterialPath);
             if (paper == null)
             {
@@ -110,16 +104,14 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
 
             Instantiate(SkyPrefabPath, "Sky", created);
 
-            // The real player, because the loop trigger keys off genuine turning and a
-            // canned camera path would not exercise it honestly.
+            // The real player, since the loop trigger keys off genuine turning.
             GameObject player = Instantiate(PlayerPrefabPath, "Player", created);
             if (player != null)
             {
                 player.transform.position = new Vector3(0f, 25f, -30f);
             }
 
-            // Player.prefab carries no camera, so the camera comes in separately and has
-            // to be pointed at the player by hand.
+            // Player.prefab carries no camera.
             GameObject cameraGo = Instantiate(CameraPrefabPath, "Main Camera", created);
             if (cameraGo != null && player != null)
             {

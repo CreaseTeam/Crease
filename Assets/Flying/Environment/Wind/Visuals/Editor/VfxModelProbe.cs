@@ -11,16 +11,8 @@ using UnityEngine;
 namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
 {
     /// <summary>
-    /// Dumps the Visual Effect Graph authoring model API to a text file.
-    ///
-    /// The VFX Graph model types (contexts, blocks, operators) are internal to
-    /// Unity.VisualEffectGraph.Editor and their names and settings are not public API,
-    /// so they can move between package versions. PaperRibbonVfxGenerator drives them
-    /// through reflection by name. Run this probe first and reconcile the name constants
-    /// at the top of that generator against the dump before trusting it.
-    ///
-    /// Everything here is reflection only, so this file compiles whether or not the
-    /// VFX Graph package is installed.
+    /// Dumps the VFX Graph authoring model API to Temp/VfxApiDump.txt, to reconcile
+    /// the name constants in PaperRibbonVfxGenerator against. Reflection only.
     /// </summary>
     public static class VfxModelProbe
     {
@@ -70,9 +62,6 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
             Write(sb, false);
         }
 
-        // The generator can seed a new asset by copying a stock template rather than
-        // fabricating a VisualEffectResource from nothing, so the exact template
-        // filenames matter.
         private static void DumpTemplates(StringBuilder sb)
         {
             sb.AppendLine("=== TEMPLATE .vfx ASSETS IN THE PACKAGE ===");
@@ -101,8 +90,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
             sb.AppendLine();
         }
 
-        // VFXLibrary is the authoritative list of what can actually be instantiated,
-        // including the display name shown in the node search window.
+        // The authoritative list of what can actually be instantiated.
         private static void DumpLibrary(StringBuilder sb, Assembly asm)
         {
             sb.AppendLine("=== VFXLibrary DESCRIPTORS (display name -> concrete type) ===");
@@ -158,8 +146,6 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
             }
         }
 
-        // Built in attribute names (position, velocity, color, angleX, ...) are what
-        // SetAttribute blocks and Get Attribute operators are configured with.
         private static void DumpAttributes(StringBuilder sb, Assembly asm)
         {
             sb.AppendLine("=== BUILT IN PARTICLE ATTRIBUTES ===");
@@ -196,7 +182,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
                 }
                 catch
                 {
-                    // Static field access can fail on partially initialised types. Skip it.
+                    // Static access can fail on partially initialised types.
                 }
             }
 
@@ -204,8 +190,6 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
             sb.AppendLine();
         }
 
-        // Full detail for everything derived from VFXModel: accessibility, [VFXSetting]
-        // fields, and the input/output slots of a live instance.
         private static void DumpModelTypes(StringBuilder sb, Assembly asm)
         {
             sb.AppendLine("=== VFXModel TYPES (settings and slots) ===");

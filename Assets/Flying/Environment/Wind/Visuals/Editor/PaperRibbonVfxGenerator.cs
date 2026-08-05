@@ -10,21 +10,8 @@ using UnityEngine;
 namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
 {
     /// <summary>
-    /// Builds PaperRibbonAmbient.vfx, the ambient paper ribbon effect.
-    ///
-    /// The VFX Graph authoring model is internal to Unity.VisualEffectGraph.Editor and
-    /// is not public API, so everything here goes through reflection by name. Run
-    /// Tools/Crease/Paper Ribbons/Dump VFX Model API first and reconcile the Names
-    /// region below against Temp/VfxApiDump.txt before trusting this.
-    ///
-    /// Nothing is written until the whole graph has been assembled successfully. Any
-    /// unresolved name is collected and reported in one consolidated error, so a failed
-    /// run leaves no half built asset behind.
-    ///
-    /// The graph is deliberately shallow: no operator nodes at all. Every slot either
-    /// takes a constant or links directly to an exposed parameter, and the one piece of
-    /// real maths (flow drag plus the loop-de-loop) lives in PaperRibbonForces.hlsl
-    /// behind a single Custom HLSL block.
+    /// Builds PaperRibbonAmbient.vfx. The VFX authoring model is internal, so this
+    /// drives it by reflected name. Failures abort before anything is written.
     /// </summary>
     public static class PaperRibbonVfxGenerator
     {
@@ -37,8 +24,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
         private const int Capacity = 64;
 
         #region Names
-        // Everything below is reconciled against Temp/VfxApiDump.txt. If generation
-        // fails, the console error names exactly which of these did not resolve.
+        // Reconcile against Temp/VfxApiDump.txt from the Dump VFX Model API menu item.
 
         private const string EditorAssembly = "Unity.VisualEffectGraph.Editor";
 
@@ -47,8 +33,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
         private const string TypeInitialize = "UnityEditor.VFX.VFXBasicInitialize";
         private const string TypeUpdate = "UnityEditor.VFX.VFXBasicUpdate";
 
-        // Output context. Unity 6 moved toward a composed output, so both are tried in
-        // order and the first that resolves wins.
+        // First that resolves wins.
         private static readonly string[] TypeMeshOutputCandidates =
         {
             "UnityEditor.VFX.VFXComposedParticleOutput",
@@ -95,8 +80,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
             ("SizeScale", typeof(float), 1f)
         };
 
-        // Paper tints. Constant stepped rather than blended so the colours stay distinct
-        // in a crowd instead of averaging out to a single wash.
+        // Constant stepped so the tints stay distinct instead of averaging to a wash.
         private static readonly Color[] Palette =
         {
             new Color(0.733f, 0.851f, 0.933f), // pale blue
@@ -179,10 +163,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
 
         #region Asset and graph lifecycle
 
-        /// <summary>
-        /// Gets a graph for the target asset, creating the asset if it does not exist and
-        /// clearing it if it does, so re-running is idempotent.
-        /// </summary>
+        /// <summary>Creates the asset if missing, clears it if present.</summary>
         private static object OpenGraph()
         {
             if (AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(AssetPath) == null && !CreateEmptyAsset())
@@ -213,7 +194,6 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
 
         private static bool CreateEmptyAsset()
         {
-            // Preferred: ask the package to make a well formed empty asset.
             Type utility = _asm.GetType(TypeAssetEditorUtility);
             if (utility != null)
             {
@@ -238,8 +218,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
                 }
             }
 
-            // Fallback: copy any stock template shipped with the package. This sidesteps
-            // resource creation entirely, at the cost of having to clear it afterwards.
+            // Fallback: copy a stock template shipped with the package.
             string template = FindTemplate();
             if (template == null)
             {
@@ -267,7 +246,6 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
                 string[] files = Directory.GetFiles(root, "*.vfx", SearchOption.AllDirectories);
                 if (files.Length == 0) return null;
 
-                // Prefer the simplest template so there is least to strip out.
                 string pick = files.FirstOrDefault(f => f.IndexOf("Simple", StringComparison.OrdinalIgnoreCase) >= 0)
                               ?? files[0];
 
@@ -367,11 +345,9 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
             SetRandomAttribute(initialize, "size", 0.25f, 0.60f);
             SetRandomAttribute(initialize, "alpha", 0.72f, 0.92f);
 
-            // Not born parallel, so the field never looks like it was stamped out.
             SetRandomAttribute(initialize, "velocity", new Vector3(-1.2f, -0.6f, -1.2f), new Vector3(1.2f, 0.6f, 1.2f));
 
-            // Full random orientation plus a slow tumble on every axis. Using the stock
-            // angle attributes means the output needs no orient block at all.
+            // Stock angle attributes, so the output needs no orient block.
             SetRandomAttribute(initialize, "angleX", 0f, 360f);
             SetRandomAttribute(initialize, "angleY", 0f, 360f);
             SetRandomAttribute(initialize, "angleZ", 0f, 360f);
@@ -379,8 +355,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
             SetRandomAttribute(initialize, "angularVelocityY", -60f, 60f);
             SetRandomAttribute(initialize, "angularVelocityZ", -60f, 60f);
 
-            // Three meshes, picked per particle. 2.99 rather than 3 so the top of the
-            // range does not round up into a fourth, missing mesh.
+            // 2.99 so the top of the range does not round up into a missing fourth mesh.
             SetRandomAttribute(initialize, "meshIndex", 0f, 2.99f);
 
             AddColourFromGradient(initialize);
@@ -402,8 +377,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
                     SetSetting(hlsl, SettingFunctionName, HlslFunction);
                 }
 
-                // Slot order follows the PaperRibbonFlow signature, after the implicit
-                // attributes parameter.
+                // Slot order follows the PaperRibbonFlow signature.
                 LinkParameter(parameters, "FlowVelocity", hlsl, 0);
                 LinkParameter(parameters, "FlowStrength", hlsl, 1);
                 LinkParameter(parameters, "LoopAxis", hlsl, 2);
@@ -426,7 +400,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
 
         private static void BuildOutput(object output, Dictionary<string, object> parameters, Mesh[] meshes)
         {
-            // Mesh count first: the extra mesh slots only appear once it is raised.
+            // First: the extra mesh slots only appear once this is raised.
             SetSetting(output, "meshCount", (uint)meshes.Length);
 
             for (int i = 0; i < meshes.Length; i++)
@@ -496,7 +470,6 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
             SetSetting(block, "SampleMode", "OverLife");
             SetSetting(block, "Composition", "Multiply");
 
-            // Fade both ends so nothing pops into or out of existence.
             var curve = new AnimationCurve(
                 new Keyframe(0f, 0f),
                 new Keyframe(0.12f, 1f),
@@ -515,7 +488,6 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
             Type t = _asm.GetType(typeName);
             if (t != null) return t;
 
-            // VisualEffectResource lives in the editor module, not the package.
             foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
             {
                 t = a.GetType(typeName);
@@ -655,11 +627,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
             }
         }
 
-        /// <summary>
-        /// Finds an input slot by any of the given names. Returns -1 if none match, which
-        /// callers treat as "skip", so a renamed slot degrades to a default rather than
-        /// aborting the whole build.
-        /// </summary>
+        /// <summary>Returns -1 if no name matches, which callers treat as skip.</summary>
         private static int FindSlot(object container, params string[] names)
         {
             try
@@ -679,7 +647,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
             }
             catch
             {
-                // Fall through to the not found path.
+                // Not found.
             }
 
             return -1;
@@ -700,10 +668,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
             }
         }
 
-        /// <summary>
-        /// Sets a [VFXSetting] by name. Enum settings are passed as strings and parsed
-        /// here, because the enum types themselves are internal.
-        /// </summary>
+        /// <summary>Enums are passed as strings, since the enum types are internal.</summary>
         private static void SetSetting(object model, string name, object value)
         {
             if (model == null) return;
@@ -765,7 +730,6 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
 
             if (mi == null)
             {
-                // Retry allowing optional parameters to be filled in.
                 mi = target.GetType()
                     .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                     .FirstOrDefault(m => m.Name == method && m.GetParameters().Length >= args.Length);

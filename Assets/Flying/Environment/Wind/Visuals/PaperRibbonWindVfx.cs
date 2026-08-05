@@ -5,26 +5,14 @@ using UnityEngine.VFX;
 namespace Crease.Flying.Environment.Wind.Visuals
 {
     /// <summary>
-    /// Drives the ambient paper ribbon visual effect.
-    ///
-    /// Keeps the spawn volume anchored to the player, biased ahead of travel so ribbons
-    /// appear in front and stream past rather than being left behind. Blends an ambient
-    /// breeze with any wind zones the player is currently inside, and subtracts a share
-    /// of the player's own velocity so speed reads as airflow.
-    ///
-    /// When the blended flow direction swings past a threshold, a subset of ribbons
-    /// (flagged per particle inside the graph) spiral into loop-de-loops that decay back
-    /// to ordinary drift.
-    ///
-    /// The graph does the simulation. This only computes and pushes exposed properties.
+    /// Drives the ambient paper ribbon visual effect. Computes the flow direction and
+    /// loop bursts, and pushes them into the graph as exposed properties.
     /// </summary>
     [ExecuteAlways]
     [RequireComponent(typeof(VisualEffect))]
     public class PaperRibbonWindVfx : MonoBehaviour
     {
-        // Exposed property names on PaperRibbonAmbient.vfx. These must match the graph
-        // blackboard exactly. Anything missing is skipped rather than warned about every
-        // frame, so a partly hand finished graph still runs.
+        // Must match the graph blackboard exactly.
         private static readonly int SpawnRateId = Shader.PropertyToID("SpawnRate");
         private static readonly int SpawnCenterId = Shader.PropertyToID("SpawnCenter");
         private static readonly int SpawnBoxSizeId = Shader.PropertyToID("SpawnBoxSize");
@@ -119,8 +107,7 @@ namespace Crease.Flying.Environment.Wind.Visuals
         [Tooltip("Stop spawning while the game is paused.")]
         [SerializeField] private bool _disableWhenPaused = true;
 
-        // Time constant for the reference direction the fast flow is compared against.
-        // Long enough that a sustained turn registers as a shift but a wobble does not.
+        // Reference direction the fast flow is compared against.
         private const float SlowFlowSmoothing = 2f;
 
         private VisualEffect _vfx;
@@ -145,10 +132,7 @@ namespace Crease.Flying.Environment.Wind.Visuals
         private float _nextLoopTime;
         private bool _flowInitialised;
 
-        /// <summary>
-        /// Current loop burst strength, 0 to 1. Exposed for debugging and for other
-        /// systems that want to react to the same beat.
-        /// </summary>
+        /// <summary>Current loop burst strength, 0 to 1.</summary>
         public float LoopIntensity => _loopIntensity;
 
         /// <summary>
@@ -179,8 +163,7 @@ namespace Crease.Flying.Environment.Wind.Visuals
             CacheProperties();
         }
 
-        // The graph may be regenerated or hand finished, so check once on enable rather
-        // than assuming every property exists.
+        // Checked once on enable so a graph missing a property degrades quietly.
         private void CacheProperties()
         {
             if (_vfx == null) return;
@@ -198,8 +181,7 @@ namespace Crease.Flying.Environment.Wind.Visuals
             _hasSizeScale = _vfx.HasFloat(SizeScaleId);
         }
 
-        // Resolved at play time only. Doing this in edit mode would write serialized
-        // fields and dirty every scene the prefab sits in.
+        // Play mode only: writing serialized fields in edit mode dirties scenes.
         private void ResolveReferences()
         {
             if (!Application.isPlaying) return;
@@ -211,8 +193,7 @@ namespace Crease.Flying.Environment.Wind.Visuals
 
             if (_body == null || _receiver == null)
             {
-                // Only one player exists, and this is a visual only component, so a
-                // find on enable is cheaper than wiring references in every scene.
+                // Cheaper than wiring references in every scene.
                 var body = FindFirstObjectByType<KinematicBody>();
                 if (body != null)
                 {
@@ -222,20 +203,17 @@ namespace Crease.Flying.Environment.Wind.Visuals
             }
         }
 
-        // LateUpdate so the camera has already been moved this frame and the spawn
-        // volume does not trail it by one frame.
+        // LateUpdate so the spawn volume does not trail the camera by a frame.
         private void LateUpdate()
         {
             if (_vfx == null) return;
 
             bool playing = Application.isPlaying;
 
-            // In edit mode the effect previews around wherever the object has been
-            // placed. Following, and therefore moving the transform, is a play mode
-            // behaviour only, so scenes never get dirtied by the preview.
+            // Edit mode previews in place. Following is play mode only.
             Transform anchorSource = playing && _followTarget != null ? _followTarget : transform;
 
-            // Unscaled so pausing and unpausing does not snap the smoothed direction.
+            // Unscaled so unpausing does not snap the smoothed direction.
             float dt = playing ? Time.unscaledDeltaTime : 1f / 60f;
             if (dt <= 0f) return;
 
@@ -279,8 +257,7 @@ namespace Crease.Flying.Environment.Wind.Visuals
                 flow += zoneWind * _zoneWindInfluence;
             }
 
-            // Subtracting the player's own velocity is most of the sensation: fly fast
-            // and the ribbons rush past you, coast and they hang in the air.
+            // Makes speed read as airflow: fly fast and ribbons rush past.
             flow -= playerVelocity * _relativeStreamFactor;
 
             return flow;
@@ -305,15 +282,13 @@ namespace Crease.Flying.Environment.Wind.Visuals
 
             if (!Application.isPlaying) return;
 
-            // A sustained swing between the responsive and lazy directions means the
-            // general flow has genuinely changed, not that it wobbled for a frame.
+            // A sustained swing means the flow really turned, not that it wobbled.
             if (Time.time < _nextLoopTime) return;
             if (_flowSlow.sqrMagnitude < 0.01f || _flowFast.sqrMagnitude < 0.01f) return;
 
             if (Vector3.Angle(_flowFast, _flowSlow) > _loopAngleThreshold)
             {
-                // Loop about the axis the flow is actually turning around, so the loops
-                // orbit in the plane of the turn instead of some arbitrary plane.
+                // Orbit in the plane of the turn.
                 Vector3 axis = Vector3.Cross(_flowSlow, _flowFast);
                 TriggerLoopBurst(axis.sqrMagnitude > 1e-6f ? axis : Vector3.up);
             }
