@@ -109,7 +109,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
         private static readonly List<string> Failures = new List<string>();
         private static Assembly _asm;
 
-        [MenuItem("Tools/Crease/Paper Ribbons/Generate Ambient Ribbon VFX")]
+        [MenuItem("Tools/Crease/Paper Ribbons/Generate Ambient Ribbon VFX", false, 22)]
         public static void Generate()
         {
             Failures.Clear();

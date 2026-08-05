@@ -27,7 +27,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
         private const string EditorAssemblyName = "Unity.VisualEffectGraph.Editor";
         private const string OutputFileName = "VfxApiDump.txt";
 
-        [MenuItem("Tools/Crease/Paper Ribbons/Dump VFX Model API")]
+        [MenuItem("Tools/Crease/Paper Ribbons/Dump VFX Model API", false, 20)]
         public static void Dump()
         {
             var sb = new StringBuilder();

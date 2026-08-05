@@ -81,7 +81,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
             }
         };
 
-        [MenuItem("Tools/Crease/Paper Ribbons/Generate Ribbon Meshes")]
+        [MenuItem("Tools/Crease/Paper Ribbons/Generate Ribbon Meshes", false, 21)]
         public static void Generate()
         {
             EnsureFolder(OutputFolder);
