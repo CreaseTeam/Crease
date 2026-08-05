@@ -93,10 +93,15 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
         private static readonly List<string> Failures = new List<string>();
         private static Assembly _asm;
 
+        // Seeding copies a package template before the build runs, so an abort has to
+        // clean that up or it strands an unrelated template at the target path.
+        private static bool _createdAssetThisRun;
+
         [MenuItem("Tools/Crease/Paper Ribbons/Generate Ambient Ribbon VFX", false, 22)]
         public static void Generate()
         {
             Failures.Clear();
+            _createdAssetThisRun = false;
 
             _asm = AppDomain.CurrentDomain.GetAssemblies()
                 .FirstOrDefault(a => a.GetName().Name == EditorAssembly);
@@ -116,7 +121,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
             object graph = OpenGraph();
             if (graph == null)
             {
-                Report();
+                Abort();
                 return;
             }
 
@@ -132,7 +137,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
 
             if (Failures.Count > 0)
             {
-                Report();
+                Abort();
                 return;
             }
 
@@ -163,13 +168,19 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
 
         #region Asset and graph lifecycle
 
-        /// <summary>Creates the asset if missing, clears it if present.</summary>
+        /// <summary>
+        /// Always regenerates from scratch, so the path holds either a correct graph or
+        /// nothing. Any hand edits to the asset are lost, which is what "Generate" means.
+        /// </summary>
         private static object OpenGraph()
         {
-            if (AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(AssetPath) == null && !CreateEmptyAsset())
+            if (AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(AssetPath) != null)
             {
-                return null;
+                AssetDatabase.DeleteAsset(AssetPath);
             }
+
+            if (!CreateEmptyAsset()) return null;
+            _createdAssetThisRun = true;
 
             Type resourceType = Resolve(TypeVisualEffectResource);
             if (resourceType == null) return null;
@@ -188,6 +199,7 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
                 return null;
             }
 
+            // The seed is a stock template, so strip its contexts before rebuilding.
             ClearGraph(graph);
             return graph;
         }
@@ -833,8 +845,14 @@ namespace Crease.Flying.Environment.Wind.Visuals.EditorTools
 
         #endregion
 
-        private static void Report()
+        private static void Abort()
         {
+            if (_createdAssetThisRun)
+            {
+                AssetDatabase.DeleteAsset(AssetPath);
+                _createdAssetThisRun = false;
+            }
+
             var sb = new StringBuilder();
             sb.AppendLine("Paper ribbon VFX generation aborted. Nothing was written.");
             sb.AppendLine();
