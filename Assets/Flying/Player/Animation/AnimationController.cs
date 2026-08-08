@@ -117,6 +117,16 @@ namespace Crease.Flying.Player.Animation
             ApplyMeshOffset();
         }
 
+        /// <summary>
+        /// Updates the spin rate of an in-progress AileronRoll without resetting the roll angle.
+        /// Has no effect if not currently in AileronRoll mode.
+        /// </summary>
+        public void SetAileronRollSpeed(float spinSpeed)
+        {
+            if (_mode != RollMode.AileronRoll) return;
+            _degreesPerSecond = 360f * spinSpeed;
+        }
+
         private void UpdateDuration()
         {
             if (_durationRemaining == float.PositiveInfinity || _durationRemaining <= 0f)

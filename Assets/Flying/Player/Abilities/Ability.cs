@@ -16,6 +16,15 @@ namespace Crease.Flying.Player.Abilities
         {
             protected readonly AbilityController C;
 
+            /// <summary>
+            /// Set by AbilityController each Update before Tick is called.
+            /// True while the input button for this ability's slot is held.
+            /// Use this instead of querying InputManager directly so hold abilities work in either slot.
+            /// </summary>
+            protected bool InputHeld { get; private set; }
+
+            internal void SetInputHeld(bool held) => InputHeld = held;
+
             protected Runtime(AbilityController controller)
             {
                 C = controller;
