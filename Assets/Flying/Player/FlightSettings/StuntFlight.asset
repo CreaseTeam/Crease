@@ -12,22 +12,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 313fd6e9ff9ebc141b8a99eb215e9863, type: 3}
   m_Name: StuntFlight
   m_EditorClassIdentifier: Assembly-CSharp::FlightSettings
-  divingGravity: 10
-  climbingGravity: 10
-  lift: 9
-  diveRate: 4
-  climbRate: 2
-  climbEfficiency: 1
-  turnInterpolation: 1
-  xDrag: 0.995
-  yDrag: 0.99
-  zDrag: 0.995
-  pitchSpeed: 120
-  maxPitch: 89
-  yawSpeed: 80
-  rollSpeed: 480
-  rollBackSpeed: 1
-  maxRoll: 360
-  boostSpeed: 10
-  initialSpeed: 10
-  minimumVelocity: 0
+  Mass: 1
+  DivingGravity: 10
+  ClimbingGravity: 10
+  Lift: 9
+  DiveRate: 4
+  ClimbRate: 2
+  ClimbEfficiency: 1
+  TurnInterpolation: 1
+  StabilityStrength: 2
+  StabilityReferenceSpeed: 15
+  StabilityInputSuppression: 0.85
+  XDrag: 0.995
+  YDrag: 0.99
+  ZDrag: 0.995
+  PitchSpeed: 120
+  MaxPitch: 89
+  YawSpeed: 80
+  RollSpeed: 480
+  RollBackSpeed: 1
+  MaxRoll: 360
+  BoostSpeed: 10
+  InitialSpeed: 10
+  MinimumVelocity: 0
+  WindForceMultiplier: 1
+  DamageTaken: 1
