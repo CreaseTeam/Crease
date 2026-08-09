@@ -1,0 +1,115 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "1987482915",
+    "Type": "Event",
+    "GUID": "{35D04DEF-0481-4127-838D-F180EBC5491E}",
+    "Language": "SFX",
+    "Hash": "{9787A77A-7BBD-8543-7AAB-8A105028D936}",
+    "ObjectPath": "Start_L1AmbienceSwitch",
+    "ShortName": "Start_L1AmbienceSwitch",
+    "Path": "Event/Start_L1AmbienceSwitch.bnk",
+    "Media": [
+     {
+      "Id": "81596657",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_grass_field.wav",
+      "Path": "Media/81596657.wem",
+      "CachePath": "06/{060C15F7-F711-7651-445E-E7D66EA013DC}.wem"
+     },
+     {
+      "Id": "990541490",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_forest_ambience_02.wav",
+      "Path": "Media/990541490.wem",
+      "CachePath": "65/{6547DF76-F60F-D0DB-4E15-881C7ED6551B}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "1987482915",
+      "Name": "Start_L1AmbienceSwitch",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\SFX_SWITCHES\\Start_L1AmbienceSwitch",
+      "GUID": "{35D04DEF-0481-4127-838D-F180EBC5491E}",
+      "DurationType": "Infinite",
+      "SwitchContainers": [
+       {
+        "SwitchValue": {
+         "GroupType": "State",
+         "GroupId": "567225543",
+         "Id": "421983475",
+         "GUID": "{DA5B8B70-2780-49EA-8F8A-71CE8F6B33E2}"
+        },
+        "MediaRefs": [
+         {
+          "Id": "81596657"
+         }
+        ]
+       },
+       {
+        "SwitchValue": {
+         "GroupType": "State",
+         "GroupId": "567225543",
+         "Id": "3336434501",
+         "GUID": "{666F9A7B-E262-43FD-AB2C-5859DCCCB2BD}"
+        },
+        "MediaRefs": [
+         {
+          "Id": "990541490"
+         }
+        ]
+       }
+      ],
+      "ActionSetState": [
+       {
+        "GroupId": "567225543",
+        "Id": "748895195",
+        "Name": "None",
+        "ObjectPath": "\\States\\Default Work Unit\\TestStates\\SFX\\RegionAmbienceStates\\None",
+        "GUID": "{C69D8809-E72A-4E51-8B5C-FC7813CF3D29}"
+       }
+      ]
+     }
+    ],
+    "StateGroups": [
+     {
+      "Id": "567225543",
+      "Name": "RegionAmbienceStates",
+      "ObjectPath": "\\States\\Default Work Unit\\TestStates\\SFX\\RegionAmbienceStates",
+      "GUID": "{0447417C-0993-4B97-93D0-41831A1AB9D0}",
+      "States": [
+       {
+        "Id": "421983475",
+        "Name": "GrassLakeArea",
+        "ObjectPath": "\\States\\Default Work Unit\\TestStates\\SFX\\RegionAmbienceStates\\GrassLakeArea",
+        "GUID": "{DA5B8B70-2780-49EA-8F8A-71CE8F6B33E2}"
+       },
+       {
+        "Id": "748895195",
+        "Name": "None",
+        "ObjectPath": "\\States\\Default Work Unit\\TestStates\\SFX\\RegionAmbienceStates\\None",
+        "GUID": "{C69D8809-E72A-4E51-8B5C-FC7813CF3D29}"
+       },
+       {
+        "Id": "3336434501",
+        "Name": "ForestArea",
+        "ObjectPath": "\\States\\Default Work Unit\\TestStates\\SFX\\RegionAmbienceStates\\ForestArea",
+        "GUID": "{666F9A7B-E262-43FD-AB2C-5859DCCCB2BD}"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{1C4CBE08-A22C-0800-69E5-285A097846AA}"
+ }
+}

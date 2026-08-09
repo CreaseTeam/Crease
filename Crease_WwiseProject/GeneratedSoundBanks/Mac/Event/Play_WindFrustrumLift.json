@@ -1,0 +1,48 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Mac",
+  "BasePlatform": "Mac",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "1844555015",
+    "Type": "Event",
+    "GUID": "{B44CA146-2570-4EA9-8B7B-879D730F6BB8}",
+    "Language": "SFX",
+    "Hash": "{0D5B70D4-1553-1BDB-653D-CDC9869D8EBA}",
+    "ObjectPath": "Play_WindFrustrumLift",
+    "ShortName": "Play_WindFrustrumLift",
+    "Path": "Event/Play_WindFrustrumLift.bnk",
+    "Media": [
+     {
+      "Id": "130912113",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_windfrustrum_lift.wav",
+      "Path": "Media/130912113.wem",
+      "CachePath": "13/{13CE095A-E000-2D52-79EF-AB95FA454D1E}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "1844555015",
+      "Name": "Play_WindFrustrumLift",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\COMMON_LVL_SFX\\Play_WindFrustrumLift",
+      "GUID": "{B44CA146-2570-4EA9-8B7B-879D730F6BB8}",
+      "DurationType": "OneShot",
+      "DurationMin": "3.75",
+      "DurationMax": "3.75",
+      "MediaRefs": [
+       {
+        "Id": "130912113"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{66A6890F-6AD7-56CE-1A59-ADD986445642}"
+ }
+}

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Linux" BasePlatform="Linux" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="2187218884" Type="Event" GUID="{6B674425-C6FD-4C06-9EE7-26D9143EDDA8}" Language="SFX" Hash="{96044EC0-EB81-4F90-E0E0-0DDE5CBAFDED}">
+			<ObjectPath>Play_AmbientWindFrustrumGeneral</ObjectPath>
+			<ShortName>Play_AmbientWindFrustrumGeneral</ShortName>
+			<Path>Event/Play_AmbientWindFrustrumGeneral.bnk</Path>
+			<Media>
+				<File Id="919606371" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_windfrustrum_lift_V2_FIXED EQ.wav</ShortName>
+					<Path>Media/919606371.wem</Path>
+					<CachePath>C2/{C22B810E-7D0D-0733-BCF0-0FB4D6186EFF}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="2187218884" Name="Play_AmbientWindFrustrumGeneral" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_AmbientWindFrustrumGeneral" GUID="{6B674425-C6FD-4C06-9EE7-26D9143EDDA8}" MaxAttenuation="45" DurationType="Infinite">
+					<MediaRefs>
+						<MediaRef Id="919606371"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{694D6616-FFE9-AEAE-1926-F60B2F047813}</FileHash>
+</SoundBanksInfo>

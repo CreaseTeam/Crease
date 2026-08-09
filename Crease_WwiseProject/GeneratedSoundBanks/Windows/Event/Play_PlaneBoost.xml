@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="3134050369" Type="Event" GUID="{B62F876D-521D-4A1F-B57B-3156B4CB70A9}" Language="SFX" Hash="{41F464AA-92AA-D9FC-BFDA-9D589E926FB8}">
+			<ObjectPath>Play_PlaneBoost</ObjectPath>
+			<ShortName>Play_PlaneBoost</ShortName>
+			<Path>Event/Play_PlaneBoost.bnk</Path>
+			<Media>
+				<File Id="6126600" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_plane_boost.wav</ShortName>
+					<Path>Media/6126600.wem</Path>
+					<CachePath>E7/{E7997F11-DA4F-16F7-13E7-14A424F764C2}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="3134050369" Name="Play_PlaneBoost" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_PlaneBoost" GUID="{B62F876D-521D-4A1F-B57B-3156B4CB70A9}" DurationType="OneShot" DurationMin="1.8169583" DurationMax="1.8169583">
+					<MediaRefs>
+						<MediaRef Id="6126600"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{8104863F-989A-9242-9AE2-79DDB4D53415}</FileHash>
+</SoundBanksInfo>

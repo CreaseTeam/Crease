@@ -1,0 +1,3 @@
+Event	ID	Name			Wwise Object Path	Notes
+	2321545575	Play_StickerCollect			\Default Work Unit\SFX\COMMON_LVL_SFX\Play_StickerCollect	
+

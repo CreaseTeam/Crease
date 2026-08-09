@@ -1,0 +1,47 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Mac",
+  "BasePlatform": "Mac",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "2187218884",
+    "Type": "Event",
+    "GUID": "{6B674425-C6FD-4C06-9EE7-26D9143EDDA8}",
+    "Language": "SFX",
+    "Hash": "{96044EC0-EB81-4F90-E0E0-0DDE5CBAFDED}",
+    "ObjectPath": "Play_AmbientWindFrustrumGeneral",
+    "ShortName": "Play_AmbientWindFrustrumGeneral",
+    "Path": "Event/Play_AmbientWindFrustrumGeneral.bnk",
+    "Media": [
+     {
+      "Id": "919606371",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_windfrustrum_lift_V2_FIXED EQ.wav",
+      "Path": "Media/919606371.wem",
+      "CachePath": "C2/{C22B810E-7D0D-0733-BCF0-0FB4D6186EFF}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "2187218884",
+      "Name": "Play_AmbientWindFrustrumGeneral",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\COMMON_LVL_SFX\\Play_AmbientWindFrustrumGeneral",
+      "GUID": "{6B674425-C6FD-4C06-9EE7-26D9143EDDA8}",
+      "MaxAttenuation": "45",
+      "DurationType": "Infinite",
+      "MediaRefs": [
+       {
+        "Id": "919606371"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{000D040D-B41E-5B26-77CA-D77460DAC869}"
+ }
+}

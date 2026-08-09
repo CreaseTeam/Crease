@@ -5,17 +5,6 @@
 			<ChildrenList>
 				<WorkUnit Name="SFX" ID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}" PersistMode="Reference"/>
 				<WorkUnit Name="Music" ID="{81B8FC19-C659-4586-96AC-40F270EE3E70}" PersistMode="Reference"/>
-				<Event Name="TEST_DELETE_ME" ID="{08CF5B0F-3679-4F5E-AC09-E49B16D2B34F}">
-					<ChildrenList>
-						<Action Name="" ID="{FFB1A67D-60B2-4C98-941A-AF42D671FBB8}" ShortID="290420355">
-							<ReferenceList>
-								<Reference Name="Target">
-									<ObjectRef Name="Watersprout_Container" ID="{F87DDEBA-97F0-424D-AD3C-57A446BD704E}" WorkUnitID="{74DD64E2-D3DA-4859-B6A8-589488DBF871}"/>
-								</Reference>
-							</ReferenceList>
-						</Action>
-					</ChildrenList>
-				</Event>
 			</ChildrenList>
 		</WorkUnit>
 	</Events>

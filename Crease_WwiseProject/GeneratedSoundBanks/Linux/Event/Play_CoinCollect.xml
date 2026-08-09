@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Linux" BasePlatform="Linux" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="979988297" Type="Event" GUID="{ADC58251-0DB0-4FA3-88B5-7B7571A8021C}" Language="SFX" Hash="{2E4F2E18-CD49-E313-24B8-07636710F56D}">
+			<ObjectPath>Play_CoinCollect</ObjectPath>
+			<ShortName>Play_CoinCollect</ShortName>
+			<Path>Event/Play_CoinCollect.bnk</Path>
+			<Media>
+				<File Id="111288094" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_coin-collect_06.wav</ShortName>
+					<Path>Media/111288094.wem</Path>
+					<CachePath>D0/{D05AF5E5-2DD1-5926-55E4-E08A059F2099}.wem</CachePath>
+				</File>
+				<File Id="255530573" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_coin-collect_02.wav</ShortName>
+					<Path>Media/255530573.wem</Path>
+					<CachePath>27/{272A8BCD-844D-92EA-3908-C06DCEB49521}.wem</CachePath>
+				</File>
+				<File Id="286066908" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_coin-collect_05.wav</ShortName>
+					<Path>Media/286066908.wem</Path>
+					<CachePath>27/{2757469B-F67E-B855-28DE-44EBF7834BBD}.wem</CachePath>
+				</File>
+				<File Id="653433178" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_coin-collect_04.wav</ShortName>
+					<Path>Media/653433178.wem</Path>
+					<CachePath>90/{90627907-B83B-2BCD-BBEE-7CA4F03498BA}.wem</CachePath>
+				</File>
+				<File Id="683921367" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_coin-collect_03.wav</ShortName>
+					<Path>Media/683921367.wem</Path>
+					<CachePath>71/{71C43DAF-59D2-27C8-C8FA-49B4949FE852}.wem</CachePath>
+				</File>
+				<File Id="761285829" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_coin-collect_01.wav</ShortName>
+					<Path>Media/761285829.wem</Path>
+					<CachePath>AA/{AAA1B7D1-82E1-6C6D-8AEF-1BBD4021ECBF}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="979988297" Name="Play_CoinCollect" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_CoinCollect" GUID="{ADC58251-0DB0-4FA3-88B5-7B7571A8021C}" DurationType="OneShot" DurationMin="1.4375" DurationMax="1.9817709">
+					<MediaRefs>
+						<MediaRef Id="111288094"/>
+						<MediaRef Id="255530573"/>
+						<MediaRef Id="286066908"/>
+						<MediaRef Id="653433178"/>
+						<MediaRef Id="683921367"/>
+						<MediaRef Id="761285829"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{8BA04469-404A-36C2-5AB6-2A23DB99EC68}</FileHash>
+</SoundBanksInfo>

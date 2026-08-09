@@ -1,0 +1,33 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Linux",
+  "BasePlatform": "Linux",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "2449173295",
+    "Type": "Event",
+    "GUID": "{BFE87B85-BA37-4656-A61A-3CB8C239816E}",
+    "Language": "SFX",
+    "Hash": "{F0F8BB3E-6A48-581D-BFBC-B27452FED165}",
+    "ObjectPath": "Play_HoverOFF",
+    "ShortName": "Play_HoverOFF",
+    "Path": "Event/Play_HoverOFF.bnk",
+    "Events": [
+     {
+      "Id": "2449173295",
+      "Name": "Play_HoverOFF",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\UI_SFX\\Play_HoverOFF",
+      "GUID": "{BFE87B85-BA37-4656-A61A-3CB8C239816E}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{3AD81DA6-32D9-383F-9761-A7C96CBB4C07}"
+ }
+}

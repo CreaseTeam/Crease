@@ -1,0 +1,96 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Linux",
+  "BasePlatform": "Linux",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "2321545575",
+    "Type": "Event",
+    "GUID": "{35F95BA2-7020-457D-84FF-E3B3A9A70659}",
+    "Language": "SFX",
+    "Hash": "{F1DFB04C-81E8-4BCD-F00D-A42E71AAA37D}",
+    "ObjectPath": "Play_StickerCollect",
+    "ShortName": "Play_StickerCollect",
+    "Path": "Event/Play_StickerCollect.bnk",
+    "Media": [
+     {
+      "Id": "32658430",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_sticker_peel_03.wav",
+      "Path": "Media/32658430.wem",
+      "CachePath": "9C/{9C4F2534-631A-7BEA-95F0-83D62AE354AA}.wem"
+     },
+     {
+      "Id": "572764049",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_sticker_stick_02.wav",
+      "Path": "Media/572764049.wem",
+      "CachePath": "1C/{1C24C101-951E-3560-659C-4655F36163C5}.wem"
+     },
+     {
+      "Id": "846295118",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_sticker_peel_01.wav",
+      "Path": "Media/846295118.wem",
+      "CachePath": "AB/{ABEAB991-17D6-E74B-D25E-438BB70362B2}.wem"
+     },
+     {
+      "Id": "910996997",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_sticker_peel_02.wav",
+      "Path": "Media/910996997.wem",
+      "CachePath": "B6/{B66FBD88-D908-6D7B-BBB9-55BD985DCE29}.wem"
+     },
+     {
+      "Id": "1068781597",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_sticker_stick_01.wav",
+      "Path": "Media/1068781597.wem",
+      "CachePath": "79/{792DC552-B7B8-1AFF-0408-D83EEA1D25F9}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "2321545575",
+      "Name": "Play_StickerCollect",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\COMMON_LVL_SFX\\Play_StickerCollect",
+      "GUID": "{35F95BA2-7020-457D-84FF-E3B3A9A70659}",
+      "DurationType": "OneShot",
+      "DurationMin": "0.4813882",
+      "DurationMax": "0.75048",
+      "MediaRefs": [
+       {
+        "Id": "32658430"
+       },
+       {
+        "Id": "572764049"
+       },
+       {
+        "Id": "846295118"
+       },
+       {
+        "Id": "910996997"
+       },
+       {
+        "Id": "1068781597"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{A03BC94C-3B58-2D36-9117-54D40F9875CE}"
+ }
+}

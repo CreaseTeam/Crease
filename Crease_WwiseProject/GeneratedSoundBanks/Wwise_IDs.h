@@ -20,14 +20,20 @@ namespace AK
         static const AkUniqueID PLAY_AMBIENTWINDFRUSTRUM3 = 1280143095U;
         static const AkUniqueID PLAY_AMBIENTWINDFRUSTRUMGENERAL = 2187218884U;
         static const AkUniqueID PLAY_COINCOLLECT = 979988297U;
+        static const AkUniqueID PLAY_CREASEPAPER = 2906773315U;
+        static const AkUniqueID PLAY_FOLDPAPER = 3430616211U;
+        static const AkUniqueID PLAY_HOVEROFF = 2449173295U;
+        static const AkUniqueID PLAY_HOVERON = 2838845755U;
         static const AkUniqueID PLAY_PLANEBOOST = 3134050369U;
         static const AkUniqueID PLAY_PLANESPEEDSOUNDS = 2220497489U;
+        static const AkUniqueID PLAY_REMOVESTICKER = 1789546543U;
+        static const AkUniqueID PLAY_SELECTBUTTON = 348159706U;
+        static const AkUniqueID PLAY_SELECTSTICKER = 953563835U;
         static const AkUniqueID PLAY_STICKERCOLLECT = 2321545575U;
         static const AkUniqueID PLAY_WATERDAMAGE = 94728852U;
         static const AkUniqueID PLAY_WINDFRUSTRUMLIFT = 1844555015U;
         static const AkUniqueID START_L1AMBIENCESWITCH = 1987482915U;
         static const AkUniqueID STOP_L1AMBIENCESWITCH = 3300885361U;
-        static const AkUniqueID TEST_DELETE_ME = 2446149930U;
     } // namespace EVENTS
 
     namespace STATES
@@ -50,21 +56,6 @@ namespace AK
     {
         static const AkUniqueID PLAYER_FLIGHTSPEED = 4135936604U;
     } // namespace GAME_PARAMETERS
-
-    namespace BANKS
-    {
-        static const AkUniqueID INIT = 1355168291U;
-        static const AkUniqueID CANYON = 2927127661U;
-        static const AkUniqueID FOLDMENU = 953591617U;
-        static const AkUniqueID FOREST = 491961918U;
-        static const AkUniqueID LAKE = 624189772U;
-        static const AkUniqueID LEVEL1ENDMENU = 879074040U;
-        static const AkUniqueID LEVEL1GENERAL = 1995660790U;
-        static const AkUniqueID MAINMENU = 3604647259U;
-        static const AkUniqueID PAUSEMENU = 3494343696U;
-        static const AkUniqueID SAND_END = 1079185769U;
-        static const AkUniqueID UNDERWATER = 2213237662U;
-    } // namespace BANKS
 
     namespace BUSSES
     {

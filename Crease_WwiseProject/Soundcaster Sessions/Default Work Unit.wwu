@@ -6,11 +6,11 @@
 				<SoundcasterSession Name="New Soundcaster Session 1" ID="{139CF9C6-AAF0-4FCE-A52C-3A936CE253E9}">
 					<ModuleList>
 						<Module>
-							<ObjectRef Name="Stop_L1AmbienceSwitch" ID="{385BFB2B-EB9A-4B93-B2FE-BE8BA02D887E}" WorkUnitID="{61AA8E38-8BE5-4700-B964-A66748547F43}"/>
+							<ObjectRef Name="Stop_L1AmbienceSwitch" ID="{385BFB2B-EB9A-4B93-B2FE-BE8BA02D887E}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
 							<Position X="0" Y="0"/>
 						</Module>
 						<Module>
-							<ObjectRef Name="Start_L1AmbienceSwitch" ID="{35D04DEF-0481-4127-838D-F180EBC5491E}" WorkUnitID="{61AA8E38-8BE5-4700-B964-A66748547F43}"/>
+							<ObjectRef Name="Start_L1AmbienceSwitch" ID="{35D04DEF-0481-4127-838D-F180EBC5491E}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
 							<Position X="1" Y="0"/>
 						</Module>
 					</ModuleList>

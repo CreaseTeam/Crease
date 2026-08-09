@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <WwiseDocument Type="WorkUnit" ID="{B0EDE3EA-6F53-409E-A1BE-8189012E5AFC}" SchemaVersion="133">
 	<SoundBanks>
-		<WorkUnit Name="Default Work Unit" ID="{B0EDE3EA-6F53-409E-A1BE-8189012E5AFC}" PersistMode="Standalone">
-			<ChildrenList>
-				<WorkUnit Name="Menus" ID="{445492F6-411E-4B58-B773-0A2A7A20F126}" PersistMode="Reference"/>
-				<WorkUnit Name="Gameplay" ID="{8939939A-2E07-4008-98EA-E742AC903E06}" PersistMode="Reference"/>
-			</ChildrenList>
-		</WorkUnit>
+		<WorkUnit Name="Default Work Unit" ID="{B0EDE3EA-6F53-409E-A1BE-8189012E5AFC}" PersistMode="Standalone"/>
 	</SoundBanks>
 </WwiseDocument>

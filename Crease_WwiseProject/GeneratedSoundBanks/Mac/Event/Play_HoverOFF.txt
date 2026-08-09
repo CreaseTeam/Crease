@@ -1,0 +1,3 @@
+Event	ID	Name			Wwise Object Path	Notes
+	2449173295	Play_HoverOFF			\Default Work Unit\SFX\UI_SFX\Play_HoverOFF	
+

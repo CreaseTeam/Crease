@@ -3,7 +3,11 @@
 	<Events>
 		<WorkUnit Name="Music" ID="{81B8FC19-C659-4586-96AC-40F270EE3E70}" OwnerID="{0EEEC0C5-46C7-4AA1-AE47-79909262EE75}" PersistMode="Nested">
 			<ChildrenList>
-				<WorkUnit Name="Lv1_Music" ID="{9AB241C5-0C1D-4C01-93AB-9B9A2CCF7CA6}" PersistMode="Reference"/>
+				<Folder Name="LVL1_MUSIC" ID="{672C2AD6-3A1B-4732-B5BF-C6FC63CA7D5A}" ShortID="545744657">
+					<ChildrenList>
+						<Folder Name="MUSIC_SWITCHES" ID="{5A5B88AB-D1E1-403F-AB28-FF28590C1453}" ShortID="458193652"/>
+					</ChildrenList>
+				</Folder>
 			</ChildrenList>
 		</WorkUnit>
 	</Events>
