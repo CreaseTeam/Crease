@@ -1,0 +1,33 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Mac",
+  "BasePlatform": "Mac",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "953563835",
+    "Type": "Event",
+    "GUID": "{7A9CB8D8-A42F-4584-BA5F-9709F6E90686}",
+    "Language": "SFX",
+    "Hash": "{99346F11-A221-80B8-3E5B-7DCD98F8A7E0}",
+    "ObjectPath": "Play_SelectSticker",
+    "ShortName": "Play_SelectSticker",
+    "Path": "Event/Play_SelectSticker.bnk",
+    "Events": [
+     {
+      "Id": "953563835",
+      "Name": "Play_SelectSticker",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\UI_SFX\\Play_SelectSticker",
+      "GUID": "{7A9CB8D8-A42F-4584-BA5F-9709F6E90686}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{A4ECD48B-9F91-82B0-ADEA-E29B454C1F97}"
+ }
+}

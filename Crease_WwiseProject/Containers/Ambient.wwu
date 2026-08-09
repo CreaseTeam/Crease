@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{C88351B5-9BB1-44E9-963D-E47033CC3E2C}" SchemaVersion="133" RootDocumentID="{FA68B52A-E3B4-4AEC-BFBF-7EEF496C62EB}" ParentDocumentID="{FA68B52A-E3B4-4AEC-BFBF-7EEF496C62EB}">
+	<Containers>
+		<WorkUnit Name="Ambient" ID="{C88351B5-9BB1-44E9-963D-E47033CC3E2C}" OwnerID="{9C5FBD44-521B-4BC5-9441-FA7F1F861990}" PersistMode="Nested">
+			<PropertyList>
+				<Property Name="Color" Type="int16" Value="17"/>
+				<Property Name="OverrideColor" Type="bool" Value="True"/>
+			</PropertyList>
+			<ChildrenList>
+				<PropertyContainer Name="Ambiences-and-Emitters" ID="{C1B8713D-201A-421A-B171-61A91F001014}" ShortID="607081825">
+					<PropertyList>
+						<Property Name="Color" Type="int16" Value="17"/>
+						<Property Name="OverrideColor" Type="bool" Value="True"/>
+					</PropertyList>
+					<ReferenceList>
+						<Reference Name="Conversion">
+							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+						</Reference>
+						<Reference Name="OutputBus">
+							<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+						</Reference>
+					</ReferenceList>
+					<ChildrenList>
+						<WorkUnit Name="Ambiences_Background" ID="{C84A5919-EB64-466F-941E-5B527D529B79}" PersistMode="Reference"/>
+						<WorkUnit Name="Ambiences_Emitters" ID="{74DD64E2-D3DA-4859-B6A8-589488DBF871}" PersistMode="Reference"/>
+					</ChildrenList>
+				</PropertyContainer>
+			</ChildrenList>
+		</WorkUnit>
+	</Containers>
+</WwiseDocument>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Linux" BasePlatform="Linux" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="827576222" Type="Event" GUID="{E0827410-F474-40E7-9223-2AED5964BE22}" Language="SFX" Hash="{A83F7E89-1D15-1951-F5C4-A9C308975DE7}">
+			<ObjectPath>Play_AmbientWaterspout</ObjectPath>
+			<ShortName>Play_AmbientWaterspout</ShortName>
+			<Path>Event/Play_AmbientWaterspout.bnk</Path>
+			<Media>
+				<File Id="484290944" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_waterfountain_ambience_01.wav</ShortName>
+					<Path>Media/484290944.wem</Path>
+					<CachePath>DA/{DAA0C03B-A67D-0B0C-BE52-D0F20CAF2619}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="827576222" Name="Play_AmbientWaterspout" ObjectPath="\Events\Default Work Unit\SFX\LVL1_SFX\Play_AmbientWaterspout" GUID="{E0827410-F474-40E7-9223-2AED5964BE22}" MaxAttenuation="115" DurationType="Infinite">
+					<MediaRefs>
+						<MediaRef Id="484290944"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{BCF6433B-BDA4-A522-66D9-6D1EC307F402}</FileHash>
+</SoundBanksInfo>

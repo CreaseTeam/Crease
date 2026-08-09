@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="16" SoundBankVersion="172">
+	<RootPaths>
+		<ProjectRoot>../..</ProjectRoot>
+		<SourceFilesRoot>../../.cache</SourceFilesRoot>
+		<SoundBanksRoot>.</SoundBanksRoot>
+		<ExternalSourcesInputFile></ExternalSourcesInputFile>
+		<ExternalSourcesOutputRoot>.</ExternalSourcesOutputRoot>
+	</RootPaths>
+	<DialogueEvents/>
+	<SoundBanks>
+		<SoundBank Id="94728852" Type="Event" GUID="{9BA1A31B-48E5-4F1B-893B-E7583F887FBA}" Language="SFX" Hash="{449BA49E-A5EF-746D-4FFA-2E04961CE533}">
+			<ObjectPath>Play_WaterDamage</ObjectPath>
+			<ShortName>Play_WaterDamage</ShortName>
+			<Path>Event/Play_WaterDamage.bnk</Path>
+			<Media>
+				<File Id="60420500" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_plane_splash_03.wav</ShortName>
+					<Path>Media/60420500.wem</Path>
+					<CachePath>0C/{0C3D9BE5-9568-67F4-B4E9-B94C64C48B12}.wem</CachePath>
+				</File>
+				<File Id="104502095" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_plane_splash_02.wav</ShortName>
+					<Path>Media/104502095.wem</Path>
+					<CachePath>3D/{3DA224CE-F1C1-EE72-C562-81353CC1ED8E}.wem</CachePath>
+				</File>
+				<File Id="307480835" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_plane_splash_05.wav</ShortName>
+					<Path>Media/307480835.wem</Path>
+					<CachePath>4F/{4F210A12-3ACE-EC78-8E45-D67D3DC4B83B}.wem</CachePath>
+				</File>
+				<File Id="337278340" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_plane_splash_04.wav</ShortName>
+					<Path>Media/337278340.wem</Path>
+					<CachePath>44/{44E18F4B-45F3-88E9-11CD-172EFC4DC9FA}.wem</CachePath>
+				</File>
+				<File Id="689446621" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_plane_splash_01.wav</ShortName>
+					<Path>Media/689446621.wem</Path>
+					<CachePath>4E/{4E8F50C5-CE8B-1800-C766-C236A62072D3}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="94728852" Name="Play_WaterDamage" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_WaterDamage" GUID="{9BA1A31B-48E5-4F1B-893B-E7583F887FBA}" DurationType="OneShot" DurationMin="0.45325428" DurationMax="0.8839229">
+					<MediaRefs>
+						<MediaRef Id="60420500"/>
+						<MediaRef Id="104502095"/>
+						<MediaRef Id="307480835"/>
+						<MediaRef Id="337278340"/>
+						<MediaRef Id="689446621"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+		<SoundBank Id="348159706" Type="Event" GUID="{C15C9FAB-D02C-46AE-AA07-9EE23603DC70}" Language="SFX" Hash="{F72BF37C-F651-38D7-97B0-2A34C2BFE31F}">
+			<ObjectPath>Play_SelectButton</ObjectPath>
+			<ShortName>Play_SelectButton</ShortName>
+			<Path>Event/Play_SelectButton.bnk</Path>
+			<Events>
+				<Event Id="348159706" Name="Play_SelectButton" ObjectPath="\Events\Default Work Unit\SFX\UI_SFX\Play_SelectButton" GUID="{C15C9FAB-D02C-46AE-AA07-9EE23603DC70}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+		<SoundBank Id="827576222" Type="Event" GUID="{E0827410-F474-40E7-9223-2AED5964BE22}" Language="SFX" Hash="{A83F7E89-1D15-1951-F5C4-A9C308975DE7}">
+			<ObjectPath>Play_AmbientWaterspout</ObjectPath>
+			<ShortName>Play_AmbientWaterspout</ShortName>
+			<Path>Event/Play_AmbientWaterspout.bnk</Path>
+			<Media>
+				<File Id="484290944" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_waterfountain_ambience_01.wav</ShortName>
+					<Path>Media/484290944.wem</Path>
+					<CachePath>DA/{DAA0C03B-A67D-0B0C-BE52-D0F20CAF2619}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="827576222" Name="Play_AmbientWaterspout" ObjectPath="\Events\Default Work Unit\SFX\LVL1_SFX\Play_AmbientWaterspout" GUID="{E0827410-F474-40E7-9223-2AED5964BE22}" MaxAttenuation="115" DurationType="Infinite">
+					<MediaRefs>
+						<MediaRef Id="484290944"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+		<SoundBank Id="953563835" Type="Event" GUID="{7A9CB8D8-A42F-4584-BA5F-9709F6E90686}" Language="SFX" Hash="{99346F11-A221-80B8-3E5B-7DCD98F8A7E0}">
+			<ObjectPath>Play_SelectSticker</ObjectPath>
+			<ShortName>Play_SelectSticker</ShortName>
+			<Path>Event/Play_SelectSticker.bnk</Path>
+			<Events>
+				<Event Id="953563835" Name="Play_SelectSticker" ObjectPath="\Events\Default Work Unit\SFX\UI_SFX\Play_SelectSticker" GUID="{7A9CB8D8-A42F-4584-BA5F-9709F6E90686}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+		<SoundBank Id="979988297" Type="Event" GUID="{ADC58251-0DB0-4FA3-88B5-7B7571A8021C}" Language="SFX" Hash="{2E4F2E18-CD49-E313-24B8-07636710F56D}">
+			<ObjectPath>Play_CoinCollect</ObjectPath>
+			<ShortName>Play_CoinCollect</ShortName>
+			<Path>Event/Play_CoinCollect.bnk</Path>
+			<Media>
+				<File Id="111288094" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_coin-collect_06.wav</ShortName>
+					<Path>Media/111288094.wem</Path>
+					<CachePath>D0/{D05AF5E5-2DD1-5926-55E4-E08A059F2099}.wem</CachePath>
+				</File>
+				<File Id="255530573" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_coin-collect_02.wav</ShortName>
+					<Path>Media/255530573.wem</Path>
+					<CachePath>27/{272A8BCD-844D-92EA-3908-C06DCEB49521}.wem</CachePath>
+				</File>
+				<File Id="286066908" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_coin-collect_05.wav</ShortName>
+					<Path>Media/286066908.wem</Path>
+					<CachePath>27/{2757469B-F67E-B855-28DE-44EBF7834BBD}.wem</CachePath>
+				</File>
+				<File Id="653433178" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_coin-collect_04.wav</ShortName>
+					<Path>Media/653433178.wem</Path>
+					<CachePath>90/{90627907-B83B-2BCD-BBEE-7CA4F03498BA}.wem</CachePath>
+				</File>
+				<File Id="683921367" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_coin-collect_03.wav</ShortName>
+					<Path>Media/683921367.wem</Path>
+					<CachePath>71/{71C43DAF-59D2-27C8-C8FA-49B4949FE852}.wem</CachePath>
+				</File>
+				<File Id="761285829" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_coin-collect_01.wav</ShortName>
+					<Path>Media/761285829.wem</Path>
+					<CachePath>AA/{AAA1B7D1-82E1-6C6D-8AEF-1BBD4021ECBF}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="979988297" Name="Play_CoinCollect" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_CoinCollect" GUID="{ADC58251-0DB0-4FA3-88B5-7B7571A8021C}" DurationType="OneShot" DurationMin="1.4375" DurationMax="1.9817709">
+					<MediaRefs>
+						<MediaRef Id="111288094"/>
+						<MediaRef Id="255530573"/>
+						<MediaRef Id="286066908"/>
+						<MediaRef Id="653433178"/>
+						<MediaRef Id="683921367"/>
+						<MediaRef Id="761285829"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+		<SoundBank Id="1280143093" Type="Event" GUID="{5FD408C7-A627-4C58-A332-250380E4DD42}" Language="SFX" Hash="{912E37F5-C70E-A85C-5B7B-8CD6EBE77EB8}">
+			<ObjectPath>Play_AmbientWindFrustrum1</ObjectPath>
+			<ShortName>Play_AmbientWindFrustrum1</ShortName>
+			<Path>Event/Play_AmbientWindFrustrum1.bnk</Path>
+			<Media>
+				<File Id="977030703" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_windfrustrum_layer1_FIXED.wav</ShortName>
+					<Path>Media/977030703.wem</Path>
+					<CachePath>37/{37ED01D5-2AC2-9432-FDEC-D54864E97310}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="1280143093" Name="Play_AmbientWindFrustrum1" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_AmbientWindFrustrum1" GUID="{5FD408C7-A627-4C58-A332-250380E4DD42}" MaxAttenuation="65" DurationType="Infinite">
+					<MediaRefs>
+						<MediaRef Id="977030703"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+		<SoundBank Id="1280143094" Type="Event" GUID="{D362F1E8-5ACF-4DF2-9F16-8E119F583AB3}" Language="SFX" Hash="{8CADB639-10BE-BFBE-446B-A32C03F2C160}">
+			<ObjectPath>Play_AmbientWindFrustrum2</ObjectPath>
+			<ShortName>Play_AmbientWindFrustrum2</ShortName>
+			<Path>Event/Play_AmbientWindFrustrum2.bnk</Path>
+			<Media>
+				<File Id="977030703" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_windfrustrum_layer1_FIXED.wav</ShortName>
+					<Path>Media/977030703.wem</Path>
+					<CachePath>37/{37ED01D5-2AC2-9432-FDEC-D54864E97310}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="1280143094" Name="Play_AmbientWindFrustrum2" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_AmbientWindFrustrum2" GUID="{D362F1E8-5ACF-4DF2-9F16-8E119F583AB3}" MaxAttenuation="65" DurationType="Infinite">
+					<MediaRefs>
+						<MediaRef Id="977030703"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+		<SoundBank Id="1280143095" Type="Event" GUID="{A6E0DE72-94F6-4ED3-B08F-936C9E4033FE}" Language="SFX" Hash="{A4183FD2-E134-A91B-E912-6C314BAEBFF2}">
+			<ObjectPath>Play_AmbientWindFrustrum3</ObjectPath>
+			<ShortName>Play_AmbientWindFrustrum3</ShortName>
+			<Path>Event/Play_AmbientWindFrustrum3.bnk</Path>
+			<Media>
+				<File Id="977030703" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_windfrustrum_layer1_FIXED.wav</ShortName>
+					<Path>Media/977030703.wem</Path>
+					<CachePath>37/{37ED01D5-2AC2-9432-FDEC-D54864E97310}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="1280143095" Name="Play_AmbientWindFrustrum3" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_AmbientWindFrustrum3" GUID="{A6E0DE72-94F6-4ED3-B08F-936C9E4033FE}" MaxAttenuation="65" DurationType="Infinite">
+					<MediaRefs>
+						<MediaRef Id="977030703"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+		<SoundBank Id="1355168291" Type="User" GUID="{701ECBBD-9C7B-4030-8CDB-749EE5D1C7B9}" Language="SFX" Hash="{F38806D6-4698-5A58-4B8F-D6D780E508AD}">
+			<ObjectPath>Init</ObjectPath>
+			<ShortName>Init</ShortName>
+			<Path>Init.bnk</Path>
+			<Plugins>
+				<AudioDevices>
+					<Plugin Id="2317455096" Name="No_Output" ObjectPath="\Devices\Default Work Unit\No_Output" GUID="{1509F699-213D-464B-9DBE-55FC618E69EE}" LibName="No Output" LibId="11862023"/>
+					<Plugin Id="3859886410" Name="System" ObjectPath="\Devices\Default Work Unit\System" GUID="{1783A305-170C-4796-8DFA-F8A42752A560}" LibName="System" LibId="11403271"/>
+				</AudioDevices>
+			</Plugins>
+			<Busses>
+				<Bus Id="2246998526" Name="Main Audio Bus" ObjectPath="\Busses\Default Work Unit\Main Audio Bus" GUID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}"/>
+			</Busses>
+			<GameParameters>
+				<GameParameter Id="4135936604" Name="Player_FlightSpeed" ObjectPath="\Game Parameters\Default Work Unit\Player\Player_FlightSpeed" GUID="{1BB7FD8A-5760-46B7-BA75-41FC134B680B}"/>
+			</GameParameters>
+			<StateGroups>
+				<StateGroup Id="567225543" Name="RegionAmbienceStates" ObjectPath="\States\Default Work Unit\TestStates\SFX\RegionAmbienceStates" GUID="{0447417C-0993-4B97-93D0-41831A1AB9D0}">
+					<States>
+						<State Id="421983475" Name="GrassLakeArea" ObjectPath="\States\Default Work Unit\TestStates\SFX\RegionAmbienceStates\GrassLakeArea" GUID="{DA5B8B70-2780-49EA-8F8A-71CE8F6B33E2}"/>
+						<State Id="748895195" Name="None" ObjectPath="\States\Default Work Unit\TestStates\SFX\RegionAmbienceStates\None" GUID="{C69D8809-E72A-4E51-8B5C-FC7813CF3D29}"/>
+						<State Id="3336434501" Name="ForestArea" ObjectPath="\States\Default Work Unit\TestStates\SFX\RegionAmbienceStates\ForestArea" GUID="{666F9A7B-E262-43FD-AB2C-5859DCCCB2BD}"/>
+					</States>
+				</StateGroup>
+			</StateGroups>
+		</SoundBank>
+		<SoundBank Id="1789546543" Type="Event" GUID="{1D0C698E-E75D-4A83-A3F8-A76867814AC4}" Language="SFX" Hash="{5F5B991D-19F5-3057-6E83-FDDF058B8047}">
+			<ObjectPath>Play_RemoveSticker</ObjectPath>
+			<ShortName>Play_RemoveSticker</ShortName>
+			<Path>Event/Play_RemoveSticker.bnk</Path>
+			<Events>
+				<Event Id="1789546543" Name="Play_RemoveSticker" ObjectPath="\Events\Default Work Unit\SFX\UI_SFX\Play_RemoveSticker" GUID="{1D0C698E-E75D-4A83-A3F8-A76867814AC4}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+		<SoundBank Id="1844555015" Type="Event" GUID="{B44CA146-2570-4EA9-8B7B-879D730F6BB8}" Language="SFX" Hash="{0D5B70D4-1553-1BDB-653D-CDC9869D8EBA}">
+			<ObjectPath>Play_WindFrustrumLift</ObjectPath>
+			<ShortName>Play_WindFrustrumLift</ShortName>
+			<Path>Event/Play_WindFrustrumLift.bnk</Path>
+			<Media>
+				<File Id="130912113" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_windfrustrum_lift.wav</ShortName>
+					<Path>Media/130912113.wem</Path>
+					<CachePath>13/{13CE095A-E000-2D52-79EF-AB95FA454D1E}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="1844555015" Name="Play_WindFrustrumLift" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_WindFrustrumLift" GUID="{B44CA146-2570-4EA9-8B7B-879D730F6BB8}" DurationType="OneShot" DurationMin="3.75" DurationMax="3.75">
+					<MediaRefs>
+						<MediaRef Id="130912113"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+		<SoundBank Id="1987482915" Type="Event" GUID="{35D04DEF-0481-4127-838D-F180EBC5491E}" Language="SFX" Hash="{9787A77A-7BBD-8543-7AAB-8A105028D936}">
+			<ObjectPath>Start_L1AmbienceSwitch</ObjectPath>
+			<ShortName>Start_L1AmbienceSwitch</ShortName>
+			<Path>Event/Start_L1AmbienceSwitch.bnk</Path>
+			<Media>
+				<File Id="81596657" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_grass_field.wav</ShortName>
+					<Path>Media/81596657.wem</Path>
+					<CachePath>06/{060C15F7-F711-7651-445E-E7D66EA013DC}.wem</CachePath>
+				</File>
+				<File Id="990541490" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_forest_ambience_02.wav</ShortName>
+					<Path>Media/990541490.wem</Path>
+					<CachePath>65/{6547DF76-F60F-D0DB-4E15-881C7ED6551B}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="1987482915" Name="Start_L1AmbienceSwitch" ObjectPath="\Events\Default Work Unit\SFX\SFX_SWITCHES\Start_L1AmbienceSwitch" GUID="{35D04DEF-0481-4127-838D-F180EBC5491E}" DurationType="Infinite">
+					<SwitchContainers>
+						<SwitchContainer>
+							<SwitchValue GroupType="State" GroupId="567225543" Id="421983475" GUID="{DA5B8B70-2780-49EA-8F8A-71CE8F6B33E2}"/>
+							<MediaRefs>
+								<MediaRef Id="81596657"/>
+							</MediaRefs>
+						</SwitchContainer>
+						<SwitchContainer>
+							<SwitchValue GroupType="State" GroupId="567225543" Id="3336434501" GUID="{666F9A7B-E262-43FD-AB2C-5859DCCCB2BD}"/>
+							<MediaRefs>
+								<MediaRef Id="990541490"/>
+							</MediaRefs>
+						</SwitchContainer>
+					</SwitchContainers>
+					<ActionSetState>
+						<ActionSetStateEntry GroupId="567225543" Id="748895195" Name="None" ObjectPath="\States\Default Work Unit\TestStates\SFX\RegionAmbienceStates\None" GUID="{C69D8809-E72A-4E51-8B5C-FC7813CF3D29}"/>
+					</ActionSetState>
+				</Event>
+			</Events>
+			<StateGroups>
+				<StateGroup Id="567225543" Name="RegionAmbienceStates" ObjectPath="\States\Default Work Unit\TestStates\SFX\RegionAmbienceStates" GUID="{0447417C-0993-4B97-93D0-41831A1AB9D0}">
+					<States>
+						<State Id="421983475" Name="GrassLakeArea" ObjectPath="\States\Default Work Unit\TestStates\SFX\RegionAmbienceStates\GrassLakeArea" GUID="{DA5B8B70-2780-49EA-8F8A-71CE8F6B33E2}"/>
+						<State Id="748895195" Name="None" ObjectPath="\States\Default Work Unit\TestStates\SFX\RegionAmbienceStates\None" GUID="{C69D8809-E72A-4E51-8B5C-FC7813CF3D29}"/>
+						<State Id="3336434501" Name="ForestArea" ObjectPath="\States\Default Work Unit\TestStates\SFX\RegionAmbienceStates\ForestArea" GUID="{666F9A7B-E262-43FD-AB2C-5859DCCCB2BD}"/>
+					</States>
+				</StateGroup>
+			</StateGroups>
+		</SoundBank>
+		<SoundBank Id="2069913319" Type="Event" GUID="{ED27CD4B-F8CA-4F60-9CFD-F3E46A149F29}" Language="SFX" Hash="{FCEE1E48-8D85-79C4-8756-D276CBBC2EEE}">
+			<ObjectPath>Play_AmbientSwings</ObjectPath>
+			<ShortName>Play_AmbientSwings</ShortName>
+			<Path>Event/Play_AmbientSwings.bnk</Path>
+			<Media>
+				<File Id="887369446" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_swings_v2_EQ.wav</ShortName>
+					<Path>Media/887369446.wem</Path>
+					<CachePath>D8/{D82E13B1-F661-F380-35EB-B9FB3FCEAA86}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="2069913319" Name="Play_AmbientSwings" ObjectPath="\Events\Default Work Unit\SFX\LVL1_SFX\Play_AmbientSwings" GUID="{ED27CD4B-F8CA-4F60-9CFD-F3E46A149F29}" MaxAttenuation="120" DurationType="Infinite">
+					<MediaRefs>
+						<MediaRef Id="887369446"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+		<SoundBank Id="2187218884" Type="Event" GUID="{6B674425-C6FD-4C06-9EE7-26D9143EDDA8}" Language="SFX" Hash="{96044EC0-EB81-4F90-E0E0-0DDE5CBAFDED}">
+			<ObjectPath>Play_AmbientWindFrustrumGeneral</ObjectPath>
+			<ShortName>Play_AmbientWindFrustrumGeneral</ShortName>
+			<Path>Event/Play_AmbientWindFrustrumGeneral.bnk</Path>
+			<Media>
+				<File Id="919606371" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_windfrustrum_lift_V2_FIXED EQ.wav</ShortName>
+					<Path>Media/919606371.wem</Path>
+					<CachePath>C2/{C22B810E-7D0D-0733-BCF0-0FB4D6186EFF}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="2187218884" Name="Play_AmbientWindFrustrumGeneral" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_AmbientWindFrustrumGeneral" GUID="{6B674425-C6FD-4C06-9EE7-26D9143EDDA8}" MaxAttenuation="45" DurationType="Infinite">
+					<MediaRefs>
+						<MediaRef Id="919606371"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+		<SoundBank Id="2220497489" Type="Event" GUID="{F6862824-20AF-47DA-B378-2CFC66A04A43}" Language="SFX" Hash="{54705654-45F0-F43B-C00A-AD58E86A7CB5}">
+			<ObjectPath>Play_PlaneSpeedSounds</ObjectPath>
+			<ShortName>Play_PlaneSpeedSounds</ShortName>
+			<Path>Event/Play_PlaneSpeedSounds.bnk</Path>
+			<Media>
+				<File Id="727757605" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_base_wind_high.wav</ShortName>
+					<Path>Media/727757605.wem</Path>
+					<CachePath>3C/{3C30F46E-BC37-2B82-C8A1-48E83C4C243A}.wem</CachePath>
+				</File>
+				<File Id="742397810" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_base_wind_highest.wav</ShortName>
+					<Path>Media/742397810.wem</Path>
+					<CachePath>D2/{D279FD21-1DF6-79FC-A8A5-81704EB1A687}.wem</CachePath>
+				</File>
+				<File Id="787311231" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_base_wind_low.wav</ShortName>
+					<Path>Media/787311231.wem</Path>
+					<CachePath>51/{510BEB67-7965-98EA-BF15-4747892BD9FE}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="2220497489" Name="Play_PlaneSpeedSounds" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_PlaneSpeedSounds" GUID="{F6862824-20AF-47DA-B378-2CFC66A04A43}" DurationType="Infinite">
+					<MediaRefs>
+						<MediaRef Id="727757605"/>
+						<MediaRef Id="742397810"/>
+						<MediaRef Id="787311231"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+			<GameParameters>
+				<GameParameter Id="4135936604" Name="Player_FlightSpeed" ObjectPath="\Game Parameters\Default Work Unit\Player\Player_FlightSpeed" GUID="{1BB7FD8A-5760-46B7-BA75-41FC134B680B}"/>
+			</GameParameters>
+		</SoundBank>
+		<SoundBank Id="2321545575" Type="Event" GUID="{35F95BA2-7020-457D-84FF-E3B3A9A70659}" Language="SFX" Hash="{F1DFB04C-81E8-4BCD-F00D-A42E71AAA37D}">
+			<ObjectPath>Play_StickerCollect</ObjectPath>
+			<ShortName>Play_StickerCollect</ShortName>
+			<Path>Event/Play_StickerCollect.bnk</Path>
+			<Media>
+				<File Id="32658430" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_sticker_peel_03.wav</ShortName>
+					<Path>Media/32658430.wem</Path>
+					<CachePath>9C/{9C4F2534-631A-7BEA-95F0-83D62AE354AA}.wem</CachePath>
+				</File>
+				<File Id="572764049" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_sticker_stick_02.wav</ShortName>
+					<Path>Media/572764049.wem</Path>
+					<CachePath>1C/{1C24C101-951E-3560-659C-4655F36163C5}.wem</CachePath>
+				</File>
+				<File Id="846295118" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_sticker_peel_01.wav</ShortName>
+					<Path>Media/846295118.wem</Path>
+					<CachePath>AB/{ABEAB991-17D6-E74B-D25E-438BB70362B2}.wem</CachePath>
+				</File>
+				<File Id="910996997" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_sticker_peel_02.wav</ShortName>
+					<Path>Media/910996997.wem</Path>
+					<CachePath>B6/{B66FBD88-D908-6D7B-BBB9-55BD985DCE29}.wem</CachePath>
+				</File>
+				<File Id="1068781597" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_sticker_stick_01.wav</ShortName>
+					<Path>Media/1068781597.wem</Path>
+					<CachePath>79/{792DC552-B7B8-1AFF-0408-D83EEA1D25F9}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="2321545575" Name="Play_StickerCollect" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_StickerCollect" GUID="{35F95BA2-7020-457D-84FF-E3B3A9A70659}" DurationType="OneShot" DurationMin="0.4813882" DurationMax="0.75048">
+					<MediaRefs>
+						<MediaRef Id="32658430"/>
+						<MediaRef Id="572764049"/>
+						<MediaRef Id="846295118"/>
+						<MediaRef Id="910996997"/>
+						<MediaRef Id="1068781597"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+		<SoundBank Id="2449173295" Type="Event" GUID="{BFE87B85-BA37-4656-A61A-3CB8C239816E}" Language="SFX" Hash="{F0F8BB3E-6A48-581D-BFBC-B27452FED165}">
+			<ObjectPath>Play_HoverOFF</ObjectPath>
+			<ShortName>Play_HoverOFF</ShortName>
+			<Path>Event/Play_HoverOFF.bnk</Path>
+			<Events>
+				<Event Id="2449173295" Name="Play_HoverOFF" ObjectPath="\Events\Default Work Unit\SFX\UI_SFX\Play_HoverOFF" GUID="{BFE87B85-BA37-4656-A61A-3CB8C239816E}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+		<SoundBank Id="2838845755" Type="Event" GUID="{A2EA666C-63B4-499C-A7DD-BF85F2F711E5}" Language="SFX" Hash="{4E832376-333C-B9E4-D1C8-49B43C22FA3C}">
+			<ObjectPath>Play_HoverON</ObjectPath>
+			<ShortName>Play_HoverON</ShortName>
+			<Path>Event/Play_HoverON.bnk</Path>
+			<Events>
+				<Event Id="2838845755" Name="Play_HoverON" ObjectPath="\Events\Default Work Unit\SFX\UI_SFX\Play_HoverON" GUID="{A2EA666C-63B4-499C-A7DD-BF85F2F711E5}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+		<SoundBank Id="2906773315" Type="Event" GUID="{E29B5ED5-6187-4481-8362-3B07D309480C}" Language="SFX" Hash="{52A1D0DF-EC1A-D2FC-1433-EEBD3DE3CCA2}">
+			<ObjectPath>Play_CreasePaper</ObjectPath>
+			<ShortName>Play_CreasePaper</ShortName>
+			<Path>Event/Play_CreasePaper.bnk</Path>
+			<Events>
+				<Event Id="2906773315" Name="Play_CreasePaper" ObjectPath="\Events\Default Work Unit\SFX\UI_SFX\Play_CreasePaper" GUID="{E29B5ED5-6187-4481-8362-3B07D309480C}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+		<SoundBank Id="3134050369" Type="Event" GUID="{B62F876D-521D-4A1F-B57B-3156B4CB70A9}" Language="SFX" Hash="{41F464AA-92AA-D9FC-BFDA-9D589E926FB8}">
+			<ObjectPath>Play_PlaneBoost</ObjectPath>
+			<ShortName>Play_PlaneBoost</ShortName>
+			<Path>Event/Play_PlaneBoost.bnk</Path>
+			<Media>
+				<File Id="6126600" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_plane_boost.wav</ShortName>
+					<Path>Media/6126600.wem</Path>
+					<CachePath>E7/{E7997F11-DA4F-16F7-13E7-14A424F764C2}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="3134050369" Name="Play_PlaneBoost" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_PlaneBoost" GUID="{B62F876D-521D-4A1F-B57B-3156B4CB70A9}" DurationType="OneShot" DurationMin="1.8169583" DurationMax="1.8169583">
+					<MediaRefs>
+						<MediaRef Id="6126600"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+		<SoundBank Id="3300885361" Type="Event" GUID="{385BFB2B-EB9A-4B93-B2FE-BE8BA02D887E}" Language="SFX" Hash="{6996C71A-0C2E-6341-3ED5-285A8DB0A113}">
+			<ObjectPath>Stop_L1AmbienceSwitch</ObjectPath>
+			<ShortName>Stop_L1AmbienceSwitch</ShortName>
+			<Path>Event/Stop_L1AmbienceSwitch.bnk</Path>
+			<Events>
+				<Event Id="3300885361" Name="Stop_L1AmbienceSwitch" ObjectPath="\Events\Default Work Unit\SFX\SFX_SWITCHES\Stop_L1AmbienceSwitch" GUID="{385BFB2B-EB9A-4B93-B2FE-BE8BA02D887E}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+		<SoundBank Id="3430616211" Type="Event" GUID="{4C1F1568-0BBB-4844-B494-0331F9C2BA8F}" Language="SFX" Hash="{96DBE590-F7D5-631E-8B17-FE08876D87DC}">
+			<ObjectPath>Play_FoldPaper</ObjectPath>
+			<ShortName>Play_FoldPaper</ShortName>
+			<Path>Event/Play_FoldPaper.bnk</Path>
+			<Events>
+				<Event Id="3430616211" Name="Play_FoldPaper" ObjectPath="\Events\Default Work Unit\SFX\UI_SFX\Play_FoldPaper" GUID="{4C1F1568-0BBB-4844-B494-0331F9C2BA8F}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{0F02931B-B409-A54F-DFDA-428A4DE5154A}</FileHash>
+</SoundBanksInfo>

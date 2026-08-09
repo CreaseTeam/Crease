@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{D94F8F4F-B1CB-4446-8940-3CA064A0A887}" SchemaVersion="133" RootDocumentID="{66500081-6277-446D-905C-A95619077290}" ParentDocumentID="{66500081-6277-446D-905C-A95619077290}">
+	<GameParameters>
+		<WorkUnit Name="Player" ID="{D94F8F4F-B1CB-4446-8940-3CA064A0A887}" OwnerID="{66500081-6277-446D-905C-A95619077290}" PersistMode="Nested">
+			<ChildrenList>
+				<GameParameter Name="Player_FlightSpeed" ID="{1BB7FD8A-5760-46B7-BA75-41FC134B680B}">
+					<PropertyList>
+						<Property Name="InitialValue" Type="Real64" Value="0"/>
+					</PropertyList>
+				</GameParameter>
+			</ChildrenList>
+		</WorkUnit>
+	</GameParameters>
+</WwiseDocument>

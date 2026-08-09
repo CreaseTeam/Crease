@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="2449173295" Type="Event" GUID="{BFE87B85-BA37-4656-A61A-3CB8C239816E}" Language="SFX" Hash="{F0F8BB3E-6A48-581D-BFBC-B27452FED165}">
+			<ObjectPath>Play_HoverOFF</ObjectPath>
+			<ShortName>Play_HoverOFF</ShortName>
+			<Path>Event/Play_HoverOFF.bnk</Path>
+			<Events>
+				<Event Id="2449173295" Name="Play_HoverOFF" ObjectPath="\Events\Default Work Unit\SFX\UI_SFX\Play_HoverOFF" GUID="{BFE87B85-BA37-4656-A61A-3CB8C239816E}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{B13093FF-BEC8-DD89-92AE-DB0905C671E3}</FileHash>
+</SoundBanksInfo>

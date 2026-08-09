@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Linux" BasePlatform="Linux" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="2220497489" Type="Event" GUID="{F6862824-20AF-47DA-B378-2CFC66A04A43}" Language="SFX" Hash="{54705654-45F0-F43B-C00A-AD58E86A7CB5}">
+			<ObjectPath>Play_PlaneSpeedSounds</ObjectPath>
+			<ShortName>Play_PlaneSpeedSounds</ShortName>
+			<Path>Event/Play_PlaneSpeedSounds.bnk</Path>
+			<Media>
+				<File Id="727757605" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_base_wind_high.wav</ShortName>
+					<Path>Media/727757605.wem</Path>
+					<CachePath>3C/{3C30F46E-BC37-2B82-C8A1-48E83C4C243A}.wem</CachePath>
+				</File>
+				<File Id="742397810" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_base_wind_highest.wav</ShortName>
+					<Path>Media/742397810.wem</Path>
+					<CachePath>D2/{D279FD21-1DF6-79FC-A8A5-81704EB1A687}.wem</CachePath>
+				</File>
+				<File Id="787311231" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_base_wind_low.wav</ShortName>
+					<Path>Media/787311231.wem</Path>
+					<CachePath>51/{510BEB67-7965-98EA-BF15-4747892BD9FE}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="2220497489" Name="Play_PlaneSpeedSounds" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_PlaneSpeedSounds" GUID="{F6862824-20AF-47DA-B378-2CFC66A04A43}" DurationType="Infinite">
+					<MediaRefs>
+						<MediaRef Id="727757605"/>
+						<MediaRef Id="742397810"/>
+						<MediaRef Id="787311231"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+			<GameParameters>
+				<GameParameter Id="4135936604" Name="Player_FlightSpeed" ObjectPath="\Game Parameters\Default Work Unit\Player\Player_FlightSpeed" GUID="{1BB7FD8A-5760-46B7-BA75-41FC134B680B}"/>
+			</GameParameters>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{5F622231-E8A4-70A2-F993-1FC99A49F45E}</FileHash>
+</SoundBanksInfo>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Linux" BasePlatform="Linux" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="3300885361" Type="Event" GUID="{385BFB2B-EB9A-4B93-B2FE-BE8BA02D887E}" Language="SFX" Hash="{6996C71A-0C2E-6341-3ED5-285A8DB0A113}">
+			<ObjectPath>Stop_L1AmbienceSwitch</ObjectPath>
+			<ShortName>Stop_L1AmbienceSwitch</ShortName>
+			<Path>Event/Stop_L1AmbienceSwitch.bnk</Path>
+			<Events>
+				<Event Id="3300885361" Name="Stop_L1AmbienceSwitch" ObjectPath="\Events\Default Work Unit\SFX\SFX_SWITCHES\Stop_L1AmbienceSwitch" GUID="{385BFB2B-EB9A-4B93-B2FE-BE8BA02D887E}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{FF3E93F7-B565-98CB-1280-DE86FB2B8024}</FileHash>
+</SoundBanksInfo>

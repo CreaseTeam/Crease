@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Linux" BasePlatform="Linux" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="94728852" Type="Event" GUID="{9BA1A31B-48E5-4F1B-893B-E7583F887FBA}" Language="SFX" Hash="{449BA49E-A5EF-746D-4FFA-2E04961CE533}">
+			<ObjectPath>Play_WaterDamage</ObjectPath>
+			<ShortName>Play_WaterDamage</ShortName>
+			<Path>Event/Play_WaterDamage.bnk</Path>
+			<Media>
+				<File Id="60420500" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_plane_splash_03.wav</ShortName>
+					<Path>Media/60420500.wem</Path>
+					<CachePath>0C/{0C3D9BE5-9568-67F4-B4E9-B94C64C48B12}.wem</CachePath>
+				</File>
+				<File Id="104502095" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_plane_splash_02.wav</ShortName>
+					<Path>Media/104502095.wem</Path>
+					<CachePath>3D/{3DA224CE-F1C1-EE72-C562-81353CC1ED8E}.wem</CachePath>
+				</File>
+				<File Id="307480835" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_plane_splash_05.wav</ShortName>
+					<Path>Media/307480835.wem</Path>
+					<CachePath>4F/{4F210A12-3ACE-EC78-8E45-D67D3DC4B83B}.wem</CachePath>
+				</File>
+				<File Id="337278340" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_plane_splash_04.wav</ShortName>
+					<Path>Media/337278340.wem</Path>
+					<CachePath>44/{44E18F4B-45F3-88E9-11CD-172EFC4DC9FA}.wem</CachePath>
+				</File>
+				<File Id="689446621" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_plane_splash_01.wav</ShortName>
+					<Path>Media/689446621.wem</Path>
+					<CachePath>4E/{4E8F50C5-CE8B-1800-C766-C236A62072D3}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="94728852" Name="Play_WaterDamage" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_WaterDamage" GUID="{9BA1A31B-48E5-4F1B-893B-E7583F887FBA}" DurationType="OneShot" DurationMin="0.45325428" DurationMax="0.8839229">
+					<MediaRefs>
+						<MediaRef Id="60420500"/>
+						<MediaRef Id="104502095"/>
+						<MediaRef Id="307480835"/>
+						<MediaRef Id="337278340"/>
+						<MediaRef Id="689446621"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{9F690C9D-1EA7-1915-62F2-81FB63A0F075}</FileHash>
+</SoundBanksInfo>

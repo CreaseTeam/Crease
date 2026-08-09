@@ -1,0 +1,33 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Mac",
+  "BasePlatform": "Mac",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "2906773315",
+    "Type": "Event",
+    "GUID": "{E29B5ED5-6187-4481-8362-3B07D309480C}",
+    "Language": "SFX",
+    "Hash": "{52A1D0DF-EC1A-D2FC-1433-EEBD3DE3CCA2}",
+    "ObjectPath": "Play_CreasePaper",
+    "ShortName": "Play_CreasePaper",
+    "Path": "Event/Play_CreasePaper.bnk",
+    "Events": [
+     {
+      "Id": "2906773315",
+      "Name": "Play_CreasePaper",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\UI_SFX\\Play_CreasePaper",
+      "GUID": "{E29B5ED5-6187-4481-8362-3B07D309480C}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{77913978-9D21-7675-6DC4-D78D67038D14}"
+ }
+}

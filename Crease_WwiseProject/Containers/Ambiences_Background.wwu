@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{C84A5919-EB64-466F-941E-5B527D529B79}" SchemaVersion="133" RootDocumentID="{FA68B52A-E3B4-4AEC-BFBF-7EEF496C62EB}" ParentDocumentID="{C88351B5-9BB1-44E9-963D-E47033CC3E2C}">
+	<Containers>
+		<WorkUnit Name="Ambiences_Background" ID="{C84A5919-EB64-466F-941E-5B527D529B79}" OwnerID="{C1B8713D-201A-421A-B171-61A91F001014}" PersistMode="Nested">
+			<PropertyList>
+				<Property Name="Color" Type="int16" Value="17"/>
+				<Property Name="OverrideColor" Type="bool" Value="True"/>
+			</PropertyList>
+			<ChildrenList>
+				<PropertyContainer Name="Ambiences" ID="{7E20F39B-7743-4335-BB98-43DABB045961}" ShortID="530757756">
+					<PropertyList>
+						<Property Name="BelowThresholdBehavior" Type="int16" Value="1"/>
+						<Property Name="OverrideVirtualVoice" Type="bool" Value="True"/>
+					</PropertyList>
+					<ReferenceList>
+						<Reference Name="Conversion">
+							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+						</Reference>
+						<Reference Name="OutputBus">
+							<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+						</Reference>
+					</ReferenceList>
+					<ChildrenList>
+						<SwitchContainer Name="Region_Ambiences" ID="{846FE890-CF8F-4C46-8E29-481FFCA34AA8}" ShortID="229142329">
+							<PropertyList>
+								<Property Name="SwitchBehavior" Type="int16" Value="1"/>
+							</PropertyList>
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+								</Reference>
+								<Reference Name="DefaultSwitchOrState">
+									<ObjectRef Name="None" ID="{C69D8809-E72A-4E51-8B5C-FC7813CF3D29}" WorkUnitID="{68E99588-79E1-4CBF-A2AE-FC594A6C4289}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+								</Reference>
+								<Reference Name="SwitchGroupOrStateGroup">
+									<ObjectRef Name="RegionAmbienceStates" ID="{0447417C-0993-4B97-93D0-41831A1AB9D0}" WorkUnitID="{68E99588-79E1-4CBF-A2AE-FC594A6C4289}"/>
+								</Reference>
+							</ReferenceList>
+							<ChildrenList>
+								<Sound Name="sfx_grass_field" ID="{70972AEA-2537-4974-8440-95BAE29A82B5}" ShortID="240900230">
+									<PropertyList>
+										<Property Name="IsLoopingEnabled" Type="bool" Value="True"/>
+										<Property Name="Volume" Type="Real64">
+											<ValueList>
+												<Value>-11</Value>
+											</ValueList>
+										</Property>
+									</PropertyList>
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="sfx_grass_field" ID="{38566AE2-5A03-475C-A3D6-1257E6B9B36D}">
+											<Language>SFX</Language>
+											<AudioFile>sfx_grass_field.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="81596657"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="sfx_grass_field" ID="{38566AE2-5A03-475C-A3D6-1257E6B9B36D}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+								<Sound Name="sfx_forest_ambience_02" ID="{52BE32F8-0C07-46A5-AECB-8D686EC24813}" ShortID="274290857">
+									<PropertyList>
+										<Property Name="IsLoopingEnabled" Type="bool" Value="True"/>
+										<Property Name="Volume" Type="Real64">
+											<ValueList>
+												<Value>-12</Value>
+											</ValueList>
+										</Property>
+									</PropertyList>
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="sfx_forest_ambience_02" ID="{C6E8D4BF-D433-4BD2-9C37-05963693A141}">
+											<Language>SFX</Language>
+											<AudioFile>sfx_forest_ambience_02.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="990541490"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="sfx_forest_ambience_02" ID="{C6E8D4BF-D433-4BD2-9C37-05963693A141}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+							</ChildrenList>
+							<GroupingInfo>
+								<GroupingBehaviorList>
+									<GroupingBehavior>
+										<ItemRef Name="sfx_grass_field" ID="{70972AEA-2537-4974-8440-95BAE29A82B5}"/>
+										<PropertyList>
+											<Property Name="FadeInTime" Type="Real64">
+												<ValueList>
+													<Value>3</Value>
+												</ValueList>
+											</Property>
+											<Property Name="FadeOutTime" Type="Real64">
+												<ValueList>
+													<Value>5</Value>
+												</ValueList>
+											</Property>
+										</PropertyList>
+									</GroupingBehavior>
+									<GroupingBehavior>
+										<ItemRef Name="sfx_forest_ambience_02" ID="{52BE32F8-0C07-46A5-AECB-8D686EC24813}"/>
+										<PropertyList>
+											<Property Name="FadeInTime" Type="Real64">
+												<ValueList>
+													<Value>3</Value>
+												</ValueList>
+											</Property>
+											<Property Name="FadeOutTime" Type="Real64">
+												<ValueList>
+													<Value>5</Value>
+												</ValueList>
+											</Property>
+										</PropertyList>
+									</GroupingBehavior>
+								</GroupingBehaviorList>
+								<GroupingList>
+									<Grouping>
+										<SwitchRef Name="GrassLakeArea" ID="{DA5B8B70-2780-49EA-8F8A-71CE8F6B33E2}"/>
+										<ItemList>
+											<ItemRef Name="sfx_grass_field" ID="{70972AEA-2537-4974-8440-95BAE29A82B5}"/>
+										</ItemList>
+									</Grouping>
+									<Grouping>
+										<SwitchRef Name="ForestArea" ID="{666F9A7B-E262-43FD-AB2C-5859DCCCB2BD}"/>
+										<ItemList>
+											<ItemRef Name="sfx_forest_ambience_02" ID="{52BE32F8-0C07-46A5-AECB-8D686EC24813}"/>
+										</ItemList>
+									</Grouping>
+								</GroupingList>
+							</GroupingInfo>
+						</SwitchContainer>
+					</ChildrenList>
+				</PropertyContainer>
+			</ChildrenList>
+		</WorkUnit>
+	</Containers>
+</WwiseDocument>

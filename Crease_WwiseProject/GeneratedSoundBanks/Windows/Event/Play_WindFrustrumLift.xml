@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="1844555015" Type="Event" GUID="{B44CA146-2570-4EA9-8B7B-879D730F6BB8}" Language="SFX" Hash="{0D5B70D4-1553-1BDB-653D-CDC9869D8EBA}">
+			<ObjectPath>Play_WindFrustrumLift</ObjectPath>
+			<ShortName>Play_WindFrustrumLift</ShortName>
+			<Path>Event/Play_WindFrustrumLift.bnk</Path>
+			<Media>
+				<File Id="130912113" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_windfrustrum_lift.wav</ShortName>
+					<Path>Media/130912113.wem</Path>
+					<CachePath>13/{13CE095A-E000-2D52-79EF-AB95FA454D1E}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="1844555015" Name="Play_WindFrustrumLift" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_WindFrustrumLift" GUID="{B44CA146-2570-4EA9-8B7B-879D730F6BB8}" DurationType="OneShot" DurationMin="3.75" DurationMax="3.75">
+					<MediaRefs>
+						<MediaRef Id="130912113"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{4D3E5602-6C39-9FB3-CEDE-C318F4EF5D58}</FileHash>
+</SoundBanksInfo>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Mac" BasePlatform="Mac" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="2838845755" Type="Event" GUID="{A2EA666C-63B4-499C-A7DD-BF85F2F711E5}" Language="SFX" Hash="{4E832376-333C-B9E4-D1C8-49B43C22FA3C}">
+			<ObjectPath>Play_HoverON</ObjectPath>
+			<ShortName>Play_HoverON</ShortName>
+			<Path>Event/Play_HoverON.bnk</Path>
+			<Events>
+				<Event Id="2838845755" Name="Play_HoverON" ObjectPath="\Events\Default Work Unit\SFX\UI_SFX\Play_HoverON" GUID="{A2EA666C-63B4-499C-A7DD-BF85F2F711E5}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{0EBA1B39-8EB5-264A-E7AE-6C6BD5E03604}</FileHash>
+</SoundBanksInfo>
