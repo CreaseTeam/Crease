@@ -4868,6 +4868,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8711595743248762973}
+  - {fileID: 595365874999011638}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!64 &6484455313470857965
@@ -4981,6 +4982,34 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  UseVelocityLiftMode: 0
+  LiftCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  HorizontalReleaseHeight: 1
+  ReleaseSpeed: 10
+  LiftDuration: 2
   DebugLog: 0
 --- !u!114 &6171694871377192287
 MonoBehaviour:
@@ -9796,3 +9825,65 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
+--- !u!1001 &464474721162324717
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8424490050691201794}
+    m_Modifications:
+    - target: {fileID: 1022615459556738011, guid: 3dff73d1adad54b51a72d773c8290512, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1022615459556738011, guid: 3dff73d1adad54b51a72d773c8290512, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1022615459556738011, guid: 3dff73d1adad54b51a72d773c8290512, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1022615459556738011, guid: 3dff73d1adad54b51a72d773c8290512, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1022615459556738011, guid: 3dff73d1adad54b51a72d773c8290512, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1022615459556738011, guid: 3dff73d1adad54b51a72d773c8290512, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1022615459556738011, guid: 3dff73d1adad54b51a72d773c8290512, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1022615459556738011, guid: 3dff73d1adad54b51a72d773c8290512, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1022615459556738011, guid: 3dff73d1adad54b51a72d773c8290512, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1022615459556738011, guid: 3dff73d1adad54b51a72d773c8290512, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5133003484342359563, guid: 3dff73d1adad54b51a72d773c8290512, type: 3}
+      propertyPath: m_Name
+      value: FrustumWwiseComponents_TEST
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 3dff73d1adad54b51a72d773c8290512, type: 3}
+--- !u!4 &595365874999011638 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1022615459556738011, guid: 3dff73d1adad54b51a72d773c8290512, type: 3}
+  m_PrefabInstance: {fileID: 464474721162324717}
+  m_PrefabAsset: {fileID: 0}

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Mac" BasePlatform="Mac" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="1280143095" Type="Event" GUID="{A6E0DE72-94F6-4ED3-B08F-936C9E4033FE}" Language="SFX" Hash="{A4183FD2-E134-A91B-E912-6C314BAEBFF2}">
+			<ObjectPath>Play_AmbientWindFrustrum3</ObjectPath>
+			<ShortName>Play_AmbientWindFrustrum3</ShortName>
+			<Path>Event/Play_AmbientWindFrustrum3.bnk</Path>
+			<Media>
+				<File Id="977030703" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_windfrustrum_layer1_FIXED.wav</ShortName>
+					<Path>Media/977030703.wem</Path>
+					<CachePath>37/{37ED01D5-2AC2-9432-FDEC-D54864E97310}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="1280143095" Name="Play_AmbientWindFrustrum3" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_AmbientWindFrustrum3" GUID="{A6E0DE72-94F6-4ED3-B08F-936C9E4033FE}" MaxAttenuation="65" DurationType="Infinite">
+					<MediaRefs>
+						<MediaRef Id="977030703"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{AB8206E9-6118-07B6-B7BA-284C697A7534}</FileHash>
+</SoundBanksInfo>

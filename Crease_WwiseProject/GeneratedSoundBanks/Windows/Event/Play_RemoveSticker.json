@@ -1,0 +1,33 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "1789546543",
+    "Type": "Event",
+    "GUID": "{1D0C698E-E75D-4A83-A3F8-A76867814AC4}",
+    "Language": "SFX",
+    "Hash": "{5F5B991D-19F5-3057-6E83-FDDF058B8047}",
+    "ObjectPath": "Play_RemoveSticker",
+    "ShortName": "Play_RemoveSticker",
+    "Path": "Event/Play_RemoveSticker.bnk",
+    "Events": [
+     {
+      "Id": "1789546543",
+      "Name": "Play_RemoveSticker",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\UI_SFX\\Play_RemoveSticker",
+      "GUID": "{1D0C698E-E75D-4A83-A3F8-A76867814AC4}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{6088BB00-419D-3E6D-C1F9-89D8E7439A96}"
+ }
+}

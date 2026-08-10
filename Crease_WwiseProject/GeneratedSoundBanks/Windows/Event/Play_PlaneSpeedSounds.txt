@@ -1,0 +1,6 @@
+Event	ID	Name			Wwise Object Path	Notes
+	2220497489	Play_PlaneSpeedSounds			\Default Work Unit\SFX\COMMON_LVL_SFX\Play_PlaneSpeedSounds	
+
+Game Parameter	ID	Name			Wwise Object Path	Notes
+	4135936604	Player_FlightSpeed			\Default Work Unit\Player\Player_FlightSpeed	
+

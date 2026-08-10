@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Mac" BasePlatform="Mac" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="2069913319" Type="Event" GUID="{ED27CD4B-F8CA-4F60-9CFD-F3E46A149F29}" Language="SFX" Hash="{FCEE1E48-8D85-79C4-8756-D276CBBC2EEE}">
+			<ObjectPath>Play_AmbientSwings</ObjectPath>
+			<ShortName>Play_AmbientSwings</ShortName>
+			<Path>Event/Play_AmbientSwings.bnk</Path>
+			<Media>
+				<File Id="887369446" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_swings_v2_EQ.wav</ShortName>
+					<Path>Media/887369446.wem</Path>
+					<CachePath>D8/{D82E13B1-F661-F380-35EB-B9FB3FCEAA86}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="2069913319" Name="Play_AmbientSwings" ObjectPath="\Events\Default Work Unit\SFX\LVL1_SFX\Play_AmbientSwings" GUID="{ED27CD4B-F8CA-4F60-9CFD-F3E46A149F29}" MaxAttenuation="120" DurationType="Infinite">
+					<MediaRefs>
+						<MediaRef Id="887369446"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{848FE256-2946-01A6-3C00-CF95D197F3B3}</FileHash>
+</SoundBanksInfo>

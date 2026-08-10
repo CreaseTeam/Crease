@@ -1,0 +1,3 @@
+Event	ID	Name			Wwise Object Path	Notes
+	953563835	Play_SelectSticker			\Default Work Unit\SFX\UI_SFX\Play_SelectSticker	
+

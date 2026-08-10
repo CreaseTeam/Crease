@@ -1,0 +1,3 @@
+Event	ID	Name			Wwise Object Path	Notes
+	979988297	Play_CoinCollect			\Default Work Unit\SFX\COMMON_LVL_SFX\Play_CoinCollect	
+

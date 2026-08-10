@@ -1,0 +1,33 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "3430616211",
+    "Type": "Event",
+    "GUID": "{4C1F1568-0BBB-4844-B494-0331F9C2BA8F}",
+    "Language": "SFX",
+    "Hash": "{96DBE590-F7D5-631E-8B17-FE08876D87DC}",
+    "ObjectPath": "Play_FoldPaper",
+    "ShortName": "Play_FoldPaper",
+    "Path": "Event/Play_FoldPaper.bnk",
+    "Events": [
+     {
+      "Id": "3430616211",
+      "Name": "Play_FoldPaper",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\UI_SFX\\Play_FoldPaper",
+      "GUID": "{4C1F1568-0BBB-4844-B494-0331F9C2BA8F}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{5AF76A98-8AF3-A4A7-4F9C-23205E125C9A}"
+ }
+}

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <WwiseDocument Type="WorkUnit" ID="{0EEEC0C5-46C7-4AA1-AE47-79909262EE75}" SchemaVersion="133">
 	<Events>
-		<WorkUnit Name="Default Work Unit" ID="{0EEEC0C5-46C7-4AA1-AE47-79909262EE75}" PersistMode="Standalone"/>
+		<WorkUnit Name="Default Work Unit" ID="{0EEEC0C5-46C7-4AA1-AE47-79909262EE75}" PersistMode="Standalone">
+			<ChildrenList>
+				<WorkUnit Name="SFX" ID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}" PersistMode="Reference"/>
+				<WorkUnit Name="Music" ID="{81B8FC19-C659-4586-96AC-40F270EE3E70}" PersistMode="Reference"/>
+			</ChildrenList>
+		</WorkUnit>
 	</Events>
 </WwiseDocument>

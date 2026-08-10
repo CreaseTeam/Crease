@@ -1,0 +1,96 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Linux",
+  "BasePlatform": "Linux",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "94728852",
+    "Type": "Event",
+    "GUID": "{9BA1A31B-48E5-4F1B-893B-E7583F887FBA}",
+    "Language": "SFX",
+    "Hash": "{449BA49E-A5EF-746D-4FFA-2E04961CE533}",
+    "ObjectPath": "Play_WaterDamage",
+    "ShortName": "Play_WaterDamage",
+    "Path": "Event/Play_WaterDamage.bnk",
+    "Media": [
+     {
+      "Id": "60420500",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_plane_splash_03.wav",
+      "Path": "Media/60420500.wem",
+      "CachePath": "0C/{0C3D9BE5-9568-67F4-B4E9-B94C64C48B12}.wem"
+     },
+     {
+      "Id": "104502095",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_plane_splash_02.wav",
+      "Path": "Media/104502095.wem",
+      "CachePath": "3D/{3DA224CE-F1C1-EE72-C562-81353CC1ED8E}.wem"
+     },
+     {
+      "Id": "307480835",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_plane_splash_05.wav",
+      "Path": "Media/307480835.wem",
+      "CachePath": "4F/{4F210A12-3ACE-EC78-8E45-D67D3DC4B83B}.wem"
+     },
+     {
+      "Id": "337278340",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_plane_splash_04.wav",
+      "Path": "Media/337278340.wem",
+      "CachePath": "44/{44E18F4B-45F3-88E9-11CD-172EFC4DC9FA}.wem"
+     },
+     {
+      "Id": "689446621",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_plane_splash_01.wav",
+      "Path": "Media/689446621.wem",
+      "CachePath": "4E/{4E8F50C5-CE8B-1800-C766-C236A62072D3}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "94728852",
+      "Name": "Play_WaterDamage",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\COMMON_LVL_SFX\\Play_WaterDamage",
+      "GUID": "{9BA1A31B-48E5-4F1B-893B-E7583F887FBA}",
+      "DurationType": "OneShot",
+      "DurationMin": "0.45325428",
+      "DurationMax": "0.8839229",
+      "MediaRefs": [
+       {
+        "Id": "60420500"
+       },
+       {
+        "Id": "104502095"
+       },
+       {
+        "Id": "307480835"
+       },
+       {
+        "Id": "337278340"
+       },
+       {
+        "Id": "689446621"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{97D17EDC-19ED-534D-C0C4-95A0590CA584}"
+ }
+}

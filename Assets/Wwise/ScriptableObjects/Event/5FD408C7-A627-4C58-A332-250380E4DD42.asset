@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d62ea0fefb6624224a6bdea41da81eb3, type: 3}
+  m_Name: 5FD408C7-A627-4C58-A332-250380E4DD42
+  m_EditorClassIdentifier: AK.Wwise.Unity.API.WwiseTypes::WwiseEventReference
+  objectName: Play_AmbientWindFrustrum1
+  id: 1280143093
+  guid: 5FD408C7-A627-4C58-A332-250380E4DD42
+  IsInUserDefinedSoundBank: 1

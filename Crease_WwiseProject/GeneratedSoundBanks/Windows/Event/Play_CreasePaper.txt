@@ -1,0 +1,3 @@
+Event	ID	Name			Wwise Object Path	Notes
+	2906773315	Play_CreasePaper			\Default Work Unit\SFX\UI_SFX\Play_CreasePaper	
+

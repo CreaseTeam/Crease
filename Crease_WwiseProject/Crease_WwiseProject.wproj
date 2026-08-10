@@ -14,6 +14,7 @@
 				<Language Name="SFX" ID="{195E2631-E8AD-4301-B1CD-EE6823B6EDED}" />
 			</LanguageList>
 			<PropertyList>
+				<Property Name="AutoSoundBankEnabled" Type="bool" Value="True" />
 				<Property Name="ExternalSourcesInputPath" Type="string">
 					<ValueList>
 						<Value Platform="Windows"></Value>
@@ -30,14 +31,14 @@
 				</Property>
 				<Property Name="GenerateMainSoundBank" Type="bool" Value="True" />
 				<Property Name="GenerateSoundBankXML" Type="bool" Value="True" />
-				<Property Name="SoundBankAllowExceedingSB" Type="bool" Value="True" />
+				<Property Name="LicenseKey" Type="string" Value="PHByb2plY3QgaWQ9IjIzMzE5IiBtYXNrPSJKUFJYNDI3NiIgZW5jPSIwIj48bGljZW5zZSBpZD0iMSIgbmFtZT0iV3dpc2UiIHR5cGU9IjMiIHBsYXRmb3Jtcz0iNCwxMCwxNCIgZXhwaXJlcz0iMjAyNy0wNi0wMSIgIC8+PGxpY2Vuc2UgaWQ9IjIxIiBuYW1lPSJNYWludGVuYW5jZSIgdHlwZT0iMyIgcGxhdGZvcm1zPSI0LDEwLDE0IiBleHBpcmVzPSIyMDI3LTA2LTAxIiAgLz48bGljZW5zZSBpZD0iNzAiIG5hbWU9IkluZGllIExpY2Vuc2UiIHR5cGU9IjMiIHBsYXRmb3Jtcz0iNCwxMCwxNCIgZXhwaXJlcz0iMjAyNy0wNi0wMSIgIC8+PGxpY2Vuc2UgaWQ9IjgiIG5hbWU9Ild3aXNlIE1vdGlvbiIgdHlwZT0iMyIgcGxhdGZvcm1zPSI0LDEwLDE0IiBleHBpcmVzPSIyMDI3LTA2LTAxIiAgLz48cGx1Z2luIGlkPSIzMzU1NDQzOSIgbmFtZT0iV3dpc2UgTW90aW9uIFNjZVBhZCBSdW1ibGUiIGxpY2Vuc2U9IjgiIC8+PHBsdWdpbiBpZD0iMzM2MTk5NzUiIG5hbWU9Ild3aXNlIE1vdGlvbiBTY2VQYWQgSGFwdGljcyIgbGljZW5zZT0iOCIgLz48L3Byb2plY3Q+|veg4MQ/4JhbubQczlFPOEXBatSujl2SPvB2WaZTf06s5yGKN8Ck29Q3dGRBeK847N8SFOtaxsrpbnn8hTGx9xsxA1YDgxowVyYJq30yeWf8nWo1NGDceY8Ql60VaZ7AYtvVTa+kMpTU8w1tZ38Wmgd5AsbEMVtYPkgY68ArqdYpmNpq4LC6xEMPMXYWTlH55mkekYDKaCdVROOFqSwhL0WKrQPaDLGcDBWuBhnuRvpifbeo9EhCZEq67EF+5+GiwqKt2M9juGCNZvMwgwOVDUhoQ4cImyx4qdt5DSqPk2gy1EQJVQPC8CCTww1wzQLrptj98yn65y+pFIidGKUJ7Fw==" />
 				<Property Name="SoundBankGenerateHeaderFile" Type="bool" Value="True" />
-				<Property Name="SoundBankGenerateEstimatedDuration" Type="bool" Value="True" /><Property Name="SoundBankHeaderFilePath" Type="string" Value="..\Assets\StreamingAssets\Audio\GeneratedSoundBanks" />
+				<Property Name="SoundBankGenerateEstimatedDuration" Type="bool" Value="True" /><Property Name="SoundBankHeaderFilePath" Type="string" Value="GeneratedSoundBanks" />
 				<Property Name="SoundBankPaths" Type="string">
 					<ValueList>
-						<Value Platform="Windows">..\Assets\StreamingAssets\Audio\GeneratedSoundBanks\Windows\</Value>
-						<Value Platform="Linux">..\Assets\StreamingAssets\Audio\GeneratedSoundBanks\Linux\</Value>
-						<Value Platform="Mac">..\Assets\StreamingAssets\Audio\GeneratedSoundBanks\Mac\</Value>
+						<Value Platform="Windows">GeneratedSoundBanks\Windows\</Value>
+						<Value Platform="Linux">GeneratedSoundBanks\Linux\</Value>
+						<Value Platform="Mac">GeneratedSoundBanks\Mac\</Value>
 					</ValueList>
 				</Property>
 				<Property Name="SoundBankPostGenerateCustomCmdDescription" Type="string">

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="348159706" Type="Event" GUID="{C15C9FAB-D02C-46AE-AA07-9EE23603DC70}" Language="SFX" Hash="{F72BF37C-F651-38D7-97B0-2A34C2BFE31F}">
+			<ObjectPath>Play_SelectButton</ObjectPath>
+			<ShortName>Play_SelectButton</ShortName>
+			<Path>Event/Play_SelectButton.bnk</Path>
+			<Events>
+				<Event Id="348159706" Name="Play_SelectButton" ObjectPath="\Events\Default Work Unit\SFX\UI_SFX\Play_SelectButton" GUID="{C15C9FAB-D02C-46AE-AA07-9EE23603DC70}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{D8510137-8917-1E41-EC73-9BE0BDBD71C6}</FileHash>
+</SoundBanksInfo>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Mac" BasePlatform="Mac" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="2906773315" Type="Event" GUID="{E29B5ED5-6187-4481-8362-3B07D309480C}" Language="SFX" Hash="{52A1D0DF-EC1A-D2FC-1433-EEBD3DE3CCA2}">
+			<ObjectPath>Play_CreasePaper</ObjectPath>
+			<ShortName>Play_CreasePaper</ShortName>
+			<Path>Event/Play_CreasePaper.bnk</Path>
+			<Events>
+				<Event Id="2906773315" Name="Play_CreasePaper" ObjectPath="\Events\Default Work Unit\SFX\UI_SFX\Play_CreasePaper" GUID="{E29B5ED5-6187-4481-8362-3B07D309480C}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{1C76A8EA-51AE-D8BC-994E-14A07B466185}</FileHash>
+</SoundBanksInfo>

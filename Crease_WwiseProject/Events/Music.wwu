@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{81B8FC19-C659-4586-96AC-40F270EE3E70}" SchemaVersion="133" RootDocumentID="{0EEEC0C5-46C7-4AA1-AE47-79909262EE75}" ParentDocumentID="{0EEEC0C5-46C7-4AA1-AE47-79909262EE75}">
+	<Events>
+		<WorkUnit Name="Music" ID="{81B8FC19-C659-4586-96AC-40F270EE3E70}" OwnerID="{0EEEC0C5-46C7-4AA1-AE47-79909262EE75}" PersistMode="Nested">
+			<ChildrenList>
+				<Folder Name="LVL1_MUSIC" ID="{672C2AD6-3A1B-4732-B5BF-C6FC63CA7D5A}" ShortID="545744657">
+					<ChildrenList>
+						<Folder Name="MUSIC_SWITCHES" ID="{5A5B88AB-D1E1-403F-AB28-FF28590C1453}" ShortID="458193652"/>
+					</ChildrenList>
+				</Folder>
+			</ChildrenList>
+		</WorkUnit>
+	</Events>
+</WwiseDocument>

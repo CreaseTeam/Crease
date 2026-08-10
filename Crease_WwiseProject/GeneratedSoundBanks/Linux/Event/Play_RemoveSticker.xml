@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Linux" BasePlatform="Linux" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="1789546543" Type="Event" GUID="{1D0C698E-E75D-4A83-A3F8-A76867814AC4}" Language="SFX" Hash="{5F5B991D-19F5-3057-6E83-FDDF058B8047}">
+			<ObjectPath>Play_RemoveSticker</ObjectPath>
+			<ShortName>Play_RemoveSticker</ShortName>
+			<Path>Event/Play_RemoveSticker.bnk</Path>
+			<Events>
+				<Event Id="1789546543" Name="Play_RemoveSticker" ObjectPath="\Events\Default Work Unit\SFX\UI_SFX\Play_RemoveSticker" GUID="{1D0C698E-E75D-4A83-A3F8-A76867814AC4}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{21F6825F-BF7C-88BF-CB07-A36B9A1A8EE3}</FileHash>
+</SoundBanksInfo>

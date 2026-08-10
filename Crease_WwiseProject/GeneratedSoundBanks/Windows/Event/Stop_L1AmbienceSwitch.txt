@@ -1,0 +1,3 @@
+Event	ID	Name			Wwise Object Path	Notes
+	3300885361	Stop_L1AmbienceSwitch			\Default Work Unit\SFX\SFX_SWITCHES\Stop_L1AmbienceSwitch	
+

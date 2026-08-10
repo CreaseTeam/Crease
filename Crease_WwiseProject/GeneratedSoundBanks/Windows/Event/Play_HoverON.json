@@ -1,0 +1,33 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "2838845755",
+    "Type": "Event",
+    "GUID": "{A2EA666C-63B4-499C-A7DD-BF85F2F711E5}",
+    "Language": "SFX",
+    "Hash": "{4E832376-333C-B9E4-D1C8-49B43C22FA3C}",
+    "ObjectPath": "Play_HoverON",
+    "ShortName": "Play_HoverON",
+    "Path": "Event/Play_HoverON.bnk",
+    "Events": [
+     {
+      "Id": "2838845755",
+      "Name": "Play_HoverON",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\UI_SFX\\Play_HoverON",
+      "GUID": "{A2EA666C-63B4-499C-A7DD-BF85F2F711E5}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{F2E13DA7-FF55-D270-377C-5EEFD830A696}"
+ }
+}

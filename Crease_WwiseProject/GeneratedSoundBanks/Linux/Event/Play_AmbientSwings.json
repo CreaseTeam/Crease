@@ -1,0 +1,47 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Linux",
+  "BasePlatform": "Linux",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "2069913319",
+    "Type": "Event",
+    "GUID": "{ED27CD4B-F8CA-4F60-9CFD-F3E46A149F29}",
+    "Language": "SFX",
+    "Hash": "{FCEE1E48-8D85-79C4-8756-D276CBBC2EEE}",
+    "ObjectPath": "Play_AmbientSwings",
+    "ShortName": "Play_AmbientSwings",
+    "Path": "Event/Play_AmbientSwings.bnk",
+    "Media": [
+     {
+      "Id": "887369446",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_swings_v2_EQ.wav",
+      "Path": "Media/887369446.wem",
+      "CachePath": "D8/{D82E13B1-F661-F380-35EB-B9FB3FCEAA86}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "2069913319",
+      "Name": "Play_AmbientSwings",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\LVL1_SFX\\Play_AmbientSwings",
+      "GUID": "{ED27CD4B-F8CA-4F60-9CFD-F3E46A149F29}",
+      "MaxAttenuation": "120",
+      "DurationType": "Infinite",
+      "MediaRefs": [
+       {
+        "Id": "887369446"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{EC9CB47B-915F-725B-B781-C40FDA77F9EE}"
+ }
+}

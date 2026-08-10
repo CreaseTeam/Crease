@@ -1,0 +1,15 @@
+State Group	ID	Name			Wwise Object Path	Notes
+	567225543	RegionAmbienceStates			\Default Work Unit\TestStates\SFX\RegionAmbienceStates	
+
+State	ID	Name	State Group			Notes
+	421983475	GrassLakeArea	RegionAmbienceStates			
+	748895195	None	RegionAmbienceStates			
+	3336434501	ForestArea	RegionAmbienceStates			
+
+Audio Bus	ID	Name			Wwise Object Path	Notes
+	2246998526	Main Audio Bus			\Default Work Unit\Main Audio Bus	
+
+Audio Devices	ID	Name	Type				Notes
+	2317455096	No_Output	No Output			
+	3859886410	System	System			
+

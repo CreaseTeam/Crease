@@ -1,0 +1,47 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Mac",
+  "BasePlatform": "Mac",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "1280143093",
+    "Type": "Event",
+    "GUID": "{5FD408C7-A627-4C58-A332-250380E4DD42}",
+    "Language": "SFX",
+    "Hash": "{912E37F5-C70E-A85C-5B7B-8CD6EBE77EB8}",
+    "ObjectPath": "Play_AmbientWindFrustrum1",
+    "ShortName": "Play_AmbientWindFrustrum1",
+    "Path": "Event/Play_AmbientWindFrustrum1.bnk",
+    "Media": [
+     {
+      "Id": "977030703",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_windfrustrum_layer1_FIXED.wav",
+      "Path": "Media/977030703.wem",
+      "CachePath": "37/{37ED01D5-2AC2-9432-FDEC-D54864E97310}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "1280143093",
+      "Name": "Play_AmbientWindFrustrum1",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\COMMON_LVL_SFX\\Play_AmbientWindFrustrum1",
+      "GUID": "{5FD408C7-A627-4C58-A332-250380E4DD42}",
+      "MaxAttenuation": "65",
+      "DurationType": "Infinite",
+      "MediaRefs": [
+       {
+        "Id": "977030703"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{B6E8606A-336D-1230-81AD-5DE2CDC313D5}"
+ }
+}
