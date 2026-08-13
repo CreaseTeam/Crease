@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbce631d8a7664f298e345d6aaf0ddee, type: 3}
   m_Name: 0447417C-0993-4B97-93D0-41831A1AB9D0
   m_EditorClassIdentifier: AK.Wwise.Unity.API.WwiseTypes::WwiseStateGroupReference
-  objectName: RegionAmbienceStates
-  id: 567225543
+  objectName: LV1RegionAmbienceStates
+  id: 4215095390
   guid: 0447417C-0993-4B97-93D0-41831A1AB9D0

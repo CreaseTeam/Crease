@@ -1,0 +1,60 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Mac",
+  "BasePlatform": "Mac",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "40743970",
+    "Type": "Event",
+    "GUID": "{DEAAD0F5-7C12-4E66-A90B-C4CC15047B73}",
+    "Language": "SFX",
+    "Hash": "{318A7650-CED3-05CA-D656-AC0BA1A74C12}",
+    "ObjectPath": "Play_PlayerBubbleEscape",
+    "ShortName": "Play_PlayerBubbleEscape",
+    "Path": "Event/Play_PlayerBubbleEscape.bnk",
+    "Media": [
+     {
+      "Id": "454501123",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_bubble_pop_04.wav",
+      "Path": "Media/454501123.wem",
+      "CachePath": "5D/{5DFFD765-16C0-6C8C-666B-CA2B12511FC7}.wem"
+     },
+     {
+      "Id": "868498379",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_bubble_pop_05.wav",
+      "Path": "Media/868498379.wem",
+      "CachePath": "39/{3948BDF7-F828-857A-443D-9C6BA478C8C4}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "40743970",
+      "Name": "Play_PlayerBubbleEscape",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\LVL1_SFX\\Play_PlayerBubbleEscape",
+      "GUID": "{DEAAD0F5-7C12-4E66-A90B-C4CC15047B73}",
+      "DurationType": "OneShot",
+      "DurationMin": "0.338259",
+      "DurationMax": "0.41841",
+      "MediaRefs": [
+       {
+        "Id": "454501123"
+       },
+       {
+        "Id": "868498379"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{2457338D-90E5-4EA1-2ACE-7413F896A855}"
+ }
+}

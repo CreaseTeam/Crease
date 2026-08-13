@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <SoundBanksInfo Platform="Mac" BasePlatform="Mac" SchemaVersion="16" SoundBankVersion="172">
 	<SoundBanks>
-		<SoundBank Id="1280143093" Type="Event" GUID="{5FD408C7-A627-4C58-A332-250380E4DD42}" Language="SFX" Hash="{912E37F5-C70E-A85C-5B7B-8CD6EBE77EB8}">
+		<SoundBank Id="1280143093" Type="Event" GUID="{5FD408C7-A627-4C58-A332-250380E4DD42}" Language="SFX" Hash="{6DAEB7E4-B511-8C94-F9EC-7C19874930AC}">
 			<ObjectPath>Play_AmbientWindFrustrum1</ObjectPath>
 			<ShortName>Play_AmbientWindFrustrum1</ShortName>
 			<Path>Event/Play_AmbientWindFrustrum1.bnk</Path>
@@ -21,5 +21,5 @@
 			</Events>
 		</SoundBank>
 	</SoundBanks>
-	<FileHash>{5E681E96-7E20-110D-0844-61713EB12F8D}</FileHash>
+	<FileHash>{53648AF7-692D-EF04-A781-EE36CA7D221C}</FileHash>
 </SoundBanksInfo>

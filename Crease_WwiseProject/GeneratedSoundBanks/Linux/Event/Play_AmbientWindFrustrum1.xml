@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <SoundBanksInfo Platform="Linux" BasePlatform="Linux" SchemaVersion="16" SoundBankVersion="172">
 	<SoundBanks>
-		<SoundBank Id="1280143093" Type="Event" GUID="{5FD408C7-A627-4C58-A332-250380E4DD42}" Language="SFX" Hash="{912E37F5-C70E-A85C-5B7B-8CD6EBE77EB8}">
+		<SoundBank Id="1280143093" Type="Event" GUID="{5FD408C7-A627-4C58-A332-250380E4DD42}" Language="SFX" Hash="{6DAEB7E4-B511-8C94-F9EC-7C19874930AC}">
 			<ObjectPath>Play_AmbientWindFrustrum1</ObjectPath>
 			<ShortName>Play_AmbientWindFrustrum1</ShortName>
 			<Path>Event/Play_AmbientWindFrustrum1.bnk</Path>
@@ -21,5 +21,5 @@
 			</Events>
 		</SoundBank>
 	</SoundBanks>
-	<FileHash>{E0F0F2B4-B094-CC12-5098-8932E8BDE23F}</FileHash>
+	<FileHash>{B46E62B8-FD21-FD4E-0B56-FF6261B24B5A}</FileHash>
 </SoundBanksInfo>

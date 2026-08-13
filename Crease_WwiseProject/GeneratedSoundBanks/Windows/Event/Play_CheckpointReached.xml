@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="711455078" Type="Event" GUID="{92406C57-FA07-4B8C-8108-E876C14200B2}" Language="SFX" Hash="{1454C7C0-07ED-6F47-31DF-84F95CDB3A79}">
+			<ObjectPath>Play_CheckpointReached</ObjectPath>
+			<ShortName>Play_CheckpointReached</ShortName>
+			<Path>Event/Play_CheckpointReached.bnk</Path>
+			<Events>
+				<Event Id="711455078" Name="Play_CheckpointReached" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_CheckpointReached" GUID="{92406C57-FA07-4B8C-8108-E876C14200B2}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{D813F4ED-133C-1F27-CD76-E14DAA1240BA}</FileHash>
+</SoundBanksInfo>

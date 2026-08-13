@@ -1,0 +1,3 @@
+Event	ID	Name			Wwise Object Path	Notes
+	1795284375	Stop_PencilScribble			\Default Work Unit\SFX\LVL1_SFX\Stop_PencilScribble	
+

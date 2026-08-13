@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="3237153347" Type="Event" GUID="{9977E3A5-B77E-4D8F-A55F-D0EF23F8EC2F}" Language="SFX" Hash="{F7F7F4F7-1E62-06CB-DD9C-3763C47F999D}">
+			<ObjectPath>Start_L1SubRegionSwitch</ObjectPath>
+			<ShortName>Start_L1SubRegionSwitch</ShortName>
+			<Path>Event/Start_L1SubRegionSwitch.bnk</Path>
+			<Media>
+				<File Id="976005182" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_grass_ambience.wav</ShortName>
+					<Path>Media/976005182.wem</Path>
+					<CachePath>A8/{A826DC20-CD6B-DF4A-E772-5B8335A598DF}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="3237153347" Name="Start_L1SubRegionSwitch" ObjectPath="\Events\Default Work Unit\SFX\SFX_SWITCHES\Start_L1SubRegionSwitch" GUID="{9977E3A5-B77E-4D8F-A55F-D0EF23F8EC2F}" DurationType="OneShot" DurationMin="17.589296" DurationMax="17.589296">
+					<SwitchContainers>
+						<SwitchContainer>
+							<SwitchValue GroupType="State" GroupId="1333243800" Id="2273428829" GUID="{526B127B-8171-4AA8-8F2E-553C6D22A1B7}"/>
+							<MediaRefs>
+								<MediaRef Id="976005182"/>
+							</MediaRefs>
+						</SwitchContainer>
+					</SwitchContainers>
+					<ActionSetState>
+						<ActionSetStateEntry GroupId="1333243800" Id="748895195" Name="None" ObjectPath="\States\Default Work Unit\SFX\LV1SubregionAmbienceStates\None" GUID="{49DC1C00-C117-4E38-A0C6-86E9F05A8DB6}"/>
+					</ActionSetState>
+				</Event>
+			</Events>
+			<StateGroups>
+				<StateGroup Id="1333243800" Name="LV1SubregionAmbienceStates" ObjectPath="\States\Default Work Unit\SFX\LV1SubregionAmbienceStates" GUID="{E70148DA-50F1-4E23-81EE-24973B1E931C}">
+					<States>
+						<State Id="748895195" Name="None" ObjectPath="\States\Default Work Unit\SFX\LV1SubregionAmbienceStates\None" GUID="{49DC1C00-C117-4E38-A0C6-86E9F05A8DB6}"/>
+						<State Id="2273428829" Name="GrassRustleArea" ObjectPath="\States\Default Work Unit\SFX\LV1SubregionAmbienceStates\GrassRustleArea" GUID="{526B127B-8171-4AA8-8F2E-553C6D22A1B7}"/>
+					</States>
+				</StateGroup>
+			</StateGroups>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{25C7318C-3876-7963-2E97-67A92EBA2998}</FileHash>
+</SoundBanksInfo>

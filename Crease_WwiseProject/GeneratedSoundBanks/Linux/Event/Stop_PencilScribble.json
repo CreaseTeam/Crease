@@ -1,0 +1,33 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Linux",
+  "BasePlatform": "Linux",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "1795284375",
+    "Type": "Event",
+    "GUID": "{2FCA6B22-61C7-43B3-AADA-C2B4B7B80A8E}",
+    "Language": "SFX",
+    "Hash": "{D1561EE1-4D29-F2E2-41F6-C4BC4C97A1C0}",
+    "ObjectPath": "Stop_PencilScribble",
+    "ShortName": "Stop_PencilScribble",
+    "Path": "Event/Stop_PencilScribble.bnk",
+    "Events": [
+     {
+      "Id": "1795284375",
+      "Name": "Stop_PencilScribble",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\LVL1_SFX\\Stop_PencilScribble",
+      "GUID": "{2FCA6B22-61C7-43B3-AADA-C2B4B7B80A8E}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{17D77036-25F7-7D6A-36DD-A7499331A088}"
+ }
+}

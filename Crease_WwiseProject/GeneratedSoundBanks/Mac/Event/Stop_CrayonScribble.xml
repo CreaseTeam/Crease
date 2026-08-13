@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Mac" BasePlatform="Mac" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="1099243338" Type="Event" GUID="{DB2A1090-461B-4FD8-89EE-8342D8A56DC5}" Language="SFX" Hash="{29C0F042-C85F-0EBC-4B4A-A2C434A284F6}">
+			<ObjectPath>Stop_CrayonScribble</ObjectPath>
+			<ShortName>Stop_CrayonScribble</ShortName>
+			<Path>Event/Stop_CrayonScribble.bnk</Path>
+			<Events>
+				<Event Id="1099243338" Name="Stop_CrayonScribble" ObjectPath="\Events\Default Work Unit\SFX\LVL1_SFX\Stop_CrayonScribble" GUID="{DB2A1090-461B-4FD8-89EE-8342D8A56DC5}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{F2156CE1-BD18-B67F-B31E-5748A66D8895}</FileHash>
+</SoundBanksInfo>

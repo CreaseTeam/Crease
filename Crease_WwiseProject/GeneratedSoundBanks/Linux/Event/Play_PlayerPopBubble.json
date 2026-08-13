@@ -1,0 +1,72 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Linux",
+  "BasePlatform": "Linux",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "447315244",
+    "Type": "Event",
+    "GUID": "{049D3166-038B-4B73-B91E-7D9DCEF58641}",
+    "Language": "SFX",
+    "Hash": "{E55FAEB3-FB5D-0590-ECA1-9FE6756A9668}",
+    "ObjectPath": "Play_PlayerPopBubble",
+    "ShortName": "Play_PlayerPopBubble",
+    "Path": "Event/Play_PlayerPopBubble.bnk",
+    "Media": [
+     {
+      "Id": "429425765",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_bubble_pop_03.wav",
+      "Path": "Media/429425765.wem",
+      "CachePath": "71/{71ACB873-A18D-12E0-A807-292364247937}.wem"
+     },
+     {
+      "Id": "580024737",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_bubble_pop_02.wav",
+      "Path": "Media/580024737.wem",
+      "CachePath": "83/{833058B2-7260-1354-43B1-05D62235B467}.wem"
+     },
+     {
+      "Id": "894817667",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_bubble_pop_01.wav",
+      "Path": "Media/894817667.wem",
+      "CachePath": "53/{5385C1A8-CEF8-DCA4-487F-C888BEC4DE13}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "447315244",
+      "Name": "Play_PlayerPopBubble",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\LVL1_SFX\\Play_PlayerPopBubble",
+      "GUID": "{049D3166-038B-4B73-B91E-7D9DCEF58641}",
+      "DurationType": "OneShot",
+      "DurationMin": "0.35569918",
+      "DurationMax": "0.5824829",
+      "MediaRefs": [
+       {
+        "Id": "429425765"
+       },
+       {
+        "Id": "580024737"
+       },
+       {
+        "Id": "894817667"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{AC017B6D-8E04-7522-8AE0-3B4D1B6FFF7D}"
+ }
+}

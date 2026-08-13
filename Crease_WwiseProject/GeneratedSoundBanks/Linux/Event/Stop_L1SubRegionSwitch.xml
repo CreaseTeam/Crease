@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Linux" BasePlatform="Linux" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="3755980033" Type="Event" GUID="{AA9B8CD9-60E4-46EE-92B3-0E7DD6B21FFF}" Language="SFX" Hash="{703E5579-6A06-D3B9-1714-7D9C7C15B4FD}">
+			<ObjectPath>Stop_L1SubRegionSwitch</ObjectPath>
+			<ShortName>Stop_L1SubRegionSwitch</ShortName>
+			<Path>Event/Stop_L1SubRegionSwitch.bnk</Path>
+			<Events>
+				<Event Id="3755980033" Name="Stop_L1SubRegionSwitch" ObjectPath="\Events\Default Work Unit\SFX\SFX_SWITCHES\Stop_L1SubRegionSwitch" GUID="{AA9B8CD9-60E4-46EE-92B3-0E7DD6B21FFF}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{D0E3ECB7-DB66-17FD-91A7-7F5C89D79CC8}</FileHash>
+</SoundBanksInfo>
