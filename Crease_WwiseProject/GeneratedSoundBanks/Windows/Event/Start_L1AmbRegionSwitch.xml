@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="964996825" Type="Event" GUID="{35D04DEF-0481-4127-838D-F180EBC5491E}" Language="SFX" Hash="{DB827367-A3C3-5512-D516-A0E758813016}">
+			<ObjectPath>Start_L1AmbRegionSwitch</ObjectPath>
+			<ShortName>Start_L1AmbRegionSwitch</ShortName>
+			<Path>Event/Start_L1AmbRegionSwitch.bnk</Path>
+			<Media>
+				<File Id="81596657" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_grass_field.wav</ShortName>
+					<Path>Media/81596657.wem</Path>
+					<CachePath>06/{060C15F7-F711-7651-445E-E7D66EA013DC}.wem</CachePath>
+				</File>
+				<File Id="990541490" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_forest_ambience_02.wav</ShortName>
+					<Path>Media/990541490.wem</Path>
+					<CachePath>65/{6547DF76-F60F-D0DB-4E15-881C7ED6551B}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="964996825" Name="Start_L1AmbRegionSwitch" ObjectPath="\Events\Default Work Unit\SFX\SFX_SWITCHES\Start_L1AmbRegionSwitch" GUID="{35D04DEF-0481-4127-838D-F180EBC5491E}" DurationType="Infinite">
+					<SwitchContainers>
+						<SwitchContainer>
+							<SwitchValue GroupType="State" GroupId="4215095390" Id="421983475" GUID="{DA5B8B70-2780-49EA-8F8A-71CE8F6B33E2}"/>
+							<MediaRefs>
+								<MediaRef Id="81596657"/>
+							</MediaRefs>
+						</SwitchContainer>
+						<SwitchContainer>
+							<SwitchValue GroupType="State" GroupId="4215095390" Id="3336434501" GUID="{666F9A7B-E262-43FD-AB2C-5859DCCCB2BD}"/>
+							<MediaRefs>
+								<MediaRef Id="990541490"/>
+							</MediaRefs>
+						</SwitchContainer>
+					</SwitchContainers>
+					<ActionSetState>
+						<ActionSetStateEntry GroupId="4215095390" Id="748895195" Name="None" ObjectPath="\States\Default Work Unit\SFX\LV1RegionAmbienceStates\None" GUID="{C69D8809-E72A-4E51-8B5C-FC7813CF3D29}"/>
+					</ActionSetState>
+				</Event>
+			</Events>
+			<StateGroups>
+				<StateGroup Id="4215095390" Name="LV1RegionAmbienceStates" ObjectPath="\States\Default Work Unit\SFX\LV1RegionAmbienceStates" GUID="{0447417C-0993-4B97-93D0-41831A1AB9D0}">
+					<States>
+						<State Id="421983475" Name="GrassLakeArea" ObjectPath="\States\Default Work Unit\SFX\LV1RegionAmbienceStates\GrassLakeArea" GUID="{DA5B8B70-2780-49EA-8F8A-71CE8F6B33E2}"/>
+						<State Id="748895195" Name="None" ObjectPath="\States\Default Work Unit\SFX\LV1RegionAmbienceStates\None" GUID="{C69D8809-E72A-4E51-8B5C-FC7813CF3D29}"/>
+						<State Id="3336434501" Name="ForestArea" ObjectPath="\States\Default Work Unit\SFX\LV1RegionAmbienceStates\ForestArea" GUID="{666F9A7B-E262-43FD-AB2C-5859DCCCB2BD}"/>
+					</States>
+				</StateGroup>
+			</StateGroups>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{E97A1B67-55B4-5C4D-01EA-8B140B41FFAE}</FileHash>
+</SoundBanksInfo>

@@ -1,0 +1,33 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Linux",
+  "BasePlatform": "Linux",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "2761942810",
+    "Type": "Event",
+    "GUID": "{EA389326-52EC-429D-985D-E8C45C98A58B}",
+    "Language": "SFX",
+    "Hash": "{FEE27153-5FCA-A4B7-592A-6AA3FE675D96}",
+    "ObjectPath": "Play_CloseMailbox",
+    "ShortName": "Play_CloseMailbox",
+    "Path": "Event/Play_CloseMailbox.bnk",
+    "Events": [
+     {
+      "Id": "2761942810",
+      "Name": "Play_CloseMailbox",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\COMMON_LVL_SFX\\Play_CloseMailbox",
+      "GUID": "{EA389326-52EC-429D-985D-E8C45C98A58B}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{519A766B-51E2-BF10-635E-4BA02E9C3BFC}"
+ }
+}

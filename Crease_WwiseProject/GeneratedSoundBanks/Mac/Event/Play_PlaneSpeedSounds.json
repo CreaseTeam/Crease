@@ -10,7 +10,7 @@
     "Type": "Event",
     "GUID": "{F6862824-20AF-47DA-B378-2CFC66A04A43}",
     "Language": "SFX",
-    "Hash": "{54705654-45F0-F43B-C00A-AD58E86A7CB5}",
+    "Hash": "{93408690-E970-BE63-3189-EC92455B8DBE}",
     "ObjectPath": "Play_PlaneSpeedSounds",
     "ShortName": "Play_PlaneSpeedSounds",
     "Path": "Event/Play_PlaneSpeedSounds.bnk",
@@ -25,22 +25,22 @@
       "CachePath": "3C/{3C30F46E-BC37-2B82-C8A1-48E83C4C243A}.wem"
      },
      {
-      "Id": "742397810",
-      "Language": "SFX",
-      "Streaming": "false",
-      "Location": "Loose",
-      "ShortName": "sfx_base_wind_highest.wav",
-      "Path": "Media/742397810.wem",
-      "CachePath": "D2/{D279FD21-1DF6-79FC-A8A5-81704EB1A687}.wem"
-     },
-     {
       "Id": "787311231",
       "Language": "SFX",
       "Streaming": "false",
       "Location": "Loose",
       "ShortName": "sfx_base_wind_low.wav",
       "Path": "Media/787311231.wem",
-      "CachePath": "51/{510BEB67-7965-98EA-BF15-4747892BD9FE}.wem"
+      "CachePath": "67/{67B95C89-6CD7-B885-A33D-3320E8CF26A3}.wem"
+     },
+     {
+      "Id": "1056769036",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "lv1__c4_layer 1 FIXRD.wav",
+      "Path": "Media/1056769036.wem",
+      "CachePath": "79/{79625DBD-1E61-BE84-DBA5-06D698BF8B70}.wem"
      }
     ],
     "Events": [
@@ -55,10 +55,10 @@
         "Id": "727757605"
        },
        {
-        "Id": "742397810"
+        "Id": "787311231"
        },
        {
-        "Id": "787311231"
+        "Id": "1056769036"
        }
       ]
      }
@@ -73,6 +73,6 @@
     ]
    }
   ],
-  "FileHash": "{9B25796C-984D-92CA-0663-A22CEBA9B139}"
+  "FileHash": "{4E1B699B-6D44-8DB8-1A8E-9971C8F14233}"
  }
 }

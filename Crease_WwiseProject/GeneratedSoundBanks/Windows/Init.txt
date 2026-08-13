@@ -1,10 +1,27 @@
+Switch Group	ID	Name			Wwise Object Path	Notes
+	1591838669	Player_Damage_Level			\Default Work Unit\Player\Player_Damage_Level	
+
+Switch	ID	Name	Switch Group			Notes
+	545371365	Low	Player_Damage_Level			
+	2849147824	Medium	Player_Damage_Level			
+	3550808449	High	Player_Damage_Level			
+
 State Group	ID	Name			Wwise Object Path	Notes
-	567225543	RegionAmbienceStates			\Default Work Unit\TestStates\SFX\RegionAmbienceStates	
+	1057141339	LV1MusicRegionStates			\Default Work Unit\MUSIC\LV1MusicRegionStates	
+	1333243800	LV1SubregionAmbienceStates			\Default Work Unit\SFX\LV1SubregionAmbienceStates	
+	4215095390	LV1RegionAmbienceStates			\Default Work Unit\SFX\LV1RegionAmbienceStates	
 
 State	ID	Name	State Group			Notes
-	421983475	GrassLakeArea	RegionAmbienceStates			
-	748895195	None	RegionAmbienceStates			
-	3336434501	ForestArea	RegionAmbienceStates			
+	357507693	UnderwaterPlayground	LV1MusicRegionStates			
+	625350595	WindingTunnel	LV1MusicRegionStates			
+	748895195	None	LV1MusicRegionStates			
+	1032506856	ClosedForestTunnel	LV1MusicRegionStates			
+	1215672537	OpenForestArea	LV1MusicRegionStates			
+	748895195	None	LV1SubregionAmbienceStates			
+	2273428829	GrassRustleArea	LV1SubregionAmbienceStates			
+	421983475	GrassLakeArea	LV1RegionAmbienceStates			
+	748895195	None	LV1RegionAmbienceStates			
+	3336434501	ForestArea	LV1RegionAmbienceStates			
 
 Audio Bus	ID	Name			Wwise Object Path	Notes
 	2246998526	Main Audio Bus			\Default Work Unit\Main Audio Bus	

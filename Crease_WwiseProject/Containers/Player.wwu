@@ -33,9 +33,15 @@
 								<Reference Name="OutputBus">
 									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
 								</Reference>
+								<Reference Name="SwitchGroupOrStateGroup">
+									<ObjectRef Name="Player_Damage_Level" ID="{E9290091-809C-4A40-AAF9-EEF2A7D4B0E6}" WorkUnitID="{60DC6E2D-E965-4089-92B8-E77E9168054E}"/>
+								</Reference>
 							</ReferenceList>
 							<ChildrenList>
 								<RandomSequenceContainer Name="Low" ID="{A97F81DF-2FA8-4CDF-AB19-F0D505BF3AFD}" ShortID="983455706">
+									<PropertyList>
+										<Property Name="NormalOrShuffle" Type="int16" Value="0"/>
+									</PropertyList>
 									<ReferenceList>
 										<Reference Name="Conversion">
 											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
@@ -44,8 +50,71 @@
 											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
 										</Reference>
 									</ReferenceList>
+									<ChildrenList>
+										<Sound Name="Plane_hit_v1 FIXED" ID="{027987AF-B09F-46E7-9BD8-E59EC8153F13}" ShortID="32738941">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Plane_hit_v1 FIXED" ID="{4064F85A-818C-4D99-9836-A3459C7DFF4F}">
+													<PropertyList>
+														<Property Name="FadeInDuration" Type="Real64" Value="0.00424"/>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.04237"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="0.18646"/>
+														<Property Name="TrimEnd" Type="Real64" Value="0.61862"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Plane_hit_v1 FIXED.wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="778764351"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Plane_hit_v1 FIXED" ID="{4064F85A-818C-4D99-9836-A3459C7DFF4F}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+										<Sound Name="Plane_hit_v2 FIXED" ID="{C2E92011-17B7-4032-98B8-2E1DCE1E2A1F}" ShortID="728762031">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Plane_hit_v2 FIXED" ID="{830B89C6-E21E-4D58-8183-DD207A7AB397}">
+													<PropertyList>
+														<Property Name="FadeInDuration" Type="Real64" Value="0.00848"/>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.0551"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="0.20761"/>
+														<Property Name="TrimEnd" Type="Real64" Value="0.63148"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Plane_hit_v2 FIXED.wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="974492426"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Plane_hit_v2 FIXED" ID="{830B89C6-E21E-4D58-8183-DD207A7AB397}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+									</ChildrenList>
 								</RandomSequenceContainer>
 								<RandomSequenceContainer Name="Med" ID="{2A2E2C5E-92B6-41DC-912F-82D075714D43}" ShortID="993374904">
+									<PropertyList>
+										<Property Name="NormalOrShuffle" Type="int16" Value="0"/>
+									</PropertyList>
 									<ReferenceList>
 										<Reference Name="Conversion">
 											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
@@ -54,8 +123,71 @@
 											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
 										</Reference>
 									</ReferenceList>
+									<ChildrenList>
+										<Sound Name="Plane_hit_v1 FIXED" ID="{0DFE4177-6D9E-494F-9A16-EE4395C0A7DD}" ShortID="56867522">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Plane_hit_v1 FIXED" ID="{FD60DF20-308B-4CDD-9892-06452E395CAF}">
+													<PropertyList>
+														<Property Name="FadeInDuration" Type="Real64" Value="0.00744"/>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.03391"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="1.91728"/>
+														<Property Name="TrimEnd" Type="Real64" Value="2.301"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Plane_hit_v1 FIXED.wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="964143505"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Plane_hit_v1 FIXED" ID="{FD60DF20-308B-4CDD-9892-06452E395CAF}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+										<Sound Name="Plane_hit_v2 FIXED" ID="{F8F0387A-7F61-4794-9B37-15C15181AB30}" ShortID="438040296">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Plane_hit_v2 FIXED" ID="{DA441EE7-0F6F-4F86-BA91-7790020E753B}">
+													<PropertyList>
+														<Property Name="FadeInDuration" Type="Real64" Value="0.00809"/>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.02128"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="1.9085"/>
+														<Property Name="TrimEnd" Type="Real64" Value="2.26712"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Plane_hit_v2 FIXED.wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="950863787"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Plane_hit_v2 FIXED" ID="{DA441EE7-0F6F-4F86-BA91-7790020E753B}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+									</ChildrenList>
 								</RandomSequenceContainer>
 								<RandomSequenceContainer Name="High" ID="{46AA4693-AD0C-4D9D-B2AD-C32143CF7D5B}" ShortID="998145157">
+									<PropertyList>
+										<Property Name="NormalOrShuffle" Type="int16" Value="0"/>
+									</PropertyList>
 									<ReferenceList>
 										<Reference Name="Conversion">
 											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
@@ -64,6 +196,66 @@
 											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
 										</Reference>
 									</ReferenceList>
+									<ChildrenList>
+										<Sound Name="Plane_hit_v1 FIXED" ID="{F69EAFBF-DF37-4C75-B9EF-8707347E85BE}" ShortID="186214077">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Plane_hit_v1 FIXED" ID="{1DAC71F8-3547-460F-B6A2-84F51CEB5514}">
+													<PropertyList>
+														<Property Name="FadeInDuration" Type="Real64" Value="0.02966"/>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.01695"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="3.6315"/>
+														<Property Name="TrimEnd" Type="Real64" Value="4.11465"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Plane_hit_v1 FIXED.wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="634228621"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Plane_hit_v1 FIXED" ID="{1DAC71F8-3547-460F-B6A2-84F51CEB5514}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+										<Sound Name="Plane_hit_v2 FIXED" ID="{14574BCD-4EE1-4C2A-AEC7-25809F5B4712}" ShortID="194906968">
+											<ReferenceList>
+												<Reference Name="Conversion">
+													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+												</Reference>
+												<Reference Name="OutputBus">
+													<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+												</Reference>
+											</ReferenceList>
+											<ChildrenList>
+												<AudioFileSource Name="Plane_hit_v2 FIXED" ID="{AE389AFD-EAE4-48A9-AAA0-FCEEF7B480B2}">
+													<PropertyList>
+														<Property Name="FadeInDuration" Type="Real64" Value="0.01271"/>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.01695"/>
+														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+														<Property Name="TrimBegin" Type="Real64" Value="3.62727"/>
+														<Property Name="TrimEnd" Type="Real64" Value="4.08922"/>
+													</PropertyList>
+													<Language>SFX</Language>
+													<AudioFile>Plane_hit_v2 FIXED.wav</AudioFile>
+													<MediaIDList>
+														<MediaID ID="889088122"/>
+													</MediaIDList>
+												</AudioFileSource>
+											</ChildrenList>
+											<ActiveSourceList>
+												<ActiveSource Name="Plane_hit_v2 FIXED" ID="{AE389AFD-EAE4-48A9-AAA0-FCEEF7B480B2}" Platform="Linked"/>
+											</ActiveSourceList>
+										</Sound>
+									</ChildrenList>
 								</RandomSequenceContainer>
 							</ChildrenList>
 							<GroupingInfo>
@@ -78,6 +270,26 @@
 										<ItemRef Name="Low" ID="{A97F81DF-2FA8-4CDF-AB19-F0D505BF3AFD}"/>
 									</GroupingBehavior>
 								</GroupingBehaviorList>
+								<GroupingList>
+									<Grouping>
+										<SwitchRef Name="High" ID="{7CAECF14-6370-4B80-A7DF-C0B002C94B85}"/>
+										<ItemList>
+											<ItemRef Name="High" ID="{46AA4693-AD0C-4D9D-B2AD-C32143CF7D5B}"/>
+										</ItemList>
+									</Grouping>
+									<Grouping>
+										<SwitchRef Name="Low" ID="{A6287B80-E745-4A02-ACBB-4EE312D63B1A}"/>
+										<ItemList>
+											<ItemRef Name="Low" ID="{A97F81DF-2FA8-4CDF-AB19-F0D505BF3AFD}"/>
+										</ItemList>
+									</Grouping>
+									<Grouping>
+										<SwitchRef Name="Medium" ID="{533478F1-B31A-4D50-963C-C7A20D9636CF}"/>
+										<ItemList>
+											<ItemRef Name="Med" ID="{2A2E2C5E-92B6-41DC-912F-82D075714D43}"/>
+										</ItemList>
+									</Grouping>
+								</GroupingList>
 							</GroupingInfo>
 						</SwitchContainer>
 						<PropertyContainer Name="Water_Hit" ID="{C8641C64-5DE5-48D0-B04F-4054A970AD46}" ShortID="890743884">
@@ -281,6 +493,13 @@
 								<Sound Name="sfx_base_wind_high" ID="{1CD234EE-3913-41BA-A604-E2A68227BDFC}" ShortID="261649584">
 									<PropertyList>
 										<Property Name="IsLoopingEnabled" Type="bool" Value="True"/>
+										<Property Name="OverridePositioning" Type="bool" Value="True"/>
+										<Property Name="SpeakerPanning" Type="int16" Value="1"/>
+										<Property Name="Volume" Type="Real64">
+											<ValueList>
+												<Value>-4</Value>
+											</ValueList>
+										</Property>
 									</PropertyList>
 									<ReferenceList>
 										<Reference Name="Conversion">
@@ -304,53 +523,27 @@
 											</MediaIDList>
 										</AudioFileSource>
 									</ChildrenList>
+									<PositioningInfo>
+										<Panner Name="" ID="{63C6CCE9-E6B2-4962-849E-E68ABC0ADD5E}">
+											<PropertyList>
+												<Property Name="PanX" Type="Real64" Value="-55.8823529411765"/>
+											</PropertyList>
+										</Panner>
+									</PositioningInfo>
 									<ActiveSourceList>
 										<ActiveSource Name="sfx_base_wind_high" ID="{59BCA367-9CB7-414D-97E6-20D1DD0713F6}" Platform="Linked"/>
 									</ActiveSourceList>
 								</Sound>
-								<Sound Name="sfx_base_wind_highest" ID="{2EC161C5-F93F-4D29-A483-0379A604533E}" ShortID="436170654">
+								<Sound Name="sfx_base_wind_low" ID="{85866719-46BD-45EF-BC71-01D0DE1C14BE}" ShortID="934617004">
 									<PropertyList>
 										<Property Name="Highpass" Type="int16">
 											<ValueList>
-												<Value>44</Value>
+												<Value>27</Value>
 											</ValueList>
 										</Property>
 										<Property Name="IsLoopingEnabled" Type="bool" Value="True"/>
-										<Property Name="Volume" Type="Real64">
-											<ValueList>
-												<Value>-12</Value>
-											</ValueList>
-										</Property>
-									</PropertyList>
-									<ReferenceList>
-										<Reference Name="Conversion">
-											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
-										</Reference>
-										<Reference Name="OutputBus">
-											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
-										</Reference>
-									</ReferenceList>
-									<ChildrenList>
-										<AudioFileSource Name="sfx_base_wind_highest" ID="{F7D81F06-B91C-448D-B863-D4A926F95426}">
-											<PropertyList>
-												<Property Name="LoopBegin" Type="Real64" Value="0.17717"/>
-												<Property Name="LoopEnd" Type="Real64" Value="17.88267"/>
-												<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
-											</PropertyList>
-											<Language>SFX</Language>
-											<AudioFile>sfx_base_wind_highest.wav</AudioFile>
-											<MediaIDList>
-												<MediaID ID="742397810"/>
-											</MediaIDList>
-										</AudioFileSource>
-									</ChildrenList>
-									<ActiveSourceList>
-										<ActiveSource Name="sfx_base_wind_highest" ID="{F7D81F06-B91C-448D-B863-D4A926F95426}" Platform="Linked"/>
-									</ActiveSourceList>
-								</Sound>
-								<Sound Name="sfx_base_wind_low" ID="{85866719-46BD-45EF-BC71-01D0DE1C14BE}" ShortID="934617004">
-									<PropertyList>
-										<Property Name="IsLoopingEnabled" Type="bool" Value="True"/>
+										<Property Name="OverridePositioning" Type="bool" Value="True"/>
+										<Property Name="SpeakerPanning" Type="int16" Value="1"/>
 									</PropertyList>
 									<ReferenceList>
 										<Reference Name="Conversion">
@@ -366,6 +559,7 @@
 												<Property Name="LoopBegin" Type="Real64" Value="0.17709"/>
 												<Property Name="LoopEnd" Type="Real64" Value="17.7503"/>
 												<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+												<Property Name="TrimEnd" Type="Real64" Value="18.1326"/>
 											</PropertyList>
 											<Language>SFX</Language>
 											<AudioFile>sfx_base_wind_low.wav</AudioFile>
@@ -374,8 +568,76 @@
 											</MediaIDList>
 										</AudioFileSource>
 									</ChildrenList>
+									<PositioningInfo>
+										<Panner Name="" ID="{67FFC74D-2153-4DBA-B831-1247728E6F5A}">
+											<PropertyList>
+												<Property Name="PanX" Type="Real64" Value="-65"/>
+												<Property Name="PanY" Type="Real64" Value="-0.3125"/>
+											</PropertyList>
+										</Panner>
+									</PositioningInfo>
 									<ActiveSourceList>
 										<ActiveSource Name="sfx_base_wind_low" ID="{6A07C835-1E5C-46FE-8549-3A47F4E3CBA2}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+								<Sound Name="lv1__c4_layer 1 FIXRD" ID="{77AEE989-7B3A-4A76-8B25-1741B3438C7D}" ShortID="101838502">
+									<PropertyList>
+										<Property Name="IsLoopingEnabled" Type="bool" Value="True"/>
+									</PropertyList>
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="lv1__c4_layer 1 FIXRD" ID="{C0E77E4E-7D5D-44BB-9060-80E859722E47}">
+											<PropertyList>
+												<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+												<Property Name="TrimBegin" Type="Real64" Value="1.96451"/>
+												<Property Name="TrimEnd" Type="Real64" Value="38.69608"/>
+											</PropertyList>
+											<Language>SFX</Language>
+											<AudioFile>lv1__c4_layer 1 FIXRD.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="1056769036"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="lv1__c4_layer 1 FIXRD" ID="{C0E77E4E-7D5D-44BB-9060-80E859722E47}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+								<Sound Name="lv1__c4_layer 2-3 FIXED" ID="{9C58EB12-E4B4-49F8-821C-3E39FDD2897C}" ShortID="251807886">
+									<PropertyList>
+										<Property Name="Inclusion" Type="bool">
+											<ValueList>
+												<Value>False</Value>
+											</ValueList>
+										</Property>
+										<Property Name="IsLoopingEnabled" Type="bool" Value="True"/>
+									</PropertyList>
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="lv1__c4_layer 2-3 FIXED" ID="{D6C05571-36C4-46A5-B839-63A0572FFB46}">
+											<Language>SFX</Language>
+											<AudioFile>lv1__c4_layer 2-3 FIXED.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="101305709"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="lv1__c4_layer 2-3 FIXED" ID="{D6C05571-36C4-46A5-B839-63A0572FFB46}" Platform="Linked"/>
 									</ActiveSourceList>
 								</Sound>
 							</ChildrenList>
@@ -412,23 +674,23 @@
 																		<Flags>5</Flags>
 																	</Point>
 																	<Point>
-																		<XPos>20.05142</XPos>
+																		<XPos>9.75983</XPos>
 																		<YPos>-200</YPos>
 																		<Flags>0</Flags>
 																	</Point>
 																	<Point>
-																		<XPos>40.02571</XPos>
-																		<YPos>-10</YPos>
+																		<XPos>42.08403</XPos>
+																		<YPos>-10.99379</YPos>
 																		<Flags>0</Flags>
 																	</Point>
 																	<Point>
-																		<XPos>80.2056555269923</XPos>
-																		<YPos>-9.69080082401357</YPos>
+																		<XPos>80.03413</XPos>
+																		<YPos>-17.09897</YPos>
 																		<Flags>0</Flags>
 																	</Point>
 																	<Point>
 																		<XPos>100</XPos>
-																		<YPos>-5.10545</YPos>
+																		<YPos>-19.08485</YPos>
 																		<Flags>37</Flags>
 																	</Point>
 																</PointList>
@@ -483,23 +745,23 @@
 																		<Flags>5</Flags>
 																	</Point>
 																	<Point>
-																		<XPos>50.05142</XPos>
-																		<YPos>-200</YPos>
+																		<XPos>40.2744</XPos>
+																		<YPos>-35.34312</YPos>
 																		<Flags>0</Flags>
 																	</Point>
 																	<Point>
-																		<XPos>70.82262</XPos>
-																		<YPos>-9</YPos>
+																		<XPos>70.99415</XPos>
+																		<YPos>-11.39388</YPos>
 																		<Flags>0</Flags>
 																	</Point>
 																	<Point>
-																		<XPos>80.51414</XPos>
-																		<YPos>-7.42019</YPos>
+																		<XPos>80.51415</XPos>
+																		<YPos>-11.31682</YPos>
 																		<Flags>0</Flags>
 																	</Point>
 																	<Point>
 																		<XPos>100</XPos>
-																		<YPos>-4.24196</YPos>
+																		<YPos>-10.78694</YPos>
 																		<Flags>37</Flags>
 																	</Point>
 																</PointList>
@@ -554,13 +816,14 @@
 																		<Flags>5</Flags>
 																	</Point>
 																	<Point>
-																		<XPos>79.94859</XPos>
+																		<XPos>60.39456</XPos>
 																		<YPos>-200</YPos>
 																		<Flags>0</Flags>
+																		<SegmentShape>Exp1</SegmentShape>
 																	</Point>
 																	<Point>
-																		<XPos>93.05913</XPos>
-																		<YPos>-3.90267</YPos>
+																		<XPos>99.999</XPos>
+																		<YPos>-3.67303</YPos>
 																		<Flags>0</Flags>
 																	</Point>
 																	<Point>
@@ -578,7 +841,7 @@
 									</ObjectLists>
 									<BlendTrackAssocList>
 										<BlendTrackAssoc>
-											<ItemRef Name="sfx_base_wind_highest" ID="{2EC161C5-F93F-4D29-A483-0379A604533E}"/>
+											<ItemRef Name="lv1__c4_layer 1 FIXRD" ID="{77AEE989-7B3A-4A76-8B25-1741B3438C7D}"/>
 											<CrossfadingInfo>
 												<LeftEdgePos>0</LeftEdgePos>
 												<LeftFadingMode>Automatic</LeftFadingMode>

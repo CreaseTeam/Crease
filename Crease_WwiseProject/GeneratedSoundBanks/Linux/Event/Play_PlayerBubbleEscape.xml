@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Linux" BasePlatform="Linux" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="40743970" Type="Event" GUID="{DEAAD0F5-7C12-4E66-A90B-C4CC15047B73}" Language="SFX" Hash="{318A7650-CED3-05CA-D656-AC0BA1A74C12}">
+			<ObjectPath>Play_PlayerBubbleEscape</ObjectPath>
+			<ShortName>Play_PlayerBubbleEscape</ShortName>
+			<Path>Event/Play_PlayerBubbleEscape.bnk</Path>
+			<Media>
+				<File Id="454501123" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_bubble_pop_04.wav</ShortName>
+					<Path>Media/454501123.wem</Path>
+					<CachePath>5D/{5DFFD765-16C0-6C8C-666B-CA2B12511FC7}.wem</CachePath>
+				</File>
+				<File Id="868498379" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_bubble_pop_05.wav</ShortName>
+					<Path>Media/868498379.wem</Path>
+					<CachePath>39/{3948BDF7-F828-857A-443D-9C6BA478C8C4}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="40743970" Name="Play_PlayerBubbleEscape" ObjectPath="\Events\Default Work Unit\SFX\LVL1_SFX\Play_PlayerBubbleEscape" GUID="{DEAAD0F5-7C12-4E66-A90B-C4CC15047B73}" DurationType="OneShot" DurationMin="0.338259" DurationMax="0.41841">
+					<MediaRefs>
+						<MediaRef Id="454501123"/>
+						<MediaRef Id="868498379"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{C9142E48-8533-E302-B145-2D67163CE481}</FileHash>
+</SoundBanksInfo>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Linux" BasePlatform="Linux" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="447315244" Type="Event" GUID="{049D3166-038B-4B73-B91E-7D9DCEF58641}" Language="SFX" Hash="{E55FAEB3-FB5D-0590-ECA1-9FE6756A9668}">
+			<ObjectPath>Play_PlayerPopBubble</ObjectPath>
+			<ShortName>Play_PlayerPopBubble</ShortName>
+			<Path>Event/Play_PlayerPopBubble.bnk</Path>
+			<Media>
+				<File Id="429425765" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_bubble_pop_03.wav</ShortName>
+					<Path>Media/429425765.wem</Path>
+					<CachePath>71/{71ACB873-A18D-12E0-A807-292364247937}.wem</CachePath>
+				</File>
+				<File Id="580024737" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_bubble_pop_02.wav</ShortName>
+					<Path>Media/580024737.wem</Path>
+					<CachePath>83/{833058B2-7260-1354-43B1-05D62235B467}.wem</CachePath>
+				</File>
+				<File Id="894817667" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_bubble_pop_01.wav</ShortName>
+					<Path>Media/894817667.wem</Path>
+					<CachePath>53/{5385C1A8-CEF8-DCA4-487F-C888BEC4DE13}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="447315244" Name="Play_PlayerPopBubble" ObjectPath="\Events\Default Work Unit\SFX\LVL1_SFX\Play_PlayerPopBubble" GUID="{049D3166-038B-4B73-B91E-7D9DCEF58641}" DurationType="OneShot" DurationMin="0.35569918" DurationMax="0.5824829">
+					<MediaRefs>
+						<MediaRef Id="429425765"/>
+						<MediaRef Id="580024737"/>
+						<MediaRef Id="894817667"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{C4E29B5E-D1E2-B744-8C52-477677B3D7AA}</FileHash>
+</SoundBanksInfo>

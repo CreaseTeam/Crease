@@ -1,0 +1,60 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "3240092342",
+    "Type": "Event",
+    "GUID": "{1D7E0E7C-B12C-489F-9400-9E5553736284}",
+    "Language": "SFX",
+    "Hash": "{B9E1F342-082C-D939-B8AF-BA6C1A0DC7F0}",
+    "ObjectPath": "Play_PlayerBubbleTrap",
+    "ShortName": "Play_PlayerBubbleTrap",
+    "Path": "Event/Play_PlayerBubbleTrap.bnk",
+    "Media": [
+     {
+      "Id": "79773675",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_bubble_trap_01_FIXED.wav",
+      "Path": "Media/79773675.wem",
+      "CachePath": "F8/{F85C082F-C043-CC8C-D968-3D03AAC517D4}.wem"
+     },
+     {
+      "Id": "382429262",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_bubble_trap_02_FIXED.wav",
+      "Path": "Media/382429262.wem",
+      "CachePath": "E3/{E35F330E-9EDB-6E30-F17C-4471F2AD1C49}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "3240092342",
+      "Name": "Play_PlayerBubbleTrap",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\LVL1_SFX\\Play_PlayerBubbleTrap",
+      "GUID": "{1D7E0E7C-B12C-489F-9400-9E5553736284}",
+      "DurationType": "OneShot",
+      "DurationMin": "0.386408",
+      "DurationMax": "0.52554506",
+      "MediaRefs": [
+       {
+        "Id": "79773675"
+       },
+       {
+        "Id": "382429262"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{12F59A46-3A7A-63A7-4FF6-97EF2D15BAD0}"
+ }
+}

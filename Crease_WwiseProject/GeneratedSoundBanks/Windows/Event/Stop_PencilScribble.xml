@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="1795284375" Type="Event" GUID="{2FCA6B22-61C7-43B3-AADA-C2B4B7B80A8E}" Language="SFX" Hash="{D1561EE1-4D29-F2E2-41F6-C4BC4C97A1C0}">
+			<ObjectPath>Stop_PencilScribble</ObjectPath>
+			<ShortName>Stop_PencilScribble</ShortName>
+			<Path>Event/Stop_PencilScribble.bnk</Path>
+			<Events>
+				<Event Id="1795284375" Name="Stop_PencilScribble" ObjectPath="\Events\Default Work Unit\SFX\LVL1_SFX\Stop_PencilScribble" GUID="{2FCA6B22-61C7-43B3-AADA-C2B4B7B80A8E}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{8E3D3E04-F5DE-62ED-8F57-637BD8E730CD}</FileHash>
+</SoundBanksInfo>

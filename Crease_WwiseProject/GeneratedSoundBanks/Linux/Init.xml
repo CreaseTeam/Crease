@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <SoundBanksInfo Platform="Linux" BasePlatform="Linux" SchemaVersion="16" SoundBankVersion="172">
 	<SoundBanks>
-		<SoundBank Id="1355168291" Type="User" GUID="{701ECBBD-9C7B-4030-8CDB-749EE5D1C7B9}" Language="SFX" Hash="{7B8DEDAD-FB33-172D-33DD-1CACC7D0634B}">
+		<SoundBank Id="1355168291" Type="User" GUID="{701ECBBD-9C7B-4030-8CDB-749EE5D1C7B9}" Language="SFX" Hash="{7817DF0E-2D10-C340-74C2-F9F9C4D46A08}">
 			<ObjectPath>Init</ObjectPath>
 			<ShortName>Init</ShortName>
 			<Path>Init.bnk</Path>
@@ -15,18 +15,44 @@
 				<Bus Id="2246998526" Name="Main Audio Bus" ObjectPath="\Busses\Default Work Unit\Main Audio Bus" GUID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}"/>
 			</Busses>
 			<GameParameters>
+				<GameParameter Id="783376577" Name="Player_DamageIntensity" ObjectPath="\Game Parameters\Default Work Unit\Player\Player_DamageIntensity" GUID="{35F6694B-C56E-4FA8-B13F-BB1B6BFCC7DA}"/>
 				<GameParameter Id="4135936604" Name="Player_FlightSpeed" ObjectPath="\Game Parameters\Default Work Unit\Player\Player_FlightSpeed" GUID="{1BB7FD8A-5760-46B7-BA75-41FC134B680B}"/>
 			</GameParameters>
 			<StateGroups>
-				<StateGroup Id="567225543" Name="RegionAmbienceStates" ObjectPath="\States\Default Work Unit\TestStates\SFX\RegionAmbienceStates" GUID="{0447417C-0993-4B97-93D0-41831A1AB9D0}">
+				<StateGroup Id="1057141339" Name="LV1MusicRegionStates" ObjectPath="\States\Default Work Unit\MUSIC\LV1MusicRegionStates" GUID="{FE1652AF-76B4-46F6-8167-5698B108BCD8}">
 					<States>
-						<State Id="421983475" Name="GrassLakeArea" ObjectPath="\States\Default Work Unit\TestStates\SFX\RegionAmbienceStates\GrassLakeArea" GUID="{DA5B8B70-2780-49EA-8F8A-71CE8F6B33E2}"/>
-						<State Id="748895195" Name="None" ObjectPath="\States\Default Work Unit\TestStates\SFX\RegionAmbienceStates\None" GUID="{C69D8809-E72A-4E51-8B5C-FC7813CF3D29}"/>
-						<State Id="3336434501" Name="ForestArea" ObjectPath="\States\Default Work Unit\TestStates\SFX\RegionAmbienceStates\ForestArea" GUID="{666F9A7B-E262-43FD-AB2C-5859DCCCB2BD}"/>
+						<State Id="357507693" Name="UnderwaterPlayground" ObjectPath="\States\Default Work Unit\MUSIC\LV1MusicRegionStates\UnderwaterPlayground" GUID="{269071AE-C3D2-430B-93A8-6980587724DA}"/>
+						<State Id="625350595" Name="WindingTunnel" ObjectPath="\States\Default Work Unit\MUSIC\LV1MusicRegionStates\WindingTunnel" GUID="{F6CA9FA0-450F-4523-B14B-C0B45C50C22A}"/>
+						<State Id="748895195" Name="None" ObjectPath="\States\Default Work Unit\MUSIC\LV1MusicRegionStates\None" GUID="{7BAF7A5F-DC43-4E6F-AA7A-074E687A20B7}"/>
+						<State Id="1032506856" Name="ClosedForestTunnel" ObjectPath="\States\Default Work Unit\MUSIC\LV1MusicRegionStates\ClosedForestTunnel" GUID="{AD431D12-8AC4-4991-8AC1-D95BBA5BCA8C}"/>
+						<State Id="1215672537" Name="OpenForestArea" ObjectPath="\States\Default Work Unit\MUSIC\LV1MusicRegionStates\OpenForestArea" GUID="{E4B9F298-1216-48C8-97BB-463A7960C392}"/>
+					</States>
+				</StateGroup>
+				<StateGroup Id="1333243800" Name="LV1SubregionAmbienceStates" ObjectPath="\States\Default Work Unit\SFX\LV1SubregionAmbienceStates" GUID="{E70148DA-50F1-4E23-81EE-24973B1E931C}">
+					<States>
+						<State Id="748895195" Name="None" ObjectPath="\States\Default Work Unit\SFX\LV1SubregionAmbienceStates\None" GUID="{49DC1C00-C117-4E38-A0C6-86E9F05A8DB6}"/>
+						<State Id="2273428829" Name="GrassRustleArea" ObjectPath="\States\Default Work Unit\SFX\LV1SubregionAmbienceStates\GrassRustleArea" GUID="{526B127B-8171-4AA8-8F2E-553C6D22A1B7}"/>
+					</States>
+				</StateGroup>
+				<StateGroup Id="4215095390" Name="LV1RegionAmbienceStates" ObjectPath="\States\Default Work Unit\SFX\LV1RegionAmbienceStates" GUID="{0447417C-0993-4B97-93D0-41831A1AB9D0}">
+					<States>
+						<State Id="421983475" Name="GrassLakeArea" ObjectPath="\States\Default Work Unit\SFX\LV1RegionAmbienceStates\GrassLakeArea" GUID="{DA5B8B70-2780-49EA-8F8A-71CE8F6B33E2}"/>
+						<State Id="748895195" Name="None" ObjectPath="\States\Default Work Unit\SFX\LV1RegionAmbienceStates\None" GUID="{C69D8809-E72A-4E51-8B5C-FC7813CF3D29}"/>
+						<State Id="3336434501" Name="ForestArea" ObjectPath="\States\Default Work Unit\SFX\LV1RegionAmbienceStates\ForestArea" GUID="{666F9A7B-E262-43FD-AB2C-5859DCCCB2BD}"/>
 					</States>
 				</StateGroup>
 			</StateGroups>
+			<SwitchGroups>
+				<SwitchGroup Id="1591838669" Name="Player_Damage_Level" ObjectPath="\Switches\Default Work Unit\Player\Player_Damage_Level" GUID="{E9290091-809C-4A40-AAF9-EEF2A7D4B0E6}">
+					<GameParameterRef Id="783376577"/>
+					<Switches>
+						<Switch Id="545371365" Name="Low" ObjectPath="\Switches\Default Work Unit\Player\Player_Damage_Level\Low" GUID="{A6287B80-E745-4A02-ACBB-4EE312D63B1A}"/>
+						<Switch Id="2849147824" Name="Medium" ObjectPath="\Switches\Default Work Unit\Player\Player_Damage_Level\Medium" GUID="{533478F1-B31A-4D50-963C-C7A20D9636CF}"/>
+						<Switch Id="3550808449" Name="High" ObjectPath="\Switches\Default Work Unit\Player\Player_Damage_Level\High" GUID="{7CAECF14-6370-4B80-A7DF-C0B002C94B85}"/>
+					</Switches>
+				</SwitchGroup>
+			</SwitchGroups>
 		</SoundBank>
 	</SoundBanks>
-	<FileHash>{ACF91281-722D-00B3-A486-782E0616A44D}</FileHash>
+	<FileHash>{A4D60488-2B4D-40B2-1DE3-6DFF46B79C47}</FileHash>
 </SoundBanksInfo>

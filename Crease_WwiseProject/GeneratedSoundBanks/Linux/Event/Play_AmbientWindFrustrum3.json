@@ -10,7 +10,7 @@
     "Type": "Event",
     "GUID": "{A6E0DE72-94F6-4ED3-B08F-936C9E4033FE}",
     "Language": "SFX",
-    "Hash": "{A4183FD2-E134-A91B-E912-6C314BAEBFF2}",
+    "Hash": "{A42EE2BE-AF23-4803-B05B-A72C22D4D2CC}",
     "ObjectPath": "Play_AmbientWindFrustrum3",
     "ShortName": "Play_AmbientWindFrustrum3",
     "Path": "Event/Play_AmbientWindFrustrum3.bnk",
@@ -42,6 +42,6 @@
     ]
    }
   ],
-  "FileHash": "{39DA8603-AA26-E3B6-20F3-BA6676D503D3}"
+  "FileHash": "{ED52CFEC-2286-246E-16EC-AE3DF82C3DD2}"
  }
 }

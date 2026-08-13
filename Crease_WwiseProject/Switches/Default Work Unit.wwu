@@ -1,6 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <WwiseDocument Type="WorkUnit" ID="{60DC6E2D-E965-4089-92B8-E77E9168054E}" SchemaVersion="133">
 	<Switches>
-		<WorkUnit Name="Default Work Unit" ID="{60DC6E2D-E965-4089-92B8-E77E9168054E}" PersistMode="Standalone"/>
+		<WorkUnit Name="Default Work Unit" ID="{60DC6E2D-E965-4089-92B8-E77E9168054E}" PersistMode="Standalone">
+			<ChildrenList>
+				<Folder Name="Player" ID="{3144DD24-9041-47EA-B6F8-FBB379475894}" ShortID="387913491">
+					<ChildrenList>
+						<SwitchGroup Name="Player_Damage_Level" ID="{E9290091-809C-4A40-AAF9-EEF2A7D4B0E6}">
+							<PropertyList>
+								<Property Name="UseGameParameter" Type="bool" Value="True"/>
+							</PropertyList>
+							<ChildrenList>
+								<Switch Name="Low" ID="{A6287B80-E745-4A02-ACBB-4EE312D63B1A}"/>
+								<Switch Name="Medium" ID="{533478F1-B31A-4D50-963C-C7A20D9636CF}"/>
+								<Switch Name="High" ID="{7CAECF14-6370-4B80-A7DF-C0B002C94B85}"/>
+							</ChildrenList>
+							<SwitchOnRTPC>
+								<GameParameterRef Name="Player_DamageIntensity" ID="{35F6694B-C56E-4FA8-B13F-BB1B6BFCC7DA}"/>
+								<Curve Name="" ID="{02B607C3-16D1-4350-B673-7BA2FFCD6B0E}">
+									<PropertyList>
+										<Property Name="Flags" Type="int32" Value="65537"/>
+									</PropertyList>
+									<PointList>
+										<Point>
+											<XPos>0</XPos>
+											<YPos>1</YPos>
+											<Flags>5</Flags>
+										</Point>
+										<Point>
+											<XPos>5.07547</XPos>
+											<YPos>2</YPos>
+											<Flags>0</Flags>
+										</Point>
+										<Point>
+											<XPos>14.81132</XPos>
+											<YPos>3</YPos>
+											<Flags>0</Flags>
+										</Point>
+										<Point>
+											<XPos>20</XPos>
+											<YPos>3</YPos>
+											<Flags>37</Flags>
+										</Point>
+									</PointList>
+								</Curve>
+							</SwitchOnRTPC>
+						</SwitchGroup>
+					</ChildrenList>
+				</Folder>
+			</ChildrenList>
+		</WorkUnit>
 	</Switches>
 </WwiseDocument>

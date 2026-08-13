@@ -1,0 +1,3 @@
+Event	ID	Name			Wwise Object Path	Notes
+	3834105472	Start_CrayonScribble			\Default Work Unit\SFX\LVL1_SFX\Start_CrayonScribble	
+

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Mac" BasePlatform="Mac" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="1116908779" Type="Event" GUID="{385BFB2B-EB9A-4B93-B2FE-BE8BA02D887E}" Language="SFX" Hash="{A65F0B6C-E59E-376B-075C-5D18D2D0A462}">
+			<ObjectPath>Stop_L1AmbRegionSwitch</ObjectPath>
+			<ShortName>Stop_L1AmbRegionSwitch</ShortName>
+			<Path>Event/Stop_L1AmbRegionSwitch.bnk</Path>
+			<Events>
+				<Event Id="1116908779" Name="Stop_L1AmbRegionSwitch" ObjectPath="\Events\Default Work Unit\SFX\SFX_SWITCHES\Stop_L1AmbRegionSwitch" GUID="{385BFB2B-EB9A-4B93-B2FE-BE8BA02D887E}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{429C8E0A-C79C-A99B-2F93-F21C4761182C}</FileHash>
+</SoundBanksInfo>

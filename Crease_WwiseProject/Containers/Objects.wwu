@@ -6,6 +6,112 @@
 				<Property Name="Color" Type="int16" Value="18"/>
 				<Property Name="OverrideColor" Type="bool" Value="True"/>
 			</PropertyList>
+			<ChildrenList>
+				<PropertyContainer Name="LetterText_Crayon" ID="{01332AA0-480A-450A-9B18-6BDE8E5045E5}" ShortID="41067365">
+					<ReferenceList>
+						<Reference Name="Conversion">
+							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+						</Reference>
+						<Reference Name="OutputBus">
+							<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+						</Reference>
+					</ReferenceList>
+					<ChildrenList>
+						<Sound Name="sfx_crayon_Writing 3-4 FIXED and joined" ID="{E72D7A2D-49E7-4FA8-BB23-7B7821DF8CD0}" ShortID="937983233">
+							<PropertyList>
+								<Property Name="IsLoopingEnabled" Type="bool" Value="True"/>
+							</PropertyList>
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+								</Reference>
+							</ReferenceList>
+							<ChildrenList>
+								<AudioFileSource Name="sfx_crayon_Writing 3-4 FIXED and joined" ID="{B5F6D5AC-0EED-42B5-8068-1B51136BCFE8}">
+									<PropertyList>
+										<Property Name="FadeOutDuration" Type="Real64" Value="0.07989"/>
+										<Property Name="LoopBegin" Type="Real64" Value="0"/>
+										<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+									</PropertyList>
+									<Language>SFX</Language>
+									<AudioFile>sfx_crayon_Writing 3-4 FIXED and joined.wav</AudioFile>
+									<MediaIDList>
+										<MediaID ID="243678878"/>
+									</MediaIDList>
+								</AudioFileSource>
+							</ChildrenList>
+							<ActiveSourceList>
+								<ActiveSource Name="sfx_crayon_Writing 3-4 FIXED and joined" ID="{B5F6D5AC-0EED-42B5-8068-1B51136BCFE8}" Platform="Linked"/>
+							</ActiveSourceList>
+						</Sound>
+					</ChildrenList>
+				</PropertyContainer>
+				<PropertyContainer Name="LetterText_Pencil" ID="{88E1A2B8-2EC0-479C-BF98-AFB988EB6645}" ShortID="1024930513">
+					<ReferenceList>
+						<Reference Name="Conversion">
+							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+						</Reference>
+						<Reference Name="OutputBus">
+							<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+						</Reference>
+					</ReferenceList>
+					<ChildrenList>
+						<Sound Name="sfx_pencil_Writing 2-3 FIXED and joined" ID="{4566557E-F31A-4258-9F10-99C5E16C9FFD}" ShortID="731933563">
+							<PropertyList>
+								<Property Name="IsLoopingEnabled" Type="bool" Value="True"/>
+								<Property Name="Volume" Type="Real64">
+									<ValueList>
+										<Value>-8</Value>
+									</ValueList>
+								</Property>
+							</PropertyList>
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+								</Reference>
+							</ReferenceList>
+							<ChildrenList>
+								<AudioFileSource Name="sfx_pencil_Writing 2-3 FIXED and joined" ID="{19F33921-3BE9-40CD-9370-4B6AA93E5154}">
+									<Language>SFX</Language>
+									<AudioFile>sfx_pencil_Writing 2-3 FIXED and joined.wav</AudioFile>
+									<MediaIDList>
+										<MediaID ID="107026020"/>
+									</MediaIDList>
+								</AudioFileSource>
+							</ChildrenList>
+							<ActiveSourceList>
+								<ActiveSource Name="sfx_pencil_Writing 2-3 FIXED and joined" ID="{19F33921-3BE9-40CD-9370-4B6AA93E5154}" Platform="Linked"/>
+							</ActiveSourceList>
+						</Sound>
+					</ChildrenList>
+				</PropertyContainer>
+				<PropertyContainer Name="Mailbox_Opens" ID="{0ABFF0A1-3C43-40A5-AE69-A05A651A984D}" ShortID="241896843">
+					<ReferenceList>
+						<Reference Name="Conversion">
+							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+						</Reference>
+						<Reference Name="OutputBus">
+							<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+						</Reference>
+					</ReferenceList>
+				</PropertyContainer>
+				<PropertyContainer Name="Flap_Popup" ID="{541AA509-F5AE-40F5-9FB7-4C5C4AA829AF}" ShortID="715474657">
+					<ReferenceList>
+						<Reference Name="Conversion">
+							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+						</Reference>
+						<Reference Name="OutputBus">
+							<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+						</Reference>
+					</ReferenceList>
+				</PropertyContainer>
+			</ChildrenList>
 		</WorkUnit>
 	</Containers>
 </WwiseDocument>

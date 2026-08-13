@@ -10,24 +10,87 @@
     "Type": "Event",
     "GUID": "{E29B5ED5-6187-4481-8362-3B07D309480C}",
     "Language": "SFX",
-    "Hash": "{52A1D0DF-EC1A-D2FC-1433-EEBD3DE3CCA2}",
+    "Hash": "{D4A26545-4240-8464-0DB2-372C72ED117C}",
     "ObjectPath": "Play_CreasePaper",
     "ShortName": "Play_CreasePaper",
     "Path": "Event/Play_CreasePaper.bnk",
+    "Media": [
+     {
+      "Id": "8607158",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_paper_crease_05 FIXED.wav",
+      "Path": "Media/8607158.wem",
+      "CachePath": "C4/{C41B1D49-0BCA-39AC-B463-09B978D1DEFE}.wem"
+     },
+     {
+      "Id": "37293926",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_paper_crease_01 FIXED.wav",
+      "Path": "Media/37293926.wem",
+      "CachePath": "48/{483055BC-DEBE-EC56-44FF-047183FF35B4}.wem"
+     },
+     {
+      "Id": "679999101",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_paper_crease_02 FIXED.wav",
+      "Path": "Media/679999101.wem",
+      "CachePath": "EB/{EBFD8125-6B05-9930-84CA-FCACC1C67966}.wem"
+     },
+     {
+      "Id": "846381607",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_paper_crease_04 FIXED.wav",
+      "Path": "Media/846381607.wem",
+      "CachePath": "34/{34125614-714F-DA6E-555E-97D9851626F4}.wem"
+     },
+     {
+      "Id": "908496794",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_paper_crease_03 FIXED.wav",
+      "Path": "Media/908496794.wem",
+      "CachePath": "1A/{1A502EBA-8C94-B488-421B-2859F5AC0EEE}.wem"
+     }
+    ],
     "Events": [
      {
       "Id": "2906773315",
       "Name": "Play_CreasePaper",
       "ObjectPath": "\\Events\\Default Work Unit\\SFX\\UI_SFX\\Play_CreasePaper",
       "GUID": "{E29B5ED5-6187-4481-8362-3B07D309480C}",
-      "MaxAttenuation": "0",
       "DurationType": "OneShot",
-      "DurationMin": "0",
-      "DurationMax": "0"
+      "DurationMin": "0.857125",
+      "DurationMax": "1.5833334",
+      "MediaRefs": [
+       {
+        "Id": "8607158"
+       },
+       {
+        "Id": "37293926"
+       },
+       {
+        "Id": "679999101"
+       },
+       {
+        "Id": "846381607"
+       },
+       {
+        "Id": "908496794"
+       }
+      ]
      }
     ]
    }
   ],
-  "FileHash": "{776C65C6-273F-0D98-8E6D-DC497B0E3AD9}"
+  "FileHash": "{4E5036AA-6D08-E31D-23BE-9EAEA0348751}"
  }
 }

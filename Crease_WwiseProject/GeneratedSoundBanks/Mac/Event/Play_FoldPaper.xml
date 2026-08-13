@@ -1,14 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <SoundBanksInfo Platform="Mac" BasePlatform="Mac" SchemaVersion="16" SoundBankVersion="172">
 	<SoundBanks>
-		<SoundBank Id="3430616211" Type="Event" GUID="{4C1F1568-0BBB-4844-B494-0331F9C2BA8F}" Language="SFX" Hash="{96DBE590-F7D5-631E-8B17-FE08876D87DC}">
+		<SoundBank Id="3430616211" Type="Event" GUID="{4C1F1568-0BBB-4844-B494-0331F9C2BA8F}" Language="SFX" Hash="{87185FDF-5EA8-1D3C-E3D0-43FD1263E823}">
 			<ObjectPath>Play_FoldPaper</ObjectPath>
 			<ShortName>Play_FoldPaper</ShortName>
 			<Path>Event/Play_FoldPaper.bnk</Path>
+			<Media>
+				<File Id="129470540" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_paper_fold_03 FIXED.wav</ShortName>
+					<Path>Media/129470540.wem</Path>
+					<CachePath>25/{258F8FD9-81DD-EF47-A754-5F573C378B17}.wem</CachePath>
+				</File>
+				<File Id="394022433" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_paper_fold_04 FIXED.wav</ShortName>
+					<Path>Media/394022433.wem</Path>
+					<CachePath>F8/{F812D51D-8CF5-167C-BDC2-127C82F0583F}.wem</CachePath>
+				</File>
+				<File Id="564755391" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_paper_fold_05 FIXED.wav</ShortName>
+					<Path>Media/564755391.wem</Path>
+					<CachePath>C9/{C9B1623B-DF71-F335-31CA-F05899BF938E}.wem</CachePath>
+				</File>
+				<File Id="807604802" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_paper_fold_02 FIXED.wav</ShortName>
+					<Path>Media/807604802.wem</Path>
+					<CachePath>56/{5642F05B-C8B3-CEA6-AAD6-50973D908478}.wem</CachePath>
+				</File>
+			</Media>
 			<Events>
-				<Event Id="3430616211" Name="Play_FoldPaper" ObjectPath="\Events\Default Work Unit\SFX\UI_SFX\Play_FoldPaper" GUID="{4C1F1568-0BBB-4844-B494-0331F9C2BA8F}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+				<Event Id="3430616211" Name="Play_FoldPaper" ObjectPath="\Events\Default Work Unit\SFX\UI_SFX\Play_FoldPaper" GUID="{4C1F1568-0BBB-4844-B494-0331F9C2BA8F}" DurationType="OneShot" DurationMin="0.44216" DurationMax="0.5">
+					<MediaRefs>
+						<MediaRef Id="129470540"/>
+						<MediaRef Id="394022433"/>
+						<MediaRef Id="564755391"/>
+						<MediaRef Id="807604802"/>
+					</MediaRefs>
+				</Event>
 			</Events>
 		</SoundBank>
 	</SoundBanks>
-	<FileHash>{DB5F4E82-A2D8-DB5C-128B-6C14435EC2ED}</FileHash>
+	<FileHash>{B8410968-57DC-496D-060A-995546FC7230}</FileHash>
 </SoundBanksInfo>

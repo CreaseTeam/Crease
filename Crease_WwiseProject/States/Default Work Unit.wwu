@@ -3,19 +3,34 @@
 	<States>
 		<WorkUnit Name="Default Work Unit" ID="{68E99588-79E1-4CBF-A2AE-FC594A6C4289}" PersistMode="Standalone">
 			<ChildrenList>
-				<Folder Name="TestStates" ID="{09134E87-394D-42FB-BE93-E0474CE3BA56}" ShortID="1045015142">
+				<Folder Name="SFX" ID="{B688ACFA-69B8-41B4-9CD8-5BFAACB32E48}" ShortID="438845686">
 					<ChildrenList>
-						<Folder Name="SFX" ID="{B688ACFA-69B8-41B4-9CD8-5BFAACB32E48}" ShortID="438845686">
+						<StateGroup Name="LV1RegionAmbienceStates" ID="{0447417C-0993-4B97-93D0-41831A1AB9D0}">
 							<ChildrenList>
-								<StateGroup Name="RegionAmbienceStates" ID="{0447417C-0993-4B97-93D0-41831A1AB9D0}">
-									<ChildrenList>
-										<State Name="None" ID="{C69D8809-E72A-4E51-8B5C-FC7813CF3D29}"/>
-										<State Name="GrassLakeArea" ID="{DA5B8B70-2780-49EA-8F8A-71CE8F6B33E2}"/>
-										<State Name="ForestArea" ID="{666F9A7B-E262-43FD-AB2C-5859DCCCB2BD}"/>
-									</ChildrenList>
-								</StateGroup>
+								<State Name="None" ID="{C69D8809-E72A-4E51-8B5C-FC7813CF3D29}"/>
+								<State Name="GrassLakeArea" ID="{DA5B8B70-2780-49EA-8F8A-71CE8F6B33E2}"/>
+								<State Name="ForestArea" ID="{666F9A7B-E262-43FD-AB2C-5859DCCCB2BD}"/>
 							</ChildrenList>
-						</Folder>
+						</StateGroup>
+						<StateGroup Name="LV1SubregionAmbienceStates" ID="{E70148DA-50F1-4E23-81EE-24973B1E931C}">
+							<ChildrenList>
+								<State Name="None" ID="{49DC1C00-C117-4E38-A0C6-86E9F05A8DB6}"/>
+								<State Name="GrassRustleArea" ID="{526B127B-8171-4AA8-8F2E-553C6D22A1B7}"/>
+							</ChildrenList>
+						</StateGroup>
+					</ChildrenList>
+				</Folder>
+				<Folder Name="MUSIC" ID="{3EFF6E11-DBA0-4E88-9890-2DA5C44A0249}" ShortID="603178157">
+					<ChildrenList>
+						<StateGroup Name="LV1MusicRegionStates" ID="{FE1652AF-76B4-46F6-8167-5698B108BCD8}">
+							<ChildrenList>
+								<State Name="None" ID="{7BAF7A5F-DC43-4E6F-AA7A-074E687A20B7}"/>
+								<State Name="OpenForestArea" ID="{E4B9F298-1216-48C8-97BB-463A7960C392}"/>
+								<State Name="ClosedForestTunnel" ID="{AD431D12-8AC4-4991-8AC1-D95BBA5BCA8C}"/>
+								<State Name="UnderwaterPlayground" ID="{269071AE-C3D2-430B-93A8-6980587724DA}"/>
+								<State Name="WindingTunnel" ID="{F6CA9FA0-450F-4523-B14B-C0B45C50C22A}"/>
+							</ChildrenList>
+						</StateGroup>
 					</ChildrenList>
 				</Folder>
 			</ChildrenList>

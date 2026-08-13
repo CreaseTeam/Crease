@@ -1,0 +1,33 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "711455078",
+    "Type": "Event",
+    "GUID": "{92406C57-FA07-4B8C-8108-E876C14200B2}",
+    "Language": "SFX",
+    "Hash": "{1454C7C0-07ED-6F47-31DF-84F95CDB3A79}",
+    "ObjectPath": "Play_CheckpointReached",
+    "ShortName": "Play_CheckpointReached",
+    "Path": "Event/Play_CheckpointReached.bnk",
+    "Events": [
+     {
+      "Id": "711455078",
+      "Name": "Play_CheckpointReached",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\COMMON_LVL_SFX\\Play_CheckpointReached",
+      "GUID": "{92406C57-FA07-4B8C-8108-E876C14200B2}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{C69636FF-ACC7-CEFA-99AC-6A485E3992A0}"
+ }
+}

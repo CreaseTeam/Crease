@@ -49,7 +49,7 @@
 								</Action>
 							</ChildrenList>
 						</Event>
-						<Event Name="Play_PlaneBoost" ID="{B62F876D-521D-4A1F-B57B-3156B4CB70A9}">
+						<Event Name="Play_PlaneDash" ID="{B62F876D-521D-4A1F-B57B-3156B4CB70A9}">
 							<ChildrenList>
 								<Action Name="" ID="{E7AC64EE-8FFF-4F80-B9B9-99F23244B9F5}" ShortID="798931657">
 									<ReferenceList>
@@ -115,6 +115,10 @@
 								</Action>
 							</ChildrenList>
 						</Event>
+						<Event Name="Play_RegDamage" ID="{6B67B4E4-7BD9-47A1-AD9B-9CFDA94C16A6}"/>
+						<Event Name="Play_CloseMailbox" ID="{EA389326-52EC-429D-985D-E8C45C98A58B}"/>
+						<Event Name="Play_FlagPopup" ID="{7D81C98B-922A-4244-B47B-94DBE319C51A}"/>
+						<Event Name="Play_CheckpointReached" ID="{92406C57-FA07-4B8C-8108-E876C14200B2}"/>
 					</ChildrenList>
 				</Folder>
 				<Folder Name="LVL1_SFX" ID="{EBA948A2-AFAC-46E4-8823-A236833450C1}" ShortID="331329477">
@@ -141,12 +145,128 @@
 								</Action>
 							</ChildrenList>
 						</Event>
+						<Event Name="Play_AmbientPlaygroundBoundary" ID="{070424E2-8644-4096-8981-4BB7057CC548}">
+							<ChildrenList>
+								<Action Name="" ID="{DE09AE4C-4FE0-4DD3-B451-D6DEF3B90E44}" ShortID="663631767">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="sfx_waves_ambience_01" ID="{FAB87B1F-EC49-4600-80CB-E2AA263B822B}" WorkUnitID="{74DD64E2-D3DA-4859-B6A8-589488DBF871}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Play_PlayerPopBubble" ID="{049D3166-038B-4B73-B91E-7D9DCEF58641}">
+							<ChildrenList>
+								<Action Name="" ID="{E2DF8AB3-D4EF-407F-91D1-D5DAEABFDB98}" ShortID="682873406">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="Bubble_Pop" ID="{C731F09C-261C-43B6-A458-C1896010E482}" WorkUnitID="{74DD64E2-D3DA-4859-B6A8-589488DBF871}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Play_PlayerBubbleTrap" ID="{1D7E0E7C-B12C-489F-9400-9E5553736284}">
+							<ChildrenList>
+								<Action Name="" ID="{641D336B-2077-43BD-B72A-E026BE49AEFD}" ShortID="1011534273">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="Bubble_Trap" ID="{8A2BB0BF-3097-494A-935F-BDC33E07CBA4}" WorkUnitID="{F6531EEB-D40E-40C5-B2FC-81987E8840E8}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Play_PlayerBubbleEscape" ID="{DEAAD0F5-7C12-4E66-A90B-C4CC15047B73}">
+							<ChildrenList>
+								<Action Name="" ID="{E338449D-FA3D-4616-A0C9-6292C4D84601}" ShortID="569377621">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="Bubble_Escape" ID="{E81F53BF-9F94-4636-BDCB-67B194D6D66F}" WorkUnitID="{F6531EEB-D40E-40C5-B2FC-81987E8840E8}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Start_CrayonScribble" ID="{8038CD3C-AFB5-41AF-B1AF-62149047DF97}">
+							<ChildrenList>
+								<Action Name="" ID="{A7DF5651-744F-440C-81D0-77B5C57C5A2E}" ShortID="923201908">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="sfx_crayon_Writing 3-4 FIXED and joined" ID="{E72D7A2D-49E7-4FA8-BB23-7B7821DF8CD0}" WorkUnitID="{3BB2F2CF-75A1-4BC9-AF7F-671667850C5B}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Stop_CrayonScribble" ID="{DB2A1090-461B-4FD8-89EE-8342D8A56DC5}">
+							<ChildrenList>
+								<Action Name="" ID="{B8D030AC-F8E4-47F0-A712-1EC52A47891D}" ShortID="402897718">
+									<PropertyList>
+										<Property Name="ActionType" Type="int16" Value="2"/>
+										<Property Name="FadeTime" Type="Real64" Value="1"/>
+									</PropertyList>
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="sfx_crayon_Writing 3-4 FIXED and joined" ID="{E72D7A2D-49E7-4FA8-BB23-7B7821DF8CD0}" WorkUnitID="{3BB2F2CF-75A1-4BC9-AF7F-671667850C5B}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Start_PencilScribble" ID="{12C4A6FA-A8C9-4211-AB03-86C932BA4FE1}">
+							<ChildrenList>
+								<Action Name="" ID="{7A1D9139-9788-4674-BE0D-06789F0255C3}" ShortID="263061842">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="sfx_pencil_Writing 2-3 FIXED and joined" ID="{4566557E-F31A-4258-9F10-99C5E16C9FFD}" WorkUnitID="{3BB2F2CF-75A1-4BC9-AF7F-671667850C5B}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Stop_PencilScribble" ID="{2FCA6B22-61C7-43B3-AADA-C2B4B7B80A8E}">
+							<ChildrenList>
+								<Action Name="" ID="{F2079AD0-1292-4F1D-957E-C40EDD7371DC}" ShortID="117057297">
+									<PropertyList>
+										<Property Name="ActionType" Type="int16" Value="2"/>
+										<Property Name="FadeTime" Type="Real64" Value="1"/>
+									</PropertyList>
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="sfx_pencil_Writing 2-3 FIXED and joined" ID="{4566557E-F31A-4258-9F10-99C5E16C9FFD}" WorkUnitID="{3BB2F2CF-75A1-4BC9-AF7F-671667850C5B}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
 					</ChildrenList>
 				</Folder>
 				<Folder Name="UI_SFX" ID="{BC1731D6-AB4E-494E-A685-5544DB1ED301}" ShortID="252130871">
 					<ChildrenList>
-						<Event Name="Play_CreasePaper" ID="{E29B5ED5-6187-4481-8362-3B07D309480C}"/>
-						<Event Name="Play_FoldPaper" ID="{4C1F1568-0BBB-4844-B494-0331F9C2BA8F}"/>
+						<Event Name="Play_CreasePaper" ID="{E29B5ED5-6187-4481-8362-3B07D309480C}">
+							<ChildrenList>
+								<Action Name="" ID="{72EDD5C1-71E7-40B9-875B-6A5E40EEB3E9}" ShortID="491217106">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="Crease" ID="{5324B492-B786-4BF3-BB52-256D7AFF48D8}" WorkUnitID="{FA68B52A-E3B4-4AEC-BFBF-7EEF496C62EB}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Play_FoldPaper" ID="{4C1F1568-0BBB-4844-B494-0331F9C2BA8F}">
+							<ChildrenList>
+								<Action Name="" ID="{7B609E00-2827-4AE3-9FD1-3B533D2E0474}" ShortID="457176227">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="Fold" ID="{DCD38B76-C3F9-4090-B0AC-7FC947FB3939}" WorkUnitID="{FA68B52A-E3B4-4AEC-BFBF-7EEF496C62EB}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
 						<Event Name="Play_SelectSticker" ID="{7A9CB8D8-A42F-4584-BA5F-9709F6E90686}"/>
 						<Event Name="Play_RemoveSticker" ID="{1D0C698E-E75D-4A83-A3F8-A76867814AC4}"/>
 						<Event Name="Play_SelectButton" ID="{C15C9FAB-D02C-46AE-AA07-9EE23603DC70}"/>
@@ -156,7 +276,7 @@
 				</Folder>
 				<Folder Name="SFX_SWITCHES" ID="{ED99C517-044F-417F-84F1-96807E98CC02}" ShortID="211106906">
 					<ChildrenList>
-						<Event Name="Start_L1AmbienceSwitch" ID="{35D04DEF-0481-4127-838D-F180EBC5491E}">
+						<Event Name="Start_L1AmbRegionSwitch" ID="{35D04DEF-0481-4127-838D-F180EBC5491E}">
 							<ChildrenList>
 								<Action Name="" ID="{AFAF87CA-E7F8-4584-929D-962F1798B214}" ShortID="59371232">
 									<PropertyList>
@@ -174,20 +294,20 @@
 									</PropertyList>
 									<ReferenceList>
 										<Reference Name="Target">
-											<ObjectRef Name="Region_Ambiences" ID="{846FE890-CF8F-4C46-8E29-481FFCA34AA8}" WorkUnitID="{C84A5919-EB64-466F-941E-5B527D529B79}"/>
+											<ObjectRef Name="LV1_Region_Ambiences" ID="{846FE890-CF8F-4C46-8E29-481FFCA34AA8}" WorkUnitID="{C84A5919-EB64-466F-941E-5B527D529B79}"/>
 										</Reference>
 									</ReferenceList>
 								</Action>
 								<Action Name="" ID="{255E82EC-8F8D-4673-860C-8F4D9E1BF084}" ShortID="356648271">
 									<ReferenceList>
 										<Reference Name="Target">
-											<ObjectRef Name="Region_Ambiences" ID="{846FE890-CF8F-4C46-8E29-481FFCA34AA8}" WorkUnitID="{C84A5919-EB64-466F-941E-5B527D529B79}"/>
+											<ObjectRef Name="LV1_Region_Ambiences" ID="{846FE890-CF8F-4C46-8E29-481FFCA34AA8}" WorkUnitID="{C84A5919-EB64-466F-941E-5B527D529B79}"/>
 										</Reference>
 									</ReferenceList>
 								</Action>
 							</ChildrenList>
 						</Event>
-						<Event Name="Stop_L1AmbienceSwitch" ID="{385BFB2B-EB9A-4B93-B2FE-BE8BA02D887E}">
+						<Event Name="Stop_L1AmbRegionSwitch" ID="{385BFB2B-EB9A-4B93-B2FE-BE8BA02D887E}">
 							<ChildrenList>
 								<Action Name="" ID="{54E4813D-AD47-45E9-9A88-227396DA8A5D}" ShortID="630844124">
 									<PropertyList>
@@ -195,7 +315,52 @@
 									</PropertyList>
 									<ReferenceList>
 										<Reference Name="Target">
-											<ObjectRef Name="Region_Ambiences" ID="{846FE890-CF8F-4C46-8E29-481FFCA34AA8}" WorkUnitID="{C84A5919-EB64-466F-941E-5B527D529B79}"/>
+											<ObjectRef Name="LV1_Region_Ambiences" ID="{846FE890-CF8F-4C46-8E29-481FFCA34AA8}" WorkUnitID="{C84A5919-EB64-466F-941E-5B527D529B79}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Start_L1SubRegionSwitch" ID="{9977E3A5-B77E-4D8F-A55F-D0EF23F8EC2F}">
+							<ChildrenList>
+								<Action Name="" ID="{3A2C897F-99F2-4B82-8614-C58E4307B0C2}" ShortID="753378938">
+									<PropertyList>
+										<Property Name="ActionType" Type="int16" Value="22"/>
+									</PropertyList>
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="None" ID="{49DC1C00-C117-4E38-A0C6-86E9F05A8DB6}" WorkUnitID="{68E99588-79E1-4CBF-A2AE-FC594A6C4289}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+								<Action Name="" ID="{9B3E1279-E821-4184-9F30-4C83151F6BCF}" ShortID="57601781">
+									<PropertyList>
+										<Property Name="ActionType" Type="int16" Value="2"/>
+									</PropertyList>
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="LV1_SubRegion_Ambiences" ID="{3E2DF1A2-E5FE-4C7D-9B69-FC718CFCD080}" WorkUnitID="{C84A5919-EB64-466F-941E-5B527D529B79}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+								<Action Name="" ID="{64FCF75F-0D19-4F31-AE07-D35A4D2CBB3C}" ShortID="745551750">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="LV1_SubRegion_Ambiences" ID="{3E2DF1A2-E5FE-4C7D-9B69-FC718CFCD080}" WorkUnitID="{C84A5919-EB64-466F-941E-5B527D529B79}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Stop_L1SubRegionSwitch" ID="{AA9B8CD9-60E4-46EE-92B3-0E7DD6B21FFF}">
+							<ChildrenList>
+								<Action Name="" ID="{C7FF7A28-2F66-43C6-BD8B-5FD1B8D80EE7}" ShortID="356891404">
+									<PropertyList>
+										<Property Name="ActionType" Type="int16" Value="2"/>
+									</PropertyList>
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="LV1_SubRegion_Ambiences" ID="{3E2DF1A2-E5FE-4C7D-9B69-FC718CFCD080}" WorkUnitID="{C84A5919-EB64-466F-941E-5B527D529B79}"/>
 										</Reference>
 									</ReferenceList>
 								</Action>

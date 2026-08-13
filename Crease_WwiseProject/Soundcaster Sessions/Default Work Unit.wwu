@@ -6,12 +6,116 @@
 				<SoundcasterSession Name="New Soundcaster Session 1" ID="{139CF9C6-AAF0-4FCE-A52C-3A936CE253E9}">
 					<ModuleList>
 						<Module>
-							<ObjectRef Name="Stop_L1AmbienceSwitch" ID="{385BFB2B-EB9A-4B93-B2FE-BE8BA02D887E}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<ObjectRef Name="Start_L1AmbRegionSwitch" ID="{35D04DEF-0481-4127-838D-F180EBC5491E}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
 							<Position X="0" Y="0"/>
 						</Module>
 						<Module>
-							<ObjectRef Name="Start_L1AmbienceSwitch" ID="{35D04DEF-0481-4127-838D-F180EBC5491E}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<ObjectRef Name="Start_L1SubRegionSwitch" ID="{9977E3A5-B77E-4D8F-A55F-D0EF23F8EC2F}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="0" Y="1"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Stop_L1AmbRegionSwitch" ID="{385BFB2B-EB9A-4B93-B2FE-BE8BA02D887E}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
 							<Position X="1" Y="0"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Stop_L1SubRegionSwitch" ID="{AA9B8CD9-60E4-46EE-92B3-0E7DD6B21FFF}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="1" Y="1"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_AmbientPlaygroundBoundary" ID="{070424E2-8644-4096-8981-4BB7057CC548}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="3" Y="0"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_AmbientWaterspout" ID="{E0827410-F474-40E7-9223-2AED5964BE22}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="3" Y="1"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Start_PencilScribble" ID="{12C4A6FA-A8C9-4211-AB03-86C932BA4FE1}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="3" Y="2"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_PlayerBubbleTrap" ID="{1D7E0E7C-B12C-489F-9400-9E5553736284}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="3" Y="3"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Stop_CrayonScribble" ID="{DB2A1090-461B-4FD8-89EE-8342D8A56DC5}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="3" Y="4"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_AmbientSwings" ID="{ED27CD4B-F8CA-4F60-9CFD-F3E46A149F29}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="4" Y="0"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Start_CrayonScribble" ID="{8038CD3C-AFB5-41AF-B1AF-62149047DF97}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="4" Y="1"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_PlayerBubbleEscape" ID="{DEAAD0F5-7C12-4E66-A90B-C4CC15047B73}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="4" Y="2"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_PlayerPopBubble" ID="{049D3166-038B-4B73-B91E-7D9DCEF58641}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="4" Y="3"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Stop_PencilScribble" ID="{2FCA6B22-61C7-43B3-AADA-C2B4B7B80A8E}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="4" Y="4"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_AmbientWindFrustrum1" ID="{5FD408C7-A627-4C58-A332-250380E4DD42}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="6" Y="0"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_AmbientWindFrustrum2" ID="{D362F1E8-5ACF-4DF2-9F16-8E119F583AB3}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="6" Y="1"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_AmbientWindFrustrum3" ID="{A6E0DE72-94F6-4ED3-B08F-936C9E4033FE}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="6" Y="2"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_AmbientWindFrustrumGeneral" ID="{6B674425-C6FD-4C06-9EE7-26D9143EDDA8}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="6" Y="3"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_CheckpointReached" ID="{92406C57-FA07-4B8C-8108-E876C14200B2}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="6" Y="4"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_CloseMailbox" ID="{EA389326-52EC-429D-985D-E8C45C98A58B}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="6" Y="5"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_CoinCollect" ID="{ADC58251-0DB0-4FA3-88B5-7B7571A8021C}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="6" Y="6"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_FlagPopup" ID="{7D81C98B-922A-4244-B47B-94DBE319C51A}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="6" Y="7"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_PlaneDash" ID="{B62F876D-521D-4A1F-B57B-3156B4CB70A9}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="6" Y="8"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_PlaneSpeedSounds" ID="{F6862824-20AF-47DA-B378-2CFC66A04A43}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="6" Y="9"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_RegDamage" ID="{6B67B4E4-7BD9-47A1-AD9B-9CFDA94C16A6}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="6" Y="10"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_StickerCollect" ID="{35F95BA2-7020-457D-84FF-E3B3A9A70659}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="6" Y="11"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_WaterDamage" ID="{9BA1A31B-48E5-4F1B-893B-E7583F887FBA}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="6" Y="12"/>
+						</Module>
+						<Module>
+							<ObjectRef Name="Play_WindFrustrumLift" ID="{B44CA146-2570-4EA9-8B7B-879D730F6BB8}" WorkUnitID="{2E931E8D-DF29-4D35-9C3A-3F285640AD90}"/>
+							<Position X="6" Y="13"/>
 						</Module>
 					</ModuleList>
 				</SoundcasterSession>
