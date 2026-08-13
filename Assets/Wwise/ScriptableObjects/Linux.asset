@@ -86,7 +86,7 @@ MonoBehaviour:
     m_IsAutoBankEnabled: 1
     m_DefaultListenerScalingFactor: 1
     m_MaximumNumberOfPositioningPaths: 255
-    m_CommandQueueSize: 262144
+    m_CommandQueueSize: 2097152
     m_SamplesPerFrame: 512
     m_MainOutputSettings:
       m_AudioDeviceShareset: 
