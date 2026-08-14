@@ -21,7 +21,7 @@
 						</Reference>
 					</ReferenceList>
 					<ChildrenList>
-						<SwitchContainer Name="Region_Ambiences" ID="{846FE890-CF8F-4C46-8E29-481FFCA34AA8}" ShortID="229142329">
+						<SwitchContainer Name="LV1_Region_Ambiences" ID="{846FE890-CF8F-4C46-8E29-481FFCA34AA8}" ShortID="229142329">
 							<PropertyList>
 								<Property Name="SwitchBehavior" Type="int16" Value="1"/>
 							</PropertyList>
@@ -36,7 +36,7 @@
 									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
 								</Reference>
 								<Reference Name="SwitchGroupOrStateGroup">
-									<ObjectRef Name="RegionAmbienceStates" ID="{0447417C-0993-4B97-93D0-41831A1AB9D0}" WorkUnitID="{68E99588-79E1-4CBF-A2AE-FC594A6C4289}"/>
+									<ObjectRef Name="LV1RegionAmbienceStates" ID="{0447417C-0993-4B97-93D0-41831A1AB9D0}" WorkUnitID="{68E99588-79E1-4CBF-A2AE-FC594A6C4289}"/>
 								</Reference>
 							</ReferenceList>
 							<ChildrenList>
@@ -145,6 +145,61 @@
 										<SwitchRef Name="ForestArea" ID="{666F9A7B-E262-43FD-AB2C-5859DCCCB2BD}"/>
 										<ItemList>
 											<ItemRef Name="sfx_forest_ambience_02" ID="{52BE32F8-0C07-46A5-AECB-8D686EC24813}"/>
+										</ItemList>
+									</Grouping>
+								</GroupingList>
+							</GroupingInfo>
+						</SwitchContainer>
+						<SwitchContainer Name="LV1_SubRegion_Ambiences" ID="{3E2DF1A2-E5FE-4C7D-9B69-FC718CFCD080}" ShortID="308788251">
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+								</Reference>
+								<Reference Name="DefaultSwitchOrState">
+									<ObjectRef Name="None" ID="{49DC1C00-C117-4E38-A0C6-86E9F05A8DB6}" WorkUnitID="{68E99588-79E1-4CBF-A2AE-FC594A6C4289}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+								</Reference>
+								<Reference Name="SwitchGroupOrStateGroup">
+									<ObjectRef Name="LV1SubregionAmbienceStates" ID="{E70148DA-50F1-4E23-81EE-24973B1E931C}" WorkUnitID="{68E99588-79E1-4CBF-A2AE-FC594A6C4289}"/>
+								</Reference>
+							</ReferenceList>
+							<ChildrenList>
+								<Sound Name="sfx_grass_ambience" ID="{E50C9E75-C25D-4E26-A8DB-F272F4A4E01E}" ShortID="59863971">
+									<ReferenceList>
+										<Reference Name="Conversion">
+											<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+										</Reference>
+										<Reference Name="OutputBus">
+											<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+										</Reference>
+									</ReferenceList>
+									<ChildrenList>
+										<AudioFileSource Name="sfx_grass_ambience" ID="{A254E071-71AA-42A7-8454-506EDE389C64}">
+											<Language>SFX</Language>
+											<AudioFile>sfx_grass_ambience.wav</AudioFile>
+											<MediaIDList>
+												<MediaID ID="976005182"/>
+											</MediaIDList>
+										</AudioFileSource>
+									</ChildrenList>
+									<ActiveSourceList>
+										<ActiveSource Name="sfx_grass_ambience" ID="{A254E071-71AA-42A7-8454-506EDE389C64}" Platform="Linked"/>
+									</ActiveSourceList>
+								</Sound>
+							</ChildrenList>
+							<GroupingInfo>
+								<GroupingBehaviorList>
+									<GroupingBehavior>
+										<ItemRef Name="sfx_grass_ambience" ID="{E50C9E75-C25D-4E26-A8DB-F272F4A4E01E}"/>
+									</GroupingBehavior>
+								</GroupingBehaviorList>
+								<GroupingList>
+									<Grouping>
+										<SwitchRef Name="GrassRustleArea" ID="{526B127B-8171-4AA8-8F2E-553C6D22A1B7}"/>
+										<ItemList>
+											<ItemRef Name="sfx_grass_ambience" ID="{E50C9E75-C25D-4E26-A8DB-F272F4A4E01E}"/>
 										</ItemList>
 									</Grouping>
 								</GroupingList>

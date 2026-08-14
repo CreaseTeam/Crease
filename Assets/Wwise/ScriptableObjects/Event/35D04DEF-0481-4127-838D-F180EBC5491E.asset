@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d62ea0fefb6624224a6bdea41da81eb3, type: 3}
   m_Name: 35D04DEF-0481-4127-838D-F180EBC5491E
   m_EditorClassIdentifier: AK.Wwise.Unity.API.WwiseTypes::WwiseEventReference
-  objectName: Start_L1AmbienceSwitch
-  id: 1987482915
+  objectName: Start_L1AmbRegionSwitch
+  id: 964996825
   guid: 35D04DEF-0481-4127-838D-F180EBC5491E
   IsInUserDefinedSoundBank: 0

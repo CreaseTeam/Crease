@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="3260018181" Type="Event" GUID="{12C4A6FA-A8C9-4211-AB03-86C932BA4FE1}" Language="SFX" Hash="{4EAC0157-4265-AA47-584D-61777200271E}">
+			<ObjectPath>Start_PencilScribble</ObjectPath>
+			<ShortName>Start_PencilScribble</ShortName>
+			<Path>Event/Start_PencilScribble.bnk</Path>
+			<Media>
+				<File Id="107026020" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_pencil_Writing 2-3 FIXED and joined.wav</ShortName>
+					<Path>Media/107026020.wem</Path>
+					<CachePath>87/{878C7EDB-4CC6-437B-EB30-997282ED26AD}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="3260018181" Name="Start_PencilScribble" ObjectPath="\Events\Default Work Unit\SFX\LVL1_SFX\Start_PencilScribble" GUID="{12C4A6FA-A8C9-4211-AB03-86C932BA4FE1}" DurationType="Infinite">
+					<MediaRefs>
+						<MediaRef Id="107026020"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{CC131CCB-6C16-56AC-6576-377B953DFD1C}</FileHash>
+</SoundBanksInfo>

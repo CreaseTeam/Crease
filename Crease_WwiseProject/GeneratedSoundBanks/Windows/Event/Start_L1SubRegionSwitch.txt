@@ -1,0 +1,10 @@
+Event	ID	Name			Wwise Object Path	Notes
+	3237153347	Start_L1SubRegionSwitch			\Default Work Unit\SFX\SFX_SWITCHES\Start_L1SubRegionSwitch	
+
+State Group	ID	Name			Wwise Object Path	Notes
+	1333243800	LV1SubregionAmbienceStates			\Default Work Unit\SFX\LV1SubregionAmbienceStates	
+
+State	ID	Name	State Group			Notes
+	748895195	None	LV1SubregionAmbienceStates			
+	2273428829	GrassRustleArea	LV1SubregionAmbienceStates			
+

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="3240092342" Type="Event" GUID="{1D7E0E7C-B12C-489F-9400-9E5553736284}" Language="SFX" Hash="{B9E1F342-082C-D939-B8AF-BA6C1A0DC7F0}">
+			<ObjectPath>Play_PlayerBubbleTrap</ObjectPath>
+			<ShortName>Play_PlayerBubbleTrap</ShortName>
+			<Path>Event/Play_PlayerBubbleTrap.bnk</Path>
+			<Media>
+				<File Id="79773675" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_bubble_trap_01_FIXED.wav</ShortName>
+					<Path>Media/79773675.wem</Path>
+					<CachePath>F8/{F85C082F-C043-CC8C-D968-3D03AAC517D4}.wem</CachePath>
+				</File>
+				<File Id="382429262" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_bubble_trap_02_FIXED.wav</ShortName>
+					<Path>Media/382429262.wem</Path>
+					<CachePath>E3/{E35F330E-9EDB-6E30-F17C-4471F2AD1C49}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="3240092342" Name="Play_PlayerBubbleTrap" ObjectPath="\Events\Default Work Unit\SFX\LVL1_SFX\Play_PlayerBubbleTrap" GUID="{1D7E0E7C-B12C-489F-9400-9E5553736284}" DurationType="OneShot" DurationMin="0.386408" DurationMax="0.52554506">
+					<MediaRefs>
+						<MediaRef Id="79773675"/>
+						<MediaRef Id="382429262"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{E6D8627B-EA7D-A86C-2F8E-EDA4225CBA0C}</FileHash>
+</SoundBanksInfo>

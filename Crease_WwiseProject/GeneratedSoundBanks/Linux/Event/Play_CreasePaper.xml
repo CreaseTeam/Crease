@@ -1,14 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <SoundBanksInfo Platform="Linux" BasePlatform="Linux" SchemaVersion="16" SoundBankVersion="172">
 	<SoundBanks>
-		<SoundBank Id="2906773315" Type="Event" GUID="{E29B5ED5-6187-4481-8362-3B07D309480C}" Language="SFX" Hash="{52A1D0DF-EC1A-D2FC-1433-EEBD3DE3CCA2}">
+		<SoundBank Id="2906773315" Type="Event" GUID="{E29B5ED5-6187-4481-8362-3B07D309480C}" Language="SFX" Hash="{D4A26545-4240-8464-0DB2-372C72ED117C}">
 			<ObjectPath>Play_CreasePaper</ObjectPath>
 			<ShortName>Play_CreasePaper</ShortName>
 			<Path>Event/Play_CreasePaper.bnk</Path>
+			<Media>
+				<File Id="8607158" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_paper_crease_05 FIXED.wav</ShortName>
+					<Path>Media/8607158.wem</Path>
+					<CachePath>C4/{C41B1D49-0BCA-39AC-B463-09B978D1DEFE}.wem</CachePath>
+				</File>
+				<File Id="37293926" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_paper_crease_01 FIXED.wav</ShortName>
+					<Path>Media/37293926.wem</Path>
+					<CachePath>48/{483055BC-DEBE-EC56-44FF-047183FF35B4}.wem</CachePath>
+				</File>
+				<File Id="679999101" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_paper_crease_02 FIXED.wav</ShortName>
+					<Path>Media/679999101.wem</Path>
+					<CachePath>EB/{EBFD8125-6B05-9930-84CA-FCACC1C67966}.wem</CachePath>
+				</File>
+				<File Id="846381607" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_paper_crease_04 FIXED.wav</ShortName>
+					<Path>Media/846381607.wem</Path>
+					<CachePath>34/{34125614-714F-DA6E-555E-97D9851626F4}.wem</CachePath>
+				</File>
+				<File Id="908496794" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_paper_crease_03 FIXED.wav</ShortName>
+					<Path>Media/908496794.wem</Path>
+					<CachePath>1A/{1A502EBA-8C94-B488-421B-2859F5AC0EEE}.wem</CachePath>
+				</File>
+			</Media>
 			<Events>
-				<Event Id="2906773315" Name="Play_CreasePaper" ObjectPath="\Events\Default Work Unit\SFX\UI_SFX\Play_CreasePaper" GUID="{E29B5ED5-6187-4481-8362-3B07D309480C}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+				<Event Id="2906773315" Name="Play_CreasePaper" ObjectPath="\Events\Default Work Unit\SFX\UI_SFX\Play_CreasePaper" GUID="{E29B5ED5-6187-4481-8362-3B07D309480C}" DurationType="OneShot" DurationMin="0.857125" DurationMax="1.5833334">
+					<MediaRefs>
+						<MediaRef Id="8607158"/>
+						<MediaRef Id="37293926"/>
+						<MediaRef Id="679999101"/>
+						<MediaRef Id="846381607"/>
+						<MediaRef Id="908496794"/>
+					</MediaRefs>
+				</Event>
 			</Events>
 		</SoundBank>
 	</SoundBanks>
-	<FileHash>{0B54A0BE-1317-D4D0-A876-08DD84B33F34}</FileHash>
+	<FileHash>{CAB693B3-271F-9DCB-0050-136709E5E1A8}</FileHash>
 </SoundBanksInfo>

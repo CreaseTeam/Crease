@@ -1,0 +1,46 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "723389955",
+    "Type": "Event",
+    "GUID": "{070424E2-8644-4096-8981-4BB7057CC548}",
+    "Language": "SFX",
+    "Hash": "{9550C827-79A4-6A1B-29D7-381CAA0A31AE}",
+    "ObjectPath": "Play_AmbientPlaygroundBoundary",
+    "ShortName": "Play_AmbientPlaygroundBoundary",
+    "Path": "Event/Play_AmbientPlaygroundBoundary.bnk",
+    "Media": [
+     {
+      "Id": "261291443",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_waves_ambience_01.wav",
+      "Path": "Media/261291443.wem",
+      "CachePath": "FE/{FE4460FF-DDE6-F9F3-7595-B9B321E56EFE}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "723389955",
+      "Name": "Play_AmbientPlaygroundBoundary",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\LVL1_SFX\\Play_AmbientPlaygroundBoundary",
+      "GUID": "{070424E2-8644-4096-8981-4BB7057CC548}",
+      "DurationType": "Infinite",
+      "MediaRefs": [
+       {
+        "Id": "261291443"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{25DCB169-A7A6-A0BF-7774-B094193814D7}"
+ }
+}

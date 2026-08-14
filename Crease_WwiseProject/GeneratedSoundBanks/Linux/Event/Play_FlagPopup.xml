@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Linux" BasePlatform="Linux" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="3205025518" Type="Event" GUID="{7D81C98B-922A-4244-B47B-94DBE319C51A}" Language="SFX" Hash="{3CDF03E1-E0C2-17BA-420C-E0194D07DA5B}">
+			<ObjectPath>Play_FlagPopup</ObjectPath>
+			<ShortName>Play_FlagPopup</ShortName>
+			<Path>Event/Play_FlagPopup.bnk</Path>
+			<Events>
+				<Event Id="3205025518" Name="Play_FlagPopup" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_FlagPopup" GUID="{7D81C98B-922A-4244-B47B-94DBE319C51A}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{AA09F250-75CC-08E1-0005-F0CA12C4D718}</FileHash>
+</SoundBanksInfo>

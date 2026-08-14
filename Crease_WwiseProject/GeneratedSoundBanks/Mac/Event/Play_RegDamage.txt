@@ -1,0 +1,3 @@
+Event	ID	Name			Wwise Object Path	Notes
+	395496407	Play_RegDamage			\Default Work Unit\SFX\COMMON_LVL_SFX\Play_RegDamage	
+

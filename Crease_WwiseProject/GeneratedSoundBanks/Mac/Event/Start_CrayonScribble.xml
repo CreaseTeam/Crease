@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Mac" BasePlatform="Mac" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="3834105472" Type="Event" GUID="{8038CD3C-AFB5-41AF-B1AF-62149047DF97}" Language="SFX" Hash="{6F6E32BF-5AA2-CA98-854F-6BA9C59EB0F4}">
+			<ObjectPath>Start_CrayonScribble</ObjectPath>
+			<ShortName>Start_CrayonScribble</ShortName>
+			<Path>Event/Start_CrayonScribble.bnk</Path>
+			<Media>
+				<File Id="243678878" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>sfx_crayon_Writing 3-4 FIXED and joined.wav</ShortName>
+					<Path>Media/243678878.wem</Path>
+					<CachePath>2C/{2C66A626-4E24-7480-DCBC-99F18635EDDD}.wem</CachePath>
+				</File>
+			</Media>
+			<Events>
+				<Event Id="3834105472" Name="Start_CrayonScribble" ObjectPath="\Events\Default Work Unit\SFX\LVL1_SFX\Start_CrayonScribble" GUID="{8038CD3C-AFB5-41AF-B1AF-62149047DF97}" DurationType="Infinite">
+					<MediaRefs>
+						<MediaRef Id="243678878"/>
+					</MediaRefs>
+				</Event>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{3E093C53-F37B-60F5-62A8-3A5CAA6E285E}</FileHash>
+</SoundBanksInfo>

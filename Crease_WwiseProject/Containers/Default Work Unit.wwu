@@ -61,7 +61,7 @@
 										</Reference>
 									</ReferenceList>
 									<ChildrenList>
-										<PropertyContainer Name="Level1" ID="{F10ACDA2-4DEE-4483-AB4B-EAB64B6D49B8}" ShortID="206319327">
+										<PropertyContainer Name="General" ID="{F10ACDA2-4DEE-4483-AB4B-EAB64B6D49B8}" ShortID="206319327">
 											<ReferenceList>
 												<Reference Name="Conversion">
 													<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
@@ -72,6 +72,9 @@
 											</ReferenceList>
 											<ChildrenList>
 												<RandomSequenceContainer Name="Fold" ID="{DCD38B76-C3F9-4090-B0AC-7FC947FB3939}" ShortID="776185549">
+													<PropertyList>
+														<Property Name="NormalOrShuffle" Type="int16" Value="0"/>
+													</PropertyList>
 													<ReferenceList>
 														<Reference Name="Conversion">
 															<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
@@ -80,8 +83,131 @@
 															<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
 														</Reference>
 													</ReferenceList>
+													<ChildrenList>
+														<Sound Name="sfx_paper_fold_02 FIXED" ID="{DA5B6293-7518-4585-A3F0-FB02F92549CD}" ShortID="265692802">
+															<ReferenceList>
+																<Reference Name="Conversion">
+																	<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+																</Reference>
+																<Reference Name="OutputBus">
+																	<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+																</Reference>
+															</ReferenceList>
+															<ChildrenList>
+																<AudioFileSource Name="sfx_paper_fold_02 FIXED" ID="{5AB5F082-B468-4670-BEE7-13115C106068}">
+																	<PropertyList>
+																		<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+																		<Property Name="TrimBegin" Type="Real64" Value="0.00611"/>
+																	</PropertyList>
+																	<Language>SFX</Language>
+																	<AudioFile>sfx_paper_fold_02 FIXED.wav</AudioFile>
+																	<MediaIDList>
+																		<MediaID ID="807604802"/>
+																	</MediaIDList>
+																</AudioFileSource>
+															</ChildrenList>
+															<ActiveSourceList>
+																<ActiveSource Name="sfx_paper_fold_02 FIXED" ID="{5AB5F082-B468-4670-BEE7-13115C106068}" Platform="Linked"/>
+															</ActiveSourceList>
+														</Sound>
+														<Sound Name="sfx_paper_fold_03 FIXED" ID="{31B12394-9C91-42FF-9D71-BE37495B68CE}" ShortID="380737951">
+															<ReferenceList>
+																<Reference Name="Conversion">
+																	<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+																</Reference>
+																<Reference Name="OutputBus">
+																	<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+																</Reference>
+															</ReferenceList>
+															<ChildrenList>
+																<AudioFileSource Name="sfx_paper_fold_03 FIXED" ID="{5EB36DFE-9A27-418B-A343-DDE6911600AD}">
+																	<PropertyList>
+																		<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+																	</PropertyList>
+																	<Language>SFX</Language>
+																	<AudioFile>sfx_paper_fold_03 FIXED.wav</AudioFile>
+																	<MediaIDList>
+																		<MediaID ID="129470540"/>
+																	</MediaIDList>
+																</AudioFileSource>
+															</ChildrenList>
+															<ActiveSourceList>
+																<ActiveSource Name="sfx_paper_fold_03 FIXED" ID="{5EB36DFE-9A27-418B-A343-DDE6911600AD}" Platform="Linked"/>
+															</ActiveSourceList>
+														</Sound>
+														<Sound Name="sfx_paper_fold_04 FIXED" ID="{C92F4C3E-A768-4838-A688-67CCC168E398}" ShortID="923054414">
+															<ReferenceList>
+																<Reference Name="Conversion">
+																	<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+																</Reference>
+																<Reference Name="OutputBus">
+																	<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+																</Reference>
+															</ReferenceList>
+															<ChildrenList>
+																<AudioFileSource Name="sfx_paper_fold_04 FIXED" ID="{B35DF1EE-1261-40BE-BC23-8B750190A8AA}">
+																	<PropertyList>
+																		<Property Name="LoopBegin" Type="Real64" Value="0.03384"/>
+																		<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+																		<Property Name="TrimBegin" Type="Real64" Value="0.03384"/>
+																	</PropertyList>
+																	<Language>SFX</Language>
+																	<AudioFile>sfx_paper_fold_04 FIXED.wav</AudioFile>
+																	<MediaIDList>
+																		<MediaID ID="394022433"/>
+																	</MediaIDList>
+																</AudioFileSource>
+															</ChildrenList>
+															<ActiveSourceList>
+																<ActiveSource Name="sfx_paper_fold_04 FIXED" ID="{B35DF1EE-1261-40BE-BC23-8B750190A8AA}" Platform="Linked"/>
+															</ActiveSourceList>
+														</Sound>
+														<Sound Name="sfx_paper_fold_05 FIXED" ID="{997FC248-F4AB-4344-BAD7-049F223D9ADE}" ShortID="536046827">
+															<ReferenceList>
+																<Reference Name="Conversion">
+																	<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+																</Reference>
+																<Reference Name="OutputBus">
+																	<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+																</Reference>
+															</ReferenceList>
+															<ChildrenList>
+																<AudioFileSource Name="sfx_paper_fold_05 FIXED" ID="{BDCCF1E9-2CE8-4517-BB0F-0D2C2276BE66}">
+																	<PropertyList>
+																		<Property Name="FadeInDuration" Type="Real64" Value="0.01504"/>
+																		<Property Name="FadeOutDuration" Type="Real64" Value="0.00376"/>
+																		<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+																		<Property Name="TrimBegin" Type="Real64" Value="0.05784"/>
+																	</PropertyList>
+																	<Language>SFX</Language>
+																	<AudioFile>sfx_paper_fold_05 FIXED.wav</AudioFile>
+																	<MediaIDList>
+																		<MediaID ID="564755391"/>
+																	</MediaIDList>
+																</AudioFileSource>
+															</ChildrenList>
+															<ActiveSourceList>
+																<ActiveSource Name="sfx_paper_fold_05 FIXED" ID="{BDCCF1E9-2CE8-4517-BB0F-0D2C2276BE66}" Platform="Linked"/>
+															</ActiveSourceList>
+														</Sound>
+													</ChildrenList>
 												</RandomSequenceContainer>
 												<RandomSequenceContainer Name="Crease" ID="{5324B492-B786-4BF3-BB52-256D7AFF48D8}" ShortID="512631692">
+													<PropertyList>
+														<Property Name="Lowpass" Type="int16">
+															<ValueList>
+																<Value>17</Value>
+															</ValueList>
+														</Property>
+														<Property Name="NormalOrShuffle" Type="int16" Value="0"/>
+														<Property Name="OverridePositioning" Type="bool" Value="True"/>
+														<Property Name="SpeakerPanning" Type="int16" Value="1"/>
+														<Property Name="Volume" Type="Real64">
+															<ValueList>
+																<Value>-15</Value>
+															</ValueList>
+														</Property>
+													</PropertyList>
 													<ReferenceList>
 														<Reference Name="Conversion">
 															<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
@@ -90,6 +216,139 @@
 															<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
 														</Reference>
 													</ReferenceList>
+													<ChildrenList>
+														<Sound Name="sfx_paper_crease_01 FIXED" ID="{E94A4ED1-5E35-4E9B-A79F-05A3118EC0F3}" ShortID="553213065">
+															<ReferenceList>
+																<Reference Name="Conversion">
+																	<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+																</Reference>
+																<Reference Name="OutputBus">
+																	<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+																</Reference>
+															</ReferenceList>
+															<ChildrenList>
+																<AudioFileSource Name="sfx_paper_crease_01 FIXED" ID="{BF757E7C-307C-4193-861C-C866DA868953}">
+																	<Language>SFX</Language>
+																	<AudioFile>sfx_paper_crease_01 FIXED.wav</AudioFile>
+																	<MediaIDList>
+																		<MediaID ID="37293926"/>
+																	</MediaIDList>
+																</AudioFileSource>
+															</ChildrenList>
+															<ActiveSourceList>
+																<ActiveSource Name="sfx_paper_crease_01 FIXED" ID="{BF757E7C-307C-4193-861C-C866DA868953}" Platform="Linked"/>
+															</ActiveSourceList>
+														</Sound>
+														<Sound Name="sfx_paper_crease_02 FIXED" ID="{14D9F1E9-BE07-4E4C-9488-65740D49B674}" ShortID="512291898">
+															<ReferenceList>
+																<Reference Name="Conversion">
+																	<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+																</Reference>
+																<Reference Name="OutputBus">
+																	<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+																</Reference>
+															</ReferenceList>
+															<ChildrenList>
+																<AudioFileSource Name="sfx_paper_crease_02 FIXED" ID="{F2C5FB8E-4721-425E-9313-7A6BF007515D}">
+																	<Language>SFX</Language>
+																	<AudioFile>sfx_paper_crease_02 FIXED.wav</AudioFile>
+																	<MediaIDList>
+																		<MediaID ID="679999101"/>
+																	</MediaIDList>
+																</AudioFileSource>
+															</ChildrenList>
+															<ActiveSourceList>
+																<ActiveSource Name="sfx_paper_crease_02 FIXED" ID="{F2C5FB8E-4721-425E-9313-7A6BF007515D}" Platform="Linked"/>
+															</ActiveSourceList>
+														</Sound>
+														<Sound Name="sfx_paper_crease_03 FIXED" ID="{900DC19A-0A3A-46D9-A2B5-BCE9A1A59E07}" ShortID="561021270">
+															<ReferenceList>
+																<Reference Name="Conversion">
+																	<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+																</Reference>
+																<Reference Name="OutputBus">
+																	<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+																</Reference>
+															</ReferenceList>
+															<ChildrenList>
+																<AudioFileSource Name="sfx_paper_crease_03 FIXED" ID="{6BF90917-0BC6-4104-8A97-BB1A34665330}">
+																	<PropertyList>
+																		<Property Name="FadeInDuration" Type="Real64" Value="0.01834"/>
+																		<Property Name="FadeOutDuration" Type="Real64" Value="0.55598"/>
+																		<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+																		<Property Name="TrimBegin" Type="Real64" Value="0.08184"/>
+																		<Property Name="TrimEnd" Type="Real64" Value="1.15856"/>
+																	</PropertyList>
+																	<Language>SFX</Language>
+																	<AudioFile>sfx_paper_crease_03 FIXED.wav</AudioFile>
+																	<MediaIDList>
+																		<MediaID ID="908496794"/>
+																	</MediaIDList>
+																</AudioFileSource>
+															</ChildrenList>
+															<ActiveSourceList>
+																<ActiveSource Name="sfx_paper_crease_03 FIXED" ID="{6BF90917-0BC6-4104-8A97-BB1A34665330}" Platform="Linked"/>
+															</ActiveSourceList>
+														</Sound>
+														<Sound Name="sfx_paper_crease_04 FIXED" ID="{A86ADA4B-0AE0-4FE8-9FAB-B2D1738B0BD1}" ShortID="118647125">
+															<ReferenceList>
+																<Reference Name="Conversion">
+																	<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+																</Reference>
+																<Reference Name="OutputBus">
+																	<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+																</Reference>
+															</ReferenceList>
+															<ChildrenList>
+																<AudioFileSource Name="sfx_paper_crease_04 FIXED" ID="{04791C74-B57B-4D49-B61B-C0806693C7AB}">
+																	<PropertyList>
+																		<Property Name="FadeOutDuration" Type="Real64" Value="0.93686"/>
+																		<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+																		<Property Name="TrimBegin" Type="Real64" Value="0.06556"/>
+																		<Property Name="TrimEnd" Type="Real64" Value="1.09623"/>
+																	</PropertyList>
+																	<Language>SFX</Language>
+																	<AudioFile>sfx_paper_crease_04 FIXED.wav</AudioFile>
+																	<MediaIDList>
+																		<MediaID ID="846381607"/>
+																	</MediaIDList>
+																</AudioFileSource>
+															</ChildrenList>
+															<ActiveSourceList>
+																<ActiveSource Name="sfx_paper_crease_04 FIXED" ID="{04791C74-B57B-4D49-B61B-C0806693C7AB}" Platform="Linked"/>
+															</ActiveSourceList>
+														</Sound>
+														<Sound Name="sfx_paper_crease_05 FIXED" ID="{BBA553D7-3813-4893-A1DA-3E15509FDE97}" ShortID="1005762971">
+															<ReferenceList>
+																<Reference Name="Conversion">
+																	<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
+																</Reference>
+																<Reference Name="OutputBus">
+																	<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
+																</Reference>
+															</ReferenceList>
+															<ChildrenList>
+																<AudioFileSource Name="sfx_paper_crease_05 FIXED" ID="{22B77BC2-514C-4CF6-9FE6-2571B7AEAFEA}">
+																	<Language>SFX</Language>
+																	<AudioFile>sfx_paper_crease_05 FIXED.wav</AudioFile>
+																	<MediaIDList>
+																		<MediaID ID="8607158"/>
+																	</MediaIDList>
+																</AudioFileSource>
+															</ChildrenList>
+															<ActiveSourceList>
+																<ActiveSource Name="sfx_paper_crease_05 FIXED" ID="{22B77BC2-514C-4CF6-9FE6-2571B7AEAFEA}" Platform="Linked"/>
+															</ActiveSourceList>
+														</Sound>
+													</ChildrenList>
+													<PositioningInfo>
+														<Panner Name="" ID="{9F017750-4D8A-4E43-9064-8F7A3E127220}">
+															<PropertyList>
+																<Property Name="PanX" Type="Real64" Value="-27.6470588235294"/>
+																<Property Name="PanY" Type="Real64" Value="0.625"/>
+															</PropertyList>
+														</Panner>
+													</PositioningInfo>
 												</RandomSequenceContainer>
 												<RandomSequenceContainer Name="Sticker_Select" ID="{6D26E818-96CB-4C51-9E27-E5869C60A518}" ShortID="1005578676">
 													<PropertyList>
@@ -387,20 +646,7 @@
 						</PropertyContainer>
 					</ChildrenList>
 				</PropertyContainer>
-				<PropertyContainer Name="MUSIC" ID="{8E852671-15A5-40DD-8D52-3572B9853BD6}" ShortID="108178157">
-					<PropertyList>
-						<Property Name="Color" Type="int16" Value="12"/>
-						<Property Name="OverrideColor" Type="bool" Value="True"/>
-					</PropertyList>
-					<ReferenceList>
-						<Reference Name="Conversion">
-							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{54D5C7A7-1094-40FC-8589-43640E95542B}"/>
-						</Reference>
-						<Reference Name="OutputBus">
-							<ObjectRef Name="Main Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{543F12F8-A3DE-440B-B107-FF91929B8D1C}"/>
-						</Reference>
-					</ReferenceList>
-				</PropertyContainer>
+				<WorkUnit Name="MUSIC" ID="{481A93D2-0A24-4B8A-BA32-3B8F5210EA15}" PersistMode="Reference"/>
 			</ChildrenList>
 		</WorkUnit>
 	</Containers>

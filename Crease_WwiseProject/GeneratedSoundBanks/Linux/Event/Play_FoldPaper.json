@@ -10,24 +10,75 @@
     "Type": "Event",
     "GUID": "{4C1F1568-0BBB-4844-B494-0331F9C2BA8F}",
     "Language": "SFX",
-    "Hash": "{96DBE590-F7D5-631E-8B17-FE08876D87DC}",
+    "Hash": "{87185FDF-5EA8-1D3C-E3D0-43FD1263E823}",
     "ObjectPath": "Play_FoldPaper",
     "ShortName": "Play_FoldPaper",
     "Path": "Event/Play_FoldPaper.bnk",
+    "Media": [
+     {
+      "Id": "129470540",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_paper_fold_03 FIXED.wav",
+      "Path": "Media/129470540.wem",
+      "CachePath": "25/{258F8FD9-81DD-EF47-A754-5F573C378B17}.wem"
+     },
+     {
+      "Id": "394022433",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_paper_fold_04 FIXED.wav",
+      "Path": "Media/394022433.wem",
+      "CachePath": "F8/{F812D51D-8CF5-167C-BDC2-127C82F0583F}.wem"
+     },
+     {
+      "Id": "564755391",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_paper_fold_05 FIXED.wav",
+      "Path": "Media/564755391.wem",
+      "CachePath": "C9/{C9B1623B-DF71-F335-31CA-F05899BF938E}.wem"
+     },
+     {
+      "Id": "807604802",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_paper_fold_02 FIXED.wav",
+      "Path": "Media/807604802.wem",
+      "CachePath": "56/{5642F05B-C8B3-CEA6-AAD6-50973D908478}.wem"
+     }
+    ],
     "Events": [
      {
       "Id": "3430616211",
       "Name": "Play_FoldPaper",
       "ObjectPath": "\\Events\\Default Work Unit\\SFX\\UI_SFX\\Play_FoldPaper",
       "GUID": "{4C1F1568-0BBB-4844-B494-0331F9C2BA8F}",
-      "MaxAttenuation": "0",
       "DurationType": "OneShot",
-      "DurationMin": "0",
-      "DurationMax": "0"
+      "DurationMin": "0.44216",
+      "DurationMax": "0.5",
+      "MediaRefs": [
+       {
+        "Id": "129470540"
+       },
+       {
+        "Id": "394022433"
+       },
+       {
+        "Id": "564755391"
+       },
+       {
+        "Id": "807604802"
+       }
+      ]
      }
     ]
    }
   ],
-  "FileHash": "{BF06F303-32EC-8B03-9B9B-A88D3D5DFFFE}"
+  "FileHash": "{F78FD338-D464-2A48-EA9F-B413C90451DD}"
  }
 }

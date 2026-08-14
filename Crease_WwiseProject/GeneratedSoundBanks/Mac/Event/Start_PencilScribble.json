@@ -1,0 +1,46 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Mac",
+  "BasePlatform": "Mac",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "3260018181",
+    "Type": "Event",
+    "GUID": "{12C4A6FA-A8C9-4211-AB03-86C932BA4FE1}",
+    "Language": "SFX",
+    "Hash": "{4EAC0157-4265-AA47-584D-61777200271E}",
+    "ObjectPath": "Start_PencilScribble",
+    "ShortName": "Start_PencilScribble",
+    "Path": "Event/Start_PencilScribble.bnk",
+    "Media": [
+     {
+      "Id": "107026020",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "sfx_pencil_Writing 2-3 FIXED and joined.wav",
+      "Path": "Media/107026020.wem",
+      "CachePath": "87/{878C7EDB-4CC6-437B-EB30-997282ED26AD}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "3260018181",
+      "Name": "Start_PencilScribble",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\LVL1_SFX\\Start_PencilScribble",
+      "GUID": "{12C4A6FA-A8C9-4211-AB03-86C932BA4FE1}",
+      "DurationType": "Infinite",
+      "MediaRefs": [
+       {
+        "Id": "107026020"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{11C228B8-5739-3FED-BFA7-D4E579EFEEA6}"
+ }
+}
