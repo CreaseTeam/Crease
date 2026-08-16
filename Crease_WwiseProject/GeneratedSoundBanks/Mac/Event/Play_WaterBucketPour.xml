@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Mac" BasePlatform="Mac" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="3101934991" Type="Event" GUID="{851B0E68-274A-4510-B8B8-B9EA4847ABA8}" Language="SFX" Hash="{28238728-043E-E527-FC88-87A2BEAC3167}">
+			<ObjectPath>Play_WaterBucketPour</ObjectPath>
+			<ShortName>Play_WaterBucketPour</ShortName>
+			<Path>Event/Play_WaterBucketPour.bnk</Path>
+			<Events>
+				<Event Id="3101934991" Name="Play_WaterBucketPour" ObjectPath="\Events\Default Work Unit\SFX\LVL1_SFX\Play_WaterBucketPour" GUID="{851B0E68-274A-4510-B8B8-B9EA4847ABA8}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{6AC671F0-D4AC-500B-5C1E-6086A347599B}</FileHash>
+</SoundBanksInfo>

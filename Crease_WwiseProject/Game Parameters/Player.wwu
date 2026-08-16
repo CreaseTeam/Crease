@@ -11,7 +11,6 @@
 				<GameParameter Name="Player_DamageIntensity" ID="{35F6694B-C56E-4FA8-B13F-BB1B6BFCC7DA}">
 					<PropertyList>
 						<Property Name="InitialValue" Type="Real64" Value="0"/>
-						<Property Name="Max" Type="Real64" Value="20"/>
 					</PropertyList>
 				</GameParameter>
 			</ChildrenList>

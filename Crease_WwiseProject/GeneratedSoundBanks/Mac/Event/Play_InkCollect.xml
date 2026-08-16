@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Mac" BasePlatform="Mac" SchemaVersion="16" SoundBankVersion="172">
+	<SoundBanks>
+		<SoundBank Id="1324950808" Type="Event" GUID="{D187F2B9-F288-4596-A974-ED9BAEEF1999}" Language="SFX" Hash="{C069F960-4AED-164C-5443-44F947E9AEE6}">
+			<ObjectPath>Play_InkCollect</ObjectPath>
+			<ShortName>Play_InkCollect</ShortName>
+			<Path>Event/Play_InkCollect.bnk</Path>
+			<Events>
+				<Event Id="1324950808" Name="Play_InkCollect" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_InkCollect" GUID="{D187F2B9-F288-4596-A974-ED9BAEEF1999}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{39F67905-B09F-594E-FD35-DB643F0F84E7}</FileHash>
+</SoundBanksInfo>

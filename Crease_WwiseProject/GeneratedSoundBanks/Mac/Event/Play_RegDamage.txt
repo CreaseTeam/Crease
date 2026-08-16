@@ -1,3 +1,14 @@
 Event	ID	Name			Wwise Object Path	Notes
 	395496407	Play_RegDamage			\Default Work Unit\SFX\COMMON_LVL_SFX\Play_RegDamage	
 
+Switch Group	ID	Name			Wwise Object Path	Notes
+	1591838669	Player_Damage_Level			\Default Work Unit\Player\Player_Damage_Level	
+
+Switch	ID	Name	Switch Group			Notes
+	545371365	Low	Player_Damage_Level			
+	2849147824	Medium	Player_Damage_Level			
+	3550808449	High	Player_Damage_Level			
+
+Game Parameter	ID	Name			Wwise Object Path	Notes
+	783376577	Player_DamageIntensity			\Default Work Unit\Player\Player_DamageIntensity	
+

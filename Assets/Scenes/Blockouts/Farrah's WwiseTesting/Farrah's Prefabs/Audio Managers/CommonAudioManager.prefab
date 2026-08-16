@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &593912437057895580
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8691602169740872632}
+  - component: {fileID: 5060920405095199207}
+  - component: {fileID: 5808561858137535113}
+  m_Layer: 0
+  m_Name: CommonAudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8691602169740872632
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 593912437057895580}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5060920405095199207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 593912437057895580}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8edea2a843b5d9b46a1cfc4aab8a6c51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioManager
+  _sounds:
+  - Key: coin
+    Clip: {fileID: 8300000, guid: d635b1a8590aac54d93c57af553899f9, type: 3}
+    DefaultVolume: 1
+    MinDistance: 1
+    MaxDistance: 500
+  - Key: wind
+    Clip: {fileID: 8300000, guid: f5fb088c852d25c46a2ded789b44efb1, type: 3}
+    DefaultVolume: 1
+    MinDistance: 5
+    MaxDistance: 500
+  - Key: crash
+    Clip: {fileID: 8300000, guid: 23e13a39fc11e1849b05233e86f7f0a8, type: 3}
+    DefaultVolume: 1
+    MinDistance: 1
+    MaxDistance: 500
+  - Key: crash
+    Clip: {fileID: 8300000, guid: 23e13a39fc11e1849b05233e86f7f0a8, type: 3}
+    DefaultVolume: 1
+    MinDistance: 1
+    MaxDistance: 500
+  - Key: fold
+    Clip: {fileID: 8300000, guid: 0b55055c6d00ac14983af276c2a9d130, type: 3}
+    DefaultVolume: 1
+    MinDistance: 1
+    MaxDistance: 500
+--- !u!114 &5808561858137535113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 593912437057895580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94f771481f3294b9fab57ed0b44be5b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  DamageTakenEvent:
+    idInternal: 0
+    valueGuidInternal: 
+    WwiseObjectReference: {fileID: 11400000, guid: 100a3ecbd73094e46a8aef68668ef678, type: 2}
+  DamageAmountRTPC:
+    idInternal: 0
+    valueGuidInternal: 
+    WwiseObjectReference: {fileID: 11400000, guid: 6afbf9a17898f450bb2df6d5fe691ff1, type: 2}

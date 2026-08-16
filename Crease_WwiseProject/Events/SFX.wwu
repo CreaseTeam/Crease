@@ -115,10 +115,21 @@
 								</Action>
 							</ChildrenList>
 						</Event>
-						<Event Name="Play_RegDamage" ID="{6B67B4E4-7BD9-47A1-AD9B-9CFDA94C16A6}"/>
+						<Event Name="Play_RegDamage" ID="{6B67B4E4-7BD9-47A1-AD9B-9CFDA94C16A6}">
+							<ChildrenList>
+								<Action Name="" ID="{B6C0B4F9-6BBF-44FE-847A-6E5A6AB79531}" ShortID="478061312">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="Reg_Hit_Intensity" ID="{51E31B3F-6855-4D47-831F-AF7FA69D3374}" WorkUnitID="{F6531EEB-D40E-40C5-B2FC-81987E8840E8}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
 						<Event Name="Play_CloseMailbox" ID="{EA389326-52EC-429D-985D-E8C45C98A58B}"/>
 						<Event Name="Play_FlagPopup" ID="{7D81C98B-922A-4244-B47B-94DBE319C51A}"/>
 						<Event Name="Play_CheckpointReached" ID="{92406C57-FA07-4B8C-8108-E876C14200B2}"/>
+						<Event Name="Play_InkCollect" ID="{D187F2B9-F288-4596-A974-ED9BAEEF1999}"/>
 					</ChildrenList>
 				</Folder>
 				<Folder Name="LVL1_SFX" ID="{EBA948A2-AFAC-46E4-8823-A236833450C1}" ShortID="331329477">
@@ -241,6 +252,7 @@
 								</Action>
 							</ChildrenList>
 						</Event>
+						<Event Name="Play_WaterBucketPour" ID="{851B0E68-274A-4510-B8B8-B9EA4847ABA8}"/>
 					</ChildrenList>
 				</Folder>
 				<Folder Name="UI_SFX" ID="{BC1731D6-AB4E-494E-A685-5544DB1ED301}" ShortID="252130871">

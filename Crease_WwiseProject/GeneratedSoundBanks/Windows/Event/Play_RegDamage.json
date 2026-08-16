@@ -10,24 +10,168 @@
     "Type": "Event",
     "GUID": "{6B67B4E4-7BD9-47A1-AD9B-9CFDA94C16A6}",
     "Language": "SFX",
-    "Hash": "{F10874FA-CFAD-5F75-E656-6BC86DDC8A8B}",
+    "Hash": "{8BD9C45E-360E-F110-3903-1CA534F4E2BD}",
     "ObjectPath": "Play_RegDamage",
     "ShortName": "Play_RegDamage",
     "Path": "Event/Play_RegDamage.bnk",
+    "Media": [
+     {
+      "Id": "634228621",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Plane_hit_v1 FIXED.wav",
+      "Path": "Media/634228621.wem",
+      "CachePath": "76/{76BAD733-DB38-021C-DA78-95CF7222A67B}.wem"
+     },
+     {
+      "Id": "778764351",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Plane_hit_v1 FIXED.wav",
+      "Path": "Media/778764351.wem",
+      "CachePath": "11/{116F53BD-320D-F89A-4C85-C939879A741D}.wem"
+     },
+     {
+      "Id": "889088122",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Plane_hit_v2 FIXED.wav",
+      "Path": "Media/889088122.wem",
+      "CachePath": "7E/{7E1FD50E-CA58-2E37-E240-45385E4DBF65}.wem"
+     },
+     {
+      "Id": "950863787",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Plane_hit_v2 FIXED.wav",
+      "Path": "Media/950863787.wem",
+      "CachePath": "73/{73DF15D9-78B5-4672-2509-6E3C7A8BC82A}.wem"
+     },
+     {
+      "Id": "964143505",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Plane_hit_v1 FIXED.wav",
+      "Path": "Media/964143505.wem",
+      "CachePath": "7A/{7A008DB8-EA9C-FAB6-EB8C-16301111B5DA}.wem"
+     },
+     {
+      "Id": "974492426",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Plane_hit_v2 FIXED.wav",
+      "Path": "Media/974492426.wem",
+      "CachePath": "ED/{ED17BAF3-9B47-CEF3-D6B4-410233C54FB5}.wem"
+     }
+    ],
     "Events": [
      {
       "Id": "395496407",
       "Name": "Play_RegDamage",
       "ObjectPath": "\\Events\\Default Work Unit\\SFX\\COMMON_LVL_SFX\\Play_RegDamage",
       "GUID": "{6B67B4E4-7BD9-47A1-AD9B-9CFDA94C16A6}",
-      "MaxAttenuation": "0",
       "DurationType": "OneShot",
-      "DurationMin": "0",
-      "DurationMax": "0"
+      "DurationMin": "0.35862",
+      "DurationMax": "0.48315",
+      "SwitchContainers": [
+       {
+        "SwitchValue": {
+         "GroupType": "Switch",
+         "GroupId": "1591838669",
+         "Id": "3550808449",
+         "GUID": "{7CAECF14-6370-4B80-A7DF-C0B002C94B85}"
+        },
+        "MediaRefs": [
+         {
+          "Id": "634228621"
+         },
+         {
+          "Id": "889088122"
+         }
+        ]
+       },
+       {
+        "SwitchValue": {
+         "GroupType": "Switch",
+         "GroupId": "1591838669",
+         "Id": "545371365",
+         "GUID": "{A6287B80-E745-4A02-ACBB-4EE312D63B1A}"
+        },
+        "MediaRefs": [
+         {
+          "Id": "778764351"
+         },
+         {
+          "Id": "974492426"
+         }
+        ]
+       },
+       {
+        "SwitchValue": {
+         "GroupType": "Switch",
+         "GroupId": "1591838669",
+         "Id": "2849147824",
+         "GUID": "{533478F1-B31A-4D50-963C-C7A20D9636CF}"
+        },
+        "MediaRefs": [
+         {
+          "Id": "950863787"
+         },
+         {
+          "Id": "964143505"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "GameParameters": [
+     {
+      "Id": "783376577",
+      "Name": "Player_DamageIntensity",
+      "ObjectPath": "\\Game Parameters\\Default Work Unit\\Player\\Player_DamageIntensity",
+      "GUID": "{35F6694B-C56E-4FA8-B13F-BB1B6BFCC7DA}"
+     }
+    ],
+    "SwitchGroups": [
+     {
+      "Id": "1591838669",
+      "Name": "Player_Damage_Level",
+      "ObjectPath": "\\Switches\\Default Work Unit\\Player\\Player_Damage_Level",
+      "GUID": "{E9290091-809C-4A40-AAF9-EEF2A7D4B0E6}",
+      "GameParameterRef": {
+       "Id": "783376577"
+      },
+      "Switches": [
+       {
+        "Id": "545371365",
+        "Name": "Low",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Player\\Player_Damage_Level\\Low",
+        "GUID": "{A6287B80-E745-4A02-ACBB-4EE312D63B1A}"
+       },
+       {
+        "Id": "2849147824",
+        "Name": "Medium",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Player\\Player_Damage_Level\\Medium",
+        "GUID": "{533478F1-B31A-4D50-963C-C7A20D9636CF}"
+       },
+       {
+        "Id": "3550808449",
+        "Name": "High",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Player\\Player_Damage_Level\\High",
+        "GUID": "{7CAECF14-6370-4B80-A7DF-C0B002C94B85}"
+       }
+      ]
      }
     ]
    }
   ],
-  "FileHash": "{14273E41-3314-7778-F1BD-C04586AC7198}"
+  "FileHash": "{668E23DA-F8D1-8917-FE08-13F40ED8165C}"
  }
 }

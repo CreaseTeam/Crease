@@ -85,13 +85,82 @@
 				<Event Id="348159706" Name="Play_SelectButton" ObjectPath="\Events\Default Work Unit\SFX\UI_SFX\Play_SelectButton" GUID="{C15C9FAB-D02C-46AE-AA07-9EE23603DC70}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
 			</Events>
 		</SoundBank>
-		<SoundBank Id="395496407" Type="Event" GUID="{6B67B4E4-7BD9-47A1-AD9B-9CFDA94C16A6}" Language="SFX" Hash="{F10874FA-CFAD-5F75-E656-6BC86DDC8A8B}">
+		<SoundBank Id="395496407" Type="Event" GUID="{6B67B4E4-7BD9-47A1-AD9B-9CFDA94C16A6}" Language="SFX" Hash="{8BD9C45E-360E-F110-3903-1CA534F4E2BD}">
 			<ObjectPath>Play_RegDamage</ObjectPath>
 			<ShortName>Play_RegDamage</ShortName>
 			<Path>Event/Play_RegDamage.bnk</Path>
+			<Media>
+				<File Id="634228621" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>Plane_hit_v1 FIXED.wav</ShortName>
+					<Path>Media/634228621.wem</Path>
+					<CachePath>76/{76BAD733-DB38-021C-DA78-95CF7222A67B}.wem</CachePath>
+				</File>
+				<File Id="778764351" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>Plane_hit_v1 FIXED.wav</ShortName>
+					<Path>Media/778764351.wem</Path>
+					<CachePath>11/{116F53BD-320D-F89A-4C85-C939879A741D}.wem</CachePath>
+				</File>
+				<File Id="889088122" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>Plane_hit_v2 FIXED.wav</ShortName>
+					<Path>Media/889088122.wem</Path>
+					<CachePath>7E/{7E1FD50E-CA58-2E37-E240-45385E4DBF65}.wem</CachePath>
+				</File>
+				<File Id="950863787" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>Plane_hit_v2 FIXED.wav</ShortName>
+					<Path>Media/950863787.wem</Path>
+					<CachePath>73/{73DF15D9-78B5-4672-2509-6E3C7A8BC82A}.wem</CachePath>
+				</File>
+				<File Id="964143505" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>Plane_hit_v1 FIXED.wav</ShortName>
+					<Path>Media/964143505.wem</Path>
+					<CachePath>7A/{7A008DB8-EA9C-FAB6-EB8C-16301111B5DA}.wem</CachePath>
+				</File>
+				<File Id="974492426" Language="SFX" Streaming="false" Location="Loose">
+					<ShortName>Plane_hit_v2 FIXED.wav</ShortName>
+					<Path>Media/974492426.wem</Path>
+					<CachePath>ED/{ED17BAF3-9B47-CEF3-D6B4-410233C54FB5}.wem</CachePath>
+				</File>
+			</Media>
 			<Events>
-				<Event Id="395496407" Name="Play_RegDamage" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_RegDamage" GUID="{6B67B4E4-7BD9-47A1-AD9B-9CFDA94C16A6}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+				<Event Id="395496407" Name="Play_RegDamage" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_RegDamage" GUID="{6B67B4E4-7BD9-47A1-AD9B-9CFDA94C16A6}" DurationType="OneShot" DurationMin="0.35862" DurationMax="0.48315">
+					<SwitchContainers>
+						<SwitchContainer>
+							<SwitchValue GroupType="Switch" GroupId="1591838669" Id="3550808449" GUID="{7CAECF14-6370-4B80-A7DF-C0B002C94B85}"/>
+							<MediaRefs>
+								<MediaRef Id="634228621"/>
+								<MediaRef Id="889088122"/>
+							</MediaRefs>
+						</SwitchContainer>
+						<SwitchContainer>
+							<SwitchValue GroupType="Switch" GroupId="1591838669" Id="545371365" GUID="{A6287B80-E745-4A02-ACBB-4EE312D63B1A}"/>
+							<MediaRefs>
+								<MediaRef Id="778764351"/>
+								<MediaRef Id="974492426"/>
+							</MediaRefs>
+						</SwitchContainer>
+						<SwitchContainer>
+							<SwitchValue GroupType="Switch" GroupId="1591838669" Id="2849147824" GUID="{533478F1-B31A-4D50-963C-C7A20D9636CF}"/>
+							<MediaRefs>
+								<MediaRef Id="950863787"/>
+								<MediaRef Id="964143505"/>
+							</MediaRefs>
+						</SwitchContainer>
+					</SwitchContainers>
+				</Event>
 			</Events>
+			<GameParameters>
+				<GameParameter Id="783376577" Name="Player_DamageIntensity" ObjectPath="\Game Parameters\Default Work Unit\Player\Player_DamageIntensity" GUID="{35F6694B-C56E-4FA8-B13F-BB1B6BFCC7DA}"/>
+			</GameParameters>
+			<SwitchGroups>
+				<SwitchGroup Id="1591838669" Name="Player_Damage_Level" ObjectPath="\Switches\Default Work Unit\Player\Player_Damage_Level" GUID="{E9290091-809C-4A40-AAF9-EEF2A7D4B0E6}">
+					<GameParameterRef Id="783376577"/>
+					<Switches>
+						<Switch Id="545371365" Name="Low" ObjectPath="\Switches\Default Work Unit\Player\Player_Damage_Level\Low" GUID="{A6287B80-E745-4A02-ACBB-4EE312D63B1A}"/>
+						<Switch Id="2849147824" Name="Medium" ObjectPath="\Switches\Default Work Unit\Player\Player_Damage_Level\Medium" GUID="{533478F1-B31A-4D50-963C-C7A20D9636CF}"/>
+						<Switch Id="3550808449" Name="High" ObjectPath="\Switches\Default Work Unit\Player\Player_Damage_Level\High" GUID="{7CAECF14-6370-4B80-A7DF-C0B002C94B85}"/>
+					</Switches>
+				</SwitchGroup>
+			</SwitchGroups>
 		</SoundBank>
 		<SoundBank Id="447315244" Type="Event" GUID="{049D3166-038B-4B73-B91E-7D9DCEF58641}" Language="SFX" Hash="{E55FAEB3-FB5D-0590-ECA1-9FE6756A9668}">
 			<ObjectPath>Play_PlayerPopBubble</ObjectPath>
@@ -347,7 +416,15 @@
 				</Event>
 			</Events>
 		</SoundBank>
-		<SoundBank Id="1355168291" Type="User" GUID="{701ECBBD-9C7B-4030-8CDB-749EE5D1C7B9}" Language="SFX" Hash="{538657B2-CBD6-442A-6812-D2A5D7D5B547}">
+		<SoundBank Id="1324950808" Type="Event" GUID="{D187F2B9-F288-4596-A974-ED9BAEEF1999}" Language="SFX" Hash="{C069F960-4AED-164C-5443-44F947E9AEE6}">
+			<ObjectPath>Play_InkCollect</ObjectPath>
+			<ShortName>Play_InkCollect</ShortName>
+			<Path>Event/Play_InkCollect.bnk</Path>
+			<Events>
+				<Event Id="1324950808" Name="Play_InkCollect" ObjectPath="\Events\Default Work Unit\SFX\COMMON_LVL_SFX\Play_InkCollect" GUID="{D187F2B9-F288-4596-A974-ED9BAEEF1999}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
+		<SoundBank Id="1355168291" Type="User" GUID="{701ECBBD-9C7B-4030-8CDB-749EE5D1C7B9}" Language="SFX" Hash="{7162EA8F-AAC9-016A-49EA-16F1682E2C78}">
 			<ObjectPath>Init</ObjectPath>
 			<ShortName>Init</ShortName>
 			<Path>Init.bnk</Path>
@@ -635,6 +712,14 @@
 				</Event>
 			</Events>
 		</SoundBank>
+		<SoundBank Id="3101934991" Type="Event" GUID="{851B0E68-274A-4510-B8B8-B9EA4847ABA8}" Language="SFX" Hash="{28238728-043E-E527-FC88-87A2BEAC3167}">
+			<ObjectPath>Play_WaterBucketPour</ObjectPath>
+			<ShortName>Play_WaterBucketPour</ShortName>
+			<Path>Event/Play_WaterBucketPour.bnk</Path>
+			<Events>
+				<Event Id="3101934991" Name="Play_WaterBucketPour" ObjectPath="\Events\Default Work Unit\SFX\LVL1_SFX\Play_WaterBucketPour" GUID="{851B0E68-274A-4510-B8B8-B9EA4847ABA8}" MaxAttenuation="0" DurationType="OneShot" DurationMin="0" DurationMax="0"/>
+			</Events>
+		</SoundBank>
 		<SoundBank Id="3205025518" Type="Event" GUID="{7D81C98B-922A-4244-B47B-94DBE319C51A}" Language="SFX" Hash="{3CDF03E1-E0C2-17BA-420C-E0194D07DA5B}">
 			<ObjectPath>Play_FlagPopup</ObjectPath>
 			<ShortName>Play_FlagPopup</ShortName>
@@ -787,5 +872,5 @@
 			</Events>
 		</SoundBank>
 	</SoundBanks>
-	<FileHash>{D2147429-24D1-46B1-B913-6500D48D3ABF}</FileHash>
+	<FileHash>{0CF85F49-8C40-9893-75E5-8A389E6A5652}</FileHash>
 </SoundBanksInfo>

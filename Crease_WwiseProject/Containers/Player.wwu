@@ -93,10 +93,10 @@
 												<AudioFileSource Name="Plane_hit_v2 FIXED" ID="{830B89C6-E21E-4D58-8183-DD207A7AB397}">
 													<PropertyList>
 														<Property Name="FadeInDuration" Type="Real64" Value="0.00848"/>
-														<Property Name="FadeOutDuration" Type="Real64" Value="0.0551"/>
+														<Property Name="FadeOutDuration" Type="Real64" Value="0.26145"/>
 														<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
 														<Property Name="TrimBegin" Type="Real64" Value="0.20761"/>
-														<Property Name="TrimEnd" Type="Real64" Value="0.63148"/>
+														<Property Name="TrimEnd" Type="Real64" Value="0.57145"/>
 													</PropertyList>
 													<Language>SFX</Language>
 													<AudioFile>Plane_hit_v2 FIXED.wav</AudioFile>

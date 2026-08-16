@@ -15,4 +15,4 @@ MonoBehaviour:
   objectName: Play_CoinCollect
   id: 979988297
   guid: ADC58251-0DB0-4FA3-88B5-7B7571A8021C
-  IsInUserDefinedSoundBank: 1
+  IsInUserDefinedSoundBank: 0

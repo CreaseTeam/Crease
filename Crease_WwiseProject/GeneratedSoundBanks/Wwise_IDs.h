@@ -28,6 +28,7 @@ namespace AK
         static const AkUniqueID PLAY_FOLDPAPER = 3430616211U;
         static const AkUniqueID PLAY_HOVEROFF = 2449173295U;
         static const AkUniqueID PLAY_HOVERON = 2838845755U;
+        static const AkUniqueID PLAY_INKCOLLECT = 1324950808U;
         static const AkUniqueID PLAY_PLANEDASH = 2481628620U;
         static const AkUniqueID PLAY_PLANESPEEDSOUNDS = 2220497489U;
         static const AkUniqueID PLAY_PLAYERBUBBLEESCAPE = 40743970U;
@@ -38,6 +39,7 @@ namespace AK
         static const AkUniqueID PLAY_SELECTBUTTON = 348159706U;
         static const AkUniqueID PLAY_SELECTSTICKER = 953563835U;
         static const AkUniqueID PLAY_STICKERCOLLECT = 2321545575U;
+        static const AkUniqueID PLAY_WATERBUCKETPOUR = 3101934991U;
         static const AkUniqueID PLAY_WATERDAMAGE = 94728852U;
         static const AkUniqueID PLAY_WINDFRUSTRUMLIFT = 1844555015U;
         static const AkUniqueID START_CRAYONSCRIBBLE = 3834105472U;

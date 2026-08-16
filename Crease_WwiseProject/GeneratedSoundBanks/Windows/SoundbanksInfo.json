@@ -174,20 +174,164 @@
     "Type": "Event",
     "GUID": "{6B67B4E4-7BD9-47A1-AD9B-9CFDA94C16A6}",
     "Language": "SFX",
-    "Hash": "{F10874FA-CFAD-5F75-E656-6BC86DDC8A8B}",
+    "Hash": "{8BD9C45E-360E-F110-3903-1CA534F4E2BD}",
     "ObjectPath": "Play_RegDamage",
     "ShortName": "Play_RegDamage",
     "Path": "Event/Play_RegDamage.bnk",
+    "Media": [
+     {
+      "Id": "634228621",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Plane_hit_v1 FIXED.wav",
+      "Path": "Media/634228621.wem",
+      "CachePath": "76/{76BAD733-DB38-021C-DA78-95CF7222A67B}.wem"
+     },
+     {
+      "Id": "778764351",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Plane_hit_v1 FIXED.wav",
+      "Path": "Media/778764351.wem",
+      "CachePath": "11/{116F53BD-320D-F89A-4C85-C939879A741D}.wem"
+     },
+     {
+      "Id": "889088122",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Plane_hit_v2 FIXED.wav",
+      "Path": "Media/889088122.wem",
+      "CachePath": "7E/{7E1FD50E-CA58-2E37-E240-45385E4DBF65}.wem"
+     },
+     {
+      "Id": "950863787",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Plane_hit_v2 FIXED.wav",
+      "Path": "Media/950863787.wem",
+      "CachePath": "73/{73DF15D9-78B5-4672-2509-6E3C7A8BC82A}.wem"
+     },
+     {
+      "Id": "964143505",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Plane_hit_v1 FIXED.wav",
+      "Path": "Media/964143505.wem",
+      "CachePath": "7A/{7A008DB8-EA9C-FAB6-EB8C-16301111B5DA}.wem"
+     },
+     {
+      "Id": "974492426",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Loose",
+      "ShortName": "Plane_hit_v2 FIXED.wav",
+      "Path": "Media/974492426.wem",
+      "CachePath": "ED/{ED17BAF3-9B47-CEF3-D6B4-410233C54FB5}.wem"
+     }
+    ],
     "Events": [
      {
       "Id": "395496407",
       "Name": "Play_RegDamage",
       "ObjectPath": "\\Events\\Default Work Unit\\SFX\\COMMON_LVL_SFX\\Play_RegDamage",
       "GUID": "{6B67B4E4-7BD9-47A1-AD9B-9CFDA94C16A6}",
-      "MaxAttenuation": "0",
       "DurationType": "OneShot",
-      "DurationMin": "0",
-      "DurationMax": "0"
+      "DurationMin": "0.35862",
+      "DurationMax": "0.48315",
+      "SwitchContainers": [
+       {
+        "SwitchValue": {
+         "GroupType": "Switch",
+         "GroupId": "1591838669",
+         "Id": "3550808449",
+         "GUID": "{7CAECF14-6370-4B80-A7DF-C0B002C94B85}"
+        },
+        "MediaRefs": [
+         {
+          "Id": "634228621"
+         },
+         {
+          "Id": "889088122"
+         }
+        ]
+       },
+       {
+        "SwitchValue": {
+         "GroupType": "Switch",
+         "GroupId": "1591838669",
+         "Id": "545371365",
+         "GUID": "{A6287B80-E745-4A02-ACBB-4EE312D63B1A}"
+        },
+        "MediaRefs": [
+         {
+          "Id": "778764351"
+         },
+         {
+          "Id": "974492426"
+         }
+        ]
+       },
+       {
+        "SwitchValue": {
+         "GroupType": "Switch",
+         "GroupId": "1591838669",
+         "Id": "2849147824",
+         "GUID": "{533478F1-B31A-4D50-963C-C7A20D9636CF}"
+        },
+        "MediaRefs": [
+         {
+          "Id": "950863787"
+         },
+         {
+          "Id": "964143505"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "GameParameters": [
+     {
+      "Id": "783376577",
+      "Name": "Player_DamageIntensity",
+      "ObjectPath": "\\Game Parameters\\Default Work Unit\\Player\\Player_DamageIntensity",
+      "GUID": "{35F6694B-C56E-4FA8-B13F-BB1B6BFCC7DA}"
+     }
+    ],
+    "SwitchGroups": [
+     {
+      "Id": "1591838669",
+      "Name": "Player_Damage_Level",
+      "ObjectPath": "\\Switches\\Default Work Unit\\Player\\Player_Damage_Level",
+      "GUID": "{E9290091-809C-4A40-AAF9-EEF2A7D4B0E6}",
+      "GameParameterRef": {
+       "Id": "783376577"
+      },
+      "Switches": [
+       {
+        "Id": "545371365",
+        "Name": "Low",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Player\\Player_Damage_Level\\Low",
+        "GUID": "{A6287B80-E745-4A02-ACBB-4EE312D63B1A}"
+       },
+       {
+        "Id": "2849147824",
+        "Name": "Medium",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Player\\Player_Damage_Level\\Medium",
+        "GUID": "{533478F1-B31A-4D50-963C-C7A20D9636CF}"
+       },
+       {
+        "Id": "3550808449",
+        "Name": "High",
+        "ObjectPath": "\\Switches\\Default Work Unit\\Player\\Player_Damage_Level\\High",
+        "GUID": "{7CAECF14-6370-4B80-A7DF-C0B002C94B85}"
+       }
+      ]
      }
     ]
    },
@@ -721,11 +865,33 @@
     ]
    },
    {
+    "Id": "1324950808",
+    "Type": "Event",
+    "GUID": "{D187F2B9-F288-4596-A974-ED9BAEEF1999}",
+    "Language": "SFX",
+    "Hash": "{C069F960-4AED-164C-5443-44F947E9AEE6}",
+    "ObjectPath": "Play_InkCollect",
+    "ShortName": "Play_InkCollect",
+    "Path": "Event/Play_InkCollect.bnk",
+    "Events": [
+     {
+      "Id": "1324950808",
+      "Name": "Play_InkCollect",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\COMMON_LVL_SFX\\Play_InkCollect",
+      "GUID": "{D187F2B9-F288-4596-A974-ED9BAEEF1999}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
+     }
+    ]
+   },
+   {
     "Id": "1355168291",
     "Type": "User",
     "GUID": "{701ECBBD-9C7B-4030-8CDB-749EE5D1C7B9}",
     "Language": "SFX",
-    "Hash": "{6AE692EB-BA5B-9A0D-954D-C35608D0FDC6}",
+    "Hash": "{4738A7EE-8125-7DF9-1510-47BE0FF7493C}",
     "ObjectPath": "Init",
     "ShortName": "Init",
     "Path": "Init.bnk",
@@ -1383,6 +1549,28 @@
     ]
    },
    {
+    "Id": "3101934991",
+    "Type": "Event",
+    "GUID": "{851B0E68-274A-4510-B8B8-B9EA4847ABA8}",
+    "Language": "SFX",
+    "Hash": "{28238728-043E-E527-FC88-87A2BEAC3167}",
+    "ObjectPath": "Play_WaterBucketPour",
+    "ShortName": "Play_WaterBucketPour",
+    "Path": "Event/Play_WaterBucketPour.bnk",
+    "Events": [
+     {
+      "Id": "3101934991",
+      "Name": "Play_WaterBucketPour",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\LVL1_SFX\\Play_WaterBucketPour",
+      "GUID": "{851B0E68-274A-4510-B8B8-B9EA4847ABA8}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
+     }
+    ]
+   },
+   {
     "Id": "3205025518",
     "Type": "Event",
     "GUID": "{7D81C98B-922A-4244-B47B-94DBE319C51A}",
@@ -1697,6 +1885,6 @@
     ]
    }
   ],
-  "FileHash": "{B463A18B-FA57-9EDB-8477-891D7EF678A6}"
+  "FileHash": "{491C2755-CF47-AA71-98C4-C5189335A789}"
  }
 }

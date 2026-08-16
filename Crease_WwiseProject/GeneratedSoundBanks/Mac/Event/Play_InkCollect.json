@@ -1,0 +1,33 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Mac",
+  "BasePlatform": "Mac",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "1324950808",
+    "Type": "Event",
+    "GUID": "{D187F2B9-F288-4596-A974-ED9BAEEF1999}",
+    "Language": "SFX",
+    "Hash": "{C069F960-4AED-164C-5443-44F947E9AEE6}",
+    "ObjectPath": "Play_InkCollect",
+    "ShortName": "Play_InkCollect",
+    "Path": "Event/Play_InkCollect.bnk",
+    "Events": [
+     {
+      "Id": "1324950808",
+      "Name": "Play_InkCollect",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\COMMON_LVL_SFX\\Play_InkCollect",
+      "GUID": "{D187F2B9-F288-4596-A974-ED9BAEEF1999}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{738AABD5-6B05-06F6-286E-36D494B0E36C}"
+ }
+}
