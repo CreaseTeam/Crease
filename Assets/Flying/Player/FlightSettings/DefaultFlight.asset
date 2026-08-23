@@ -13,27 +13,27 @@ MonoBehaviour:
   m_Name: DefaultFlight
   m_EditorClassIdentifier: Assembly-CSharp::FlightSettings
   Mass: 1
-  DivingGravity: 17
-  ClimbingGravity: 12
-  Lift: 0.5
-  DiveRate: 8
-  ClimbRate: 0.1
+  DivingGravity: 20
+  ClimbingGravity: 15
+  Lift: 9
+  DiveRate: 2.5
+  ClimbRate: 1.5
   ClimbEfficiency: 3
-  TurnInterpolation: 1
+  TurnInterpolation: 2
   StabilityStrength: 2
   StabilityReferenceSpeed: 15
   StabilityInputSuppression: 0.85
   XDrag: 0.995
   YDrag: 0.99
   ZDrag: 0.995
-  PitchSpeed: 180
+  PitchSpeed: 120
   MaxPitch: 89
-  YawSpeed: 120
-  RollSpeed: 300
-  RollBackSpeed: 210
+  YawSpeed: 60
+  RollSpeed: 100
+  RollBackSpeed: 150
   MaxRoll: 45
-  BoostSpeed: 10
-  InitialSpeed: 25
+  BoostSpeed: 3
+  InitialSpeed: 10
   MinimumVelocity: 0
   WindForceMultiplier: 1
   DamageTaken: 1

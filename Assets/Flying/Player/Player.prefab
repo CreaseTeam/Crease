@@ -265,7 +265,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Environment.Collectibles.CollectibleMagnet
   _maxSpeed: 40
   _minSpeed: 1
-  _totalTime: 0.5
+  _totalTime: 2
   _speedFloorCurve:
     serializedVersion: 2
     m_Curve:
