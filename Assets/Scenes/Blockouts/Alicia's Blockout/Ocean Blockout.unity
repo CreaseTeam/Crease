@@ -88753,10 +88753,26 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 1545550533}
+    - target: {fileID: 7497577107457422880, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
+      propertyPath: Height
+      value: 70
+      objectReference: {fileID: 0}
     - target: {fileID: 8028397461376209091, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 1280376843}
+    - target: {fileID: 8794113917588938876, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
+      propertyPath: ShapeModule.angle
+      value: 9.417188
+      objectReference: {fileID: 0}
+    - target: {fileID: 8794113917588938876, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
+      propertyPath: ShapeModule.length
+      value: 70
+      objectReference: {fileID: 0}
+    - target: {fileID: 8794113917588938876, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 8986780408478869941, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2074.189
@@ -88796,6 +88812,18 @@ PrefabInstance:
     - target: {fileID: 8986780408478869941, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9189250347677341255, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
+      propertyPath: ShapeModule.angle
+      value: 9.417188
+      objectReference: {fileID: 0}
+    - target: {fileID: 9189250347677341255, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
+      propertyPath: ShapeModule.length
+      value: 70
+      objectReference: {fileID: 0}
+    - target: {fileID: 9189250347677341255, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
+      propertyPath: InitialModule.startSpeed.scalar
+      value: 233.33333
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -207102,10 +207130,26 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 1058014832}
+    - target: {fileID: 7497577107457422880, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
+      propertyPath: Height
+      value: 70
+      objectReference: {fileID: 0}
     - target: {fileID: 8028397461376209091, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 1071113045}
+    - target: {fileID: 8794113917588938876, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
+      propertyPath: ShapeModule.angle
+      value: 9.417188
+      objectReference: {fileID: 0}
+    - target: {fileID: 8794113917588938876, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
+      propertyPath: ShapeModule.length
+      value: 70
+      objectReference: {fileID: 0}
+    - target: {fileID: 8794113917588938876, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 8986780408478869941, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2115
@@ -207145,6 +207189,18 @@ PrefabInstance:
     - target: {fileID: 8986780408478869941, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9189250347677341255, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
+      propertyPath: ShapeModule.angle
+      value: 9.417188
+      objectReference: {fileID: 0}
+    - target: {fileID: 9189250347677341255, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
+      propertyPath: ShapeModule.length
+      value: 70
+      objectReference: {fileID: 0}
+    - target: {fileID: 9189250347677341255, guid: 64abb5647166d16488e8256d22cc8d65, type: 3}
+      propertyPath: InitialModule.startSpeed.scalar
+      value: 233.33333
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
