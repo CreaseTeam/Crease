@@ -3479,7 +3479,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8056106912667676434, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: WindStrength
-      value: 300
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 8424490050691201794, guid: 424e808b03c0cba4c80e3de1d5ee4048, type: 3}
       propertyPath: m_LocalPosition.x
