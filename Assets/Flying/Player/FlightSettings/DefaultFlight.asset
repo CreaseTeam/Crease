@@ -16,7 +16,7 @@ MonoBehaviour:
   DivingGravity: 17
   ClimbingGravity: 12
   Lift: 0.5
-  DiveRate: 8
+  DiveRate: 2.5
   ClimbRate: 0.1
   ClimbEfficiency: 3
   TurnInterpolation: 1
@@ -24,13 +24,13 @@ MonoBehaviour:
   StabilityReferenceSpeed: 15
   StabilityInputSuppression: 0.85
   XDrag: 0.995
-  YDrag: 0.99
+  YDrag: 0.993
   ZDrag: 0.995
   PitchSpeed: 180
   MaxPitch: 89
   YawSpeed: 120
   RollSpeed: 300
-  RollBackSpeed: 210
+  RollBackSpeed: 1
   MaxRoll: 45
   BoostSpeed: 10
   InitialSpeed: 25
