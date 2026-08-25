@@ -24,7 +24,7 @@ MonoBehaviour:
   StabilityReferenceSpeed: 15
   StabilityInputSuppression: 0.85
   XDrag: 0.995
-  YDrag: 0.993
+  YDrag: 0.992
   ZDrag: 0.995
   PitchSpeed: 180
   MaxPitch: 89
