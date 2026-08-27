@@ -309,7 +309,7 @@ public class WwiseSetupWizard
 			for (; instanceIds.Count > 0; instanceIds.RemoveAt(0))
 			{
 				var id = instanceIds[0];
-				var obj = UnityEditor.EditorUtility.InstanceIDToObject(id);
+				var obj = UnityEditor.EditorUtility.EntityIdToObject(id);
 				if (obj && obj.GetInstanceID() == id)
 				{
 					MigrateObject(obj);
@@ -429,7 +429,7 @@ public class WwiseSetupWizard
 			for (; instanceIds.Count > 0; instanceIds.RemoveAt(0))
 			{
 				var id = instanceIds[0];
-				var obj = UnityEditor.EditorUtility.InstanceIDToObject(id);
+				var obj = UnityEditor.EditorUtility.EntityIdToObject(id);
 				if (obj && obj.GetInstanceID() == id)
 				{
 					MigrateObject(obj);

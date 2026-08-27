@@ -1347,15 +1347,15 @@ namespace MTE
             TextureArrayManager.Instance.AddOrUpdate(textureArray, settings);
             TextureArrayManager.Instance.GetTextures(textureArray, out var textures);
 
-            var propertyCount = ShaderUtil.GetPropertyCount(shader);
+            var propertyCount = shader.GetPropertyCount();
             for (int j = 0; j < propertyCount; j++)
             {
-                if (ShaderUtil.GetPropertyType(shader, j) != ShaderUtil.ShaderPropertyType.TexEnv)
+                if (shader.GetPropertyType(j) != UnityEngine.Rendering.ShaderPropertyType.Texture)
                 {
                     continue;
                 }
 
-                var propertyName = ShaderUtil.GetPropertyName(shader, j);
+                var propertyName = shader.GetPropertyName(j);
                 if (propertyName != AlbedoArrayPropertyName)
                 {
                     continue;

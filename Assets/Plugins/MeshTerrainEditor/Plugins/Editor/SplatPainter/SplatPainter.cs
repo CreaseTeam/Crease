@@ -1264,12 +1264,12 @@ namespace MTE
             }
 
             //regular shaders: find textures from shader properties
-            var propertyCount = ShaderUtil.GetPropertyCount(shader);
+            var propertyCount = shader.GetPropertyCount();
             for (int j = 0; j < propertyCount; j++)
             {
-                if (ShaderUtil.GetPropertyType(shader, j) == ShaderUtil.ShaderPropertyType.TexEnv)
+                if (shader.GetPropertyType(j) == UnityEngine.Rendering.ShaderPropertyType.Texture)
                 {
-                    var propertyName = ShaderUtil.GetPropertyName(shader, j); //propertyName should be _Splat0/1/2/3/4
+                    var propertyName = shader.GetPropertyName(j); //propertyName should be _Splat0/1/2/3/4
                     if (propertyName.StartsWith("_Splat"))
                     {
                         var texture = material.GetTexture(propertyName);

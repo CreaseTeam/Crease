@@ -140,7 +140,6 @@ namespace MTE
 #elif UNITY_2021_2
                     "2021.2"
 #elif UNITY_2021_3_OR_NEWER
-#warning Might be a unsupported Unity Version, not tested yet.
                     "2021.3+"
 #else
 #error Unsupported Unity Version. You can try to fix this file or report the issue.

@@ -100,7 +100,7 @@ namespace MTE
                 {
                     return null;
                 }
-                return EditorUtility.InstanceIDToObject(containerInstanceId) as Transform;
+                return EditorUtility.EntityIdToObject(containerInstanceId) as Transform;
             }
             set
             {
@@ -589,7 +589,7 @@ namespace MTE
             }
             else//loop through all object listed in detail
             {
-                var objects = UnityEngine.Object.FindObjectsOfType<GameObject>();
+                var objects = UnityEngine.Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None);
                 foreach (var o in objects)
                 {
                     if (gameObject == o)
