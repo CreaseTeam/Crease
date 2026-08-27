@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: DefaultFlight
   m_EditorClassIdentifier: Assembly-CSharp::FlightSettings
   Mass: 1
-  DivingGravity: 20
-  ClimbingGravity: 15
-  Lift: 9
-  DiveRate: 2.5
+  DivingGravity: 25
+  ClimbingGravity: 20
+  Lift: 0.5
+  DiveRate: 8
   ClimbRate: 1.5
   ClimbEfficiency: 3
   TurnInterpolation: 2
