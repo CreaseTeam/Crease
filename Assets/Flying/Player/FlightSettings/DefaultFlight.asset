@@ -15,8 +15,8 @@ MonoBehaviour:
   Mass: 1
   DivingGravity: 17
   ClimbingGravity: 12
-  Lift: 0.5
-  DiveRate: 2.5
+  Lift: 0.4
+  DiveRate: 8
   ClimbRate: 0.1
   ClimbEfficiency: 3
   TurnInterpolation: 1
@@ -31,9 +31,9 @@ MonoBehaviour:
   YawSpeed: 120
   RollSpeed: 300
   RollBackSpeed: 1
-  MaxRoll: 45
+  MaxRoll: 1
   BoostSpeed: 10
   InitialSpeed: 25
   MinimumVelocity: 0
-  WindForceMultiplier: 1
+  WindForceMultiplier: 2
   DamageTaken: 1
