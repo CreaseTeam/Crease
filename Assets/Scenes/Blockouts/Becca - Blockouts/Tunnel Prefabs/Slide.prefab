@@ -210,7 +210,7 @@ MonoBehaviour:
   - prefab: {fileID: 0}
     Prefab: {fileID: 1528640213212214896, guid: 16a43bdba42b00241be46cc4f654be83, type: 3}
     probability: 0
-    Probability: 0
+    Probability: 20
   - prefab: {fileID: 0}
     Prefab: {fileID: 2772138382363747400, guid: a2e3288dbc40eb14f821f733c9e4add1, type: 3}
     probability: 0
@@ -633,7 +633,7 @@ GameObject:
   - component: {fileID: 2576392796166206908}
   - component: {fileID: 5925574243225686936}
   m_Layer: 0
-  m_Name: Slide Spline (1)
+  m_Name: Pipe Spline
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

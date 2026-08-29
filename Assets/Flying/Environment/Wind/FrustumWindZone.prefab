@@ -116,7 +116,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1.158
+      scalar: 1.159
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -665,8 +665,8 @@ ParticleSystem:
     serializedVersion: 6
     enabled: 1
     type: 4
-    angle: 11.709002
-    length: 11.58
+    angle: 11.699178
+    length: 11.59
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
     donutRadius: 0.2
@@ -4933,7 +4933,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PhysicsHelpers.FrustumTrigger
   TopRadius: 3.4
   BottomRadius: 1
-  Height: 11.58
+  Height: 11.59
   Segments: 8
   AutoConfigureRigidbody: 1
   OnTriggerEntered:
@@ -4981,6 +4981,34 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  UseVelocityLiftMode: 0
+  LiftCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  HorizontalReleaseHeight: 1
+  ReleaseSpeed: 10
+  LiftDuration: 2
   DebugLog: 0
 --- !u!114 &6171694871377192287
 MonoBehaviour:
@@ -5134,7 +5162,7 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 38.6
+      scalar: 38.63333
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -5630,8 +5658,8 @@ ParticleSystem:
     serializedVersion: 6
     enabled: 1
     type: 4
-    angle: 11.709002
-    length: 11.58
+    angle: 11.699178
+    length: 11.59
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
     donutRadius: 0.2
