@@ -1,15 +1,11 @@
 # This .p4ignore file should be placed at the root of your Unity project directory
 #
-# Converted from .gitignore. P4IGNORE does not support character classes
-# ([Ll], [Aa]ssets, etc.), so those patterns are expanded to explicit
-# case variants. Leading / is relative to this file; trailing / matches
-# directories only.
-#
-# Get latest gitignore source from https://github.com/github/gitignore/blob/main/Unity.gitignore
+# Based on https://github.com/github/gitignore/blob/main/Unity.gitignore
+# (P4IGNORE does not support [Cc]haracter classes, so case variants are expanded)
 #
 .utmp/
-/Library*/
-/library*/
+/Library/
+/library/
 /Temp/
 /temp/
 /Obj/
@@ -61,6 +57,7 @@ ExportedObj/
 *.csproj
 *.unityproj
 *.sln
+*.slnx
 *.suo
 *.tmp
 *.user
@@ -87,8 +84,9 @@ mono_crash.*
 # Builds
 *.apk
 *.aab
-*.unitypackage
-*.unitypackage.meta
+# *.unitypackage and *.unitypackage.meta are kept in version control
+# *.unitypackage
+# *.unitypackage.meta
 *.app
 
 # Crashlytics generated file
@@ -123,28 +121,35 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /Assets/InitTestScene*.unity*
-/Assets/InitTestscene*.unity*
-/Assets/InittestScene*.unity*
-/Assets/Inittestscene*.unity*
-/Assets/initTestScene*.unity*
-/Assets/initTestscene*.unity*
-/Assets/inittestScene*.unity*
-/Assets/inittestscene*.unity*
 /assets/InitTestScene*.unity*
-/assets/InitTestscene*.unity*
-/assets/InittestScene*.unity*
-/assets/Inittestscene*.unity*
-/assets/initTestScene*.unity*
-/assets/initTestscene*.unity*
-/assets/inittestScene*.unity*
-/assets/inittestscene*.unity*
+
+# Auto-generated cache in Assets folder
+/Assets/SceneDependencyCache*
+/Assets/sceneDependencyCache*
+/assets/SceneDependencyCache*
+/assets/sceneDependencyCache*
+
+# --------------------------------------------------------------
+# ignore P4CONFIG files
+# The P4CONFIG file is unlikely to apply to other users
+# --------------------------------------------------------------
+p4config.txt
+.p4config
+
+## Custom ##
+
+# JetBrains IDE settings
+.idea/
+
+# macOS
+.DS_Store
+
+# VRoid SDK Credential File
+# credential.json.bytes
 
 # Modern Visual Studio Solution files
 *.slnx
 *.slnx.sqlite
-
-# Ignore Mac-specific localized prefs files
-.DS_Store
 
 # Wwise
 .backup*
