@@ -24,7 +24,7 @@ namespace Crease.Flying.Environment.Wind.Frustum.Editor
             Vector3 bottomPos = Handles.Slider(new Vector3(0, -halfH, t.BottomRadius), Vector3.down, 0.4f, Handles.ConeHandleCap, 0.1f);
             if (EditorGUI.EndChangeCheck())
             {
-                Undo.RecordObject(t, "Adjust Frustum Height");
+                RecordFrustumUndo(t, "Adjust Frustum Height");
 
                 float newHeight = t.Height;
                 if (GUIUtility.hotControl != 0)
@@ -44,7 +44,7 @@ namespace Crease.Flying.Environment.Wind.Frustum.Editor
             Vector3 topRadiusPos = Handles.Slider(new Vector3(t.TopRadius, halfH, 0), Vector3.right, 0.15f, Handles.SphereHandleCap, 0.1f);
             if (EditorGUI.EndChangeCheck())
             {
-                Undo.RecordObject(t, "Adjust Frustum Top Radius");
+                RecordFrustumUndo(t, "Adjust Frustum Top Radius");
                 t.TopRadius = Mathf.Max(0, topRadiusPos.x);
                 t.RebuildMesh();
             }
@@ -53,10 +53,18 @@ namespace Crease.Flying.Environment.Wind.Frustum.Editor
             Vector3 bottomRadiusPos = Handles.Slider(new Vector3(t.BottomRadius, -halfH, 0), Vector3.right, 0.15f, Handles.SphereHandleCap, 0.1f);
             if (EditorGUI.EndChangeCheck())
             {
-                Undo.RecordObject(t, "Adjust Frustum Bottom Radius");
+                RecordFrustumUndo(t, "Adjust Frustum Bottom Radius");
                 t.BottomRadius = Mathf.Max(0, bottomRadiusPos.x);
                 t.RebuildMesh();
             }
+        }
+
+        private static void RecordFrustumUndo(FrustumTrigger trigger, string undoName)
+        {
+            Undo.RecordObject(trigger, undoName);
+            MeshCollider meshCollider = trigger.GetComponent<MeshCollider>();
+            if (meshCollider != null)
+                Undo.RecordObject(meshCollider, undoName);
         }
     }
 }

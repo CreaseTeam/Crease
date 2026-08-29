@@ -2,6 +2,9 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Crease.Flying.Environment.Wind.Frustum
 {
@@ -13,6 +16,8 @@ namespace Crease.Flying.Environment.Wind.Frustum
     [RequireComponent(typeof(Rigidbody))]
     public class FrustumTrigger : MonoBehaviour
     {
+        private const string GeneratedMeshName = "FrustumTriggerMesh";
+
         [Header("Frustum Settings")]
         [Tooltip("Radius of the top circle of the frustum (larger end).")]
         [Min(0)]
@@ -56,45 +61,210 @@ namespace Crease.Flying.Environment.Wind.Frustum
 
         private void OnValidate()
         {
-            if (_meshCollider != null)
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
             {
-                RebuildMesh();
+                EditorApplication.delayCall -= RebuildMeshDeferred;
+                EditorApplication.delayCall += RebuildMeshDeferred;
+                return;
+            }
+#endif
+            RebuildMesh();
+        }
+
+#if UNITY_EDITOR
+        private void RebuildMeshDeferred()
+        {
+            if (this == null) return;
+            RebuildMesh();
+        }
+#endif
+
+        private void OnDestroy()
+        {
+#if UNITY_EDITOR
+            EditorApplication.delayCall -= RebuildMeshDeferred;
+#endif
+            if (_generatedMesh != null && ShouldDestroyGeneratedMesh(_generatedMesh))
+            {
+                if (Application.isPlaying)
+                    Destroy(_generatedMesh);
+                else
+                    DestroyImmediate(_generatedMesh);
+                _generatedMesh = null;
             }
         }
 
         private void Initialize()
         {
-            _meshCollider = GetComponent<MeshCollider>();
-            _rigidbody = GetComponent<Rigidbody>();
-
-            if (AutoConfigureRigidbody && _rigidbody != null)
-            {
-                _rigidbody.isKinematic = true;
-                _rigidbody.useGravity = false;
-            }
-
+            EnsureComponents();
+            ConfigureRigidbody();
             RebuildMesh();
         }
 
+        private void EnsureComponents()
+        {
+            if (_meshCollider == null)
+                _meshCollider = GetComponent<MeshCollider>();
+            if (_rigidbody == null)
+                _rigidbody = GetComponent<Rigidbody>();
+        }
+
+        private void ConfigureRigidbody()
+        {
+            if (!AutoConfigureRigidbody || _rigidbody == null)
+                return;
+
+            if (!_rigidbody.isKinematic)
+                _rigidbody.isKinematic = true;
+            if (_rigidbody.useGravity)
+                _rigidbody.useGravity = false;
+        }
+
         /// <summary>
-        /// Regenerates the mesh and assigns it to the collider.
+        /// Regenerates the collider mesh only when the frustum shape has actually changed.
+        /// Prefab instances keep the source mesh unless their dimensions differ.
         /// </summary>
         public void RebuildMesh()
         {
+            EnsureComponents();
             if (_meshCollider == null) return;
 
-            if (_generatedMesh == null)
+            Mesh existing = _meshCollider.sharedMesh;
+            if (MeshMatchesCurrentShape(existing))
             {
-                _generatedMesh = new Mesh();
-                _generatedMesh.name = "FrustumTriggerMesh";
+                _generatedMesh = existing;
+                return;
             }
 
-            GenerateFrustumMesh(_generatedMesh, TopRadius, BottomRadius, Height, Segments);
+#if UNITY_EDITOR
+            // Don't write a mesh onto a prefab instance whose shape still matches the source.
+            // Assigning a new Mesh here is what registers a prefab override on every parent.
+            if (!Application.isPlaying && !gameObject.scene.IsValid())
+                return;
 
-            _meshCollider.sharedMesh = null;
-            _meshCollider.sharedMesh = _generatedMesh;
-            _meshCollider.convex = true;
-            _meshCollider.isTrigger = true;
+            if (!Application.isPlaying && IsPrefabInstanceWithSourceShape())
+            {
+                if (existing != null)
+                    RevertInstanceMeshOverride();
+                return;
+            }
+#endif
+
+            Mesh targetMesh = GetWritableMesh(existing, out bool createdNewMesh);
+            GenerateFrustumMesh(targetMesh, TopRadius, BottomRadius, Height, Segments);
+            _generatedMesh = targetMesh;
+
+            if (Application.isPlaying && createdNewMesh)
+                targetMesh.hideFlags = HideFlags.DontSave;
+
+            AssignColliderMesh(targetMesh);
+        }
+
+        private bool MeshMatchesCurrentShape(Mesh mesh)
+        {
+            if (mesh == null) return false;
+
+            int expectedVertexCount = (Segments + 1) * 2 + 2;
+            if (mesh.vertexCount != expectedVertexCount)
+                return false;
+
+            Vector3[] vertices = mesh.vertices;
+            int topRingStart = 2 + (Segments + 1);
+            return Mathf.Approximately(vertices[1].y, Height)
+                && Mathf.Approximately(vertices[2].x, BottomRadius)
+                && Mathf.Approximately(vertices[topRingStart].x, TopRadius)
+                && Mathf.Approximately(vertices[topRingStart].y, Height);
+        }
+
+        private Mesh GetWritableMesh(Mesh existing, out bool createdNew)
+        {
+            if (_generatedMesh != null && CanMutateMesh(_generatedMesh))
+            {
+                createdNew = false;
+                return _generatedMesh;
+            }
+
+            if (existing != null && CanMutateMesh(existing))
+            {
+                createdNew = false;
+                return existing;
+            }
+
+            createdNew = true;
+            Mesh mesh = new Mesh();
+            mesh.name = GeneratedMeshName;
+            return mesh;
+        }
+
+        private bool CanMutateMesh(Mesh mesh)
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying && _meshCollider != null)
+            {
+                MeshCollider sourceCollider = PrefabUtility.GetCorrespondingObjectFromSource(_meshCollider);
+                if (sourceCollider != null && sourceCollider.sharedMesh == mesh)
+                    return false;
+            }
+#endif
+            return mesh != null;
+        }
+
+#if UNITY_EDITOR
+        private bool IsPrefabInstanceWithSourceShape()
+        {
+            if (!PrefabUtility.IsPartOfPrefabInstance(this))
+                return false;
+
+            FrustumTrigger source = PrefabUtility.GetCorrespondingObjectFromSource(this);
+            if (source == null)
+                return false;
+
+            return Mathf.Approximately(source.TopRadius, TopRadius)
+                && Mathf.Approximately(source.BottomRadius, BottomRadius)
+                && Mathf.Approximately(source.Height, Height)
+                && source.Segments == Segments;
+        }
+
+        private void RevertInstanceMeshOverride()
+        {
+            SerializedObject serializedCollider = new SerializedObject(_meshCollider);
+            SerializedProperty meshProperty = serializedCollider.FindProperty("m_Mesh");
+            if (meshProperty != null && meshProperty.prefabOverride)
+                PrefabUtility.RevertPropertyOverride(meshProperty, InteractionMode.AutomatedAction);
+        }
+#endif
+
+        private void AssignColliderMesh(Mesh mesh)
+        {
+            if (_meshCollider.sharedMesh != mesh)
+            {
+                _meshCollider.sharedMesh = mesh;
+            }
+            else
+            {
+                _meshCollider.sharedMesh = null;
+                _meshCollider.sharedMesh = mesh;
+            }
+
+            if (!_meshCollider.convex)
+                _meshCollider.convex = true;
+            if (!_meshCollider.isTrigger)
+                _meshCollider.isTrigger = true;
+
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                EditorUtility.SetDirty(_meshCollider);
+                if (PrefabUtility.IsPartOfPrefabInstance(_meshCollider))
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(_meshCollider);
+            }
+#endif
+        }
+
+        private static bool ShouldDestroyGeneratedMesh(Mesh mesh)
+        {
+            return (mesh.hideFlags & HideFlags.DontSave) != 0;
         }
 
         private void GenerateFrustumMesh(Mesh mesh, float rTop, float rBottom, float h, int seg)
@@ -218,16 +388,20 @@ namespace Crease.Flying.Environment.Wind.Frustum
 
         private void OnDrawGizmosSelected()
         {
-            if (_generatedMesh != null)
+            Mesh meshToDraw = _generatedMesh;
+            if (meshToDraw == null)
             {
-                Gizmos.color = new Color(0.56f, 0.96f, 0.54f, 0.2f);
-                Gizmos.matrix = transform.localToWorldMatrix;
-                Gizmos.DrawMesh(_generatedMesh);
+                EnsureComponents();
+                if (_meshCollider != null)
+                    meshToDraw = _meshCollider.sharedMesh;
             }
-            else if (!Application.isPlaying)
-            {
-                Initialize();
-            }
+
+            if (meshToDraw == null)
+                return;
+
+            Gizmos.color = new Color(0.56f, 0.96f, 0.54f, 0.2f);
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.DrawMesh(meshToDraw);
         }
 
         private void DrawCircle(Vector3 center, float radius)
