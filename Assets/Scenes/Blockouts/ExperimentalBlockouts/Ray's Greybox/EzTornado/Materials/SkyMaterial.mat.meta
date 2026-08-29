@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5519fe434eaa6614d8a0252f23fa5db6
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 203025
+  packageName: Ez Tornado
+  packageVersion: 1.1
+  assetPath: Assets/EzTornado/Materials/SkyMaterial.mat
+  uploadId: 738181

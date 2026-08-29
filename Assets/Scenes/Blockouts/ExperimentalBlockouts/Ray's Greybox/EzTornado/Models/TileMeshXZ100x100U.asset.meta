@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b859553cd6bb88446aede30254631af9
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 4300000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 203025
+  packageName: Ez Tornado
+  packageVersion: 1.1
+  assetPath: Assets/EzTornado/Models/TileMeshXZ100x100U.asset
+  uploadId: 738181
