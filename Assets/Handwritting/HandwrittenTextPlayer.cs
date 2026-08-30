@@ -58,8 +58,12 @@ namespace Crease.Handwritting
 
         [SerializeField]
         [FormerlySerializedAs("_disappear")]
-        [Tooltip("How the text disappears after the linger time.")]
+        [Tooltip("How the text disappears after the linger time, or when PlayDisappear is called.")]
         HandwrittenTextDisappearMode _disappearMode;
+
+        [SerializeField]
+        [Tooltip("If true, text disappears automatically after the linger time when a disappear mode is set. Turn off when something else (such as CollectibleText) should trigger the disappear.")]
+        bool _disappearAfterLinger = true;
 
         [SerializeField]
         [Min(0f)]
@@ -243,8 +247,27 @@ namespace Crease.Handwritting
             SetFullyVisible();
             TryStartCameraCapture();
 
-            if (_disappearMode != HandwrittenTextDisappearMode.None)
+            if (ShouldDisappearAfterLinger())
                 _playRoutine = StartCoroutine(DisappearAfterLingerRoutine());
+        }
+
+        /// <summary>
+        /// Plays the configured disappear effect immediately, skipping linger time.
+        /// When disappear mode is None, fades the text out.
+        /// </summary>
+        public void PlayDisappear()
+        {
+            if (!EnsureReady())
+                return;
+
+            if (_playRoutine != null)
+            {
+                StopCoroutine(_playRoutine);
+                _playRoutine = null;
+                GameEvents.OnLetterWritingStopped?.Invoke();
+            }
+
+            _playRoutine = StartCoroutine(PlayDisappearRoutine());
         }
 
         string ResolveText(string text)
@@ -363,10 +386,21 @@ namespace Crease.Handwritting
             SetFullyVisible();
             GameEvents.OnLetterWritingStopped?.Invoke();
 
-            if (_disappearMode != HandwrittenTextDisappearMode.None)
+            if (ShouldDisappearAfterLinger())
                 yield return DisappearAfterLingerRoutine();
             else
                 _playRoutine = null;
+        }
+
+        bool ShouldDisappearAfterLinger()
+        {
+            return _disappearAfterLinger && _disappearMode != HandwrittenTextDisappearMode.None;
+        }
+
+        IEnumerator PlayDisappearRoutine()
+        {
+            yield return DisappearRoutine();
+            _playRoutine = null;
         }
 
         IEnumerator DisappearAfterLingerRoutine()
@@ -378,6 +412,12 @@ namespace Crease.Handwritting
                 yield return null;
             }
 
+            yield return DisappearRoutine();
+            _playRoutine = null;
+        }
+
+        IEnumerator DisappearRoutine()
+        {
             switch (_disappearMode)
             {
                 case HandwrittenTextDisappearMode.FadeOut:
@@ -386,9 +426,10 @@ namespace Crease.Handwritting
                 case HandwrittenTextDisappearMode.LetterCollection:
                     yield return LetterCollectionRoutine();
                     break;
+                default:
+                    yield return FadeOutRoutine();
+                    break;
             }
-
-            _playRoutine = null;
         }
 
         IEnumerator FadeOutRoutine()

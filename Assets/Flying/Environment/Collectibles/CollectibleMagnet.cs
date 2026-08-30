@@ -28,9 +28,11 @@ namespace Crease.Flying.Environment.Collectibles
             Vector3 direction = target - origin;
             float distance = direction.magnitude;
 
-            if (Physics.Raycast(origin, direction.normalized, out RaycastHit hit, distance))
+            // Ignore triggers so a trigger collectible does not "miss" and let the
+            // ray hit world geometry behind it (which would abort magnetization).
+            if (Physics.Raycast(origin, direction.normalized, out RaycastHit hit, distance, ~0, QueryTriggerInteraction.Ignore))
             {
-                if (hit.collider.GetComponent<Collectible>() == null)
+                if (hit.collider.GetComponentInParent<Collectible>() == null)
                     return;
             }
 

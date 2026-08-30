@@ -16,9 +16,9 @@ namespace Crease.Flying.Environment.Collectibles
     {
         [Header("Collection Settings")]
         [Tooltip("If true, this GameObject will be destroyed after being collected.")]
-        [SerializeField] private bool _destroyOnCollect = true;
+        [SerializeField] protected bool _destroyOnCollect = true;
         [Tooltip("Hide mesh and collider on collect instead of destroying immediately (allows effects to play).")]
-        [SerializeField] private bool _hideOnCollect = false;
+        [SerializeField] protected bool _hideOnCollect = false;
 
         [Header("Events")]
         [Tooltip("Event invoked when the player collects this item.")]
@@ -32,7 +32,7 @@ namespace Crease.Flying.Environment.Collectibles
         [Tooltip("Particle system to play when the item is collected.")]
         [SerializeField] private ParticleSystem _collectEffect;
         [Tooltip("Should the collectible be attracted to the player?")]
-        [SerializeField] private bool _magnetize = true;
+        [SerializeField] protected bool _magnetize = true;
 
         private bool _hasBeenCollected;
         private Tween _spinTween;
@@ -62,6 +62,7 @@ namespace Crease.Flying.Environment.Collectibles
 
             _hasBeenCollected = true;
             OnCollected?.Invoke();
+            HandlePlayerCollected();
 
             if (_collectEffect != null)
             {
@@ -78,6 +79,11 @@ namespace Crease.Flying.Environment.Collectibles
                 if (_collider != null) _collider.enabled = false;
             }
         }
+
+        /// <summary>
+        /// Called after the player collects this item and <see cref="OnCollected"/> has been invoked.
+        /// </summary>
+        protected virtual void HandlePlayerCollected() { }
 
         private void Start()
         {
