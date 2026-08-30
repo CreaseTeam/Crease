@@ -14,6 +14,9 @@ namespace Crease.Flying.Player.Health
 
         public float CurrentHealth { get; private set; }
         public float NormalizedDamage(float amount) => amount / MaxHealth;
+        public bool IsInvulnerable => _flightModifiers != null && _flightModifiers.IsActive(FlightModifiers.FlightModifierType.Invulnerable);
+
+        private FlightModifiers.FlightModifiers _flightModifiers;
 
         [Serializable]
         private class DamageRecord
@@ -25,10 +28,18 @@ namespace Crease.Flying.Player.Health
         private readonly List<DamageRecord> _damageLog = new();
         private readonly int[] _damageDecalCountByType = new int[5];
 
+        void Awake()
+        {
+            _flightModifiers = GetComponent<FlightModifiers.FlightModifiers>();
+        }
+
         void Start() => CurrentHealth = MaxHealth;
 
         public void TakeDamage(float amount, DamageType type)
         {
+            if (IsInvulnerable)
+                return;
+
             if (FlightStats.Instance != null && FlightStats.Instance.CurrentStats != null)
                 amount *= FlightStats.Instance.CurrentStats.DamageTaken;
 

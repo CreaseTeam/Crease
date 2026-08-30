@@ -121,6 +121,7 @@ namespace Crease.Flying.Player
         private void OnCollisionEnter(Collision collision)
         {
             Collider other = collision.collider;
+            NotifyCollision(collision.gameObject);
 
             if (_landOnGroundAfterCrash
                 && _crashHandler != null
@@ -170,10 +171,7 @@ namespace Crease.Flying.Player
 
             bool obstacleAppliesKnockback = obstacleComp == null ? true : obstacleComp.ApplyKnockback;
             if (!obstacleAppliesKnockback)
-            {
-                TakeDamage(collision.gameObject);
                 return;
-            }
 
             if (isInvulnerable)
             {
@@ -187,8 +185,6 @@ namespace Crease.Flying.Player
 
                 return;
             }
-
-            TakeDamage(collision.gameObject);
 
             _body.SetVelocity(knockbackDir * appliedImpulse);
 
@@ -228,11 +224,11 @@ namespace Crease.Flying.Player
             return (transform.position - collision.collider.bounds.center).normalized;
         }
 
-        private void TakeDamage(GameObject obstacle)
+        private void NotifyCollision(GameObject other)
         {
             float damageAmount = 10f;
             DamageType damageType = DamageType.Impact;
-            Obstacle obstacleComp = obstacle.GetComponentInParent<Obstacle>();
+            Obstacle obstacleComp = other.GetComponentInParent<Obstacle>();
             if (obstacleComp != null)
             {
                 damageAmount = obstacleComp.ImpactDamage;
@@ -240,8 +236,9 @@ namespace Crease.Flying.Player
                 obstacleComp.TriggerHit(gameObject);
             }
 
-            _healthComponent.TakeDamage(damageAmount, damageType);
             GameEvents.OnPlaneCollided?.Invoke(damageType, damageAmount);
+            if (_healthComponent != null)
+                _healthComponent.TakeDamage(damageAmount, damageType);
         }
 
         private void FixedUpdate()
