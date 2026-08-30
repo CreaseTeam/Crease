@@ -11,13 +11,13 @@
   <LoadSoundEngineInEditMode>true</LoadSoundEngineInEditMode>
   <ShowMissingRigidBodyWarning>true</ShowMissingRigidBodyWarning>
   <ShowSpatialAudioWarningMsg>true</ShowSpatialAudioWarningMsg>
-  <WwiseInstallationPathMac>/Applications/Audiokinetic/Wwise_2025.1.8.9170/Wwise.app</WwiseInstallationPathMac>
+  <WwiseInstallationPathMac />
   <WwiseInstallationPathWindows />
-  <WwiseProjectPath>../Crease_WwiseProject/Crease_WwiseProject.wproj</WwiseProjectPath>
-  <UseWaapi>true</UseWaapi>
+  <WwiseProjectPath></WwiseProjectPath>
+  <UseWaapi>false</UseWaapi>
   <WaapiPort>8080</WaapiPort>
   <WaapiIP>127.0.0.1</WaapiIP>
-  <AutoSyncWaapi>true</AutoSyncWaapi>
+  <AutoSyncWaapi>false</AutoSyncWaapi>
   <WaapiChangePending>false</WaapiChangePending>
   <InstallationWasRequested>false</InstallationWasRequested>
   <UseGitRepository>true</UseGitRepository>
