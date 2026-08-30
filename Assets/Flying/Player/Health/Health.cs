@@ -75,7 +75,7 @@ namespace Crease.Flying.Player.Health
                 HUDCanvas.Instance.VisualDamage(type, record.Amount / MaxHealth);
             }
 
-            GameEvents.OnDamageTaken?.Invoke(amount, type);
+            GameEvents.OnDamageTaken?.Invoke(type, amount);
         }
 
         public int GetDamageDecalCount(DamageType type)
@@ -117,7 +117,7 @@ namespace Crease.Flying.Player.Health
             if (healAmount <= 0f)
                 return;
 
-            GameEvents.OnDamageHealed?.Invoke(healAmount, type);
+            GameEvents.OnDamageHealed?.Invoke(type, healAmount);
         }
 
         public void Heal(float amount, DamageType? targetType = null)

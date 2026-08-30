@@ -41,7 +41,7 @@ namespace Crease.Flying.Player.Health
             GameEvents.OnDecalsCleared -= HandleDecalsCleared;
         }
 
-        private void HandleDamageTaken(float amount, DamageType type)
+        private void HandleDamageTaken(DamageType type, float amount)
         {
             if (amount <= 0f || _library == null)
                 return;
@@ -77,7 +77,7 @@ namespace Crease.Flying.Player.Health
             _health?.RegisterDamageDecal(type);
         }
 
-        private void HandleDamageHealed(float amount, DamageType type)
+        private void HandleDamageHealed(DamageType type, float amount)
         {
             if (amount <= 0f)
                 return;

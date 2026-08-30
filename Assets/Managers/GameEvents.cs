@@ -15,8 +15,8 @@ namespace Crease.Events
     public static class GameEvents
     {
         public static Action<DamageType, float> OnPlaneCollided;
-        public static Action<float, DamageType> OnDamageTaken;
-        public static Action<float, DamageType> OnDamageHealed;
+        public static Action<DamageType, float> OnDamageTaken;
+        public static Action<DamageType, float> OnDamageHealed;
         public static Action<float> OnSpeedThresholdPassed;
         public static Action OnPlaneDashed;
 
