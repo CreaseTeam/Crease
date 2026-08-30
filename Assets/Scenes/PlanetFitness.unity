@@ -5561,6 +5561,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Folding.PaperSurface.Writing.LetterActions
   _sectionName: 
+--- !u!1 &359722036
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 359722037}
+  m_Layer: 0
+  m_Name: InkSet
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &359722037
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 359722036}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 946028189}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &374574377
 GameObject:
   m_ObjectHideFlags: 0
@@ -13422,6 +13453,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 37005887}
     m_Modifications:
+    - target: {fileID: 6244377316570227477, guid: c124e06ba7fab4c76b48f4350f55cfe5, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -7011766824195413768, guid: b0ba9b7cecd675b45894beca57389899, type: 3}
     - target: {fileID: 460425350016064360, guid: e4475f93ac7e61642a89db73459101ae, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -13486,10 +13521,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6244377316570227477, guid: c124e06ba7fab4c76b48f4350f55cfe5, type: 3}
-      propertyPath: m_Mesh
-      value: 
-      objectReference: {fileID: -7011766824195413768, guid: b0ba9b7cecd675b45894beca57389899, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -14596,6 +14627,38 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.DeveloperTools.MeshColorController
   _meshColor: {r: 1, g: 0.59729415, b: 0, a: 1}
+--- !u!1 &946028188
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 946028189}
+  m_Layer: 0
+  m_Name: Ink
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &946028189
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 946028188}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 359722037}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &980377733
 GameObject:
   m_ObjectHideFlags: 0
@@ -30898,3 +30961,4 @@ SceneRoots:
   - {fileID: 785925066}
   - {fileID: 22010942}
   - {fileID: 1372606777}
+  - {fileID: 946028189}
