@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Crease.Audio;
+using Crease.Events;
 using Crease.Folding.PaperSurface.Decals;
 using Crease.Folding.PaperSurface.Stickers;
 using Crease.Managers.Input;
@@ -324,6 +325,7 @@ public class FoldInstructionRunner : MonoBehaviour
 
     private System.Collections.IEnumerator ExecuteCreaseStepRoutine(FoldStep executedStep, bool animateFoldInFirst = false, bool advanceStep = true) {
         _isCreaseAnimating = true;
+        GameEvents.OnCreaseAnimationTriggered?.Invoke();
         RefreshDragHandleVisibility();
 
         if (animateFoldInFirst) {

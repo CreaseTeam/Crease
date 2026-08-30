@@ -1,3 +1,4 @@
+using Crease.Events;
 using UnityEngine;
 
 public class InkTriggerScript : MonoBehaviour
@@ -20,6 +21,7 @@ public class InkTriggerScript : MonoBehaviour
             return;
 
         hasBeenCollected = true;
+        GameEvents.OnInkCollected?.Invoke();
 
         if (inkTextManager != null)
         {

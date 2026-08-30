@@ -1,3 +1,4 @@
+using Crease.Events;
 using Crease.Flying.Environment.Interactables;
 using Crease.Flying.Environment.Obstacle;
 using Crease.Flying.Player.FlightModifiers;
@@ -240,6 +241,7 @@ namespace Crease.Flying.Player
             }
 
             _healthComponent.TakeDamage(damageAmount, damageType);
+            GameEvents.OnPlaneCollided?.Invoke(damageType, damageAmount);
         }
 
         private void FixedUpdate()

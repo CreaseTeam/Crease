@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Crease.Events;
 using Crease.Folding.Paper;
 using UnityEngine;
 
@@ -394,10 +395,8 @@ namespace Crease.Folding.PaperSurface.Decals
             _ghostPlacement = null;
             TextureRenderer?.ClearTextures();
             RebuildTextures();
-            OnDecalsCleared?.Invoke();
+            GameEvents.OnDecalsCleared?.Invoke();
         }
-
-        public event System.Action OnDecalsCleared;
 
         public void ClearUserStickers()
         {

@@ -1,4 +1,5 @@
 using System.Collections;
+using Crease.Events;
 using UnityEngine;
 
 public class WaterParkBucket : MonoBehaviour
@@ -175,6 +176,7 @@ public class WaterParkBucket : MonoBehaviour
             );
 
             // Tip the bucket forward and begin pouring at the selected point.
+            GameEvents.OnWaterBucketTipped?.Invoke();
             yield return TipBucketAndStartWater();
 
             // Swing while pouring.

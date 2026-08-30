@@ -1,4 +1,5 @@
 using System.Collections;
+using Crease.Events;
 using TMPro;
 using UnityEngine;
 
@@ -21,13 +22,17 @@ public class InkTextManager : MonoBehaviour
         }
 
         if (currentRoutine != null)
+        {
             StopCoroutine(currentRoutine);
+            GameEvents.OnLetterWritingStopped?.Invoke();
+        }
 
         currentRoutine = StartCoroutine(WriteAndFadeRoutine(text));
     }
 
     private IEnumerator WriteAndFadeRoutine(string newText)
     {
+        GameEvents.OnLetterWritingStarted?.Invoke();
         inkTextMesh.gameObject.SetActive(true);
         inkTextMesh.enabled = true;
 
@@ -43,6 +48,8 @@ public class InkTextManager : MonoBehaviour
             inkTextMesh.maxVisibleCharacters = i;
             yield return new WaitForSeconds(writeSpeed);
         }
+
+        GameEvents.OnLetterWritingStopped?.Invoke();
 
         yield return new WaitForSeconds(lingerTime);
 

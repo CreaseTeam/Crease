@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Crease.Events;
 using Crease.Flying.Player;
 using Crease.UI;
 using UnityEngine;
@@ -9,9 +10,6 @@ namespace Crease.Flying.Player.Health
 {
     public class Health : MonoBehaviour
     {
-        public static event Action<float, DamageType> OnDamageTaken;
-        public static event Action<float, DamageType> OnDamageHealed;
-
         public float MaxHealth = 100f;
 
         public float CurrentHealth { get; private set; }
@@ -66,7 +64,7 @@ namespace Crease.Flying.Player.Health
                 HUDCanvas.Instance.VisualDamage(type, record.Amount / MaxHealth);
             }
 
-            OnDamageTaken?.Invoke(amount, type);
+            GameEvents.OnDamageTaken?.Invoke(amount, type);
         }
 
         public int GetDamageDecalCount(DamageType type)
@@ -108,7 +106,7 @@ namespace Crease.Flying.Player.Health
             if (healAmount <= 0f)
                 return;
 
-            OnDamageHealed?.Invoke(healAmount, type);
+            GameEvents.OnDamageHealed?.Invoke(healAmount, type);
         }
 
         public void Heal(float amount, DamageType? targetType = null)

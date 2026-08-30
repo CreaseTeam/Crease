@@ -1,3 +1,4 @@
+using Crease.Events;
 using UnityEngine;
 
 public class Bubble : MonoBehaviour
@@ -49,7 +50,11 @@ public class Bubble : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Pop();
+            if (!destroyed)
+            {
+                Pop();
+                GameEvents.OnBubblePopped?.Invoke();
+            }
         }
     }
 

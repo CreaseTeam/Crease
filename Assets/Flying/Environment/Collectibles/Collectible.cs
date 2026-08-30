@@ -1,3 +1,4 @@
+using Crease.Events;
 using Crease.Flying.Player;
 using Crease.UI;
 using DG.Tweening;
@@ -100,6 +101,8 @@ namespace Crease.Flying.Environment.Collectibles
             {
                 HUDCanvas.Instance.Collect();
             }
+
+            GameEvents.OnCoinCollected?.Invoke(CoinType.Regular);
         }
 
         public void HealPlayer(float amount)
@@ -108,12 +111,16 @@ namespace Crease.Flying.Environment.Collectibles
             {
                 HUDCanvas.Instance.Heal(amount);
             }
+
+            GameEvents.OnCoinCollected?.Invoke(CoinType.Health);
         }
 
         public void RefreshAbility()
         {
             if (HUDCanvas.Instance != null)
                 HUDCanvas.Instance.RefreshAbility();
+
+            GameEvents.OnCoinCollected?.Invoke(CoinType.Dash);
         }
 
         public void Magnetize(GameObject player, float minSpeed, float maxSpeed, float totalTime, AnimationCurve speedFloorCurve)

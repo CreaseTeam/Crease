@@ -1,4 +1,5 @@
 using Crease.Audio;
+using Crease.Events;
 using Crease.Flying.Environment.Wind;
 using Crease.Flying.Player;
 using UnityEngine;
@@ -85,6 +86,7 @@ namespace Crease.Flying.Environment.Wind.Frustum
             if (receiver != null)
             {
                 receiver.AddWindZone(this);
+                GameEvents.OnWindFrustumAffected?.Invoke();
 
                 if (UseVelocityLiftMode && _shape != null)
                 {

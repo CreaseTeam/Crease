@@ -1,3 +1,4 @@
+using Crease.Events;
 using UnityEngine;
 
 public class RisingBubble : MonoBehaviour
@@ -65,7 +66,11 @@ public class RisingBubble : MonoBehaviour
     {
         if (other.CompareTag(playerTag))
         {
-            Pop();
+            if (!destroyed)
+            {
+                Pop();
+                GameEvents.OnBubblePopped?.Invoke();
+            }
         }
     }
 

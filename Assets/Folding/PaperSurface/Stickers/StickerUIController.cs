@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Crease.Events;
 using Crease.Folding.PaperSurface.Decals;
 using Crease.Folding.Paper;
 using Crease.Managers.Input;
@@ -189,6 +190,7 @@ namespace Crease.Folding.PaperSurface.Stickers
             _heldDamageSourceType = -1;
             ResetHeldTransform();
             UpdateHoldVisuals(eventData.position);
+            GameEvents.OnStickerSelected?.Invoke();
         }
 
         /// <summary>
@@ -260,6 +262,7 @@ namespace Crease.Folding.PaperSurface.Stickers
             _isHoldingSticker = true;
             _holdingPickedUpSticker = true;
             UpdateHoldVisuals(screenPosition);
+            GameEvents.OnStickerRemovedFromPlane?.Invoke();
         }
 
         private void ResetHeldTransform()

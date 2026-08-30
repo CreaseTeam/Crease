@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Crease.Events;
 using Crease.Flying.Player;
 using Crease.Folding.PaperSurface.Writing;
 using Crease.Managers.Input;
@@ -298,6 +299,7 @@ namespace Crease.Folding.Paper
         public void TriggerLevelEnd(Material letterFront) {
             if (IsFolding || IsTransitioning || _isAligningPaper) return;
 
+            GameEvents.OnGameplayFinished?.Invoke();
             QueueLetterSection("End");
 
             EnterFoldingMode(levelEnd: true);

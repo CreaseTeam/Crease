@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Crease.Events;
 using Crease.Flying.Player;
 using Crease.Flying.Player.Camera;
 using TMPro;
@@ -209,12 +210,14 @@ namespace Crease.Handwritting
             {
                 StopCoroutine(_playRoutine);
                 _playRoutine = null;
+                GameEvents.OnLetterWritingStopped?.Invoke();
             }
 
             ClearStreamingLetters();
 
             TryStartCameraCapture();
             _playRoutine = StartCoroutine(PlayWriteInRoutine(ResolveText(text)));
+            GameEvents.OnLetterWritingStarted?.Invoke();
         }
 
         public void ShowInstant()
@@ -358,6 +361,7 @@ namespace Crease.Handwritting
             }
 
             SetFullyVisible();
+            GameEvents.OnLetterWritingStopped?.Invoke();
 
             if (_disappearMode != HandwrittenTextDisappearMode.None)
                 yield return DisappearAfterLingerRoutine();

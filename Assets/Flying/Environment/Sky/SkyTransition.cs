@@ -1,4 +1,5 @@
 using System;
+using Crease.Events;
 using DG.Tweening;
 using UnityEngine;
 
@@ -69,9 +70,6 @@ namespace Crease.Flying.Environment
 
         public bool IsDay => _isDay;
         public bool IsTransitioning { get; private set; }
-
-        public event Action OnTransitionStarted;
-        public event Action<bool> OnTransitionComplete;
 
         private void Awake()
         {
@@ -174,7 +172,7 @@ namespace Crease.Flying.Environment
             IsTransitioning = true;
             SetHemisphereEnabled(_day, true);
             SetHemisphereEnabled(_night, true);
-            OnTransitionStarted?.Invoke();
+            GameEvents.OnSkyTransitionStarted?.Invoke();
 
             _transitionSequence = DOTween.Sequence()
                 .Append(transform
@@ -242,7 +240,7 @@ namespace Crease.Flying.Environment
             ApplyPresentation(_isDay ? 1f : 0f, _isDay ? 0f : 1f);
             UpdateHemisphereVisibility();
             IsTransitioning = false;
-            OnTransitionComplete?.Invoke(_isDay);
+            GameEvents.OnSkyTransitionComplete?.Invoke(_isDay);
         }
 
         private void UpdateHemisphereVisibility()

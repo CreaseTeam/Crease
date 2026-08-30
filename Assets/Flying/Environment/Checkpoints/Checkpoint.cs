@@ -1,3 +1,4 @@
+using Crease.Events;
 using Crease.Folding.Paper;
 using Crease.UI;
 using UnityEngine;
@@ -15,6 +16,8 @@ namespace Crease.Flying.Environment.Checkpoints
 
         public void TriggerCheckpoint()
         {
+            GameEvents.OnCheckpointReached?.Invoke();
+
             if (HUDCanvas.Instance != null)
                 HUDCanvas.Instance.SetRefoldAvailable(true);
 

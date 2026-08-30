@@ -1,0 +1,32 @@
+---
+description: Check out Perforce files before editing; never submit or rewrite depot history
+alwaysApply: true
+---
+
+# Perforce
+
+This project is in a Perforce depot. Tracked files are read-only until checked out.
+
+## Before editing
+
+- Run `p4 edit <files>` before modifying an existing depot file
+- Run `p4 add <files>` for newly created depot files (do not submit afterward)
+- If `p4` fails (SSL / `P4PORT`, auth, not in a client workspace), fix the connection and retry — do not edit around it
+- Do **not** clear the read-only flag (`attrib -R`, `chmod +w`, etc.) as a substitute for checkout
+
+```
+# ✅ GOOD
+p4 edit Assets/Managers/GameEvents.cs
+# then edit the file
+
+# ❌ BAD
+attrib -R Assets/Managers/GameEvents.cs
+# then edit anyway
+```
+
+## Never do these
+
+- Submit changelists: `p4 submit`, or any command that sends work to the depot
+- Rewrite or roll back depot history: `p4 obliterate`, `p4 undo`, `p4 unsubmit`, journal/checkpoint surgery
+- Force-overwrite local or depot state: `p4 sync -f`, `p4 clean`, `p4 revert` (including `-k` / `-w`), unless the user explicitly asks
+- Revert or unlock another person's checkout

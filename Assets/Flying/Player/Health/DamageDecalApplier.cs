@@ -1,3 +1,4 @@
+using Crease.Events;
 using Crease.Folding.PaperSurface.Decals;
 using Crease.Folding.Paper;
 using UnityEngine;
@@ -28,20 +29,16 @@ namespace Crease.Flying.Player.Health
 
         private void OnEnable()
         {
-            Health.OnDamageTaken += HandleDamageTaken;
-            Health.OnDamageHealed += HandleDamageHealed;
-
-            if (DecalController.Instance != null)
-                DecalController.Instance.OnDecalsCleared += HandleDecalsCleared;
+            GameEvents.OnDamageTaken += HandleDamageTaken;
+            GameEvents.OnDamageHealed += HandleDamageHealed;
+            GameEvents.OnDecalsCleared += HandleDecalsCleared;
         }
 
         private void OnDisable()
         {
-            Health.OnDamageTaken -= HandleDamageTaken;
-            Health.OnDamageHealed -= HandleDamageHealed;
-
-            if (DecalController.Instance != null)
-                DecalController.Instance.OnDecalsCleared -= HandleDecalsCleared;
+            GameEvents.OnDamageTaken -= HandleDamageTaken;
+            GameEvents.OnDamageHealed -= HandleDamageHealed;
+            GameEvents.OnDecalsCleared -= HandleDecalsCleared;
         }
 
         private void HandleDamageTaken(float amount, DamageType type)

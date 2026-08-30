@@ -1,3 +1,4 @@
+using Crease.Events;
 using Crease.Flying.Player.Abilities;
 using Crease.Flying.Player.FlightModifiers;
 using UnityEngine;
@@ -130,6 +131,7 @@ namespace Crease.Flying.Player.Dash
                 if (C.AnimationController != null)
                     C.AnimationController.StartBarrelRoll(_def.DashDuration, _def.SpinSpeed);
 
+                GameEvents.OnPlaneDashed?.Invoke();
                 return true;
             }
 

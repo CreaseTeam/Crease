@@ -1,3 +1,4 @@
+using Crease.Events;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
@@ -73,6 +74,7 @@ namespace Crease.Folding.Paper
                     _grabOffset = Vector3.zero;
                     if (TryProjectOnDragPlane(ray, out Vector3 grabPoint))
                         _grabOffset = grabPoint - transform.position;
+                    GameEvents.OnFoldPointClicked?.Invoke();
                 }
             }
         }
