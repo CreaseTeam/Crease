@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5913532874317508624}
   - component: {fileID: 3761338521439278964}
-  - component: {fileID: 2926407885655302084}
+  - component: {fileID: 6551988716044907506}
   m_Layer: 0
   m_Name: InkBreadcrumbs
   m_TagString: Untagged
@@ -153,7 +153,7 @@ MonoBehaviour:
       m_Data: []
   m_Knots:
     m_KnotsLink: []
---- !u!114 &2926407885655302084
+--- !u!114 &6551988716044907506
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -162,45 +162,47 @@ MonoBehaviour:
   m_GameObject: {fileID: 3597259743981885927}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e3dbfe2a61a42140b1d902b1216fbdb, type: 3}
+  m_Script: {fileID: 11500000, guid: 2b74686beb0670a4ea61325c0acf4411, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InkBreadcrumbs
-  _inkDropPrefab: {fileID: 8230811255098082656, guid: 7ed8a981c623c274391bb7f00f28e685, type: 3}
-  _dropScale: 1
-  _alignToSpline: 1
-  _positionJitter: 0
-  _dropSpacing: 8
-  _startDistance: 0
-  _endPadding: 0
-  _maxDropCount: 256
-  _revealSpeed: 150
-  _appearDuration: 0.2
-  _appearScaleCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _startDelay: 0
-  _clearOnRetrigger: 1
+  m_EditorClassIdentifier: Unity.Splines::UnityEngine.Splines.SplineInstantiate
+  m_Container: {fileID: 3761338521439278964}
+  m_ItemsToInstantiate:
+  - prefab: {fileID: 0}
+    Prefab: {fileID: 8230811255098082656, guid: 7ed8a981c623c274391bb7f00f28e685, type: 3}
+    probability: 0
+    Probability: 0
+  m_Method: 2
+  m_Space: 0
+  m_Spacing: {x: 5, y: 5}
+  m_Up: 1
+  m_Forward: 2
+  m_PositionOffset:
+    setup: 0
+    min: {x: 0, y: 0, z: 0}
+    max: {x: 0, y: 0, z: 0}
+    randomX: 0
+    randomY: 0
+    randomZ: 0
+    space: 0
+  m_RotationOffset:
+    setup: 0
+    min: {x: 0, y: 0, z: 0}
+    max: {x: 0, y: 0, z: 0}
+    randomX: 0
+    randomY: 0
+    randomZ: 0
+    space: 0
+  m_ScaleOffset:
+    setup: 0
+    min: {x: 0, y: 0, z: 0}
+    max: {x: 0, y: 0, z: 0}
+    randomX: 0
+    randomY: 0
+    randomZ: 0
+    space: 0
+  m_DeprecatedInstances: []
+  m_AutoRefresh: 1
+  m_Seed: 1345358270
 --- !u!1 &4600427471437626065
 GameObject:
   m_ObjectHideFlags: 0
@@ -230,7 +232,7 @@ Transform:
   m_GameObject: {fileID: 4600427471437626065}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.06, y: 4.06, z: -0.132}
+  m_LocalPosition: {x: -2.8, y: 55.4, z: 159.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -337,8 +339,11 @@ MonoBehaviour:
   _spinSpeed: 90
   _collectEffect: {fileID: 0}
   _magnetize: 1
-  _breadcrumbs: {fileID: 2926407885655302084}
   _handwrittenText: {fileID: 3985184833108068435}
+  _lineStartOffset: {x: 0, y: 0, z: 0}
+  _lineEndOffset: {x: 0, y: 0, z: 0}
+  _lineLingerTime: 3
+  _lineMaterial: {fileID: 0}
   OnInkFullyCollected:
     m_PersistentCalls:
       m_Calls:
@@ -438,7 +443,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2464975371037016205, guid: 499a5e3348fa78e4699c1a799cb906f4, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 166.8
+      value: 336.1
       objectReference: {fileID: 0}
     - target: {fileID: 2464975371037016205, guid: 499a5e3348fa78e4699c1a799cb906f4, type: 3}
       propertyPath: m_LocalRotation.w

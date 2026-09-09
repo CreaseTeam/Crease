@@ -7,15 +7,43 @@ alwaysApply: true
 
 This project is in a Perforce depot. Tracked files are read-only until checked out.
 
+## This workspace
+
+`p4 set` on this machine is often wrong (port missing `ssl:`, client pointing at a different project). **Do not run `p4 set` to change it.** Override per command:
+
+| Setting | Value |
+|---|---|
+| `P4PORT` | `ssl:perforce.sca.usc.edu:1666` |
+| `P4CLIENT` | `mraffel_foldywoldyboy_Crease` |
+| `P4USER` | `mraffel` |
+
+Client root: `C:\Users\maxbr\College\Crease\mraffel_foldywoldyboy_Crease`  
+Depot path: `//261_833_8019/Crease/...`
+
+PowerShell (set both env vars on every `p4` invocation):
+
+```
+$env:P4PORT = "ssl:perforce.sca.usc.edu:1666"
+$env:P4CLIENT = "mraffel_foldywoldyboy_Crease"
+p4 edit Assets/Managers/GameEvents.cs
+```
+
+Known failures if you skip this:
+
+- `P4PORT=perforce.sca.usc.edu:1666` (no `ssl:`) → `Failed client connect, server using SSL. Client must add SSL protocol prefix to P4PORT.`
+- `P4CLIENT=mraffel_foldywoldyboy_CTIN489` → `Client unknown.` / `must create client '...' to access local files.`
+
 ## Before editing
 
 - Run `p4 edit <files>` before modifying an existing depot file
 - Run `p4 add <files>` for newly created depot files (do not submit afterward)
-- If `p4` fails (SSL / `P4PORT`, auth, not in a client workspace), fix the connection and retry — do not edit around it
+- If `p4` fails (SSL / `P4PORT`, auth, not in a client workspace), fix the connection using the table above and retry — do not edit around it
 - Do **not** clear the read-only flag (`attrib -R`, `chmod +w`, etc.) as a substitute for checkout
 
 ```
 # ✅ GOOD
+$env:P4PORT = "ssl:perforce.sca.usc.edu:1666"
+$env:P4CLIENT = "mraffel_foldywoldyboy_Crease"
 p4 edit Assets/Managers/GameEvents.cs
 # then edit the file
 

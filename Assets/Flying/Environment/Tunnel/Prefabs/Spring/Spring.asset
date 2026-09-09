@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9db8a753e74f439d8ecb672613b0ada0, type: 3}
+  m_Name: Spring
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Environment.TunnelSection
+  BasePrefab: {fileID: 6967515770278725581, guid: 30cc89043b322264da86f4490bcad2d4, type: 3}
+  BaseName: Spring
+  GroupSize: 3
+  Pairs:
+  - Mesh: {fileID: 4693268190439649590, guid: b07ee8f7278ca324abca0afdb7325a01, type: 3}
+    Material: {fileID: 2100000, guid: 23297b5d814d0f14498aa182ced5b795, type: 2}
+  - Mesh: {fileID: 852198774933461470, guid: 880964b9ce70ef142ae300cccebd17f1, type: 3}
+    Material: {fileID: 2100000, guid: 38bbc91568e79374186addec2e77944f, type: 2}
+  - Mesh: {fileID: 1519053610893136390, guid: c10f231b81c3a0247a8b6cdfbed92876, type: 3}
+    Material: {fileID: 2100000, guid: 774433f324539614699ac12e13b9e43f, type: 2}
+  - Mesh: {fileID: -6932974893948203187, guid: 560b41d0c1d649f4a8657f1e3440747a, type: 3}
+    Material: {fileID: 2100000, guid: 892216ca6a1503f4c9de660a59431856, type: 2}
+  - Mesh: {fileID: 5136979811383871371, guid: 18b15d5c4b328564c88be4a3ba51d98e, type: 3}
+    Material: {fileID: 2100000, guid: b5881462971a2444ab1ecfb92289ce18, type: 2}
+  - Mesh: {fileID: 5979565678933231301, guid: db797b321bf32f2488e68f60452959d5, type: 3}
+    Material: {fileID: 2100000, guid: d01ffdbb08eec0e4f8830aa1249df5ec, type: 2}
+  - Mesh: {fileID: -3980044008148540991, guid: cd075273528440645ab4510dfd1ab746, type: 3}
+    Material: {fileID: 2100000, guid: 055d944a36b612948a4311f6cbded141, type: 2}
+  - Mesh: {fileID: -134189391972156262, guid: 5310bc5424cc0c14f863e03e6dff4bc3, type: 3}
+    Material: {fileID: 2100000, guid: 8574f556013b53d43848ec4c9a4b07de, type: 2}
+  - Mesh: {fileID: -2167022520152227684, guid: d11e7988dedc9b840beb72cc1e069190, type: 3}
+    Material: {fileID: 2100000, guid: 2715e076165f73f4ab7a6afbad917ccc, type: 2}

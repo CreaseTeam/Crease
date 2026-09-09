@@ -156,9 +156,12 @@ public partial class AkBuildPreprocessor : UnityEditor.Build.IPreprocessBuild, U
 		{
 			config.OnPreprocessBuild(path);
 		}
-		
-		// Init ProjectDB for platform being built
-		WwiseProjectDatabase.Init(AkWwiseEditorSettings.GetRootOutputPath(), platformName);
+
+		if (!string.IsNullOrEmpty(AkWwiseEditorSettings.Instance.WwiseProjectPath))
+		{
+			// Init ProjectDB for platform being built
+			WwiseProjectDatabase.Init(AkWwiseEditorSettings.GetRootOutputPath(), platformName);
+		}
 		AkPluginActivator.ForceUpdate();
 		AkPluginActivator.ActivatePluginsForDeployment(target, true);
 	}
@@ -174,9 +177,12 @@ public partial class AkBuildPreprocessor : UnityEditor.Build.IPreprocessBuild, U
 		DeleteSoundbanks(destinationSoundBankFolder);
 #endif
 		destinationSoundBankFolder = string.Empty;
-		
-		// Point the ProjectDB back on the current editor platform
-		WwiseProjectDatabase.Init(AkWwiseEditorSettings.GetRootOutputPath(), AkBasePathGetter.GetPlatformName());
+
+		if (!string.IsNullOrEmpty(AkWwiseEditorSettings.Instance.WwiseProjectPath))
+		{
+			// Point the ProjectDB back on the current editor platform
+			WwiseProjectDatabase.Init(AkWwiseEditorSettings.GetRootOutputPath(), AkBasePathGetter.GetPlatformName());
+		}
 	}
 
 #if UNITY_2018_1_OR_NEWER

@@ -1,0 +1,325 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8266470875271483343
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8111706668890572422}
+  - component: {fileID: 7552968730699658985}
+  - component: {fileID: 8366287021467744843}
+  - component: {fileID: 6302493974226439129}
+  m_Layer: 0
+  m_Name: Tunnel
+  m_TagString: Obstacle
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8111706668890572422
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8266470875271483343}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 302.8, y: 77.5, z: 79.4}
+  m_LocalScale: {x: -1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7552968730699658985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8266470875271483343}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dab5c7d4c32e743048dfca98e2d5914f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Splines::UnityEngine.Splines.SplineContainer
+  m_Spline:
+    m_EditModeType: 1
+    m_Knots: []
+    m_MetaData: []
+    m_Closed: 0
+    m_IntData:
+      m_Data: []
+    m_FloatData:
+      m_Data: []
+    m_Float4Data:
+      m_Data: []
+    m_ObjectData:
+      m_Data: []
+  m_Splines:
+  - m_EditModeType: 1
+    m_Knots:
+    - Position:
+        x: 0
+        y: 0
+        z: 0
+      TangentIn:
+        x: -0
+        y: -0
+        z: -20
+      TangentOut:
+        x: 0
+        y: 0
+        z: 20
+      Rotation:
+        value:
+          x: -0
+          y: 0
+          z: -0.000000037812935
+          w: 1
+    - Position:
+        x: 0
+        y: 0
+        z: 200
+      TangentIn:
+        x: -0
+        y: -0
+        z: -20
+      TangentOut:
+        x: 0
+        y: 0
+        z: 20
+      Rotation:
+        value:
+          x: -0
+          y: 0
+          z: -0.000000037812935
+          w: 1
+    m_MetaData:
+    - Mode: 0
+      Tension: 0.5
+    - Mode: 0
+      Tension: 0.5
+    m_Closed: 0
+    m_IntData:
+      m_Data: []
+    m_FloatData:
+      m_Data: []
+    m_Float4Data:
+      m_Data: []
+    m_ObjectData:
+      m_Data: []
+  m_Knots:
+    m_KnotsLink: []
+--- !u!114 &8366287021467744843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8266470875271483343}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7a9b467eb848ab438b641d532455576, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Environment.TunnelSpline
+  _container: {fileID: 7552968730699658985}
+  _segments:
+  - LengthProportion: 1
+    Items:
+    - Prefab: {fileID: 2090627832452192510, guid: 463e17af540bae24d9ea1c4583539a5f, type: 3}
+      Probability: 1
+    - Prefab: {fileID: 7373599183075214758, guid: eaa5e1d8c5bebfc4e8e6cb58f16e36b1, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 7770114584348716802, guid: 9eac1ef460e0034449f382a3d5f8c2a5, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 4569977541760322500, guid: 882d1a239609fb0499023007c87bc69a, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 9134148268206451620, guid: c65a0cf941b198f499a8aa69167574b4, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 1457086113602887842, guid: 8e7bbe3c586c0184abab742001a72d6a, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 3563003050713440515, guid: 0d27d3cdcc312ab479c927016cb38f04, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 9163459361611161617, guid: 8435698a7b8d1c747b454633ee85d030, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 6342829403473259157, guid: 671d053f87d138d459c3c89fa4c24235, type: 3}
+      Probability: 0
+  - LengthProportion: 1
+    Items:
+    - Prefab: {fileID: 1692965952356734946, guid: 3b9034cfa4f2b4a44b96359bdcc16e09, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 4777432703567646833, guid: e9173a17ec67eda4c8aaf08cd8842303, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 838465350835736335, guid: 32d9bbb1002eb6d478770295e1f5d87b, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 1072316044876882325, guid: ffce42cd89b459f4abb96cce20646686, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 5670950689250693882, guid: f958c02253942b34eb5d72ea465e81ba, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 5621761803980611183, guid: 401f349082c604f49941262a42920e30, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 4836741641434866433, guid: af36fa50deb70444d8c3e7018f36c246, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 5971883734382151760, guid: d0ae828175f8a9c4ea43b8be52e72211, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 8485982882092861002, guid: b6f03068f84443f44929c0f680eb427c, type: 3}
+      Probability: 0
+  - LengthProportion: 1
+    Items:
+    - Prefab: {fileID: 2933938653291805659, guid: 8a67b70c5e4793142902279075c4e61f, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 6419478750973277515, guid: 6bcd7cd0cf8628548830597a2ba9eab5, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 2405547897377363971, guid: cd6a66ee7f8a92d4e88c1db501c7a9af, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 3339881652815992504, guid: 8aafffd12a5af6843adbf8652ce9924d, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 6332834695485972416, guid: 2b6555a12157db148939a4a750dd7095, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 9167554375366512715, guid: 4389f27fd20ab57469581dd453670278, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 3887483035797146610, guid: 1743672767f321540a7c4589680f5537, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 2654143617893768683, guid: 98af68559d829c24fb59c5cf20036f92, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 6096602569905147202, guid: 21bd7c1448234424da916f37803c0de5, type: 3}
+      Probability: 0
+  - LengthProportion: 1
+    Items:
+    - Prefab: {fileID: 5489649188632058374, guid: 1251d40b409647445890c8fccbeca214, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 6506078129296335451, guid: 6e6c5cebf88a8054cbec9df357d3f96d, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 8740635976474308459, guid: 8b7cae4d7bd4e214f941dee2f447ed8d, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 8359236880842354198, guid: 0669b6b459911e64e97817771f534d44, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 2304547603544987878, guid: 151c3efa55eab4d4eaae8e58a596fba1, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 4320779161144779566, guid: f3e36934416dfc54cbb8d574ac961cd7, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 7117625988965473301, guid: f8f24509d894f60408cefde62f144515, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 3730493760603129813, guid: 9850d906db006ac4bbafcd59075f4309, type: 3}
+      Probability: 0
+    - Prefab: {fileID: 1866366092688723703, guid: f1652c40fe32a1840a2eb30c27c9b71d, type: 3}
+      Probability: 0
+  _placementMode: 1
+  _method: 0
+  _space: 0
+  _spacing: {x: 72, y: 72}
+  _up: 1
+  _forward: 2
+  _positionOffset:
+    setup: 0
+    min: {x: 0, y: 0, z: 0}
+    max: {x: 0, y: 0, z: 0}
+    randomX: 0
+    randomY: 0
+    randomZ: 0
+    space: 0
+  _rotationOffset:
+    setup: 0
+    min: {x: 0, y: 0, z: 0}
+    max: {x: 0, y: 0, z: 0}
+    randomX: 0
+    randomY: 0
+    randomZ: 0
+    space: 0
+  _scaleOffset:
+    setup: 0
+    min: {x: 0, y: 0, z: 0}
+    max: {x: 0, y: 0, z: 0}
+    randomX: 0
+    randomY: 0
+    randomZ: 0
+    space: 0
+  _autoRefresh: 1
+  _seed: 937809884
+  _generatePipeCollider: 1
+  _pipeRadius: 30
+  _pipeRadiusCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _pipeRingCount: 32
+  _pipeRadialSegments: 12
+  _pipeThickness: 0
+  _pipeCapEnds: 0
+  _pipeTag: Obstacle
+  _pipeLayer: 0
+  _pipePhysicsMaterial: {fileID: 0}
+--- !u!114 &6302493974226439129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8266470875271483343}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b74686beb0670a4ea61325c0acf4411, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Splines::UnityEngine.Splines.SplineInstantiate
+  m_Container: {fileID: 7552968730699658985}
+  m_ItemsToInstantiate:
+  - prefab: {fileID: 0}
+    Prefab: {fileID: 3885485890562799649, guid: 341e01a441da7ed4187213a5109069dd, type: 3}
+    probability: 0
+    Probability: 0
+  m_Method: 1
+  m_Space: 0
+  m_Spacing: {x: 40, y: 40}
+  m_Up: 1
+  m_Forward: 2
+  m_PositionOffset:
+    setup: 1
+    min: {x: -40, y: 0, z: 40}
+    max: {x: 40, y: 0, z: 40}
+    randomX: 1
+    randomY: 0
+    randomZ: 0
+    space: 0
+  m_RotationOffset:
+    setup: 0
+    min: {x: 0, y: 0, z: 0}
+    max: {x: 0, y: 0, z: 0}
+    randomX: 0
+    randomY: 0
+    randomZ: 0
+    space: 0
+  m_ScaleOffset:
+    setup: 0
+    min: {x: 0, y: 0, z: 0}
+    max: {x: 0, y: 0, z: 0}
+    randomX: 0
+    randomY: 0
+    randomZ: 0
+    space: 0
+  m_DeprecatedInstances: []
+  m_AutoRefresh: 1
+  m_Seed: 2036062181

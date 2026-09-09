@@ -47,19 +47,16 @@ namespace Crease.Flying.Environment.BlockoutHelpers
 
         private void CheckThresholds()
         {
-            Debug.Log($"Progress: {_progress}");
             if (_progress >= UpperThreshold && !_upperThresholdReached)
             {
                 OnUpperThreshold.Invoke();
                 _upperThresholdReached = true;
-                Debug.Log("Upper threshold reached!");
             }
 
             if (_progress <= LowerThreshold && !_lowerThresholdReached) 
             {
                 OnLowerThreshold.Invoke();
                 _lowerThresholdReached = true;
-                Debug.Log("Lower threshold reached!");
             }
         }
     }

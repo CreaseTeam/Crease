@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6972228580146675974}
   - component: {fileID: 4271636572712023897}
   - component: {fileID: 6631184980065315116}
+  - component: {fileID: 7848015351256570837}
   m_Layer: 0
   m_Name: InkDrop
   m_TagString: Untagged
@@ -90,3 +91,24 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &7848015351256570837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8230811255098082656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20c6c77905486094dbbe6e796a4f1f55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Crease.Flying.Environment.Collectibles.Collectible
+  _destroyOnCollect: 1
+  _hideOnCollect: 0
+  OnCollected:
+    m_PersistentCalls:
+      m_Calls: []
+  _spin: 0
+  _spinSpeed: 90
+  _collectEffect: {fileID: 0}
+  _magnetize: 1

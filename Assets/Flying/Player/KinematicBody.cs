@@ -137,6 +137,22 @@ namespace Crease.Flying.Player
             Velocity = velocity;
         }
 
+        public void Teleport(Vector3 position, Quaternion rotation)
+        {
+            Frozen = false;
+            Velocity = Vector3.zero;
+            _accumulatedForce = Vector3.zero;
+            transform.SetPositionAndRotation(position, rotation);
+
+            if (_rb == null)
+                return;
+
+            _rb.position = position;
+            _rb.rotation = rotation;
+            _rb.linearVelocity = Vector3.zero;
+            _rb.angularVelocity = Vector3.zero;
+        }
+
         public void MoveRotation(Quaternion rotation)
         {
             _rb.MoveRotation(rotation);

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Crease.Events;
 using Crease.Flying.Player;
+using Crease.Managers;
 using Crease.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -76,6 +77,9 @@ namespace Crease.Flying.Player.Health
             }
 
             GameEvents.OnDamageTaken?.Invoke(type, amount);
+
+            if (CurrentHealth <= 0f)
+                FlyingManager.Instance?.HandleDeath();
         }
 
         public int GetDamageDecalCount(DamageType type)
@@ -118,6 +122,11 @@ namespace Crease.Flying.Player.Health
                 return;
 
             GameEvents.OnDamageHealed?.Invoke(type, healAmount);
+        }
+
+        public void RestoreFullHealth()
+        {
+            Heal(MaxHealth);
         }
 
         public void Heal(float amount, DamageType? targetType = null)

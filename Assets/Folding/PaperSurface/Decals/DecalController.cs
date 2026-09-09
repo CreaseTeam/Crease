@@ -418,8 +418,8 @@ namespace Crease.Folding.PaperSurface.Decals
 
             PaperShading.ApplyDecalMapsOnly(
                 renderer,
-                TextureRenderer.FrontTexture,
-                TextureRenderer.BackTexture);
+                TextureRenderer.ActiveFrontTexture,
+                TextureRenderer.ActiveBackTexture);
         }
 
         public void ApplyDecalMapsToVisualizers()

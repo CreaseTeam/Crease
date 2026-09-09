@@ -176,7 +176,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Sandbox
+  m_text: Gym
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b4dcc430a2a4fcb458262712de872cda, type: 2}
   m_sharedMaterial: {fileID: -2461572806661650333, guid: b4dcc430a2a4fcb458262712de872cda, type: 2}
@@ -703,7 +703,7 @@ GameObject:
   - component: {fileID: 423929904}
   - component: {fileID: 423929903}
   m_Layer: 5
-  m_Name: Sandbox
+  m_Name: Gym
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -782,7 +782,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: FlightTest
+          m_StringArgument: PlanetFitness
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &423929904
@@ -955,7 +955,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Blockout
+  m_text: Level 1
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b4dcc430a2a4fcb458262712de872cda, type: 2}
   m_sharedMaterial: {fileID: -2461572806661650333, guid: b4dcc430a2a4fcb458262712de872cda, type: 2}
@@ -2892,7 +2892,7 @@ GameObject:
   - component: {fileID: 2077778985}
   - component: {fileID: 2077778984}
   m_Layer: 5
-  m_Name: Blockout
+  m_Name: Level1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2972,7 +2972,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: YT_TestSkybox
+          m_StringArgument: Level1
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &2077778985

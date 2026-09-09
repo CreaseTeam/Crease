@@ -118,19 +118,23 @@ namespace Crease.Flying.Player
             _flightModifiers = GetComponent<FlightModifiers.FlightModifiers>();
         }
 
+        public void StopRecovery()
+        {
+            _isRecovering = false;
+        }
+
         private void OnCollisionEnter(Collision collision)
         {
             Collider other = collision.collider;
-            NotifyCollision(collision.gameObject);
 
-            if (_landOnGroundAfterCrash
-                && _crashHandler != null
-                && _crashHandler.IsCrashed
-                && other.CompareTag(_groundTag))
+            if (_crashHandler != null && _crashHandler.IsCrashed)
             {
-                _crashHandler.Land();
+                if (_landOnGroundAfterCrash && other.CompareTag(_groundTag))
+                    _crashHandler.Land();
                 return;
             }
+
+            NotifyCollision(collision.gameObject);
 
             // Other-object lookups: cannot be cached — resolved per collision via GetComponentInParent.
             IPreventKnockback preventKnockbackComponent = other.GetComponentInParent<IPreventKnockback>();

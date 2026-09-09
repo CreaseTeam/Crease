@@ -26,10 +26,10 @@ namespace Crease.Folding.PaperSurface.Decals
         }
 
         [Header("Capture Cameras")]
-        [Tooltip("Orthographic camera targeting FrontTexture. Output Texture must be assigned on the camera.")]
+        [Tooltip("Orthographic camera used for front-sheet capture. Leave disabled; target is assigned to a runtime copy.")]
         public Camera FrontCamera;
 
-        [Tooltip("Orthographic camera targeting BackTexture. Output Texture must be assigned on the camera.")]
+        [Tooltip("Orthographic camera used for back-sheet capture. Leave disabled; target is assigned to a runtime copy.")]
         public Camera BackCamera;
 
         [Header("Stamp Roots")]
@@ -41,8 +41,14 @@ namespace Crease.Folding.PaperSurface.Decals
         public Mesh UnitQuadMesh;
 
         [Header("Output Textures")]
+        [Tooltip("Template asset. A runtime copy is created so this file is never written.")]
         public RenderTexture FrontTexture;
+
+        [Tooltip("Template asset. A runtime copy is created so this file is never written.")]
         public RenderTexture BackTexture;
+
+        public RenderTexture ActiveFrontTexture { get; private set; }
+        public RenderTexture ActiveBackTexture { get; private set; }
 
         private static readonly int BaseMapId = Shader.PropertyToID("_BaseMap");
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
@@ -55,6 +61,16 @@ namespace Crease.Folding.PaperSurface.Decals
         private bool _pendingIncludeGhost;
         private Coroutine _rebuildCoroutine;
         private bool _rebuildQueued;
+
+        private void Awake()
+        {
+            EnsureRuntimeTextures();
+        }
+
+        private void OnEnable()
+        {
+            EnsureRuntimeTextures();
+        }
 
         public void RequestRebuild(
             PaperGraph graph,
@@ -80,8 +96,9 @@ namespace Crease.Folding.PaperSurface.Decals
 
         public void ClearTextures()
         {
-            ClearRenderTexture(FrontTexture);
-            ClearRenderTexture(BackTexture);
+            EnsureRuntimeTextures();
+            ClearRenderTexture(ActiveFrontTexture);
+            ClearRenderTexture(ActiveBackTexture);
         }
 
         private IEnumerator RebuildEndOfFrame()
@@ -91,7 +108,9 @@ namespace Crease.Folding.PaperSurface.Decals
                 _rebuildQueued = false;
                 yield return new WaitForEndOfFrame();
 
-                if (_pendingGraph == null || FrontTexture == null || BackTexture == null)
+                EnsureRuntimeTextures();
+
+                if (_pendingGraph == null || ActiveFrontTexture == null || ActiveBackTexture == null)
                     continue;
 
                 if (!ValidateSetup())
@@ -139,11 +158,11 @@ namespace Crease.Folding.PaperSurface.Decals
                 return false;
             }
 
-            if (FrontCamera.targetTexture != FrontTexture)
-                Debug.LogWarning("DecalTextureRenderer: FrontCamera Output Texture should reference FrontTexture.", FrontCamera);
-
-            if (BackCamera.targetTexture != BackTexture)
-                Debug.LogWarning("DecalTextureRenderer: BackCamera Output Texture should reference BackTexture.", BackCamera);
+            if (FrontTexture == null || BackTexture == null)
+            {
+                Debug.LogError("DecalTextureRenderer: Assign Front/Back template textures. See Assets/Folding/PaperSurface/Decals/DECAL_RT_SETUP.md", this);
+                return false;
+            }
 
             return true;
         }
@@ -265,6 +284,64 @@ namespace Crease.Folding.PaperSurface.Decals
             RenderTexture.active = previous;
         }
 
+        private void EnsureRuntimeTextures()
+        {
+            ActiveFrontTexture = DuplicateTemplate(FrontTexture, ActiveFrontTexture);
+            ActiveBackTexture = DuplicateTemplate(BackTexture, ActiveBackTexture);
+
+            if (FrontCamera != null)
+                FrontCamera.targetTexture = ActiveFrontTexture;
+            if (BackCamera != null)
+                BackCamera.targetTexture = ActiveBackTexture;
+        }
+
+        private static RenderTexture DuplicateTemplate(RenderTexture template, RenderTexture existing)
+        {
+            if (template == null)
+            {
+                ReleaseRuntimeTexture(existing);
+                return null;
+            }
+
+            if (existing != null)
+            {
+                if (existing.width == template.width && existing.height == template.height)
+                    return existing;
+
+                ReleaseRuntimeTexture(existing);
+            }
+
+            var copy = new RenderTexture(template)
+            {
+                name = template.name + "_Runtime",
+                hideFlags = HideFlags.HideAndDontSave
+            };
+            copy.Create();
+            return copy;
+        }
+
+        private void ReleaseRuntimeTextures()
+        {
+            if (FrontCamera != null && FrontCamera.targetTexture == ActiveFrontTexture)
+                FrontCamera.targetTexture = null;
+            if (BackCamera != null && BackCamera.targetTexture == ActiveBackTexture)
+                BackCamera.targetTexture = null;
+
+            ReleaseRuntimeTexture(ActiveFrontTexture);
+            ReleaseRuntimeTexture(ActiveBackTexture);
+            ActiveFrontTexture = null;
+            ActiveBackTexture = null;
+        }
+
+        private static void ReleaseRuntimeTexture(RenderTexture texture)
+        {
+            if (texture == null)
+                return;
+
+            texture.Release();
+            Destroy(texture);
+        }
+
         private void OnDestroy()
         {
             for (int i = 0; i < _stampPool.Count; i++)
@@ -272,6 +349,8 @@ namespace Crease.Folding.PaperSurface.Decals
                 if (_stampPool[i].Material != null)
                     Destroy(_stampPool[i].Material);
             }
+
+            ReleaseRuntimeTextures();
         }
 
         private sealed class StampObject

@@ -6,9 +6,9 @@ using UnityEngine.Serialization;
 namespace Crease.Flying.Environment.Obstacle
 {
     /// <summary>
-    /// Handles the crash state of the player — disabling flight and freezing the body.
+    /// Handles the crash state of the player — disabling flight and letting the body fall.
     /// Does NOT handle collision detection; that is done by FlightCollisionController,
-    /// which may call Crash() when appropriate.
+    /// which may call Land() when the crashed plane hits the ground.
     /// </summary>
     [RequireComponent(typeof(KinematicBody))]
     public class PlayerCrashHandler : MonoBehaviour
@@ -38,10 +38,13 @@ namespace Crease.Flying.Environment.Obstacle
 
         private bool _crashed;
         private bool _landed;
+        private Rigidbody _rigidbody;
+        private RigidbodyConstraints _flightConstraints;
 
         private void Awake()
         {
             if (_body == null) _body = GetComponent<KinematicBody>();
+            _rigidbody = GetComponent<Rigidbody>();
         }
 
         private void FixedUpdate()
@@ -60,12 +63,25 @@ namespace Crease.Flying.Environment.Obstacle
             if (_crashed) return;
 
             _crashed = true;
+            _landed = false;
+
+            if (_rigidbody != null)
+                _flightConstraints = _rigidbody.constraints;
 
             if (_flightController != null)
                 _flightController.enabled = false;
 
-            if (_zeroVelocityOnCrash)
+            if (_body != null)
+                _body.Frozen = false;
+
+            if (_zeroVelocityOnCrash && _body != null)
                 _body.SetVelocity(Vector3.zero);
+
+            if (_rigidbody != null)
+            {
+                _rigidbody.constraints = RigidbodyConstraints.None;
+                _rigidbody.angularVelocity = Vector3.zero;
+            }
         }
 
         /// <summary>
@@ -77,10 +93,11 @@ namespace Crease.Flying.Environment.Obstacle
 
             _landed = true;
 
-            if (_stopCompletelyOnLand)
+            if (_stopCompletelyOnLand && _body != null)
                 _body.SetVelocity(Vector3.zero);
 
-            _body.Frozen = true;
+            if (_body != null)
+                _body.Frozen = true;
         }
 
         /// <summary>
@@ -90,7 +107,15 @@ namespace Crease.Flying.Environment.Obstacle
         {
             _crashed = false;
             _landed = false;
-            _body.Frozen = false;
+
+            if (_body != null)
+                _body.Frozen = false;
+
+            if (_rigidbody != null)
+            {
+                _rigidbody.constraints = _flightConstraints;
+                _rigidbody.angularVelocity = Vector3.zero;
+            }
 
             if (_flightController != null)
                 _flightController.enabled = true;

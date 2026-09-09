@@ -16,6 +16,10 @@ namespace Crease.Flying.Player
         [FormerlySerializedAs("activeWindZones")]
         public List<WindProvider> ActiveWindZones = new List<WindProvider>();
 
+        [Header("Acceleration Zones")]
+        [Tooltip("Current acceleration zones affecting this plane. Automatically managed by triggers.")]
+        public List<AccelerationZone> ActiveAccelerationZones = new List<AccelerationZone>();
+
         private KinematicBody _body;
         private FlightController _flightController;
         private FlightStats _stats;
@@ -49,7 +53,25 @@ namespace Crease.Flying.Player
             }
         }
 
+        public void AddAccelerationZone(AccelerationZone zone)
+        {
+            if (!ActiveAccelerationZones.Contains(zone))
+                ActiveAccelerationZones.Add(zone);
+        }
+
+        public void RemoveAccelerationZone(AccelerationZone zone)
+        {
+            if (ActiveAccelerationZones.Contains(zone))
+                ActiveAccelerationZones.Remove(zone);
+        }
+
         private void FixedUpdate()
+        {
+            ApplyWindForces();
+            ApplyAccelerationZones();
+        }
+
+        private void ApplyWindForces()
         {
             if (ActiveWindZones.Count == 0) return;
 
@@ -116,6 +138,30 @@ namespace Crease.Flying.Player
             if (hasOverride)
             {
                 _body.Velocity = overrideVelocity;
+            }
+        }
+
+        private void ApplyAccelerationZones()
+        {
+            if (ActiveAccelerationZones.Count == 0 || _body.Frozen)
+                return;
+
+            float deltaTime = Time.fixedDeltaTime * _body.SimulationSpeed;
+            if (deltaTime <= 0f)
+                return;
+
+            for (int i = ActiveAccelerationZones.Count - 1; i >= 0; i--)
+            {
+                AccelerationZone zone = ActiveAccelerationZones[i];
+                if (zone == null)
+                {
+                    ActiveAccelerationZones.RemoveAt(i);
+                    continue;
+                }
+
+                Vector3 acceleration = zone.EvaluateAcceleration(transform, _body.Velocity, deltaTime);
+                if (acceleration.sqrMagnitude > 0.0001f)
+                    _body.AddAcceleration(acceleration);
             }
         }
 

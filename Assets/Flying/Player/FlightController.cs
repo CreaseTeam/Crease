@@ -45,11 +45,6 @@ namespace Crease.Flying.Player
 
         void Start()
         {
-            Vector3 euler = transform.eulerAngles;
-            _yaw = euler.y;
-            _pitch = euler.x;
-            if (_pitch > 180f) _pitch -= 360f;
-
             if (_stats == null)
             {
                 Debug.LogError($"FlightController on '{name}' requires a FlightStats component assigned.");
@@ -57,7 +52,25 @@ namespace Crease.Flying.Player
                 return;
             }
 
-            _body.Velocity = transform.forward * _stats.CurrentStats.InitialSpeed;
+            ResetOrientationFromTransform();
+            ResetVelocityToInitial();
+        }
+
+        public void ResetOrientationFromTransform()
+        {
+            Vector3 euler = transform.eulerAngles;
+            _yaw = euler.y;
+            _pitch = euler.x;
+            if (_pitch > 180f) _pitch -= 360f;
+            _roll = 0f;
+        }
+
+        public void ResetVelocityToInitial()
+        {
+            if (_body == null || _stats == null)
+                return;
+
+            _body.SetVelocity(transform.forward * _stats.CurrentStats.InitialSpeed);
         }
 
         private bool IsFlightControlLocked =>
